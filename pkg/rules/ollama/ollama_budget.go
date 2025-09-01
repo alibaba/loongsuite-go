@@ -15,7 +15,6 @@
 package ollama
 
 import (
-	"fmt"
 	"math"
 	"sync"
 	"time"

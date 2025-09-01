@@ -16,13 +16,14 @@ package instrumenter
 
 import (
 	"context"
+	"sync"
+	"time"
+
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/trace"
-	"sync"
-	"time"
 )
 
 type Instrumenter[REQUEST any, RESPONSE any] interface {
@@ -248,4 +249,22 @@ func (p *PropagatingFromUpstreamInstrumenter[REQUEST, RESPONSE]) Start(parentCon
 
 func (p *PropagatingFromUpstreamInstrumenter[REQUEST, RESPONSE]) End(ctx context.Context, request REQUEST, response RESPONSE, err error, options ...trace.SpanEndOption) {
 	p.base.End(ctx, request, response, err, options...)
+}
+
+func (p *PropagatingFromUpstreamInstrumenter[REQUEST, RESPONSE]) StartWithTime(parentContext context.Context, request REQUEST, startTime time.Time, options ...trace.SpanStartOption) context.Context {
+	if p.carrierGetter != nil {
+		var extracted context.Context
+		if p.prop != nil {
+			extracted = p.prop.Extract(parentContext, p.carrierGetter(request))
+		} else {
+			extracted = otel.GetTextMapPropagator().Extract(parentContext, p.carrierGetter(request))
+		}
+		return p.base.doStart(extracted, request, startTime, options...)
+	} else {
+		return parentContext
+	}
+}
+
+func (p *PropagatingFromUpstreamInstrumenter[REQUEST, RESPONSE]) EndWithTime(ctx context.Context, request REQUEST, response RESPONSE, err error, endTime time.Time, options ...trace.SpanEndOption) {
+	p.base.doEnd(ctx, request, response, err, endTime, options...)
 }

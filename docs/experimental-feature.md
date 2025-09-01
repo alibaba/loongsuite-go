@@ -17,3 +17,10 @@
 | Environment Variable                                       | Type    | Default | Description                                                 |
 |------------------------------------------------------------|---------|---------|-------------------------------------------------------------|
 | `OTEL_INSTRUMENTATION_DB_EXPERIMENTAL_ENABLE`              | Boolean | `false` | Enable the capture of experimental database span attributes.|
+
+## Settings for the Sentinel instrumentation
+
+| Environment Variable                                | Type    | Default | Description                                                  |
+| --------------------------------------------------- | ------- | ------- | ------------------------------------------------------------ |
+| `OTEL_INSTRUMENTATION_SENTINEL_EXPERIMENTAL_ENABLE` | Boolean | `false`  | Enable the capture of experimental sentinel span and metrics attributes. |
+

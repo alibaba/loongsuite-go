@@ -25,11 +25,13 @@ import (
 	"strings"
 
 	"github.com/alibaba/loongsuite-go-agent/pkg/core/meter"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api-semconv/instrumenter/ai"
 	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api-semconv/instrumenter/db"
 	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api-semconv/instrumenter/experimental"
 	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api-semconv/instrumenter/http"
 	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api-semconv/instrumenter/rpc"
 	testaccess "github.com/alibaba/loongsuite-go-agent/pkg/testaccess"
+	prometheus_client "github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	otelruntime "go.opentelemetry.io/contrib/instrumentation/runtime"
 
@@ -196,14 +198,23 @@ func initMetrics() error {
 	rpc.InitRpcMetrics(m)
 	// init db metrics
 	db.InitDbMetrics(m)
+	// init ai metrics
+	ai.InitAIMetrics(m)
 	// nacos experimental metrics
 	experimental.InitNacosExperimentalMetrics(m)
+	// sentinel experimental metrics
+	experimental.InitSentinelExperimentalMetrics(m)
 	// DefaultMinimumReadMemStatsInterval is 15 second
 	return otelruntime.Start(otelruntime.WithMeterProvider(metricsProvider))
 }
 
 func serveMetrics() {
-	http2.Handle("/metrics", promhttp.Handler())
+	http2.Handle("/metrics", promhttp.HandlerFor(
+		prometheus_client.DefaultGatherer,
+		promhttp.HandlerOpts{
+			EnableOpenMetrics: true,
+		},
+	))
 	port := os.Getenv(prometheus_exporter_port)
 	if port == "" {
 		port = default_prometheus_exporter_port

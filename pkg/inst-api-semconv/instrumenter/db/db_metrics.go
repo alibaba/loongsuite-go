@@ -84,7 +84,7 @@ func newDbClientRequestDurationMeasures(meter metric.Meter) (metric.Float64Histo
 	if err == nil {
 		return d, nil
 	} else {
-		return d, errors.New(fmt.Sprintf("failed to create Db.client.request.duratio histogram, %v", err))
+		return d, errors.New(fmt.Sprintf("failed to create Db.client.request.duration histogram, %v", err))
 	}
 }
 

@@ -40,7 +40,7 @@ const (
 // of the legacy proto package is being used.
 const _ = proto.ProtoPackageIsVersion4
 
-// 请求消息
+// Request message
 type HelloRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -88,7 +88,7 @@ func (x *HelloRequest) GetName() string {
 	return ""
 }
 
-// 响应消息
+// Response message
 type HelloResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache

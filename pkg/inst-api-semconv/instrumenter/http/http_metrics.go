@@ -103,7 +103,7 @@ func newHttpServerRequestDurationMeasures(meter metric.Meter) (metric.Float64His
 	if err == nil {
 		return d, nil
 	} else {
-		return d, errors.New(fmt.Sprintf("failed to create http.server.request.duratio histogram, %v", err))
+		return d, errors.New(fmt.Sprintf("failed to create http.server.request.duration histogram, %v", err))
 	}
 }
 
@@ -132,7 +132,7 @@ func newHttpClientRequestDurationMeasures(meter metric.Meter) (metric.Float64His
 	if err == nil {
 		return d, nil
 	} else {
-		return d, errors.New(fmt.Sprintf("failed to create http.client.request.duratio histogram, %v", err))
+		return d, errors.New(fmt.Sprintf("failed to create http.client.request.duration histogram, %v", err))
 	}
 }
 

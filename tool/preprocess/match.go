@@ -17,17 +17,16 @@ package preprocess
 import (
 	"bufio"
 	"encoding/json"
-	"fmt"
 	"os"
 	"path/filepath"
 	"regexp"
-	"slices"
 	"strings"
 
+	"github.com/alibaba/loongsuite-go-agent/tool/ast"
 	"github.com/alibaba/loongsuite-go-agent/tool/config"
 	"github.com/alibaba/loongsuite-go-agent/tool/data"
-	"github.com/alibaba/loongsuite-go-agent/tool/errc"
-	"github.com/alibaba/loongsuite-go-agent/tool/resource"
+	"github.com/alibaba/loongsuite-go-agent/tool/ex"
+	"github.com/alibaba/loongsuite-go-agent/tool/rules"
 	"github.com/alibaba/loongsuite-go-agent/tool/util"
 	"github.com/dave/dst"
 	"golang.org/x/mod/module"
@@ -36,45 +35,70 @@ import (
 )
 
 type ruleMatcher struct {
-	availableRules map[string][]resource.InstRule
+	availableRules map[string][]rules.InstRule
 	moduleVersions []*vendorModule // vendor used only
+	projectDeps    map[string]bool // actual dependencies from dry run commands
 }
 
-func newRuleMatcher() *ruleMatcher {
-	rules := make(map[string][]resource.InstRule)
+func newRuleMatcher(compileCmds []string) *ruleMatcher {
+	availableRules := make(map[string][]rules.InstRule)
 	for _, rule := range findAvailableRules() {
-		rules[rule.GetImportPath()] = append(rules[rule.GetImportPath()], rule)
+		availableRules[rule.GetImportPath()] = append(availableRules[rule.GetImportPath()], rule)
 	}
 	if config.GetConf().Verbose {
-		util.Log("Available rules: %v", rules)
+		util.Log("Available rules: %v", availableRules)
 	}
-	return &ruleMatcher{availableRules: rules}
+
+	// Populated projectDeps from compileCmds
+	projectDeps := populateDependenciesFromCmd(compileCmds)
+
+	return &ruleMatcher{
+		availableRules: availableRules,
+		projectDeps:    projectDeps,
+	}
+}
+
+// populateDependenciesFromCmd extracts import paths from the compile commands
+func populateDependenciesFromCmd(compileCmds []string) map[string]bool {
+	projectDeps := make(map[string]bool)
+
+	for _, cmd := range compileCmds {
+		cmdArgs := util.SplitCmds(cmd)
+		importPath := findFlagValue(cmdArgs, util.BuildPattern)
+		util.Assert(importPath != "", "sanity check")
+		projectDeps[importPath] = true
+	}
+
+	if config.GetConf().Verbose {
+		util.Log("Project dependencies from dry run commands: %v", projectDeps)
+	}
+
+	return projectDeps
 }
 
 type ruleHolder struct {
-	resource.InstBaseRule
-	resource.InstFileRule
-	resource.InstStructRule
-	resource.InstFuncRule
+	rules.InstBaseRule
+	rules.InstFileRule   //nolint:govet
+	rules.InstStructRule //nolint:govet
+	rules.InstFuncRule   //nolint:govet
 }
 
-func loadRuleFile(path string) ([]resource.InstRule, error) {
+func loadRuleFile(path string) ([]rules.InstRule, error) {
 	content, err := util.ReadFile(path)
 	if err != nil {
 		currentDir, _ := os.Getwd()
-		err = errc.Adhere(err, "pwd", currentDir)
-		return nil, err
+		return nil, ex.Errorf(err, "pwd %s", currentDir)
 	}
 	return loadRuleRaw(content)
 }
 
-func loadRuleRaw(content string) ([]resource.InstRule, error) {
+func loadRuleRaw(content string) ([]rules.InstRule, error) {
 	var h []*ruleHolder
 	err := json.Unmarshal([]byte(content), &h)
 	if err != nil {
-		return nil, errc.New(errc.ErrInvalidJSON, err.Error())
+		return nil, ex.Error(err)
 	}
-	rules := make([]resource.InstRule, 0)
+	rules := make([]rules.InstRule, 0)
 	for _, rule := range h {
 		if rule.StructType != "" {
 			r := &rule.InstStructRule
@@ -95,9 +119,9 @@ func loadRuleRaw(content string) ([]resource.InstRule, error) {
 	return rules, nil
 }
 
-type chunk []resource.InstRule
+type chunk []rules.InstRule
 
-func loadDefaultRules() []resource.InstRule {
+func loadDefaultRules() []rules.InstRule {
 	// Read all default embedded rule files
 	files, err := data.ListRuleFiles()
 	if err != nil {
@@ -119,7 +143,13 @@ func loadDefaultRules() []resource.InstRule {
 		// Disable specific rules
 		disabledRules := strings.Split(disable, ",")
 		for _, name := range files {
-			if !slices.Contains(disabledRules, name) {
+			found := false
+			for _, disabled := range disabledRules {
+				if disabled == name {
+					found = true
+				}
+			}
+			if !found {
 				filteredFiles = append(filteredFiles, name)
 			}
 		}
@@ -164,17 +194,17 @@ func loadDefaultRules() []resource.InstRule {
 	}
 
 	// Merge all ruleChunks
-	rules := make([]resource.InstRule, 0)
+	rules := make([]rules.InstRule, 0)
 	for _, c := range ruleChunks {
 		rules = append(rules, c...)
 	}
 	return rules
 }
 
-func findAvailableRules() []resource.InstRule {
+func findAvailableRules() []rules.InstRule {
 	util.GuaranteeInPreprocess()
 
-	rules := make([]resource.InstRule, 0)
+	rules := make([]rules.InstRule, 0)
 
 	// Load default rules (filtering is handled inside loadDefaultRules)
 	defaultRules := loadDefaultRules()
@@ -240,15 +270,13 @@ func matchVersion(version string, ruleVersion string) (bool, error) {
 	}
 	// Check if both rule version and package version are in sane
 	if !strings.Contains(version, "v") {
-		return false, errc.New(errc.ErrMatchRule,
-			fmt.Sprintf("invalid version %v", version))
+		return false, ex.Errorf(nil, "invalid version %v", version)
 	}
 	if !strings.Contains(ruleVersion, "[") ||
 		!strings.Contains(ruleVersion, ")") ||
 		!strings.Contains(ruleVersion, ",") ||
 		strings.Contains(ruleVersion, "v") {
-		return false, errc.New(errc.ErrMatchRule,
-			fmt.Sprintf("invalid rule version %v", ruleVersion))
+		return false, ex.Errorf(nil, "invalid rule version %v", ruleVersion)
 	}
 	// Remove extra whitespace from the rule version string
 	ruleVersion = strings.ReplaceAll(ruleVersion, " ", "")
@@ -277,21 +305,45 @@ func matchVersion(version string, ruleVersion string) (bool, error) {
 			return true, nil
 		}
 	default:
-		return false, errc.New(errc.ErrMatchRule,
-			fmt.Sprintf("invalid rule version range %v", ruleVersion))
+		return false, ex.Errorf(nil, "invalid rule version range %v", ruleVersion)
 	}
 	return false, nil
 }
 
+// matchDependencies checks if all required dependencies are present in the project
+// Only InstFuncRule supports dependencies checking
+func (rm *ruleMatcher) matchDependencies(rule rules.InstRule) bool {
+	funcRule, ok := rule.(*rules.InstFuncRule)
+	if !ok {
+		return true
+	}
+
+	dependencies := funcRule.GetDependencies()
+	if len(dependencies) == 0 {
+		return true // No dependencies required
+	}
+
+	for _, dep := range dependencies {
+		if !rm.projectDeps[dep] {
+			if config.GetConf().Verbose {
+				util.Log("Dependency %s not found for rule %s", dep, rule.GetImportPath())
+			}
+			return false
+		}
+	}
+
+	return true
+}
+
 // match gives compilation arguments and finds out all interested rules
 // for it.
-func (rm *ruleMatcher) match(cmdArgs []string) *resource.RuleBundle {
+func (rm *ruleMatcher) match(cmdArgs []string) *rules.RuleBundle {
 	importPath := findFlagValue(cmdArgs, util.BuildPattern)
 	util.Assert(importPath != "", "sanity check")
 	if config.GetConf().Verbose {
 		util.Log("RunMatch: %v (%v)", importPath, cmdArgs)
 	}
-	availables := make([]resource.InstRule, len(rm.availableRules[importPath]))
+	availables := make([]rules.InstRule, len(rm.availableRules[importPath]))
 
 	// Okay, we are interested in these candidates, let's read it and match with
 	// the instrumentation rule, but first we need to check if the package name
@@ -300,8 +352,20 @@ func (rm *ruleMatcher) match(cmdArgs []string) *resource.RuleBundle {
 	if len(availables) == 0 {
 		return nil // fast fail
 	}
+	// Early filtering: filter rules based on dependencies before processing any files
+	filteredAvailables := make([]rules.InstRule, 0, len(availables))
+	for _, rule := range availables {
+		if rm.matchDependencies(rule) {
+			filteredAvailables = append(filteredAvailables, rule)
+		}
+	}
+
+	if len(filteredAvailables) == 0 {
+		return nil // no rules match dependencies
+	}
+
 	parsedAst := make(map[string]*dst.File)
-	bundle := resource.NewRuleBundle(importPath)
+	bundle := rules.NewRuleBundle(importPath)
 
 	goVersion := findFlagValue(cmdArgs, util.BuildGoVer)
 	util.Assert(goVersion != "", "sanity check")
@@ -325,8 +389,8 @@ func (rm *ruleMatcher) match(cmdArgs []string) *resource.RuleBundle {
 			}
 		}
 
-		for i := len(availables) - 1; i >= 0; i-- {
-			rule := availables[i]
+		for i := len(filteredAvailables) - 1; i >= 0; i-- {
+			rule := filteredAvailables[i]
 
 			// Check if the version is supported
 			matched, err := matchVersion(version, rule.GetVersion())
@@ -350,26 +414,25 @@ func (rm *ruleMatcher) match(cmdArgs []string) *resource.RuleBundle {
 					continue
 				}
 			}
-
 			// Check if it matches with file rule early as we try to avoid
 			// parsing the file content, which is time consuming
-			if _, ok := rule.(*resource.InstFileRule); ok {
-				ast, err := util.ParseAstFromFileOnlyPackage(file)
+			if _, ok := rule.(*rules.InstFileRule); ok {
+				ast, err := ast.ParseAstFromFileOnlyPackage(file)
 				if ast == nil || err != nil {
 					util.Log("Failed to parse %s: %v", file, err)
 					continue
 				}
 				util.Log("Match file rule %s", rule)
-				bundle.AddFileRule(rule.(*resource.InstFileRule))
+				bundle.AddFileRule(rule.(*rules.InstFileRule))
 				bundle.SetPackageName(ast.Name.Name)
-				availables = append(availables[:i], availables[i+1:]...)
+				filteredAvailables = append(filteredAvailables[:i], filteredAvailables[i+1:]...)
 				continue
 			}
 
 			// Fair enough, parse the file content
 			var tree *dst.File
 			if _, ok := parsedAst[file]; !ok {
-				fileAst, err := util.ParseAstFromFileFast(file)
+				fileAst, err := ast.ParseAstFromFileFast(file)
 				if fileAst == nil || err != nil {
 					util.Log("failed to parse file %s: %v", file, err)
 					continue
@@ -393,8 +456,8 @@ func (rm *ruleMatcher) match(cmdArgs []string) *resource.RuleBundle {
 			valid := false
 			for _, decl := range tree.Decls {
 				if genDecl, ok := decl.(*dst.GenDecl); ok {
-					if rl, ok := rule.(*resource.InstStructRule); ok {
-						if util.MatchStructDecl(genDecl, rl.StructType) {
+					if rl, ok := rule.(*rules.InstStructRule); ok {
+						if ast.MatchStructDecl(genDecl, rl.StructType) {
 							util.Log("Match struct rule %s with %v",
 								rule, cmdArgs)
 							err = bundle.AddFile2StructRule(file, rl)
@@ -407,8 +470,8 @@ func (rm *ruleMatcher) match(cmdArgs []string) *resource.RuleBundle {
 						}
 					}
 				} else if funcDecl, ok := decl.(*dst.FuncDecl); ok {
-					if rl, ok := rule.(*resource.InstFuncRule); ok {
-						if util.MatchFuncDecl(funcDecl, rl.Function, rl.ReceiverType) {
+					if rl, ok := rule.(*rules.InstFuncRule); ok {
+						if ast.MatchFuncDecl(funcDecl, rl.Function, rl.ReceiverType) {
 							util.Log("Match func rule %s with %v", rule, cmdArgs)
 							err = bundle.AddFile2FuncRule(file, rl)
 							if err != nil {
@@ -423,7 +486,7 @@ func (rm *ruleMatcher) match(cmdArgs []string) *resource.RuleBundle {
 			}
 			if valid {
 				// Remove the rule from the available rules
-				availables = append(availables[:i], availables[i+1:]...)
+				filteredAvailables = append(filteredAvailables[:i], filteredAvailables[i+1:]...)
 			}
 		}
 	}
@@ -483,14 +546,15 @@ func cutPrefix(s, prefix string) (after string, found bool) {
 	return s[len(prefix):], true
 }
 
+//nolint:staticcheck // verbatim copy from go source
 func parseVendorModules(projDir string) ([]*vendorModule, error) {
 	vendorFile := filepath.Join(projDir, "vendor", "modules.txt")
 	if util.PathNotExists(vendorFile) {
-		return nil, errc.New(errc.ErrNotExist, "vendor/modules.txt not found")
+		return nil, ex.Errorf(nil, "vendor/modules.txt not found")
 	}
 	file, err := os.Open(vendorFile)
 	if err != nil {
-		return nil, errc.New(errc.ErrOpenFile, err.Error())
+		return nil, ex.Error(err)
 	}
 	defer func(dryRunLog *os.File) {
 		err := dryRunLog.Close()
@@ -531,7 +595,6 @@ func parseVendorModules(projDir string) ([]*vendorModule, error) {
 				mod = &vendorModule{}
 				continue
 			}
-
 			if len(f) >= 2 && f[0] == "=>" {
 				// Skip replacement lines
 			}
@@ -564,32 +627,24 @@ func parseVendorModules(projDir string) ([]*vendorModule, error) {
 	}
 	err = scanner.Err()
 	if err != nil {
-		return nil, errc.New(errc.ErrParseCode,
-			"cannot parse vendor/modules.txt")
+		return nil, ex.Errorf(err, "cannot parse vendor/modules.txt")
 	}
 	return vms, nil
 }
 
-func runMatch(matcher *ruleMatcher, cmd string, ch chan *resource.RuleBundle) {
+func runMatch(matcher *ruleMatcher, cmd string, ch chan *rules.RuleBundle) {
 	bundle := matcher.match(util.SplitCmds(cmd))
 	ch <- bundle
 }
 
-func (dp *DepProcessor) matchRules() ([]*resource.RuleBundle, error) {
+func (dp *DepProcessor) matchRules() ([]*rules.RuleBundle, error) {
 	defer util.PhaseTimer("Match")()
-	// Run a dry build to get all dependencies needed for the project
-	// Match the dependencies with available rules and prepare them
-	// for the actual instrumentation
-	// Run dry build to the build blueprint
-	compileCmds, err := runDryBuild(dp.goBuildCmd)
+	compileCmds, err := dp.findDeps()
 	if err != nil {
-		// Tell us more about what happened in the dry run
-		errLog, _ := util.ReadFile(util.GetLogPath(DryRunLog))
-		err = errc.Adhere(err, "reason", errLog)
 		return nil, err
 	}
 
-	matcher := newRuleMatcher()
+	matcher := newRuleMatcher(compileCmds)
 
 	// If we are in vendor mode, we need to parse the vendor/modules.txt file
 	// to get the version of each module for future matching
@@ -605,12 +660,12 @@ func (dp *DepProcessor) matchRules() ([]*resource.RuleBundle, error) {
 	}
 
 	// Find used instrumentation rule according to compile commands
-	ch := make(chan *resource.RuleBundle)
+	ch := make(chan *rules.RuleBundle)
 	for _, cmd := range compileCmds {
 		go runMatch(matcher, cmd, ch)
 	}
 	cnt := 0
-	bundles := make([]*resource.RuleBundle, 0)
+	bundles := make([]*rules.RuleBundle, 0)
 	for cnt < len(compileCmds) {
 		bundle := <-ch
 		if bundle.IsValid() {

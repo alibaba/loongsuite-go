@@ -1,0 +1,10 @@
+[
+  {
+    "Version": "[1.3.0,1.7.1)",
+    "ImportPath": "github.com/gocql/gocql",
+    "ReceiverType": "\\*ClusterConfig",
+    "Function": "CreateSession",
+    "OnEnter": "beforeCreateSession",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/gocql"
+  }
+]

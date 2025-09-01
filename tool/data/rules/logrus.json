@@ -2,10 +2,29 @@
   {
     "Version": "[1.5.0,1.9.4)",
     "ImportPath": "github.com/sirupsen/logrus",
-    "ReceiverType": "\\*Logger",
-    "Function": "SetFormatter",
-    "OnEnter": "logNewOnEnter",
+    "Function": "New",
     "OnExit": "logNewOnExit",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/logrus"
+  },
+  {
+    "Version": "[1.5.0,1.9.4)",
+    "ImportPath": "github.com/sirupsen/logrus",
+    "Function": "WithField",
+    "OnExit": "withFieldOnExit",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/logrus"
+  },
+  {
+    "Version": "[1.5.0,1.9.4)",
+    "ImportPath": "github.com/sirupsen/logrus",
+    "Function": "StandardLogger",
+    "OnExit": "standardLoggerOnExit",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/logrus"
+  },
+  {
+    "Version": "[1.5.0,1.9.4)",
+    "ImportPath": "github.com/sirupsen/logrus",
+    "Function": "SetFormatter",
+    "OnExit": "logStandNewOnExit",
     "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/logrus"
   }
 ]

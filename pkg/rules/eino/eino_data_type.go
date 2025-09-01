@@ -14,6 +14,23 @@
 
 package eino
 
+import (
+	"os"
+	"sync"
+
+	"github.com/cloudwego/eino/schema"
+)
+
+type einoInnerEnabler struct {
+	enabled bool
+}
+
+func (l einoInnerEnabler) Enable() bool {
+	return l.enabled
+}
+
+var einoEnabler = einoInnerEnabler{os.Getenv("OTEL_INSTRUMENTATION_EINO_ENABLED") != "false"}
+
 type (
 	promptRequestKey    struct{}
 	llmRequestKey       struct{}
@@ -22,16 +39,38 @@ type (
 	retrieverRequestKey struct{}
 	loaderRequestKey    struct{}
 	toolRequestKey      struct{}
+	transformRequestKey struct{}
+)
+
+var (
+	once       sync.Once
+	openaiOnce sync.Once
+	ollamaOnce sync.Once
+	arkOnce    sync.Once
+	qwenOnce   sync.Once
+	claudeOnce sync.Once
+)
+
+const (
+	OperationNameChat        = "chat"
+	OperationNamePrompt      = "prompt"
+	OperationNameEmbeddings  = "embeddings"
+	OperationNameIndexer     = "indexer"
+	OperationNameRetriever   = "retriever"
+	OperationNameLoader      = "loader"
+	OperationNameToolNode    = "tool_node"
+	OperationNameExecuteTool = "execute_tool"
+	OperationNameTransform   = "transform"
 )
 
 type einoRequest struct {
 	operationName string
-	input         map[string]string
+	input         map[string]interface{}
 }
 
 type einoResponse struct {
 	operationName string
-	output        map[string]string
+	output        map[string]interface{}
 }
 
 type einoLLMRequest struct {
@@ -48,12 +87,16 @@ type einoLLMRequest struct {
 	topP             float64
 	serverAddress    string
 	seed             int64
+	input            []*schema.Message
 }
+
 type einoLLMResponse struct {
 	responseFinishReasons []string
 	responseModel         string
 	usageOutputTokens     int64
+	usageTotalTokens      int64
 	responseID            string
+	output                string
 }
 
 type ChatModelConfig struct {

@@ -91,7 +91,7 @@ func (t testGetter) GetMessageHeader(request testRequest, name string) []string 
 	panic("implement me")
 }
 
-func (m testGetter) GetDestinationPartitionId(request testRequest) string {
+func (t testGetter) GetDestinationPartitionId(request testRequest) string {
 	return "partition-id"
 }
 

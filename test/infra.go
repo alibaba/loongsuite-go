@@ -278,7 +278,7 @@ func ExpectContainsNothing(t *testing.T, actualItems []string) {
 
 func TBuildAppNoop(t *testing.T, appName string, muzzleClasses ...string) {
 	UseApp(appName)
-	if muzzleClasses == nil || len(muzzleClasses) == 0 {
+	if len(muzzleClasses) == 0 {
 		RunGoBuild(t)
 	} else {
 		RunGoBuild(t, muzzleClasses...)

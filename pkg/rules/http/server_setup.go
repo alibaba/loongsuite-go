@@ -48,7 +48,6 @@ func serverOnEnter(call api.CallContext, _ interface{}, w http.ResponseWriter, r
 		x1 := &writerWrapper{ResponseWriter: x, statusCode: http.StatusOK}
 		call.SetParam(1, x1)
 	}
-	call.SetParam(2, r.WithContext(ctx))
 	data := make(map[string]interface{}, 2)
 	data["ctx"] = ctx
 	data["request"] = request
@@ -89,7 +88,7 @@ type writerWrapper struct {
 func (w *writerWrapper) WriteHeader(statusCode int) {
 	// cache the status code
 	if w.statusCode == statusCode {
-		return // 防止多次写入 Header
+		return // Prevent multiple header writes
 	}
 	w.statusCode = statusCode
 

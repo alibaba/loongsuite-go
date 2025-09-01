@@ -85,11 +85,11 @@ func (h *serverHandler) TagRPC(ctx context.Context, info *stats.RPCTagInfo) cont
 		},
 	})
 
-	gctx := gRPCContext{
+	gCtx := gRPCContext{
 		methodName: info.FullMethodName,
 	}
 
-	return context.WithValue(nCtx, gRPCContextKey{}, &gctx)
+	return context.WithValue(nCtx, gRPCContextKey{}, &gCtx)
 }
 
 // HandleRPC processes the RPC stats.

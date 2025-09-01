@@ -20,7 +20,7 @@ func main() {
 	defer ts.Close()
 	opts := []ollama.Option{
 		ollama.WithModel("deepseek-r1:8b"),
-		//ollama.WithHTTPClient(httputil.DebugHTTPClient),//调试
+		//ollama.WithHTTPClient(httputil.DebugHTTPClient),// Debugging
 		ollama.WithServerURL(ts.URL),
 	}
 	llm, err := ollama.New(opts...)

@@ -120,6 +120,13 @@ func VerifyDbMetricsAttributes(attrs []attribute.KeyValue, dbSystem, operationNa
 	Assert(GetAttribute(attrs, string(semconv.ServerAddressKey)).AsString() == serverAddress, "Expected server.address to be %s, got %s", serverAddress, GetAttribute(attrs, string(semconv.ServerAddressKey)).AsString())
 }
 
+func VerifyGenAIOperationDurationMetricsAttributes(attrs []attribute.KeyValue, operationName, system, requestModel, responseModel string) {
+	Assert(GetAttribute(attrs, string(semconv.GenAIOperationNameKey)).AsString() == operationName, "Expected gen_ai.operation.name to be %s, got %s", operationName, GetAttribute(attrs, string(semconv.GenAIOperationNameKey)).AsString())
+	Assert(GetAttribute(attrs, string(semconv.GenAISystemKey)).AsString() == system, "Expected gen_ai.system to be %s, got %s", system, GetAttribute(attrs, string(semconv.GenAISystemKey)).AsString())
+	Assert(GetAttribute(attrs, string(semconv.GenAIRequestModelKey)).AsString() == requestModel, "Expected gen_ai.request.model to be %s, got %s", requestModel, GetAttribute(attrs, string(semconv.GenAIRequestModelKey)).AsString())
+	Assert(GetAttribute(attrs, string(semconv.GenAIResponseModelKey)).AsString() == responseModel, "Expected gen_ai.response.model to be %s, got %s", responseModel, GetAttribute(attrs, string(semconv.GenAIResponseModelKey)).AsString())
+}
+
 func VerifyRpcClientMetricsAttributes(attrs []attribute.KeyValue, method, service, system, serverAddr string) {
 	Assert(GetAttribute(attrs, "rpc.method").AsString() == method, "Except rpc.method to be %s, got %s", method, GetAttribute(attrs, "rpc.method").AsString())
 	Assert(GetAttribute(attrs, "rpc.service").AsString() == service, "Except rpc.service to be %s, got %s", service, GetAttribute(attrs, "rpc.service").AsString())
@@ -179,4 +186,20 @@ func VerifyMQConsumeAttributes(span tracetest.SpanStub, exchange, routing, queue
 	actualSystem := GetAttribute(span.Attributes, "messaging.system").AsString()
 	Assert(actualSystem == system, "Except messaging.system to be %s, got %s", system, actualSystem)
 	Assert(span.SpanKind == trace.SpanKindConsumer, "Expect to be consumer span, got %d", span.SpanKind)
+}
+
+func VerifySentinelAttributes(span tracetest.SpanStub, resourceName, EntryType, BlockType string, IsBlocked bool) {
+	Assert(GetAttribute(span.Attributes, "sentinel.resource.name").AsString() == resourceName, "Except resourceName to be %s, got %s", resourceName, GetAttribute(span.Attributes, "sentinel.resource.name").AsString())
+	Assert(GetAttribute(span.Attributes, "sentinel.entry.type").AsString() == EntryType, "Except EntryType to be %s, got %s", EntryType, GetAttribute(span.Attributes, "sentinel.entry.type").AsString())
+	Assert(GetAttribute(span.Attributes, "sentinel.block.type").AsString() == BlockType, "Except BlockType to be %s, got %s", BlockType, GetAttribute(span.Attributes, "sentinel.block.type").AsString())
+	Assert(GetAttribute(span.Attributes, "sentinel.is_blocked").AsBool() == IsBlocked, "Except IsBlocked to be %t, got %t", IsBlocked, GetAttribute(span.Attributes, "sentinel.is_blocked").AsBool())
+}
+
+func VerifyK8sPodEventAttributes(span tracetest.SpanStub, eventType, objectName, objectKind, objectNamespace string, objectApiVersion string) {
+	Assert(span.Name == "k8s.informer.Pod.process", "Expected span name to be 'k8s.informer.Pod.process', got %s", span.Name)
+	Assert(GetAttribute(span.Attributes, "k8s.event.type").AsString() == eventType, "Expected k8s.event.type to be %s, got %s", eventType, GetAttribute(span.Attributes, "k8s.event.type").AsString())
+	Assert(GetAttribute(span.Attributes, "k8s.object.name").AsString() == objectName, "Expected k8s.object.name to be %s, got %s", objectName, GetAttribute(span.Attributes, "k8s.object.name").AsString())
+	Assert(GetAttribute(span.Attributes, "k8s.object.kind").AsString() == objectKind, "Expected k8s.object.kind to be %s, got %s", objectKind, GetAttribute(span.Attributes, "k8s.object.kind").AsString())
+	Assert(GetAttribute(span.Attributes, "k8s.namespace.name").AsString() == objectNamespace, "Expected k8s.object.namespace to be %s, got %s", objectNamespace, GetAttribute(span.Attributes, "k8s.object.namespace").AsString())
+	Assert(GetAttribute(span.Attributes, "k8s.object.api_version").AsString() == objectApiVersion, "Expected k8s.object.api_version to be %s, got %s", objectApiVersion, GetAttribute(span.Attributes, "k8s.object.api_version").AsString())
 }

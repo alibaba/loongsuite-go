@@ -33,7 +33,7 @@ test/gorm/v1.23.1/test_gorm_crud
 test/golog/test_glog
 test/grpc/v1.44.0/test_grpc_basic
 test/fasthttp/v1.45.0/test_basic_http
-test/hertz/v0.9.0/test_hertz_basic
+test/hertz/v0.10.1/test_hertz_basic
 test/world/world
 coverage.txt
 example/extension/nethttp/demo
@@ -111,3 +111,20 @@ test/custom/custom
 example/sqlinject/sqlinjectdemo
 pkg_tmp
 alibaba-pkg.gz
+test/gocql/v1.3.0/test_gocql_crud
+
+# Ollama test binaries
+test/ollama/*/test_*
+!test/ollama/*/test_*.go
+
+# OpenTelemetry collector binaries
+test/ollama/*/otelcol
+test/ollama/*/*.tar.gz
+
+# Temporary documentation files
+*_REVIEW.md
+*_FIXES.md
+test/ollama/*/README.md
+otel.runtime.go
+*.so
+test/sharedlib/sharedlib

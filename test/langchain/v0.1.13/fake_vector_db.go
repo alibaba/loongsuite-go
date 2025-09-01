@@ -6,7 +6,7 @@ import (
 	"github.com/tmc/langchaingo/vectorstores"
 )
 
-// 模拟向量数据库
+// Simulate vector database
 type fakeVectorDb struct {
 }
 

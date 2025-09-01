@@ -33,7 +33,7 @@ func (g kitlogInnerEnabler) Enable() bool {
 var kitlogEnabler = kitlogInnerEnabler{os.Getenv("OTEL_INSTRUMENTATION_GOKITLOG_ENABLED") != "false"}
 
 //go:linkname logfmtLoggerLogOnEnter github.com/go-kit/log.logfmtLoggerLogOnEnter
-func logfmtLoggerLogOnEnter(call api.CallContext, _ interface{}, keyvals ...interface{}) {
+func logfmtLoggerLogOnEnter(call api.CallContext, _ interface{}, keyVals ...interface{}) {
 	if !kitlogEnabler.Enable() {
 		return
 	}
@@ -43,20 +43,20 @@ func logfmtLoggerLogOnEnter(call api.CallContext, _ interface{}, keyvals ...inte
 		return
 	}
 
-	newKeyvals := make([]interface{}, 0, len(keyvals)+4)
-	newKeyvals = append(newKeyvals, keyvals...)
+	newKeyVals := make([]interface{}, 0, len(keyVals)+4)
+	newKeyVals = append(newKeyVals, keyVals...)
 	if traceId != "" {
-		newKeyvals = append(newKeyvals, "trace_id", traceId)
+		newKeyVals = append(newKeyVals, "trace_id", traceId)
 	}
 	if spanId != "" {
-		newKeyvals = append(newKeyvals, "span_id", spanId)
+		newKeyVals = append(newKeyVals, "span_id", spanId)
 	}
 
-	call.SetParam(1, newKeyvals)
+	call.SetParam(1, newKeyVals)
 }
 
 //go:linkname jsonLoggerLogOnEnter github.com/go-kit/log.jsonLoggerLogOnEnter
-func jsonLoggerLogOnEnter(call api.CallContext, _ interface{}, kervals ...interface{}) {
+func jsonLoggerLogOnEnter(call api.CallContext, _ interface{}, keyVals ...interface{}) {
 	if !kitlogEnabler.Enable() {
 		return
 	}
@@ -66,8 +66,8 @@ func jsonLoggerLogOnEnter(call api.CallContext, _ interface{}, kervals ...interf
 		return
 	}
 
-	newKeyVals := make([]interface{}, 0, len(kervals))
-	newKeyVals = append(newKeyVals, kervals...)
+	newKeyVals := make([]interface{}, 0, len(keyVals))
+	newKeyVals = append(newKeyVals, keyVals...)
 	if traceId != "" {
 		newKeyVals = append(newKeyVals, "trace_id", traceId)
 	}

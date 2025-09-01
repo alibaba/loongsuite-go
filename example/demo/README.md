@@ -124,7 +124,7 @@ kubectl get svc opentelemetry-demo-jaeger-collector
 ```
 
 Wait a little while, you can see the corresponding trace data！All the spans are aggregated in one trace.
-![jaeger.png](jaeger.png)
+![jaeger.png](images/jaeger.png)
 
 ### 8. check prometheus data
 
@@ -132,10 +132,8 @@ if run on local machine:
 
 access prometheus page: http://localhost:9464/metrics
 
-![metrics.png](metrics.png)
+![metrics.png](images/metrics.png)
 
 ## Related
 
-You can report your span
-to [xTrace](https://help.aliyun.com/zh/opentelemetry/?spm=a2c4g.750001.J_XmGx2FZCDAeIy2ZCWL7sW.10.15152842aYbIq9&scm=20140722.S_help@@%E6%96%87%E6%A1%A3@@90275.S_BB2@bl+RQW@ag0+BB1@ag0+hot+os0.ID_90275-RL_xtrace-LOC_suggest~UND~product~UND~doc-OR_ser-V_3-P0_0)
-in Alibaba Cloud. xTrace provides out-of-the-box trace explorer for you!
+You can report your span to [xTrace](https://help.aliyun.com/zh/opentelemetry/) in Alibaba Cloud. xTrace provides out-of-the-box trace explorer for you!

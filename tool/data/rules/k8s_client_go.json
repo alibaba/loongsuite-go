@@ -1,0 +1,15 @@
+[
+  {
+    "Version": "[0.33.3,)",
+    "ImportPath": "k8s.io/client-go/tools/cache",
+    "Function": "processDeltas",
+    "OnEnter": "ProcessDeltasOnEnter",
+    "OnExit": "ProcessDeltasOnExit",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/k8s-client-go",
+    "Dependencies": [
+      "k8s.io/apimachinery/pkg/runtime",
+      "k8s.io/apimachinery/pkg/api/meta",
+      "k8s.io/client-go/kubernetes/scheme"
+    ]
+  }
+]

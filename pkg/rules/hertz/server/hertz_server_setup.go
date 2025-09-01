@@ -24,6 +24,7 @@ import (
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/cloudwego/hertz/pkg/common/config"
 	"github.com/cloudwego/hertz/pkg/common/tracer/stats"
+	"go.opentelemetry.io/otel/sdk/trace"
 )
 
 type hertzServerInnerEnabler struct {
@@ -54,7 +55,12 @@ func (m *hertzOpentelemetryTracer) Finish(ctx context.Context, c *app.RequestCon
 		s := start.Time()
 		e := end.Time()
 		req, resp := &c.Request, &c.Response
-		hertzInstrumenter.StartAndEnd(ctx, req, resp, c.GetTraceInfo().Stats().Error(), s, e)
+		insctx := hertzInstrumenter.StartWithTime(ctx, req, s)
+		lcs := trace.LocalRootSpanFromGLS()
+		if lcs != nil && c.FullPath() != "" {
+			lcs.SetName(c.FullPath())
+		}
+		hertzInstrumenter.EndWithTime(insctx, req, resp, c.GetTraceInfo().Stats().Error(), e)
 	}
 }
 

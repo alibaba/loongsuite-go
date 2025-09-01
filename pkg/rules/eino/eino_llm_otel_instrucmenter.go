@@ -15,17 +15,23 @@
 package eino
 
 import (
+	"context"
+	"fmt"
+
 	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api-semconv/instrumenter/ai"
 	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/instrumenter"
 	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/utils"
 	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/version"
+	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/sdk/instrumentation"
+	semconv "go.opentelemetry.io/otel/semconv/v1.30.0"
 )
 
-type einoLLMAttrsGetter struct{}
+var _ ai.CommonAttrsGetter[einoLLMRequest, any] = einoLLMAttrsGetter{}
 
 var _ ai.LLMAttrsGetter[einoLLMRequest, einoLLMResponse] = einoLLMAttrsGetter{}
-var _ ai.CommonAttrsGetter[einoLLMRequest, any] = einoLLMAttrsGetter{}
+
+type einoLLMAttrsGetter struct{}
 
 func (e einoLLMAttrsGetter) GetAIOperationName(request einoLLMRequest) string {
 	return request.operationName
@@ -43,12 +49,92 @@ func (e einoLLMAttrsGetter) GetAIRequestEncodingFormats(request einoLLMRequest) 
 	return request.encodingFormats
 }
 
+var _ instrumenter.AttributesExtractor[einoLLMRequest, einoLLMResponse] = LLMExperimentalAttributeExtractor{}
+
+type LLMExperimentalAttributeExtractor struct {
+	Base      ai.AICommonAttrsExtractor[einoLLMRequest, einoLLMResponse, einoLLMAttrsGetter]
+	LLMGetter einoLLMAttrsGetter
+}
+
+func (l LLMExperimentalAttributeExtractor) OnStart(attributes []attribute.KeyValue, parentContext context.Context, request einoLLMRequest) ([]attribute.KeyValue, context.Context) {
+	attributes, parentContext = l.Base.OnStart(attributes, parentContext, request)
+
+	attributes = append(attributes, attribute.KeyValue{
+		Key:   semconv.GenAIRequestModelKey,
+		Value: attribute.StringValue(l.LLMGetter.GetAIRequestModel(request)),
+	}, attribute.KeyValue{
+		Key:   semconv.GenAIRequestEncodingFormatsKey,
+		Value: attribute.StringSliceValue(l.LLMGetter.GetAIRequestEncodingFormats(request)),
+	}, attribute.KeyValue{
+		Key:   semconv.GenAIRequestMaxTokensKey,
+		Value: attribute.Int64Value(l.LLMGetter.GetAIRequestMaxTokens(request)),
+	}, attribute.KeyValue{
+		Key:   semconv.GenAIRequestFrequencyPenaltyKey,
+		Value: attribute.Float64Value(l.LLMGetter.GetAIRequestFrequencyPenalty(request)),
+	}, attribute.KeyValue{
+		Key:   semconv.GenAIRequestPresencePenaltyKey,
+		Value: attribute.Float64Value(l.LLMGetter.GetAIRequestPresencePenalty(request)),
+	}, attribute.KeyValue{
+		Key:   semconv.GenAIRequestStopSequencesKey,
+		Value: attribute.StringSliceValue(l.LLMGetter.GetAIRequestStopSequences(request)),
+	}, attribute.KeyValue{
+		Key:   semconv.GenAIRequestTemperatureKey,
+		Value: attribute.Float64Value(l.LLMGetter.GetAIRequestTemperature(request)),
+	}, attribute.KeyValue{
+		Key:   semconv.GenAIRequestTopKKey,
+		Value: attribute.Float64Value(l.LLMGetter.GetAIRequestTopK(request)),
+	}, attribute.KeyValue{
+		Key:   semconv.GenAIRequestTopPKey,
+		Value: attribute.Float64Value(l.LLMGetter.GetAIRequestTopP(request)),
+	}, attribute.KeyValue{
+		Key:   semconv.ServerAddressKey,
+		Value: attribute.StringValue(l.LLMGetter.GetAIServerAddress(request)),
+	}, attribute.KeyValue{
+		Key:   semconv.GenAIRequestSeedKey,
+		Value: attribute.Int64Value(l.LLMGetter.GetAIRequestSeed(request)),
+	})
+	for i, in := range request.input {
+		if in != nil && len(in.Content) > 0 {
+			attributes = append(attributes, attribute.String(fmt.Sprintf("gen_ai.prompt.%d.role", i), string(in.Role)))
+			attributes = append(attributes, attribute.String(fmt.Sprintf("gen_ai.prompt.%d.content", i), in.Content))
+		}
+	}
+	if l.Base.AttributesFilter != nil {
+		attributes = l.Base.AttributesFilter(attributes)
+	}
+	return attributes, parentContext
+}
+
+func (l LLMExperimentalAttributeExtractor) OnEnd(attributes []attribute.KeyValue, ctx context.Context, request einoLLMRequest, response einoLLMResponse, err error) ([]attribute.KeyValue, context.Context) {
+	attributes, ctx = l.Base.OnEnd(attributes, ctx, request, response, err)
+
+	attributes = append(attributes, attribute.KeyValue{
+		Key:   semconv.GenAIResponseFinishReasonsKey,
+		Value: attribute.StringSliceValue(l.LLMGetter.GetAIResponseFinishReasons(request, response)),
+	}, attribute.KeyValue{
+		Key:   semconv.GenAIResponseIDKey,
+		Value: attribute.StringValue(l.LLMGetter.GetAIResponseID(request, response)),
+	}, attribute.KeyValue{
+		Key:   semconv.GenAIResponseModelKey,
+		Value: attribute.StringValue(l.LLMGetter.GetAIResponseModel(request, response)),
+	}, attribute.KeyValue{
+		Key:   semconv.GenAIUsageInputTokensKey,
+		Value: attribute.Int64Value(l.LLMGetter.GetAIUsageInputTokens(request)),
+	}, attribute.KeyValue{
+		Key:   semconv.GenAIUsageOutputTokensKey,
+		Value: attribute.Int64Value(l.LLMGetter.GetAIUsageOutputTokens(request, response)),
+	}, attribute.String("gen_ai.completion.0.content", response.output),
+		attribute.Int64("gen_ai.usage.total_tokens", response.usageTotalTokens))
+
+	return attributes, ctx
+}
+
 func (e einoLLMAttrsGetter) GetAIRequestFrequencyPenalty(request einoLLMRequest) float64 {
 	return request.frequencyPenalty
 }
 
 func (e einoLLMAttrsGetter) GetAIRequestPresencePenalty(request einoLLMRequest) float64 {
-	return request.frequencyPenalty
+	return request.presencePenalty
 }
 
 func (e einoLLMAttrsGetter) GetAIResponseFinishReasons(request einoLLMRequest, response einoLLMResponse) []string {
@@ -103,10 +189,11 @@ func BuildEinoLLMInstrumenter() instrumenter.Instrumenter[einoLLMRequest, einoLL
 	builder := instrumenter.Builder[einoLLMRequest, einoLLMResponse]{}
 	return builder.Init().SetSpanNameExtractor(&ai.AISpanNameExtractor[einoLLMRequest, einoLLMResponse]{Getter: einoLLMAttrsGetter{}}).
 		SetSpanKindExtractor(&instrumenter.AlwaysClientExtractor[einoLLMRequest]{}).
-		AddAttributesExtractor(&ai.AILLMAttrsExtractor[einoLLMRequest, einoLLMResponse, einoLLMAttrsGetter, einoLLMAttrsGetter]{}).
+		AddAttributesExtractor(&LLMExperimentalAttributeExtractor{}).
 		SetInstrumentationScope(instrumentation.Scope{
 			Name:    utils.EINO_SCOPE_NAME,
 			Version: version.Tag,
 		}).
+		AddOperationListeners(ai.AIClientMetrics("eino-llm")).
 		BuildInstrumenter()
 }

@@ -113,7 +113,7 @@ func main() {
 		verifier.VerifyLLMCommonAttributes(stubs[0][1], "lambda", "eino", trace.SpanKindClient)
 		verifier.VerifyLLMCommonAttributes(stubs[0][2], "loader", "eino", trace.SpanKindClient)
 		verifier.VerifyLLMCommonAttributes(stubs[0][3], "lambda", "eino", trace.SpanKindClient)
-		verifier.VerifyLLMCommonAttributes(stubs[0][4], "embedding", "eino", trace.SpanKindClient)
+		verifier.VerifyLLMCommonAttributes(stubs[0][4], "embeddings", "eino", trace.SpanKindClient)
 		verifier.VerifyLLMCommonAttributes(stubs[0][5], "lambda", "eino", trace.SpanKindClient)
 		verifier.VerifyLLMCommonAttributes(stubs[0][6], "indexer", "eino", trace.SpanKindClient)
 		verifier.VerifyLLMCommonAttributes(stubs[0][7], "lambda", "eino", trace.SpanKindClient)

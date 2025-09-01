@@ -1,0 +1,67 @@
+[
+  {
+    "Version": "[1.3.0,1.4.1)",
+    "ImportPath": "github.com/jmoiron/sqlx",
+    "Function": "Connect",
+    "OnEnter": "beforeConnect",
+    "OnExit": "afterConnect",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/sqlx"
+  },
+  {
+    "Version": "[1.3.0,1.4.1)",
+    "ImportPath": "github.com/jmoiron/sqlx",
+    "ReceiverType": "\\*DB",
+    "Function": "Queryx",
+    "OnEnter": "beforeQueryx",
+    "OnExit": "afterQueryx",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/sqlx"
+  },
+  {
+    "Version": "[1.3.0,1.4.1)",
+    "ImportPath": "github.com/jmoiron/sqlx",
+    "ReceiverType": "\\*DB",
+    "Function": "QueryRowx",
+    "OnEnter": "beforeQueryRowx",
+    "OnExit": "afterQueryRowx",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/sqlx"
+  },
+  {
+    "Version": "[1.3.0,1.4.1)",
+    "ImportPath": "github.com/jmoiron/sqlx",
+    "ReceiverType": "\\*DB",
+    "Function": "NamedExec",
+    "OnEnter": "beforeNamedExec",
+    "OnExit": "afterNamedExec",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/sqlx"
+  },
+  {
+    "Version": "[1.3.0,1.4.1)",
+    "ImportPath": "github.com/jmoiron/sqlx",
+    "ReceiverType": "\\*DB",
+    "Function": "QueryxContext",
+    "OnEnter": "beforeQueryxContext",
+    "OnExit": "afterQueryxContext",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/sqlx"
+  },
+  {
+    "Version": "[1.3.0,1.4.1)",
+    "ImportPath": "github.com/jmoiron/sqlx",
+    "ReceiverType": "\\*DB",
+    "Function": "QueryRowxContext",
+    "OnEnter": "beforeQueryRowxContext",
+    "OnExit": "afterQueryRowxContext",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/sqlx"
+  },
+  {
+    "ImportPath": "github.com/jmoiron/sqlx",
+    "StructType": "DB",
+    "FieldName": "DbName",
+    "FieldType": "string"
+  },
+  {
+    "ImportPath": "github.com/jmoiron/sqlx",
+    "StructType": "DB",
+    "FieldName": "Endpoint",
+    "FieldType": "string"
+  }
+]

@@ -22,7 +22,7 @@ func init() {
 
 func TestLangchainEmbed(t *testing.T, env ...string) {
 	UseApp("langchain/v0.1.13")
-	RunGoBuild(t, "go", "build", "test_embed.go", "fake_embd.go")
+	RunGoBuild(t, "go", "build", "test_embed.go", "fake_embed.go")
 	RunApp(t, "test_embed", env...)
 }
 func TestLangchainChains(t *testing.T, env ...string) {

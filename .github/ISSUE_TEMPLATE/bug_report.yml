@@ -14,11 +14,3 @@ body:
       description: .otel-build/debug.log is required
     validations:
       required: true
-  - type: textarea
-    attributes:
-      label: Environment
-      description: |
-        Example:
-        > InstrumentLib: https://github.com/redis/go-redis v9.5.1
-      value: |
-        **InstrumentLib**:

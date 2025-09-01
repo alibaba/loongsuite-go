@@ -22,8 +22,10 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/alibaba/loongsuite-go-agent/tool/errc"
-	"github.com/alibaba/loongsuite-go-agent/tool/resource"
+	"github.com/alibaba/loongsuite-go-agent/tool/ast"
+	"github.com/alibaba/loongsuite-go-agent/tool/config"
+	"github.com/alibaba/loongsuite-go-agent/tool/ex"
+	"github.com/alibaba/loongsuite-go-agent/tool/rules"
 	"github.com/alibaba/loongsuite-go-agent/tool/util"
 	"github.com/dave/dst"
 )
@@ -70,10 +72,13 @@ func (rp *RuleProcessor) copyOtelApi(pkgName string) error {
 
 func (rp *RuleProcessor) loadAst(filePath string) (*dst.File, error) {
 	file := rp.tryRelocated(filePath)
-	rp.parser = util.NewAstParser()
+	rp.parser = ast.NewAstParser()
 	var err error
 	rp.target, err = rp.parser.ParseFile(file, parser.ParseComments)
-	return rp.target, err
+	if err != nil {
+		return nil, err
+	}
+	return rp.target, nil
 }
 
 func (rp *RuleProcessor) restoreAst(filePath string, root *dst.File) (string, error) {
@@ -81,7 +86,7 @@ func (rp *RuleProcessor) restoreAst(filePath string, root *dst.File) (string, er
 	rp.target = nil
 	filePath = rp.tryRelocated(filePath)
 	name := filepath.Base(filePath)
-	newFile, err := util.WriteAstToFile(root, filepath.Join(rp.workDir, name))
+	newFile, err := ast.WriteAstToFile(root, filepath.Join(rp.workDir, name))
 	if err != nil {
 		return "", err
 	}
@@ -89,21 +94,20 @@ func (rp *RuleProcessor) restoreAst(filePath string, root *dst.File) (string, er
 		return arg == filePath
 	})
 	if err != nil {
-		err = errc.Adhere(err, "filePath", filePath)
-		err = errc.Adhere(err, "compileArgs", strings.Join(rp.compileArgs, " "))
-		err = errc.Adhere(err, "newArg", newFile)
-		return "", err
+		return "", ex.Errorf(err, "filePath %s, compileArgs %v, newArg %s",
+			filePath, rp.compileArgs, newFile)
 	}
 	return newFile, nil
 }
 
-func (rp *RuleProcessor) makeName(r *resource.InstFuncRule,
+func (rp *RuleProcessor) makeName(r *rules.InstFuncRule,
 	funcDecl *dst.FuncDecl, onEnter bool) string {
 	prefix := TrampolineOnExitName
 	if onEnter {
 		prefix = TrampolineOnEnterName
 	}
-	return fmt.Sprintf("%s_%s%s", prefix, funcDecl.Name.Name, rp.rule2Suffix[r])
+	return fmt.Sprintf("%s_%s%s",
+		prefix, funcDecl.Name.Name, util.Crc32(r.String()))
 }
 
 func findJumpPoint(jumpIf *dst.IfStmt) *dst.BlockStmt {
@@ -125,7 +129,7 @@ func findJumpPoint(jumpIf *dst.IfStmt) *dst.BlockStmt {
 	return nil
 }
 
-func (rp *RuleProcessor) insertTJump(t *resource.InstFuncRule,
+func (rp *RuleProcessor) insertTJump(t *rules.InstFuncRule,
 	funcDecl *dst.FuncDecl) error {
 	util.Assert(t.OnEnter != "" || t.OnExit != "", "sanity check")
 
@@ -134,13 +138,13 @@ func (rp *RuleProcessor) insertTJump(t *resource.InstFuncRule,
 		retVals = make([]dst.Expr, 0)
 		// If return values are named, collect their names, otherwise we try to
 		// name them manually for further use
-		for _, field := range retList.List {
+		for i, field := range retList.List {
 			if field.Names != nil {
 				for _, name := range field.Names {
 					retVals = append(retVals, dst.NewIdent(name.Name))
 				}
 			} else {
-				retValIdent := dst.NewIdent("retVal" + util.RandomString(5))
+				retValIdent := dst.NewIdent(fmt.Sprintf("retVal%d", i))
 				field.Names = []*dst.Ident{retValIdent}
 				retVals = append(retVals, dst.Clone(retValIdent).(*dst.Ident))
 			}
@@ -150,10 +154,10 @@ func (rp *RuleProcessor) insertTJump(t *resource.InstFuncRule,
 	// Arguments for onEnter trampoline
 	args := make([]dst.Expr, 0)
 	// Receiver as argument for trampoline func, if any
-	if util.HasReceiver(funcDecl) {
+	if ast.HasReceiver(funcDecl) {
 		if recv := funcDecl.Recv.List; recv != nil {
 			receiver := recv[0].Names[0].Name
-			args = append(args, util.AddressOf(util.Ident(receiver)))
+			args = append(args, ast.AddressOf(ast.Ident(receiver)))
 		} else {
 			util.Unimplemented()
 		}
@@ -161,42 +165,44 @@ func (rp *RuleProcessor) insertTJump(t *resource.InstFuncRule,
 	// Original function arguments as arguments for trampoline func
 	for _, field := range funcDecl.Type.Params.List {
 		for _, name := range field.Names {
-			args = append(args, util.AddressOf(util.Ident(name.Name)))
+			args = append(args, ast.AddressOf(ast.Ident(name.Name)))
 		}
 	}
 
-	varSuffix := util.RandomString(5)
-	rp.rule2Suffix[t] = varSuffix
+	varSuffix := util.Crc32(t.String())
+	if config.GetConf().Verbose {
+		util.Log("varSuffix: %s for %s", varSuffix, t.String())
+	}
 
 	// Generate the trampoline-jump-if. N.B. Note that future optimization pass
 	// heavily depends on the structure of trampoline-jump-if. Any change in it
 	// should be carefully examined.
-	onEnterCall := util.CallTo(rp.makeName(t, rp.rawFunc, true), args)
-	onExitCall := util.CallTo(rp.makeName(t, rp.rawFunc, false), func() []dst.Expr {
+	onEnterCall := ast.CallTo(rp.makeName(t, rp.rawFunc, true), args)
+	onExitCall := ast.CallTo(rp.makeName(t, rp.rawFunc, false), func() []dst.Expr {
 		// NB. DST framework disallows duplicated node in the
 		// AST tree, we need to replicate the return values
 		// as they are already used in return statement above
 		clone := make([]dst.Expr, len(retVals)+1)
-		clone[0] = util.Ident(TrampolineCallContextName + varSuffix)
+		clone[0] = ast.Ident(TrampolineCallContextName + varSuffix)
 		for i := 1; i < len(clone); i++ {
-			clone[i] = util.AddressOf(retVals[i-1])
+			clone[i] = ast.AddressOf(retVals[i-1])
 		}
 		return clone
 	}())
-	tjumpInit := util.DefineStmts(
-		util.Exprs(
-			util.Ident(TrampolineCallContextName+varSuffix),
-			util.Ident(TrampolineSkipName+varSuffix),
+	tjumpInit := ast.DefineStmts(
+		ast.Exprs(
+			ast.Ident(TrampolineCallContextName+varSuffix),
+			ast.Ident(TrampolineSkipName+varSuffix),
 		),
-		util.Exprs(onEnterCall),
+		ast.Exprs(onEnterCall),
 	)
-	tjumpCond := util.Ident(TrampolineSkipName + varSuffix)
-	tjumpBody := util.BlockStmts(
-		util.ExprStmt(onExitCall),
-		util.ReturnStmt(retVals),
+	tjumpCond := ast.Ident(TrampolineSkipName + varSuffix)
+	tjumpBody := ast.BlockStmts(
+		ast.ExprStmt(onExitCall),
+		ast.ReturnStmt(retVals),
 	)
-	tjumpElse := util.Block(util.DeferStmt(onExitCall))
-	tjump := util.IfStmt(tjumpInit, tjumpCond, tjumpBody, tjumpElse)
+	tjumpElse := ast.Block(ast.DeferStmt(onExitCall))
+	tjump := ast.IfStmt(tjumpInit, tjumpCond, tjumpBody, tjumpElse)
 	// Add this trampoline-jump-if as optimization candidates
 	rp.trampolineJumps = append(rp.trampolineJumps, &TJump{
 		target: funcDecl,
@@ -214,7 +220,7 @@ func (rp *RuleProcessor) insertTJump(t *resource.InstFuncRule,
 		if ifStmt, ok := firstStmt.(*dst.IfStmt); ok {
 			point := findJumpPoint(ifStmt)
 			if point != nil {
-				point.List = append(point.List, util.EmptyStmt())
+				point.List = append(point.List, ast.EmptyStmt())
 				point.List = append(point.List, tjump)
 				found = true
 			}
@@ -245,7 +251,7 @@ func (rp *RuleProcessor) insertTJump(t *resource.InstFuncRule,
 		} else {
 			pos = rp.parser.FindPosition(funcDecl.Body)
 			tag := fmt.Sprintf("//line %s", pos.String())
-			empty := util.EmptyStmt()
+			empty := ast.EmptyStmt()
 			empty.Decs.Before = dst.NewLine
 			empty.Decs.Start.Append(tag)
 			funcDecl.Body.List = append(funcDecl.Body.List, empty)
@@ -261,11 +267,11 @@ func (rp *RuleProcessor) insertTJump(t *resource.InstFuncRule,
 	return nil
 }
 
-func (rp *RuleProcessor) insertRaw(r *resource.InstFuncRule, decl *dst.FuncDecl) error {
+func (rp *RuleProcessor) insertRaw(r *rules.InstFuncRule, decl *dst.FuncDecl) error {
 	util.Assert(r.OnEnter != "" || r.OnExit != "", "sanity check")
 	if r.OnEnter != "" {
 		// Prepend raw code snippet to function body for onEnter
-		p := util.NewAstParser()
+		p := ast.NewAstParser()
 		onEnterSnippet, err := p.ParseSnippet(r.OnEnter)
 		if err != nil {
 			return err
@@ -274,7 +280,7 @@ func (rp *RuleProcessor) insertRaw(r *resource.InstFuncRule, decl *dst.FuncDecl)
 	}
 	if r.OnExit != "" {
 		// Use defer func(){ raw_code_snippet }() for onExit
-		p := util.NewAstParser()
+		p := ast.NewAstParser()
 		onExitSnippet, err := p.ParseSnippet(
 			fmt.Sprintf("defer func(){ %s }()", r.OnExit),
 		)
@@ -292,14 +298,14 @@ func nameReturnValues(funcDecl *dst.FuncDecl) {
 		for _, field := range funcDecl.Type.Results.List {
 			if field.Names == nil {
 				name := fmt.Sprintf("retVal%d", idx)
-				field.Names = []*dst.Ident{util.Ident(name)}
+				field.Names = []*dst.Ident{ast.Ident(name)}
 				idx++
 			}
 		}
 	}
 }
 
-func sortFuncRules(fnRules []*resource.InstFuncRule) []*resource.InstFuncRule {
+func sortFuncRules(fnRules []*rules.InstFuncRule) []*rules.InstFuncRule {
 	sort.SliceStable(fnRules, func(i, j int) bool {
 		return fnRules[i].Order < fnRules[j].Order
 	})
@@ -308,7 +314,7 @@ func sortFuncRules(fnRules []*resource.InstFuncRule) []*resource.InstFuncRule {
 
 func (rp *RuleProcessor) writeTrampoline(pkgName string) error {
 	// Prepare trampoline code header
-	p := util.NewAstParser()
+	p := ast.NewAstParser()
 	trampoline, err := p.ParseSource("package " + pkgName)
 	if err != nil {
 		return err
@@ -317,7 +323,7 @@ func (rp *RuleProcessor) writeTrampoline(pkgName string) error {
 	trampoline.Decls = append(trampoline.Decls, rp.varDecls...)
 	// Write trampoline code to file
 	path := filepath.Join(rp.workDir, OtelTrampolineFile)
-	trampolineFile, err := util.WriteAstToFile(trampoline, path)
+	trampolineFile, err := ast.WriteAstToFile(trampoline, path)
 	if err != nil {
 		return err
 	}
@@ -335,10 +341,13 @@ func (rp *RuleProcessor) enableLineDirective(filePath string) error {
 	text = re.ReplaceAllString(text, "//line ")
 	// All done, persist to file
 	_, err = util.WriteFile(filePath, text)
-	return err
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
-func (rp *RuleProcessor) applyFuncRules(bundle *resource.RuleBundle) (err error) {
+func (rp *RuleProcessor) applyFuncRules(bundle *rules.RuleBundle) (err error) {
 	// Nothing to do if no func rules
 	if len(bundle.File2FuncRules) == 0 {
 		return nil
@@ -367,9 +376,9 @@ func (rp *RuleProcessor) applyFuncRules(bundle *resource.RuleBundle) (err error)
 				nameAndRecvType := strings.Split(fnName, ",")
 				name := nameAndRecvType[0]
 				recvType := nameAndRecvType[1]
-				if util.MatchFuncDecl(decl, name, recvType) {
+				if ast.MatchFuncDecl(decl, name, recvType) {
 					fnDecl := decl.(*dst.FuncDecl)
-					util.Assert(fnDecl.Body != nil, "target func boby is empty")
+					util.Assert(fnDecl.Body != nil, "target func body is empty")
 					fnName := fnDecl.Name.Name
 					// Save raw function declaration
 					rp.rawFunc = fnDecl

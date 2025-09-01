@@ -10,7 +10,7 @@ import (
 
 func main() {
 	emb, err := embeddings.NewEmbedder(embedFake{},
-		embeddings.WithBatchSize(15), //批量上传限制
+		embeddings.WithBatchSize(15), // Batch upload limit
 	)
 	if err != nil {
 		panic(err)

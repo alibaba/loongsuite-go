@@ -33,6 +33,8 @@ func init() {
 		NewGeneralTestCase("eino-qwen-invoke-test", eino_module_name, "v0.3.51", "", "1.18", "", TestQwenInvokeEino),
 		NewGeneralTestCase("eino-qwen-stream-test", eino_module_name, "v0.3.51", "", "1.18", "", TestQwenStreamEino),
 		NewGeneralTestCase("eino-document-test", eino_module_name, "v0.3.51", "", "1.18", "", TestDocumentEino),
+		NewGeneralTestCase("test-invoke-chatmodel-metrics", eino_module_name, "v0.3.51", "", "1.18", "", TestInvokeChatModelMetrics),
+		NewGeneralTestCase("test-stream-chatmodel-metrics", eino_module_name, "v0.3.51", "", "1.18", "", TestStreamChatModelMetrics),
 		NewLatestDepthTestCase("eino-latest-depth-test", eino_dependency_name, eino_module_name, "v0.3.51", "", "1.18", "", TestOpenAIInvokeEino),
 		NewMuzzleTestCase("eino-muzzle-test-react-agent", eino_dependency_name, eino_module_name, "v0.3.51", "", "1.18", "", []string{"go", "build", "test_react_agent.go", "eino_common.go"}),
 		NewMuzzleTestCase("eino-muzzle-test-openai-invoke", eino_dependency_name, eino_module_name, "v0.3.51", "", "1.18", "", []string{"go", "build", "test_openai_invoke_chatmodel.go", "eino_common.go"}),
@@ -113,4 +115,16 @@ func TestQwenStreamEino(t *testing.T, env ...string) {
 	UseApp("eino/v0.3.51")
 	RunGoBuild(t, "go", "build", "test_qwen_stream_chatmodel.go", "eino_common.go")
 	RunApp(t, "test_qwen_stream_chatmodel", env...)
+}
+
+func TestInvokeChatModelMetrics(t *testing.T, env ...string) {
+	UseApp("eino/v0.3.51")
+	RunGoBuild(t, "go", "build", "test_invoke_chatmodel_metrics.go", "eino_common.go")
+	RunApp(t, "test_invoke_chatmodel_metrics", env...)
+}
+
+func TestStreamChatModelMetrics(t *testing.T, env ...string) {
+	UseApp("eino/v0.3.51")
+	RunGoBuild(t, "go", "build", "test_stream_chatmodel_metrics.go", "eino_common.go")
+	RunApp(t, "test_stream_chatmodel_metrics", env...)
 }

@@ -1,8 +1,8 @@
-# Adding a New Plugin
+# Adding a New Rule
 This document will briefly describe how to add a new plugin to the official repository — that is, how to inject instrumentation code into a new third-party library.
 
-## 1. Registering the New Plugin in default.json
-We need to add a JSON file named after the plugin, such as nethttp.json, in the tool/data/rules directory to register this plugin:
+## 1. Registering the New Rule
+We need to add a JSON file named after the rule, such as nethttp.json, in the tool/data/rules directory to register this rule:
 ```json
 [{
   "Version": "[1.3.0,1.7.4)",

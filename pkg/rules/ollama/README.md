@@ -196,6 +196,7 @@ cd test/ollama/v0.3.14
 ../../../otel go build -o test_cost_calculation test_cost_calculation.go
 ../../../otel go build -o test_budget_tracking test_budget_tracking.go
 
+
 # Backward compatibility test
 ../../../otel go build -o test_backward_compat test_backward_compat.go
 

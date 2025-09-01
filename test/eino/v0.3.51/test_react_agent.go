@@ -18,6 +18,7 @@ import (
 	"context"
 
 	"github.com/alibaba/loongsuite-go-agent/test/verifier"
+
 	"github.com/cloudwego/eino/compose"
 	"github.com/cloudwego/eino/schema"
 	"go.opentelemetry.io/otel/sdk/trace/tracetest"
@@ -47,7 +48,7 @@ func main() {
 	}
 	verifier.WaitAndAssertTraces(func(stubs []tracetest.SpanStubs) {
 		verifier.VerifyLLMAttributes(stubs[0][3], "chat", "eino", "mock-chat")
-		verifier.VerifyLLMAttributes(stubs[0][6], "chat", "eino", "mock-chat")
-		verifier.VerifyLLMCommonAttributes(stubs[0][10], "execute_tool", "eino", trace.SpanKindClient)
+		verifier.VerifyLLMCommonAttributes(stubs[0][6], "tool_node", "eino", trace.SpanKindClient)
+		verifier.VerifyLLMCommonAttributes(stubs[0][7], "execute_tool", "eino", trace.SpanKindClient)
 	}, 1)
 }

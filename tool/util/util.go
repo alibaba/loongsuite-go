@@ -17,17 +17,17 @@ package util
 import (
 	"encoding/json"
 	"fmt"
+	"hash/crc32"
 	"io"
-	"io/ioutil"
-	"math/rand"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strconv"
 	"strings"
 	"time"
 
-	"github.com/alibaba/loongsuite-go-agent/tool/errc"
+	"github.com/alibaba/loongsuite-go-agent/tool/ex"
 )
 
 type RunPhase string
@@ -90,25 +90,6 @@ func ShouldNotReachHereT(msg string) {
 	panic("should not reach here: " + msg)
 }
 
-var recordedRand = make(map[string]bool)
-
-// RandomString generates a globally unique random string of length n
-func RandomString(n int) string {
-	for {
-		var letters = []rune("0123456789")
-		b := make([]rune, n)
-		for i := range b {
-			b[i] = letters[rand.Intn(len(letters))]
-		}
-		s := string(b)
-		// Random suffix collision? Reroll until we get a unique one
-		if _, ok := recordedRand[s]; !ok {
-			recordedRand[s] = true
-			return s
-		}
-	}
-}
-
 func RunCmd(args ...string) error {
 	path := args[0]
 	args = args[1:]
@@ -118,8 +99,7 @@ func RunCmd(args ...string) error {
 	cmd.Stderr = os.Stderr
 	err := cmd.Run()
 	if err != nil {
-		return errc.New(errc.ErrRunCmd, err.Error()).
-			With("command", fmt.Sprintf("%v", args))
+		return ex.Errorf(err, "command %v", args)
 	}
 	return nil
 }
@@ -127,29 +107,29 @@ func RunCmd(args ...string) error {
 func CopyFile(src, dst string) error {
 	sourceFile, err := os.Open(src)
 	if err != nil {
-		return errc.New(errc.ErrOpenFile, err.Error())
+		return ex.Error(err)
 	}
 	defer func(sourceFile *os.File) {
 		err := sourceFile.Close()
 		if err != nil {
-			LogFatal("failed to close file %s: %v", sourceFile.Name(), err)
+			ex.Fatal(err)
 		}
 	}(sourceFile)
 
 	destFile, err := os.Create(dst)
 	if err != nil {
-		return errc.New(errc.ErrCreateFile, err.Error())
+		return ex.Error(err)
 	}
 	defer func(destFile *os.File) {
 		err := destFile.Close()
 		if err != nil {
-			LogFatal("failed to close file %s: %v", destFile.Name(), err)
+			ex.Fatal(err)
 		}
 	}(destFile)
 
 	_, err = io.Copy(destFile, sourceFile)
 	if err != nil {
-		return errc.New(errc.ErrCopyFile, err.Error())
+		return ex.Error(err)
 	}
 	return nil
 }
@@ -157,19 +137,19 @@ func CopyFile(src, dst string) error {
 func ReadFile(filePath string) (string, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
-		return "", errc.New(errc.ErrOpenFile, err.Error())
+		return "", ex.Error(err)
 	}
 	defer func(file *os.File) {
 		err := file.Close()
 		if err != nil {
-			LogFatal("failed to close file %s: %v", file.Name(), err)
+			ex.Fatal(err)
 		}
 	}(file)
 
 	buf := new(strings.Builder)
 	_, err = io.Copy(buf, file)
 	if err != nil {
-		return "", errc.New(errc.ErrCopyFile, err.Error())
+		return "", ex.Error(err)
 	}
 	return buf.String(), nil
 
@@ -178,18 +158,18 @@ func ReadFile(filePath string) (string, error) {
 func WriteFile(filePath string, content string) (string, error) {
 	file, err := os.Create(filePath)
 	if err != nil {
-		return "", errc.New(errc.ErrOpenFile, err.Error())
+		return "", ex.Error(err)
 	}
 	defer func(file *os.File) {
 		err := file.Close()
 		if err != nil {
-			LogFatal("failed to close file %s: %v", file.Name(), err)
+			ex.Fatal(err)
 		}
 	}(file)
 
 	_, err = file.WriteString(content)
 	if err != nil {
-		return "", errc.New(errc.ErrWriteFile, err.Error())
+		return "", ex.Error(err)
 	}
 	return file.Name(), nil
 }
@@ -198,9 +178,9 @@ func ListFiles(dir string) ([]string, error) {
 	var files []string
 	walkFn := func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			return errc.New(errc.ErrWalkDir, err.Error())
+			return ex.Error(err)
 		}
-		// Dont list files under hidden directories
+		// Don't list files under hidden directories
 		if strings.HasPrefix(info.Name(), ".") {
 			return filepath.SkipDir
 		}
@@ -211,7 +191,7 @@ func ListFiles(dir string) ([]string, error) {
 	}
 	err := filepath.Walk(dir, walkFn)
 	if err != nil {
-		return nil, errc.New(errc.ErrWalkDir, err.Error())
+		return nil, ex.Error(err)
 	}
 	return files, nil
 }
@@ -224,18 +204,18 @@ func CopyDirExclude(src string, dst string, exclude []string) error {
 	// Get the properties of the source directory
 	sourceInfo, err := os.Stat(src)
 	if err != nil {
-		return errc.New(errc.ErrStat, err.Error())
+		return ex.Error(err)
 	}
 
 	// Create the destination directory
 	if err := os.MkdirAll(dst, sourceInfo.Mode()); err != nil {
-		return errc.New(errc.ErrMkdirAll, err.Error())
+		return ex.Error(err)
 	}
 
 	// Read the contents of the source directory
-	entries, err := ioutil.ReadDir(src)
+	entries, err := os.ReadDir(src)
 	if err != nil {
-		return errc.New(errc.ErrReadDir, err.Error())
+		return ex.Error(err)
 	}
 
 	// Iterate through each entry in the source directory
@@ -292,14 +272,19 @@ func PhaseTimer(name string) func() {
 
 func GetToolName() (string, error) {
 	// Get the path of the current executable
-	ex, err := os.Executable()
+	e, err := os.Executable()
 	if err != nil {
-		return "", errc.New(errc.ErrGetExecutable, err.Error())
+		return "", ex.Error(err)
 	}
-	return filepath.Base(ex), nil
+	return filepath.Base(e), nil
 }
 
 func Jsonify(v interface{}) string {
 	b, _ := json.Marshal(v)
 	return string(b)
+}
+
+func Crc32(s string) string {
+	crc32Hash := crc32.ChecksumIEEE([]byte(s))
+	return strconv.FormatUint(uint64(crc32Hash), 10)
 }

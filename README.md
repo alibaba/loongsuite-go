@@ -1,10 +1,9 @@
-![](docs/anim-logo.svg)
+![](docs/images/anim-logo.svg)
 
-[![](https://shields.io/badge/Docs-English-blue?logo=Read%20The%20Docs)](./README.md) &nbsp;
-[![](https://shields.io/badge/Readme-中文-blue?logo=Read%20The%20Docs)](./docs/README_CN.md)  &nbsp;
-[![codecov](https://codecov.io/gh/alibaba/loongsuite-go-agent/branch/main/graph/badge.svg)](https://codecov.io/gh/alibaba/loongsuite-go-agent)  &nbsp;
-[![](https://shields.io/badge/Aliyun-Commercial-orange?logo=alibabacloud)](https://help.aliyun.com/zh/arms/application-monitoring/getting-started/monitoring-the-golang-applications) &nbsp;
-[![](https://img.shields.io/badge/New-Adopter-orange?logo=githubsponsors)](https://github.com/alibaba/loongsuite-go-agent/issues/225) &nbsp;
+[![](https://shields.io/badge/README-中文-blue?logo=dolphin)](./docs/README_CN.md)  &nbsp;
+[![](https://shields.io/badge/Loongsuite-Go商业版-blue?logo=alibabacloud)](https://help.aliyun.com/zh/arms/application-monitoring/getting-started/monitoring-the-golang-applications) &nbsp;
+[![](https://shields.io/badge/Loongsuite-Java-blue?logo=alibabacloud)](https://github.com/alibaba/loongsuite-java-agent)  &nbsp;
+[![](https://shields.io/badge/Loongsuite-Python-blue?logo=alibabacloud)](https://github.com/alibaba/loongsuite-python-agent)  &nbsp;
 
 **Loongsuite Go Agent** provides an automatic solution for Golang applications that want to
 leverage OpenTelemetry to enable effective observability. No code changes are
@@ -15,15 +14,11 @@ time. Simply adding `otel` prefix to `go build` to get started :rocket:
 
 ### Prebuilt Binaries
 
-| OS | Architecture | Download |
-| -- | -- | -- |
-| Linux | AMD64 | [Download](https://github.com/alibaba/loongsuite-go-agent/releases/latest/download/otel-linux-amd64) |
-| Linux | ARM64 | [Download](https://github.com/alibaba/loongsuite-go-agent/releases/latest/download/otel-linux-amd64) |
-| MacOS | AMD64 | [Download](https://github.com/alibaba/loongsuite-go-agent/releases/latest/download/otel-darwin-amd64) |
-| MacOS | ARM64 | [Download](https://github.com/alibaba/loongsuite-go-agent/releases/latest/download/otel-darwin-arm64) |
-| Windows | AMD64 | [Download](https://github.com/alibaba/loongsuite-go-agent/releases/latest/download/otel-windows-amd64.exe) |
+| Linux AMD64 | Linux ARM64 | MacOS AMD64 | MacOS ARM64 | Windows AMD64 |
+| -- | -- | -- | -- | -- |
+| [![Download](https://shields.io/badge/-Download-black?logo=winamp)](https://github.com/alibaba/loongsuite-go-agent/releases/latest/download/otel-linux-amd64) | [![Download](https://shields.io/badge/-Download-black?logo=winamp)](https://github.com/alibaba/loongsuite-go-agent/releases/latest/download/otel-linux-arm64) | [![Download](https://shields.io/badge/-Download-black?logo=winamp)](https://github.com/alibaba/loongsuite-go-agent/releases/latest/download/otel-darwin-amd64) | [![Download](https://shields.io/badge/-Download-black?logo=winamp)](https://github.com/alibaba/loongsuite-go-agent/releases/latest/download/otel-darwin-arm64) | [![Download](https://shields.io/badge/-Download-black?logo=winamp)](https://github.com/alibaba/loongsuite-go-agent/releases/latest/download/otel-windows-amd64.exe) | 
 
-:airplane: **This is the recommended way to install the tool.**
+**This is the recommended way to install the tool.**
 
 ### Install via Bash
 For Linux and MacOS users, the following script will install `otel` in `/usr/local/bin/otel` by default:
@@ -73,43 +68,47 @@ The detailed usage of `otel` tool can be found in [**Usage**](./docs/usage.md).
 - [nethttp](./example/nethttp) - HTTP monitoring example showcasing automatic instrumentation of request/response headers and network traffic analysis.
 
 # Supported Libraries
+| Library       | Repository Url                                 | Min           Version | Max           Version |
+|---------------| ---------------------------------------------- |----------------------|-----------------------|
+| database/sql  | https://pkg.go.dev/database/sql                | -                    | -                     |
+| dubbo-go      | https://github.com/apache/dubbo-go             | v3.3.0               | -                     |
+| echo          | https://github.com/labstack/echo               | v4.0.0               | v4.12.0               |
+| eino          | https://github.com/cloudwego/eino              | v0.3.51              | -                     |
+| elasticsearch | https://github.com/elastic/go-elasticsearch    | v8.4.0               | v8.15.0               |
+| fasthttp      | https://github.com/valyala/fasthttp            | v1.45.0              | v1.63.0               |
+| fiber         | https://github.com/gofiber/fiber               | v2.43.0              | v2.52.8               |
+| gin           | https://github.com/gin-gonic/gin               | v1.7.0               | v1.10.0               |
+| go-redis      | https://github.com/redis/go-redis              | v9.0.5               | v9.5.1                |
+| go-redis v8   | https://github.com/redis/go-redis              | v8.11.0              | v8.11.5               |
+| gomicro       | https://github.com/micro/go-micro              | v5.0.0               | v5.3.0                |
+| gorestful     | https://github.com/emicklei/go-restful         | v3.7.0               | v3.12.1               |
+| gorm          | https://github.com/go-gorm/gorm                | v1.22.0              | v1.25.9               |
+| grpc          | https://google.golang.org/grpc                 | v1.44.0              | -                     |
+| hertz         | https://github.com/cloudwego/hertz             | v0.8.0               | -                     |
+| iris          | https://github.com/kataras/iris                | v12.2.0              | v12.2.11              |
+| client-go     | https://github.com/kubernetes/client-go        | v0.33.3              | -                     |
+| kitex         | https://github.com/cloudwego/kitex             | v0.5.1               | v0.11.3               |
+| kratos        | https://github.com/go-kratos/kratos            | v2.6.3               | v2.8.4                |
+| langchaingo   | https://github.com/tmc/langchaingo             | v0.1.13              | v0.1.13               |
+| log           | https://pkg.go.dev/log                         | -                    | -                     |
+| logrus        | https://github.com/sirupsen/logrus             | v1.5.0               | v1.9.3                |
+| mongodb       | https://github.com/mongodb/mongo-go-driver     | v1.11.1              | v1.15.1               |
+| mux           | https://github.com/gorilla/mux                 | v1.3.0               | v1.8.1                |
+| nacos         | https://github.com/nacos-group/nacos-sdk-go/v2 | v2.0.0               | v2.2.7                |
+| net/http      | https://pkg.go.dev/net/http                    | -                    | -                     |
+| ollama        | https://github.com/ollama/ollama               | v0.3.14              | -                     |
+| redigo        | https://github.com/gomodule/redigo             | v1.9.0               | v1.9.2                |
+| sentinel      | https://github.com/alibaba/sentinel-golang     | v1.0.4               | -                     |
+| slog          | https://pkg.go.dev/log/slog                    | -                    | -                     |
+| trpc-go       | https://github.com/trpc-group/trpc-go          | v1.0.0               | v1.0.3                |
+| zap           | https://github.com/uber-go/zap                 | v1.20.0              | v1.27.0               |
+| zerolog       | https://github.com/rs/zerolog                  | v1.10.0              | v1.33.0               |
+| go-kit/log    | https://github.com/go-kit/log                  | v0.1.0               | v0.2.1                |
+| pg            | https://github.com/go-pg/pg                    | v1.10.0              | v1.14.0               |
+| gocql         | https://github.com/gocql/gocql                 | v1.3.0                | v1.7.0                |
+| sqlx          | https://github.com/jmoiron/sqlx                | v1.3.0                | v1.4.0                |
 
-| Plugin Name   | Repository Url                                 | Min Supported Version | Max Supported Version |
-|---------------|------------------------------------------------|-----------------------|-----------------------|
-| database/sql  | https://pkg.go.dev/database/sql                | -                     | -                     |
-| dubbo-go      | https://github.com/apache/dubbo-go             | v3.3.0                | -                     |
-| echo          | https://github.com/labstack/echo               | v4.0.0                | v4.12.0               |
-| eino          | https://github.com/cloudwego/eino              | v0.3.51               | -                     |
-| elasticsearch | https://github.com/elastic/go-elasticsearch    | v8.4.0                | v8.15.0               |
-| fasthttp      | https://github.com/valyala/fasthttp            | v1.45.0               | v1.63.0               |
-| fiber         | https://github.com/gofiber/fiber               | v2.43.0               | v2.52.8               |
-| gin           | https://github.com/gin-gonic/gin               | v1.7.0                | v1.10.0               |
-| go-redis      | https://github.com/redis/go-redis              | v9.0.5                | v9.5.1                |
-| go-redis v8   | https://github.com/redis/go-redis              | v8.11.0               | v8.11.5               |
-| gomicro       | https://github.com/micro/go-micro              | v5.0.0                | v5.3.0                |
-| gorestful     | https://github.com/emicklei/go-restful         | v3.7.0                | v3.12.1               |
-| gorm          | https://github.com/go-gorm/gorm                | v1.22.0               | v1.25.9               |
-| grpc          | https://google.golang.org/grpc                 | v1.44.0               | -                     |
-| hertz         | https://github.com/cloudwego/hertz             | v0.8.0                | -                     |
-| iris          | https://github.com/kataras/iris                | v12.2.0               | v12.2.11              |
-| kitex         | https://github.com/cloudwego/kitex             | v0.5.1                | v0.11.3               |
-| kratos        | https://github.com/go-kratos/kratos            | v2.6.3                | v2.8.4                |
-| langchaingo   | https://github.com/tmc/langchaingo             | v0.1.13               | v0.1.13               |
-| log           | https://pkg.go.dev/log                         | -                     | -                     |
-| logrus        | https://github.com/sirupsen/logrus             | v1.5.0                | v1.9.3                |
-| mongodb       | https://github.com/mongodb/mongo-go-driver     | v1.11.1               | v1.15.1               |
-| mux           | https://github.com/gorilla/mux                 | v1.3.0                | v1.8.1                |
-| nacos         | https://github.com/nacos-group/nacos-sdk-go/v2 | v2.0.0                | v2.2.7                |
-| net/http      | https://pkg.go.dev/net/http                    | -                     | -                     |
-| redigo        | https://github.com/gomodule/redigo             | v1.9.0                | v1.9.2                |
-| slog          | https://pkg.go.dev/log/slog                    | -                     | -                     |
-| trpc-go       | https://github.com/trpc-group/trpc-go          | v1.0.0                | v1.0.3                |
-| zap           | https://github.com/uber-go/zap                 | v1.20.0               | v1.27.0               |
-| zerolog       | https://github.com/rs/zerolog                  | v1.10.0               | v1.33.0               |
-| go-kit/log    | https://github.com/go-kit/log                  | v0.1.0                | v0.2.1                |
-| pg            | https://github.com/go-pg/pg                    | v1.10.0               | v1.14.0               |
-
-We are progressively open-sourcing the libraries we have supported, and your contributions are very welcome 💖!
+We are progressively open-sourcing the libraries we have supported, and your contributions are [![](https://shields.io/badge/-Very_Welcome-white?logo=gnu&logoColor=black)](https://github.com/alibaba/loongsuite-go-agent/issues?q=state%3Aopen%20label%3Aavailable)
 
 > [!IMPORTANT]
 > The framework you expected is not in the list? Don't worry, you can easily inject your code into any frameworks/libraries that are not officially supported.
@@ -119,17 +118,9 @@ We are progressively open-sourcing the libraries we have supported, and your con
 # Community
 
 We are looking forward to your feedback and suggestions. You can join
-our [DingTalk group](https://qr.dingtalk.com/action/joingroup?code=v1,k1,GyDX5fUTYnJ0En8MrVbHBYTGUcPXJ/NdsmLODGibd0w=&_dt_no_comment=1&origin=11? )
+our [DingTalk group](https://qr.dingtalk.com/action/joingroup?code=v1,k1,PBuICMTDvdh0En8MrVbHBYTGUcPXJ/NdT6JKCZ8CG+w=&_dt_no_comment=1&origin=11)
 to engage with us.
 
-<img src="docs/dingtalk.png" height="200">
-
-We would thankfully acknowledge the following contributors for their valuable contributions to this project:
-
-<a href="https://github.com/alibaba/loongsuite-go-agent/graphs/contributors">
-  <img alt="contributors" src="https://contrib.rocks/image?repo=alibaba/loongsuite-go-agent" height="100"/>
-</a>
-
-The star history of this project is as follows, which shows the growth of this project over time:
-
-<img src="https://api.star-history.com/svg?repos=alibaba/loongsuite-go-agent&type=Date" height="200">
+| DingTalk | Star History |
+| :---: | :---: |
+| <img src="docs/images/dingtalk.png" height="200"> | <img src="https://api.star-history.com/svg?repos=alibaba/loongsuite-go-agent&type=Date" height="200"> |

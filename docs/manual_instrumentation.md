@@ -6,9 +6,7 @@ Automatic instrumentation already meets our needs in most scenarios, but manual 
 
 Based on the `example/demo`, automatic instrumentation generates a trace where the HTTP service acts as the root span, with Redis and MySQL operations as child spans.
 
-![](auto_instr_jaeger.png)
-
-
+![](images/auto_instr_jaeger.png)
 
 ### Combining with manual instrumentation
 
@@ -27,5 +25,5 @@ func traceService(w http.ResponseWriter, r *http.Request) {
 
 And the generated trace in Jaeger is as follows.
 
-![](manual_instr_jaeger.png)
+![](images/manual_instr_jaeger.png)
 

@@ -17,11 +17,10 @@ package main
 import (
 	"fmt"
 	"os"
-	"runtime"
 	"strings"
 
 	"github.com/alibaba/loongsuite-go-agent/tool/config"
-	"github.com/alibaba/loongsuite-go-agent/tool/errc"
+	"github.com/alibaba/loongsuite-go-agent/tool/ex"
 	"github.com/alibaba/loongsuite-go-agent/tool/instrument"
 	"github.com/alibaba/loongsuite-go-agent/tool/preprocess"
 	"github.com/alibaba/loongsuite-go-agent/tool/util"
@@ -65,14 +64,14 @@ func initTempDir() error {
 	if util.PathNotExists(util.TempBuildDir) {
 		err := os.MkdirAll(util.TempBuildDir, 0777)
 		if err != nil {
-			return errc.New(errc.ErrMkdirAll, err.Error())
+			return ex.Error(err)
 		}
 	}
 	for _, subdir := range []string{util.PPreprocess, util.PInstrument} {
 		_ = os.RemoveAll(util.GetTempBuildDirWith(subdir))
 		err := os.MkdirAll(util.GetTempBuildDirWith(subdir), 0777)
 		if err != nil {
-			return errc.New(errc.ErrMkdirAll, err.Error())
+			return ex.Error(err)
 		}
 	}
 
@@ -110,19 +109,6 @@ func initEnv() error {
 	return nil
 }
 
-func fatal(err error) {
-	message := "===== Environments =====\n"
-	message += fmt.Sprintf("%-11s: %s\n", "Command", strings.Join(os.Args, " "))
-	message += fmt.Sprintf("%-11s: %s\n", "ErrorLog", util.GetLoggerPath())
-	message += fmt.Sprintf("%-11s: %s\n", "WorkDir", os.Getenv("PWD"))
-	message += fmt.Sprintf("%-11s: %s, %s, %s\n", "Toolchain",
-		runtime.GOOS+"/"+runtime.GOARCH,
-		runtime.Version(), config.ToolVersion)
-	message += "===== Fatal Error ======\n"
-	message += err.Error()
-	util.LogFatal("\033[31m%s\033[0m", message) // log in red color
-}
-
 func main() {
 	if len(os.Args) < 2 {
 		printUsage()
@@ -131,13 +117,13 @@ func main() {
 
 	err := initEnv()
 	if err != nil {
-		fatal(err)
+		ex.Fatal(err)
 	}
 
 	subcmd := os.Args[1]
 	switch subcmd {
 	case SubcommandVersion:
-		err = config.PrintVersion()
+		config.PrintVersion()
 	case SubcommandSet:
 		err = config.Configure()
 	case SubcommandGo:
@@ -148,13 +134,6 @@ func main() {
 		printUsage()
 	}
 	if err != nil {
-		if subcmd != SubcommandRemix {
-			fatal(err)
-		} else {
-			// If error occurs in remix phase, we dont want to decoret the error
-			// message with the environments, just print the error message, the
-			// caller(preprocess) phase will decorate instead.
-			util.LogFatal(err.Error())
-		}
+		ex.Fatal(err)
 	}
 }

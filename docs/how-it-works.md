@@ -11,7 +11,7 @@ Under normal circumstances, the `go build` command goes through the following ma
 
 When using our automatic instrumentation tool, two additional phases are added before the above steps: **Preprocessing** and **Instrument**.
 
-![](workflow.png)
+![](images/workflow.png)
 
 - `Preprocess`: Analyze dependencies and select rules that should be used later.
 - `Instrument`: Generate code based on rules and inject new code into source code.
@@ -51,7 +51,7 @@ calls `go build cmd/app` for normal compilation, as described earlier.
 # `net/http` example
 First, we classify the following three types of functions: *RawFunc*, *TrampolineFunc*, *HookFunc*. RawFunc is the original function that needs to be injected. TrampolineFunc is the trampoline function. HookFunc is onEnter/onExit functions that need to be inserted at the entry and exit points of the original function as probe code. RawFunc jumps to TrampolineFunc via the inserted trampoline code, then TrampolineFunc constructs the context, prepares the error recovery handling, and finally jumps to HookFunc to execute the probe code.
 
-![](tjump.png)
+![](images/tjump.png)
 
 Next, we use `net/http` as an example to demonstrate how compile-time automatic instrumentation can insert monitoring code into the target function `(*Transport).RoundTrip()`. The framework will generate trampoline code at the entry of this function, which is an if statement (actually one line, written in multiple lines for demonstration) that jumps to TrampolineFunc:
 

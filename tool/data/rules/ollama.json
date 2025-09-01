@@ -1,0 +1,20 @@
+[
+  {
+    "Version": "[0.3.14,)",
+    "ImportPath": "github.com/ollama/ollama/api",
+    "Function": "Generate",
+    "ReceiverType": "\\*Client",
+    "OnEnter": "clientGenerateOnEnter",
+    "OnExit": "clientGenerateOnExit",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/ollama"
+  },
+  {
+    "Version": "[0.3.14,)",
+    "ImportPath": "github.com/ollama/ollama/api",
+    "Function": "Chat",
+    "ReceiverType": "\\*Client",
+    "OnEnter": "clientChatOnEnter",
+    "OnExit": "clientChatOnExit",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/ollama"
+  }
+]

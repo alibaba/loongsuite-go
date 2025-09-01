@@ -1,6 +1,6 @@
 [
   {
-    "Version": "[4.0.0,4.12.1)",
+    "Version": "[4.0.0,)",
     "ImportPath": "github.com/labstack/echo/v4",
     "Function": "New",
     "OnExit": "afterNewEcho",

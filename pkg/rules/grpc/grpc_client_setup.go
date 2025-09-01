@@ -65,11 +65,11 @@ func (h *clientHandler) TagRPC(ctx context.Context, info *stats.RPCTagInfo) cont
 		methodName:    info.FullMethodName,
 		serverAddress: h.serverAddr,
 	})
-	gctx := gRPCContext{
+	gCtx := gRPCContext{
 		methodName: info.FullMethodName,
 	}
 
-	return inject(context.WithValue(nCtx, gRPCContextKey{}, &gctx), h.grpcOtelConfig.Propagators, info.FullMethodName)
+	return inject(context.WithValue(nCtx, gRPCContextKey{}, &gCtx), h.grpcOtelConfig.Propagators, info.FullMethodName)
 }
 
 // HandleRPC processes the RPC stats.

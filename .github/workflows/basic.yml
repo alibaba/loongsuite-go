@@ -4,6 +4,12 @@
 name: TestBasic
 
 on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Manual trigger'
+        required: false
+        type: environment
   push:
     branches: [ "main" ]
   pull_request:

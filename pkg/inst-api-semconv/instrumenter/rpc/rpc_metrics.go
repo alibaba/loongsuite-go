@@ -85,7 +85,7 @@ func newRpcServerRequestDurationMeasures(meter metric.Meter) (metric.Float64Hist
 	if err == nil {
 		return d, nil
 	} else {
-		return d, errors.New(fmt.Sprintf("failed to create rpc.server.request.duratio histogram, %v", err))
+		return d, errors.New(fmt.Sprintf("failed to create rpc.server.request.duration histogram, %v", err))
 	}
 }
 
@@ -101,7 +101,7 @@ func newRpcClientRequestDurationMeasures(meter metric.Meter) (metric.Float64Hist
 	if err == nil {
 		return d, nil
 	} else {
-		return d, errors.New(fmt.Sprintf("failed to create rpc.client.request.duratio histogram, %v", err))
+		return d, errors.New(fmt.Sprintf("failed to create rpc.client.request.duration histogram, %v", err))
 	}
 }
 

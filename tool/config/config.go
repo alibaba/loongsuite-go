@@ -24,7 +24,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/alibaba/loongsuite-go-agent/tool/errc"
+	"github.com/alibaba/loongsuite-go-agent/tool/ex"
 	"github.com/alibaba/loongsuite-go-agent/tool/util"
 )
 
@@ -56,12 +56,11 @@ type BuildConfig struct {
 	// Note that base.json is inevitable to be enabled, even if it is explicitly
 	// disabled.
 	DisableRules string
-}
 
-// @@This value is specified by the build system.
-// This is the version of the tool, which will be printed when the -version flag
-// is passed.
-var ToolVersion = "1.0.0"
+	// PkgPath specifies the path of the package to be used across multiple
+	// instrumentations
+	PkgPath string
+}
 
 var conf *BuildConfig
 
@@ -81,11 +80,11 @@ func (bc *BuildConfig) GetDisabledRules() string {
 
 func (bc *BuildConfig) makeRuleAbs(file string) (string, error) {
 	if util.PathNotExists(file) {
-		return "", errc.New(errc.ErrNotExist, file)
+		return "", ex.Errorf(nil, "file %s not exists", file)
 	}
 	file, err := filepath.Abs(file)
 	if err != nil {
-		return "", errc.New(errc.ErrAbsPath, err.Error())
+		return "", ex.Error(err)
 	}
 	return file, nil
 }
@@ -130,7 +129,7 @@ func storeConfig(bc *BuildConfig) error {
 	file := getConfPath(BuildConfFile)
 	bs, err := json.Marshal(bc)
 	if err != nil {
-		return errc.New(errc.ErrInvalidJSON, err.Error())
+		return ex.Error(err)
 	}
 	_, err = util.WriteFile(file, string(bs))
 	if err != nil {
@@ -155,7 +154,7 @@ func loadConfig() (*BuildConfig, error) {
 	bc := &BuildConfig{}
 	err = json.Unmarshal([]byte(data), bc)
 	if err != nil {
-		return nil, errc.New(errc.ErrInvalidJSON, err.Error())
+		return nil, ex.Error(err)
 	}
 	return bc, nil
 }
@@ -233,15 +232,6 @@ func InitConfig() (err error) {
 	return nil
 }
 
-func PrintVersion() error {
-	name, err := util.GetToolName()
-	if err != nil {
-		return err
-	}
-	fmt.Printf("%s version %s\n", name, ToolVersion)
-	return nil
-}
-
 func Configure() error {
 	// Parse command line flags to get build config
 	bc, err := loadConfig()
@@ -256,7 +246,12 @@ func Configure() error {
 		"Use custom.json rules. Multiple rules are separated by comma.")
 	flag.StringVar(&bc.DisableRules, "disable", bc.DisableRules,
 		"Disable specific rules. Use 'all' to disable all default rules, or comma-separated list of rule file names to disable specific rules")
-	flag.CommandLine.Parse(os.Args[2:])
+	flag.StringVar(&bc.PkgPath, "pkg", bc.PkgPath,
+		"Specify the path of the package to be used across multiple instrumentations")
+	err = flag.CommandLine.Parse(os.Args[2:])
+	if err != nil {
+		return ex.Error(err)
+	}
 
 	util.Log("Configured in %s", getConfPath(BuildConfFile))
 

@@ -85,14 +85,14 @@ func testNonStreamingWithCost(ctx context.Context, client *api.Client) {
 	fmt.Printf("Response received (non-streaming)\n")
 	fmt.Printf("Input tokens: %d\n", finalResponse.PromptEvalCount)
 	fmt.Printf("Output tokens: %d\n", finalResponse.EvalCount)
-	
+
 	// Calculate expected cost based on default pricing
 	// tinyllama: $0.00001 per 1K input, $0.00002 per 1K output
 	inputCost := float64(finalResponse.PromptEvalCount) / 1000.0 * 0.00001
 	outputCost := float64(finalResponse.EvalCount) / 1000.0 * 0.00002
 	totalCost := inputCost + outputCost
-	
-	fmt.Printf("Estimated cost: $%.8f (input: $%.8f, output: $%.8f)\n", 
+
+	fmt.Printf("Estimated cost: $%.8f (input: $%.8f, output: $%.8f)\n",
 		totalCost, inputCost, outputCost)
 }
 
@@ -109,34 +109,34 @@ func testStreamingWithCost(ctx context.Context, client *api.Client) {
 
 	err := client.Generate(ctx, req, func(resp api.GenerateResponse) error {
 		chunkCount++
-		
+
 		// Simulate real-time cost accumulation
 		if resp.EvalCount > lastEvalCount {
 			incrementalTokens := resp.EvalCount - lastEvalCount
 			incrementalCost := float64(incrementalTokens) / 1000.0 * 0.00002
 			accumulatedCost += incrementalCost
-			
+
 			if chunkCount%10 == 0 {
-				fmt.Printf("  Chunk %d: %d tokens, accumulated cost: $%.8f\n", 
+				fmt.Printf("  Chunk %d: %d tokens, accumulated cost: $%.8f\n",
 					chunkCount, resp.EvalCount, accumulatedCost)
 			}
-			
+
 			lastEvalCount = resp.EvalCount
 		}
-		
+
 		if resp.Done {
 			fmt.Printf("\nStreaming completed:\n")
 			fmt.Printf("Total chunks: %d\n", chunkCount)
 			fmt.Printf("Input tokens: %d\n", resp.PromptEvalCount)
 			fmt.Printf("Output tokens: %d\n", resp.EvalCount)
-			
+
 			// Final cost calculation
 			inputCost := float64(resp.PromptEvalCount) / 1000.0 * 0.00001
 			totalCost := inputCost + accumulatedCost
 			fmt.Printf("Final cost: $%.8f (input: $%.8f, output: $%.8f)\n",
 				totalCost, inputCost, accumulatedCost)
 		}
-		
+
 		return nil
 	})
 
@@ -152,16 +152,16 @@ func testBudgetTracking(ctx context.Context, client *api.Client) {
 		"Name a color",
 		"Say hello",
 	}
-	
+
 	totalCost := 0.0
-	
+
 	for i, prompt := range prompts {
 		req := &api.GenerateRequest{
 			Model:  "tinyllama",
 			Prompt: prompt,
 			Stream: new(bool), // false
 		}
-		
+
 		var finalResponse api.GenerateResponse
 		err := client.Generate(ctx, req, func(resp api.GenerateResponse) error {
 			if resp.Done {
@@ -169,24 +169,24 @@ func testBudgetTracking(ctx context.Context, client *api.Client) {
 			}
 			return nil
 		})
-		
+
 		if err != nil {
 			log.Printf("Request %d error: %v", i+1, err)
 			continue
 		}
-		
+
 		// Calculate cost for this request
 		inputCost := float64(finalResponse.PromptEvalCount) / 1000.0 * 0.00001
 		outputCost := float64(finalResponse.EvalCount) / 1000.0 * 0.00002
 		requestCost := inputCost + outputCost
 		totalCost += requestCost
-		
+
 		fmt.Printf("Request %d: '%s' - Cost: $%.8f\n", i+1, prompt, requestCost)
-		
+
 		// Simulate budget check (in real implementation, this would be automatic)
 		budgetLimit := 0.001 // $0.001 budget
 		usagePercent := (totalCost / budgetLimit) * 100
-		
+
 		status := "OK"
 		if usagePercent >= 80 {
 			status = "WARNING"
@@ -197,14 +197,14 @@ func testBudgetTracking(ctx context.Context, client *api.Client) {
 		if usagePercent >= 100 {
 			status = "EXCEEDED"
 		}
-		
-		fmt.Printf("  Budget status: %s (%.1f%% of $%.6f used)\n", 
+
+		fmt.Printf("  Budget status: %s (%.1f%% of $%.6f used)\n",
 			status, usagePercent, budgetLimit)
-		
+
 		// Small delay between requests
 		time.Sleep(100 * time.Millisecond)
 	}
-	
+
 	fmt.Printf("\nTotal cost across %d requests: $%.8f\n", len(prompts), totalCost)
 }
 
@@ -215,7 +215,7 @@ func testCurrencyConversion(ctx context.Context, client *api.Client) {
 		Prompt: "Hi",
 		Stream: new(bool), // false
 	}
-	
+
 	var finalResponse api.GenerateResponse
 	err := client.Generate(ctx, req, func(resp api.GenerateResponse) error {
 		if resp.Done {
@@ -223,17 +223,17 @@ func testCurrencyConversion(ctx context.Context, client *api.Client) {
 		}
 		return nil
 	})
-	
+
 	if err != nil {
 		log.Printf("Error: %v", err)
 		return
 	}
-	
+
 	// Calculate cost in different currencies
 	inputCostUSD := float64(finalResponse.PromptEvalCount) / 1000.0 * 0.00001
 	outputCostUSD := float64(finalResponse.EvalCount) / 1000.0 * 0.00002
 	totalCostUSD := inputCostUSD + outputCostUSD
-	
+
 	// Exchange rates (from default configuration)
 	rates := map[string]float64{
 		"USD": 1.0,
@@ -242,7 +242,7 @@ func testCurrencyConversion(ctx context.Context, client *api.Client) {
 		"GBP": 0.79,
 		"JPY": 149.50,
 	}
-	
+
 	fmt.Printf("Cost in different currencies:\n")
 	for currency, rate := range rates {
 		convertedCost := totalCostUSD * rate
@@ -264,3 +264,4 @@ func getCurrencySymbol(currency string) string {
 	}
 	return ""
 }
+

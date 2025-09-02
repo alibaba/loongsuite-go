@@ -23,11 +23,10 @@ import (
 )
 
 func main() {
-	// Test backward compatibility with non-streaming requests
 	client, err := api.ClientFromEnvironment()
 	if err != nil {
 		log.Printf("Creating default client: %v", err)
-		client = &api.Client{} // Create default client for testing
+		client = &api.Client{}
 	}
 	
 	ctx := context.Background()
@@ -39,9 +38,9 @@ func main() {
 	fmt.Println("\nTest 1: Generate API with Stream=false")
 	streamFalse := false
 	genReqNoStream := &api.GenerateRequest{
-		Model:  "llama3:8b",
+		Model:  "tinyllama",
 		Prompt: "Say hello",
-		Stream: &streamFalse, // Explicitly disable streaming
+		Stream: &streamFalse,
 	}
 	
 	err = client.Generate(ctx, genReqNoStream, func(resp api.GenerateResponse) error {
@@ -61,11 +60,11 @@ func main() {
 	// Test 2: Chat with Stream explicitly set to false
 	fmt.Println("\nTest 2: Chat API with Stream=false")
 	chatReqNoStream := &api.ChatRequest{
-		Model: "llama3:8b",
+		Model: "tinyllama",
 		Messages: []api.Message{
 			{Role: "user", Content: "Hi"},
 		},
-		Stream: &streamFalse, // Explicitly disable streaming
+		Stream: &streamFalse,
 	}
 	
 	err = client.Chat(ctx, chatReqNoStream, func(resp api.ChatResponse) error {
@@ -85,7 +84,7 @@ func main() {
 	// Test 3: Default behavior (Stream=nil, should stream)
 	fmt.Println("\nTest 3: Generate API with Stream=nil (default)")
 	genReqDefault := &api.GenerateRequest{
-		Model:  "llama3:8b",
+		Model:  "tinyllama",
 		Prompt: "Say hello",
 		// Stream not set (nil) - should default to streaming
 	}

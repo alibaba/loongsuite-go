@@ -25,16 +25,12 @@ import (
 )
 
 func main() {
-	// Test budget tracking and monitoring
 	fmt.Println("Testing Ollama budget tracking instrumentation...")
 	fmt.Println("==================================================")
 
-	// Set environment variables for budget tracking
 	os.Setenv("OLLAMA_ENABLE_COST_TRACKING", "true")
 	os.Setenv("OLLAMA_DEFAULT_CURRENCY", "USD")
 
-	// Configure budget (this would normally be in a config file)
-	// In actual implementation, this is handled by the BudgetTracker
 	budgetConfig := struct {
 		TotalBudget float64
 		Period      string
@@ -45,7 +41,6 @@ func main() {
 		Thresholds:  []float64{80, 90, 100}, // Warning at 80%, Critical at 90%, Exceeded at 100%
 	}
 
-	// Create client
 	client, err := api.ClientFromEnvironment()
 	if err != nil {
 		log.Fatal("Failed to create client:", err)
@@ -53,19 +48,15 @@ func main() {
 
 	ctx := context.Background()
 
-	// Test 1: Monitor budget consumption over multiple requests
 	fmt.Println("\n1. Testing progressive budget consumption...")
 	testProgressiveBudgetConsumption(ctx, client, budgetConfig)
 
-	// Test 2: Test budget threshold alerts
 	fmt.Println("\n2. Testing budget threshold alerts...")
 	testBudgetThresholds(ctx, client, budgetConfig)
 
-	// Test 3: Test sliding window budget tracking
 	fmt.Println("\n3. Testing sliding window budget tracking...")
 	testSlidingWindowBudget(ctx, client)
 
-	// Test 4: Test anomaly detection
 	fmt.Println("\n4. Testing cost anomaly detection...")
 	testAnomalyDetection(ctx, client)
 
@@ -81,7 +72,6 @@ func testProgressiveBudgetConsumption(ctx context.Context, client *api.Client, c
 	totalSpent := 0.0
 	requestCount := 0
 
-	// Make progressive requests until budget is consumed
 	prompts := []string{
 		"Say 'a'",
 		"Say 'b'",
@@ -112,26 +102,22 @@ func testProgressiveBudgetConsumption(ctx context.Context, client *api.Client, c
 
 		requestCount++
 
-		// Calculate cost for this request
 		inputCost := float64(finalResponse.PromptEvalCount) / 1000.0 * 0.00001
 		outputCost := float64(finalResponse.EvalCount) / 1000.0 * 0.00002
 		requestCost := inputCost + outputCost
 		totalSpent += requestCost
 
-		// Calculate budget usage
 		usagePercent := (totalSpent / config.TotalBudget) * 100
 		remaining := config.TotalBudget - totalSpent
 
 		fmt.Printf("Request %d: Cost=$%.8f, Total=$%.8f, Usage=%.1f%%, Remaining=$%.8f\n",
 			requestCount, requestCost, totalSpent, usagePercent, remaining)
 
-		// Check if budget exceeded
 		if usagePercent >= 100 {
 			fmt.Println("  ⚠️  BUDGET EXCEEDED - Further requests would be monitored/blocked")
 			break
 		}
 
-		// Small delay between requests
 		time.Sleep(50 * time.Millisecond)
 	}
 
@@ -146,7 +132,6 @@ func testBudgetThresholds(ctx context.Context, client *api.Client, config struct
 }) {
 	fmt.Println("Simulating budget threshold alerts...")
 
-	// Simulate different budget usage levels
 	usageLevels := []float64{50, 75, 85, 95, 105} // Percentages
 
 	for _, level := range usageLevels {
@@ -155,7 +140,6 @@ func testBudgetThresholds(ctx context.Context, client *api.Client, config struct
 
 		fmt.Printf("  Usage: %.0f%% - Status: %s, Action: %s\n", level, status, action)
 
-		// Simulate span attributes that would be added
 		if level >= 80 {
 			fmt.Printf("    → gen_ai.budget.status: %s\n", status)
 			fmt.Printf("    → gen_ai.budget.usage_percentage: %.1f\n", level)
@@ -169,7 +153,6 @@ func testBudgetThresholds(ctx context.Context, client *api.Client, config struct
 func testSlidingWindowBudget(ctx context.Context, client *api.Client) {
 	fmt.Println("Testing sliding window (last hour) budget tracking...")
 
-	// Make a few quick requests
 	windowCosts := make([]float64, 0)
 	windowStart := time.Now()
 
@@ -193,7 +176,6 @@ func testSlidingWindowBudget(ctx context.Context, client *api.Client) {
 			continue
 		}
 
-		// Calculate cost
 		inputCost := float64(finalResponse.PromptEvalCount) / 1000.0 * 0.00001
 		outputCost := float64(finalResponse.EvalCount) / 1000.0 * 0.00002
 		requestCost := inputCost + outputCost
@@ -208,7 +190,6 @@ func testSlidingWindowBudget(ctx context.Context, client *api.Client) {
 		time.Sleep(100 * time.Millisecond)
 	}
 
-	// Calculate burn rate
 	windowDuration := time.Since(windowStart)
 	windowTotal := sum(windowCosts)
 	burnRate := windowTotal / windowDuration.Hours() // $ per hour
@@ -218,7 +199,6 @@ func testSlidingWindowBudget(ctx context.Context, client *api.Client) {
 	fmt.Printf("  Window duration: %v\n", windowDuration)
 	fmt.Printf("  Burn rate: $%.8f/hour\n", burnRate)
 
-	// Predict budget exhaustion
 	assumedBudget := 0.001 // $0.001
 	if burnRate > 0 {
 		hoursUntilExhaustion := assumedBudget / burnRate
@@ -256,7 +236,6 @@ func testAnomalyDetection(ctx context.Context, client *api.Client) {
 			continue
 		}
 
-		// Calculate cost
 		inputCost := float64(finalResponse.PromptEvalCount) / 1000.0 * 0.00001
 		outputCost := float64(finalResponse.EvalCount) / 1000.0 * 0.00002
 		requestCost := inputCost + outputCost

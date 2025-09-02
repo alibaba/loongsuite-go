@@ -11,5 +11,3 @@ require (
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/stretchr/testify v1.10.0 // indirect
 )
-
-replace github.com/alibaba/loongsuite-go-agent/pkg => ../../../pkg

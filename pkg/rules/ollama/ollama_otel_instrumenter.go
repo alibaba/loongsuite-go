@@ -29,10 +29,8 @@ const (
 	OLLAMA_SCOPE_NAME = "github.com/alibaba/loongsuite-go-agent/pkg/rules/ollama"
 )
 
-// ollamaAttrsGetter implements the interfaces for extracting attributes
 type ollamaAttrsGetter struct{}
 
-// Request attribute extraction methods
 func (o ollamaAttrsGetter) GetAISystem(request ollamaRequest) string {
 	return "ollama"
 }
@@ -95,7 +93,6 @@ func (o ollamaAttrsGetter) GetAIRequestSeed(request ollamaRequest) int64 {
 	return 0
 }
 
-// Response attribute extraction methods
 func (o ollamaAttrsGetter) GetAIResponseModel(request ollamaRequest, response ollamaResponse) string {
 	// Model comes from request
 	return request.model
@@ -109,22 +106,18 @@ func (o ollamaAttrsGetter) GetAIUsageOutputTokens(request ollamaRequest, respons
 	return int64(request.completionTokens)
 }
 
-// Streaming-specific attribute extraction methods
 func (o ollamaAttrsGetter) GetStreamingMetrics(response ollamaResponse) map[string]interface{} {
 	metrics := make(map[string]interface{})
 
-	// Add streaming-specific attributes if this was a streaming response
 	if response.streamingMetrics != nil {
 		metrics["gen_ai.response.streaming"] = true
 		metrics["gen_ai.response.ttft_ms"] = response.streamingMetrics.getTTFTMillis()
 		metrics["gen_ai.response.chunk_count"] = response.streamingMetrics.chunkCount
 
-		// Calculate tokens per second if we have valid data
 		if response.streamingMetrics.tokenRate > 0 {
 			metrics["gen_ai.response.tokens_per_second"] = response.streamingMetrics.tokenRate
 		}
 
-		// Add stream duration if available
 		if response.streamingMetrics.endTime != nil {
 			streamDuration := response.streamingMetrics.endTime.Sub(response.streamingMetrics.startTime).Milliseconds()
 			metrics["gen_ai.response.stream_duration_ms"] = streamDuration
@@ -153,7 +146,6 @@ func (o ollamaAttrsGetter) GetAIServerAddress(request ollamaRequest) string {
 	return ""
 }
 
-// BuildOllamaLLMInstrumenter creates the instrumenter using the generic pattern
 func BuildOllamaLLMInstrumenter() instrumenter.Instrumenter[ollamaRequest, ollamaResponse] {
 	builder := instrumenter.Builder[ollamaRequest, ollamaResponse]{}
 	getter := ollamaAttrsGetter{}
@@ -171,62 +163,44 @@ func BuildOllamaLLMInstrumenter() instrumenter.Instrumenter[ollamaRequest, ollam
 		BuildInstrumenter()
 }
 
-// streamingAttributesExtractor extracts streaming-specific attributes
 type streamingAttributesExtractor struct{}
 
 func (s *streamingAttributesExtractor) OnStart(attributes []attribute.KeyValue, parentContext context.Context, request ollamaRequest) ([]attribute.KeyValue, context.Context) {
-	// No additional attributes on start
 	return attributes, parentContext
 }
 
 func (s *streamingAttributesExtractor) OnEnd(attributes []attribute.KeyValue, context context.Context, request ollamaRequest, response ollamaResponse, err error) ([]attribute.KeyValue, context.Context) {
-	// Add streaming-specific attributes if this was a streaming response
 	if response.streamingMetrics != nil {
-		// Add streaming flag
 		attributes = append(attributes, attribute.Bool("gen_ai.response.streaming", true))
-
-		// Add TTFT if available
 		if ttft := response.streamingMetrics.getTTFTMillis(); ttft > 0 {
 			attributes = append(attributes, attribute.Int64("gen_ai.response.ttft_ms", ttft))
 		}
-
-		// Add chunk count
 		attributes = append(attributes, attribute.Int("gen_ai.response.chunk_count", response.streamingMetrics.chunkCount))
-
-		// Add tokens per second if calculated
 		if response.streamingMetrics.tokenRate > 0 {
 			attributes = append(attributes, attribute.Float64("gen_ai.response.tokens_per_second", response.streamingMetrics.tokenRate))
 		}
-
-		// Add stream duration
 		if response.streamingMetrics.endTime != nil {
 			streamDuration := response.streamingMetrics.endTime.Sub(response.streamingMetrics.startTime).Milliseconds()
 			attributes = append(attributes, attribute.Int64("gen_ai.response.stream_duration_ms", streamDuration))
 		}
 	} else if request.isStreaming {
-		// Request was streaming but no metrics collected (error case)
 		attributes = append(attributes, attribute.Bool("gen_ai.response.streaming", true))
 		attributes = append(attributes, attribute.Bool("gen_ai.response.partial", true))
 	} else {
-		// Non-streaming request
 		attributes = append(attributes, attribute.Bool("gen_ai.response.streaming", false))
 	}
 
 	return attributes, context
 }
 
-// costAttributesExtractor extracts cost-related attributes
 type costAttributesExtractor struct{}
 
 func (c *costAttributesExtractor) OnStart(attributes []attribute.KeyValue, parentContext context.Context, request ollamaRequest) ([]attribute.KeyValue, context.Context) {
-	// No additional attributes on start
 	return attributes, parentContext
 }
 
 func (c *costAttributesExtractor) OnEnd(attributes []attribute.KeyValue, context context.Context, request ollamaRequest, response ollamaResponse, err error) ([]attribute.KeyValue, context.Context) {
-	// Only add cost attributes if cost metrics are available
 	if response.costMetrics != nil {
-		// Add cost attributes
 		attributes = append(attributes,
 			attribute.Float64("gen_ai.cost.input_tokens_usd", response.costMetrics.InputCost),
 			attribute.Float64("gen_ai.cost.output_tokens_usd", response.costMetrics.OutputCost),
@@ -235,33 +209,15 @@ func (c *costAttributesExtractor) OnEnd(attributes []attribute.KeyValue, context
 			attribute.String("gen_ai.cost.model_pricing_tier", response.costMetrics.PricingTier),
 		)
 		
-		// Add budget status if available
-		budgetTracker := GetBudgetTracker()
+		budgetTracker := globalBudget
 		if budgetTracker != nil {
-			status := budgetTracker.GetStatus()
-			if statusStr, ok := status["status"].(string); ok {
-				attributes = append(attributes, attribute.String("gen_ai.budget.status", statusStr))
-			}
-			if percentUsed, ok := status["percentage_used"].(float64); ok {
-				attributes = append(attributes, attribute.Float64("gen_ai.budget.usage_percentage", percentUsed))
-			}
-			if remaining, ok := status["current_spend"].(float64); ok {
-				budgetTotal, _ := status["total_budget"].(float64)
-				if budgetTotal > 0 {
-					remainingBudget := budgetTotal - remaining
-					attributes = append(attributes, attribute.Float64("gen_ai.budget.remaining_usd", remainingBudget))
-				}
-			}
-			
-			// Check if threshold exceeded
-			thresholdExceeded := false
-			if percentUsed, ok := status["percentage_used"].(float64); ok && percentUsed >= 100 {
-				thresholdExceeded = true
-			}
+			status, percentage, remaining := budgetTracker.GetStatus()
+			attributes = append(attributes, attribute.String("gen_ai.budget.status", string(status)))
+			attributes = append(attributes, attribute.Float64("gen_ai.budget.usage_percentage", percentage))
+			attributes = append(attributes, attribute.Float64("gen_ai.budget.remaining_usd", remaining))
+			thresholdExceeded := percentage >= 100
 			attributes = append(attributes, attribute.Bool("gen_ai.budget.threshold_exceeded", thresholdExceeded))
 		}
-		
-		// Add estimation flag if input was estimated
 		if response.costMetrics.EstimatedInput {
 			attributes = append(attributes, attribute.Bool("gen_ai.cost.input_estimated", true))
 		}
@@ -270,5 +226,4 @@ func (c *costAttributesExtractor) OnEnd(attributes []attribute.KeyValue, context
 	return attributes, context
 }
 
-// Singleton instance
 var ollamaInstrumenter = BuildOllamaLLMInstrumenter()

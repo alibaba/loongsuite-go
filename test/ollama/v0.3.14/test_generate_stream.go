@@ -26,7 +26,6 @@ import (
 const progressReportInterval = 10 // Report progress every 10 chunks
 
 func main() {
-	// Test Generate API with streaming enabled
 	client, err := api.ClientFromEnvironment()
 	if err != nil {
 		log.Printf("Creating default client: %v", err)
@@ -35,7 +34,6 @@ func main() {
 	
 	ctx := context.Background()
 	
-	// Explicitly enable streaming
 	streamFlag := true
 	req := &api.GenerateRequest{
 		Model:  "tinyllama",
@@ -46,32 +44,26 @@ func main() {
 	fmt.Println("Testing Generate API with streaming...")
 	fmt.Println("Stream mode: enabled")
 	
-	// Track streaming metrics
 	chunkCount := 0
 	firstTokenTime := time.Time{}
 	startTime := time.Now()
 	var totalContent string
 	
-	// This will trigger our streaming instrumentation
 	err = client.Generate(ctx, req, func(resp api.GenerateResponse) error {
 		chunkCount++
 		
-		// Record first token time
 		if chunkCount == 1 && resp.Response != "" {
 			firstTokenTime = time.Now()
 			ttft := firstTokenTime.Sub(startTime).Milliseconds()
 			fmt.Printf("First token received! TTFT: %dms\n", ttft)
 		}
 		
-		// Accumulate content
 		totalContent += resp.Response
 		
-		// Print progress every progressReportInterval chunks
 		if chunkCount%progressReportInterval == 0 {
 			fmt.Printf("Streaming progress: %d chunks received\n", chunkCount)
 		}
 		
-		// Final chunk
 		if resp.Done {
 			duration := time.Since(startTime)
 			fmt.Printf("\n=== Streaming Complete ===\n")

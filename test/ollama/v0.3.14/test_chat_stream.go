@@ -26,7 +26,6 @@ import (
 const progressReportInterval = 10 // Report progress every 10 chunks
 
 func main() {
-	// Test Chat API with streaming enabled
 	client, err := api.ClientFromEnvironment()
 	if err != nil {
 		log.Printf("Creating default client: %v", err)
@@ -35,7 +34,6 @@ func main() {
 	
 	ctx := context.Background()
 	
-	// Explicitly enable streaming
 	streamFlag := true
 	req := &api.ChatRequest{
 		Model: "tinyllama",
@@ -55,32 +53,26 @@ func main() {
 	fmt.Println("Testing Chat API with streaming...")
 	fmt.Println("Stream mode: enabled")
 	
-	// Track streaming metrics
 	chunkCount := 0
 	firstTokenTime := time.Time{}
 	startTime := time.Now()
 	var totalContent string
 	
-	// This will trigger our streaming instrumentation
 	err = client.Chat(ctx, req, func(resp api.ChatResponse) error {
 		chunkCount++
 		
-		// Record first token time
 		if chunkCount == 1 && resp.Message.Content != "" {
 			firstTokenTime = time.Now()
 			ttft := firstTokenTime.Sub(startTime).Milliseconds()
 			fmt.Printf("First token received! TTFT: %dms\n", ttft)
 		}
 		
-		// Accumulate content
 		totalContent += resp.Message.Content
 		
-		// Print progress every progressReportInterval chunks
 		if chunkCount%progressReportInterval == 0 {
 			fmt.Printf("Streaming progress: %d chunks received\n", chunkCount)
 		}
 		
-		// Final chunk
 		if resp.Done {
 			duration := time.Since(startTime)
 			fmt.Printf("\n=== Streaming Complete ===\n")

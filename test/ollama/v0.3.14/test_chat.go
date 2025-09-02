@@ -23,7 +23,6 @@ import (
 )
 
 func main() {
-	// Test Chat API instrumentation
 	client, err := api.ClientFromEnvironment()
 	if err != nil {
 		log.Printf("Creating default client: %v", err)
@@ -32,7 +31,7 @@ func main() {
 	
 	ctx := context.Background()
 	req := &api.ChatRequest{
-		Model: "llama3:8b",
+		Model: "tinyllama",
 		Messages: []api.Message{
 			{Role: "user", Content: "Hello!"},
 		},
@@ -40,10 +39,8 @@ func main() {
 	
 	fmt.Println("Testing Chat API instrumentation...")
 	
-	// Track responses
 	var responses []api.ChatResponse
 	
-	// This will trigger our instrumentation
 	err = client.Chat(ctx, req, func(resp api.ChatResponse) error {
 		responses = append(responses, resp)
 		if resp.Done {

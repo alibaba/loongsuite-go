@@ -23,25 +23,22 @@ import (
 )
 
 func main() {
-	// Test Generate API instrumentation
 	client, err := api.ClientFromEnvironment()
 	if err != nil {
 		log.Printf("Creating default client: %v", err)
-		client = &api.Client{} // Create default client for testing
+		client = &api.Client{}
 	}
 	
 	ctx := context.Background()
 	req := &api.GenerateRequest{
-		Model:  "llama3:8b",
+		Model:  "tinyllama",
 		Prompt: "Hello, world!",
 	}
 	
 	fmt.Println("Testing Generate API instrumentation...")
 	
-	// Track responses
 	var responses []api.GenerateResponse
 	
-	// This will trigger our instrumentation
 	err = client.Generate(ctx, req, func(resp api.GenerateResponse) error {
 		responses = append(responses, resp)
 		if resp.Done {

@@ -9,6 +9,7 @@ const ollama_module_name = "ollama"
 
 func init() {
 	TestCases = append(TestCases,
+		NewGeneralTestCase("ollama-0.3.14-all-features-test", ollama_module_name, "0.3.14", "0.3.14", "1.22.0", "", TestOllamaAllFeatures),
 		NewGeneralTestCase("ollama-0.3.14-chat-test", ollama_module_name, "0.3.14", "0.3.14", "1.22.0", "", TestOllamaChat),
 		NewGeneralTestCase("ollama-0.3.14-generate-test", ollama_module_name, "0.3.14", "0.3.14", "1.22.0", "", TestOllamaGenerate),
 		NewGeneralTestCase("ollama-0.3.14-chat-stream-test", ollama_module_name, "0.3.14", "0.3.14", "1.22.0", "", TestOllamaChatStream),
@@ -17,6 +18,12 @@ func init() {
 		NewGeneralTestCase("ollama-0.3.14-cost-calculation-test", ollama_module_name, "0.3.14", "0.3.14", "1.22.0", "", TestOllamaCostCalculation),
 		NewGeneralTestCase("ollama-0.3.14-budget-tracking-test", ollama_module_name, "0.3.14", "0.3.14", "1.22.0", "", TestOllamaBudgetTracking),
 	)
+}
+
+func TestOllamaAllFeatures(t *testing.T, env ...string) {
+	UseApp("ollama/v0.3.14")
+	RunGoBuild(t, "go", "build", "test_all_features.go")
+	RunApp(t, "test_all_features", env...)
 }
 
 func TestOllamaChat(t *testing.T, env ...string) {

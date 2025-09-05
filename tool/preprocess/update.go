@@ -239,19 +239,12 @@ func (dp *DepProcessor) updateRule(bundles []*rules.RuleBundle) error {
 					if rectified[rule.GetPath()] {
 						continue
 					}
-					if strings.HasPrefix(rule.Path, pkgPrefix) {
-						p := strings.TrimPrefix(rule.Path, pkgPrefix)
-						p = filepath.Join(dp.pkgModDir, p)
-						rule.SetPath(p)
-						rectified[p] = true
-					} else {
-						p, exist := replaceMap[rule.Path]
-						if !exist {
-							return ex.Errorf(nil, "rule path %s is not found in go.mod file", rule.Path)
-						}
-						rule.SetPath(p)
-						rectified[p] = true
+					_, path, err := dp.findRuleDir(rule.GetPath())
+					if err != nil {
+						return err
 					}
+					rule.SetPath(path)
+					rectified[path] = true
 				}
 			}
 		}
@@ -259,21 +252,13 @@ func (dp *DepProcessor) updateRule(bundles []*rules.RuleBundle) error {
 			if rectified[fileRule.GetPath()] {
 				continue
 			}
-			if strings.HasPrefix(fileRule.Path, pkgPrefix) {
-				p := strings.TrimPrefix(fileRule.Path, pkgPrefix)
-				p = filepath.Join(dp.pkgModDir, p)
-				fileRule.SetPath(p)
-				fileRule.FileName = filepath.Join(p, fileRule.FileName)
-				rectified[p] = true
-			} else {
-				p, exist := replaceMap[fileRule.Path]
-				if !exist {
-					return ex.Errorf(nil, "rule path %s is not found in go.mod file", fileRule.Path)
-				}
-				fileRule.SetPath(p)
-				fileRule.FileName = filepath.Join(p, fileRule.FileName)
-				rectified[p] = true
+			_, path, err := dp.findRuleDir(fileRule.GetPath())
+			if err != nil {
+				return err
 			}
+			fileRule.SetPath(path)
+			fileRule.FileName = filepath.Join(path, fileRule.FileName)
+			rectified[path] = true
 		}
 	}
 	return nil

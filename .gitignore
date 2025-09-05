@@ -128,3 +128,4 @@ test/ollama/*/README.md
 otel.runtime.go
 *.so
 test/sharedlib/sharedlib
+example/nethttp/demo

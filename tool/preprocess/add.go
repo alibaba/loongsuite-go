@@ -89,6 +89,27 @@ func (dp *DepProcessor) addDependency(gomod string, dependencies []Dependency) e
 	return nil
 }
 
+func (dp *DepProcessor) findRuleDir(path string) (string, string, error) {
+	// The rule can be either a standard rule or a custom rule
+	// We should identify it and define how to find it
+	if util.PathExists(path) {
+		modfile, err := parseGoMod(filepath.Join(path, util.GoModFile))
+		if err != nil {
+			return "", "", err
+		}
+		// Custom rule, find it locally
+		moduleName := modfile.Module.Mod.Path
+		replacePath := path
+		return moduleName, replacePath, nil
+	} else {
+		// Standard rule, find it from the pkg module dir
+		t := strings.TrimPrefix(path, pkgPrefix)
+		moduleName := path
+		replacePath := filepath.Join(dp.pkgModDir, t)
+		return moduleName, replacePath, nil
+	}
+}
+
 func (dp *DepProcessor) newDeps(bundles []*rules.RuleBundle) error {
 	content := "package main\n"
 	builtin := map[string]string{
@@ -120,30 +141,31 @@ func (dp *DepProcessor) newDeps(bundles []*rules.RuleBundle) error {
 		return nil
 	}
 
-	// Generate the otel_importer.go file with the rule bundles
-	paths := map[string]bool{}
+	// Generate the otel.runtime.go file with the rule bundles
+	addDeps := make([]Dependency, 0)
 	for _, bundle := range bundles {
 		for _, funcRules := range bundle.File2FuncRules {
 			for _, rules := range funcRules {
 				for _, rule := range rules {
-					if rule.GetPath() != "" {
-						paths[rule.GetPath()] = true
+					path := rule.GetPath()
+					if path != "" {
+						moduleName, replacePath, err := dp.findRuleDir(path)
+						if err != nil {
+							return err
+						}
+						content += fmt.Sprintf("import _ %q\n", moduleName)
+						addDeps = append(addDeps, Dependency{
+							ImportPath: path,
+							// use latest version for the rule import
+							Version:        "v0.0.0-00010101000000-000000000000",
+							Replace:        true,
+							ReplacePath:    replacePath,
+							ReplaceVersion: "",
+						})
 					}
 				}
 			}
 		}
-	}
-	addDeps := make([]Dependency, 0)
-	for path := range paths {
-		content += fmt.Sprintf("import _ %q\n", path)
-		t := strings.TrimPrefix(path, pkgPrefix)
-		addDeps = append(addDeps, Dependency{
-			ImportPath:     path,
-			Version:        "v0.0.0-00010101000000-000000000000", // use latest version for the rule import
-			Replace:        true,
-			ReplacePath:    filepath.Join(dp.pkgModDir, t),
-			ReplaceVersion: "",
-		})
 	}
 	cnt := 0
 	for _, bundle := range bundles {

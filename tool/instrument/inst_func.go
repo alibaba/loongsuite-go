@@ -86,7 +86,7 @@ func (rp *RuleProcessor) restoreAst(filePath string, root *dst.File) (string, er
 	rp.target = nil
 	filePath = rp.tryRelocated(filePath)
 	name := filepath.Base(filePath)
-	newFile, err := ast.WriteAstToFile(root, filepath.Join(rp.workDir, name))
+	newFile, err := ast.WriteFile(root, filepath.Join(rp.workDir, name))
 	if err != nil {
 		return "", err
 	}
@@ -323,7 +323,7 @@ func (rp *RuleProcessor) writeTrampoline(pkgName string) error {
 	trampoline.Decls = append(trampoline.Decls, rp.varDecls...)
 	// Write trampoline code to file
 	path := filepath.Join(rp.workDir, OtelTrampolineFile)
-	trampolineFile, err := ast.WriteAstToFile(trampoline, path)
+	trampolineFile, err := ast.WriteFile(trampoline, path)
 	if err != nil {
 		return err
 	}

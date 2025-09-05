@@ -16,7 +16,6 @@ package preprocess
 
 import (
 	_ "embed"
-	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -64,12 +63,6 @@ func newDepProcessor() *DepProcessor {
 		otelRuntimeGo: "",
 	}
 	return dp
-}
-
-func (dp *DepProcessor) String() string {
-	return fmt.Sprintf("moduleName: %s, modulePath: %s, goBuildCmd: %v, vendorMode: %v, pkgModDir: %s, OtelRuntimeGo: %s",
-		dp.moduleName, dp.modulePath, dp.goBuildCmd, dp.vendorMode,
-		dp.pkgModDir, dp.otelRuntimeGo)
 }
 
 func (dp *DepProcessor) getGoModPath() string {

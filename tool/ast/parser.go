@@ -102,16 +102,16 @@ func (ap *AstParser) ParseFile(filePath string, mode parser.Mode) (*dst.File, er
 	return dstFile, nil
 }
 
-func ParseFromFileOnlyPackage(filePath string) (*dst.File, error) {
+func ParseFileOnlyPackage(filePath string) (*dst.File, error) {
 	return NewAstParser().ParseFile(filePath, parser.PackageClauseOnly)
 }
 
-func ParseFromFileFast(filePath string) (*dst.File, error) {
+func ParseFileFast(filePath string) (*dst.File, error) {
 	return NewAstParser().ParseFile(filePath, parser.SkipObjectResolution)
 }
 
-// ParseFromFile parses the AST from complete source file.
-func ParseFromFile(filePath string) (*dst.File, error) {
+// ParseFile parses the AST from complete source file.
+func ParseFile(filePath string) (*dst.File, error) {
 	return NewAstParser().ParseFile(filePath, parser.ParseComments)
 }
 

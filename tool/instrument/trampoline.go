@@ -166,7 +166,7 @@ func findHookFile(rule *rules.InstFuncRule) (string, error) {
 		if !util.IsGoFile(file) {
 			continue
 		}
-		root, err := ast.ParseFromFileFast(file)
+		root, err := ast.ParseFileFast(file)
 		if err != nil {
 			return "", err
 		}
@@ -197,7 +197,7 @@ func getHookFunc(t *rules.InstFuncRule, onEnter bool) (*dst.FuncDecl, error) {
 	if err != nil {
 		return nil, err
 	}
-	astRoot, err := ast.ParseFromFile(file)
+	astRoot, err := ast.ParseFile(file)
 	if err != nil {
 		return nil, err
 	}

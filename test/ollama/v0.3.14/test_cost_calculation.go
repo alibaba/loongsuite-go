@@ -16,49 +16,31 @@ package main
 
 import (
 	"context"
-	"fmt"
-	"log"
 	"os"
-	"time"
 
+	"github.com/alibaba/loongsuite-go-agent/test/verifier"
 	"github.com/ollama/ollama/api"
+	"go.opentelemetry.io/otel/sdk/trace/tracetest"
 )
 
 func main() {
-	fmt.Println("Testing Ollama cost calculation instrumentation...")
-	fmt.Println("==================================================")
-
 	os.Setenv("OLLAMA_ENABLE_COST_TRACKING", "true")
 	os.Setenv("OLLAMA_DEFAULT_CURRENCY", "USD")
-
-	client, err := api.ClientFromEnvironment()
-	if err != nil {
-		log.Fatal("Failed to create client:", err)
-	}
-
 	ctx := context.Background()
-
-	fmt.Println("\n1. Testing non-streaming request with cost calculation...")
-	testNonStreamingWithCost(ctx, client)
-
-	fmt.Println("\n2. Testing streaming request with real-time cost accumulation...")
-	testStreamingWithCost(ctx, client)
-
-	fmt.Println("\n3. Testing budget tracking with multiple requests...")
-	testBudgetTracking(ctx, client)
-
-	fmt.Println("\n4. Testing multi-currency support...")
-	testCurrencyConversion(ctx, client)
-
-	fmt.Println("\n==================================================")
-	fmt.Println("Cost calculation tests completed!")
+	testNonStreamingWithCost(ctx)
+	testStreamingWithCost(ctx)
+	testExpensiveModel(ctx)
 }
 
-func testNonStreamingWithCost(ctx context.Context, client *api.Client) {
+func testNonStreamingWithCost(ctx context.Context) {
+	client, server := SetupMockGenerate(MockGenerateResponse)
+	defer server.Close()
+
+	streamFlag := false
 	req := &api.GenerateRequest{
-		Model:  "tinyllama",
-		Prompt: "Count from 1 to 5",
-		Stream: new(bool), // false - non-streaming
+		Model:  "llama3:8b",
+		Prompt: "Test prompt",
+		Stream: &streamFlag,
 	}
 
 	var finalResponse api.GenerateResponse
@@ -70,136 +52,70 @@ func testNonStreamingWithCost(ctx context.Context, client *api.Client) {
 	})
 
 	if err != nil {
-		log.Printf("Error: %v", err)
-		return
+		panic(err)
 	}
 
-	fmt.Printf("Response received (non-streaming)\n")
-	fmt.Printf("Input tokens: %d\n", finalResponse.PromptEvalCount)
-	fmt.Printf("Output tokens: %d\n", finalResponse.EvalCount)
+	if finalResponse.PromptEvalCount != 15 || finalResponse.EvalCount != 25 {
+		panic("Unexpected token counts")
+	}
 
-	inputCost := float64(finalResponse.PromptEvalCount) / 1000.0 * 0.00001
-	outputCost := float64(finalResponse.EvalCount) / 1000.0 * 0.00002
-	totalCost := inputCost + outputCost
-
-	fmt.Printf("Estimated cost: $%.8f (input: $%.8f, output: $%.8f)\n",
-		totalCost, inputCost, outputCost)
+	verifier.WaitAndAssertTraces(func(stubs []tracetest.SpanStubs) {
+		verifier.VerifyLLMAttributes(stubs[0][0], "generate", "ollama", "llama3:8b")
+		VerifyOllamaCostAttributes(stubs[0][0])
+	}, 1)
 }
 
-func testStreamingWithCost(ctx context.Context, client *api.Client) {
+func testStreamingWithCost(ctx context.Context) {
+	server := NewMockOllamaGenerateStreamServer(MockGenerateStreamChunks)
+	client := NewMockOllamaClient(server)
+	defer server.Close()
+
+	streamFlag := true
 	req := &api.GenerateRequest{
-		Model:  "tinyllama",
-		Prompt: "Write a haiku about OpenTelemetry",
+		Model:  "llama3:8b",
+		Prompt: "Test prompt",
+		Stream: &streamFlag,
 	}
 
 	chunkCount := 0
-	var lastEvalCount int
-	var accumulatedCost float64
+	var finalResponse api.GenerateResponse
 
 	err := client.Generate(ctx, req, func(resp api.GenerateResponse) error {
 		chunkCount++
-
-		if resp.EvalCount > lastEvalCount {
-			incrementalTokens := resp.EvalCount - lastEvalCount
-			incrementalCost := float64(incrementalTokens) / 1000.0 * 0.00002
-			accumulatedCost += incrementalCost
-
-			if chunkCount%10 == 0 {
-				fmt.Printf("  Chunk %d: %d tokens, accumulated cost: $%.8f\n",
-					chunkCount, resp.EvalCount, accumulatedCost)
-			}
-
-			lastEvalCount = resp.EvalCount
-		}
-
 		if resp.Done {
-			fmt.Printf("\nStreaming completed:\n")
-			fmt.Printf("Total chunks: %d\n", chunkCount)
-			fmt.Printf("Input tokens: %d\n", resp.PromptEvalCount)
-			fmt.Printf("Output tokens: %d\n", resp.EvalCount)
-
-			inputCost := float64(resp.PromptEvalCount) / 1000.0 * 0.00001
-			totalCost := inputCost + accumulatedCost
-			fmt.Printf("Final cost: $%.8f (input: $%.8f, output: $%.8f)\n",
-				totalCost, inputCost, accumulatedCost)
+			finalResponse = resp
 		}
-
 		return nil
 	})
 
 	if err != nil {
-		log.Printf("Error: %v", err)
+		panic(err)
 	}
+
+	if chunkCount != len(MockGenerateStreamChunks) {
+		panic("Unexpected chunk count")
+	}
+
+	if finalResponse.EvalCount != 23 {
+		panic("Unexpected token count")
+	}
+
+	verifier.WaitAndAssertTraces(func(stubs []tracetest.SpanStubs) {
+		verifier.VerifyLLMAttributes(stubs[0][0], "generate", "ollama", "llama3:8b")
+		VerifyOllamaStreamingAttributes(stubs[0][0])
+		VerifyOllamaCostAttributes(stubs[0][0])
+	}, 1)
 }
 
-func testBudgetTracking(ctx context.Context, client *api.Client) {
-	prompts := []string{
-		"What is 2+2?",
-		"Name a color",
-		"Say hello",
-	}
+func testExpensiveModel(ctx context.Context) {
+	client, server := SetupMockGenerate(ExpensiveGenerateResponse)
+	defer server.Close()
 
-	totalCost := 0.0
-
-	for i, prompt := range prompts {
-		req := &api.GenerateRequest{
-			Model:  "tinyllama",
-			Prompt: prompt,
-			Stream: new(bool), // false
-		}
-
-		var finalResponse api.GenerateResponse
-		err := client.Generate(ctx, req, func(resp api.GenerateResponse) error {
-			if resp.Done {
-				finalResponse = resp
-			}
-			return nil
-		})
-
-		if err != nil {
-			log.Printf("Request %d error: %v", i+1, err)
-			continue
-		}
-
-		// Calculate cost for this request
-		inputCost := float64(finalResponse.PromptEvalCount) / 1000.0 * 0.00001
-		outputCost := float64(finalResponse.EvalCount) / 1000.0 * 0.00002
-		requestCost := inputCost + outputCost
-		totalCost += requestCost
-
-		fmt.Printf("Request %d: '%s' - Cost: $%.8f\n", i+1, prompt, requestCost)
-
-		// Simulate budget check (in real implementation, this would be automatic)
-		budgetLimit := 0.001 // $0.001 budget
-		usagePercent := (totalCost / budgetLimit) * 100
-
-		status := "OK"
-		if usagePercent >= 80 {
-			status = "WARNING"
-		}
-		if usagePercent >= 90 {
-			status = "CRITICAL"
-		}
-		if usagePercent >= 100 {
-			status = "EXCEEDED"
-		}
-
-		fmt.Printf("  Budget status: %s (%.1f%% of $%.6f used)\n",
-			status, usagePercent, budgetLimit)
-
-		// Small delay between requests
-		time.Sleep(100 * time.Millisecond)
-	}
-
-	fmt.Printf("\nTotal cost across %d requests: $%.8f\n", len(prompts), totalCost)
-}
-
-func testCurrencyConversion(ctx context.Context, client *api.Client) {
-	// Test with a simple request
+	streamFlag := false
 	req := &api.GenerateRequest{
-		Model:  "tinyllama",
-		Prompt: "Hi",
-		Stream: new(bool), // false
+		Model:  "llama3:70b",
+		Prompt: "Test prompt",
+		Stream: &streamFlag,
 	}
 
 	var finalResponse api.GenerateResponse
@@ -211,43 +127,25 @@ func testCurrencyConversion(ctx context.Context, client *api.Client) {
 	})
 
 	if err != nil {
-		log.Printf("Error: %v", err)
-		return
+		panic(err)
 	}
 
-	// Calculate cost in different currencies
-	inputCostUSD := float64(finalResponse.PromptEvalCount) / 1000.0 * 0.00001
-	outputCostUSD := float64(finalResponse.EvalCount) / 1000.0 * 0.00002
-	totalCostUSD := inputCostUSD + outputCostUSD
-
-	// Exchange rates (from default configuration)
-	rates := map[string]float64{
-		"USD": 1.0,
-		"EUR": 0.85,
-		"CNY": 7.25,
-		"GBP": 0.79,
-		"JPY": 149.50,
+	if finalResponse.Metrics.PromptEvalCount != 100 || finalResponse.Metrics.EvalCount != 500 {
+		panic("Unexpected token counts for expensive model")
 	}
 
-	fmt.Printf("Cost in different currencies:\n")
-	for currency, rate := range rates {
-		convertedCost := totalCostUSD * rate
-		symbol := getCurrencySymbol(currency)
-		fmt.Printf("  %s: %s%.8f\n", currency, symbol, convertedCost)
-	}
+	verifier.WaitAndAssertTraces(func(stubs []tracetest.SpanStubs) {
+		verifier.VerifyLLMAttributes(stubs[0][0], "generate", "ollama", "llama3:70b")
+		VerifyOllamaCostAttributes(stubs[0][0])
+		
+		totalCost := getAttributeValue(stubs[0][0], "gen_ai.cost.total_usd")
+		if totalCost == nil {
+			panic("Cost not calculated for expensive model")
+		}
+		
+		tier := getAttributeValue(stubs[0][0], "gen_ai.cost.model_pricing_tier")
+		if tier != "premium" {
+			panic("Model not identified as premium tier")
+		}
+	}, 1)
 }
-
-func getCurrencySymbol(currency string) string {
-	symbols := map[string]string{
-		"USD": "$",
-		"EUR": "€",
-		"CNY": "¥",
-		"GBP": "£",
-		"JPY": "¥",
-	}
-	if symbol, ok := symbols[currency]; ok {
-		return symbol
-	}
-	return ""
-}
-

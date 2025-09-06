@@ -16,230 +16,175 @@ package main
 
 import (
 	"context"
-	"fmt"
-	"log"
-	"time"
 
+	"github.com/alibaba/loongsuite-go-agent/test/verifier"
 	"github.com/ollama/ollama/api"
+	"go.opentelemetry.io/otel/sdk/trace/tracetest"
 )
 
 func main() {
-	fmt.Println("========================================")
-	fmt.Println("TESTING ALL OLLAMA INSTRUMENTATION PRs")
-	fmt.Println("========================================")
-	fmt.Println()
+	ctx := context.Background()
 
-	fmt.Println("=== PR1: Basic Instrumentation ===")
-	testBasicGenerate()
-	testBasicChat()
-	
-	time.Sleep(1 * time.Second)
+	testBasicGenerate(ctx)
+	testBasicChat(ctx)
 
-	fmt.Println("\n=== PR2: Streaming Support ===")
-	testStreamingGenerate()
-	testStreamingChat()
-	
-	time.Sleep(1 * time.Second)
+	testStreamingGenerate(ctx)
+	testStreamingChat(ctx)
 
-	fmt.Println("\n=== PR3: Cost Calculation ===")
-	testCostTracking()
+	testCostTracking(ctx)
 
-	fmt.Println("\n========================================")
-	fmt.Println("ALL TESTS COMPLETED!")
-	fmt.Println("Check the collector output for traces")
-	fmt.Println("========================================")
+	verifier.WaitAndAssertTraces(func(stubs []tracetest.SpanStubs) {
+		if len(stubs) < 5 {
+			panic("Expected at least 5 traces for all features test")
+		}
+
+		hasChat := false
+		hasGenerate := false
+		hasStreaming := false
+		hasCost := false
+
+		for _, trace := range stubs {
+			for _, span := range trace {
+				for _, attr := range span.Attributes {
+					switch attr.Key {
+					case "gen_ai.operation.name":
+						if attr.Value.AsString() == "chat" {
+							hasChat = true
+						} else if attr.Value.AsString() == "generate" {
+							hasGenerate = true
+						}
+					case "gen_ai.response.streaming":
+						if attr.Value.AsBool() {
+							hasStreaming = true
+						}
+					case "gen_ai.cost.total_usd":
+						hasCost = true
+					}
+				}
+			}
+		}
+
+		if !hasChat || !hasGenerate || !hasStreaming || !hasCost {
+			panic("Not all features were properly tested")
+		}
+	}, 5)
 }
 
-func testBasicGenerate() {
-	fmt.Println("1. Testing basic Generate API...")
-	client, err := api.ClientFromEnvironment()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
+func testBasicGenerate(ctx context.Context) {
+	client, server := NewMockOllamaGenerateForInvoke(ctx)
+	defer server.Close()
 
 	req := &api.GenerateRequest{
-		Model:  "llama3.2:1b",
-		Prompt: "Say hello in 5 words",
+		Model:  "llama3:8b",
+		Prompt: "Test basic generate",
 		Stream: new(bool),
 	}
 	*req.Stream = false
 
-	var response string
-	err = client.Generate(ctx, req, func(resp api.GenerateResponse) error {
-		if resp.Done {
-			response = resp.Response
-			fmt.Printf("   ✓ Generate completed: %d prompt tokens, %d completion tokens\n", 
-				resp.PromptEvalCount, resp.EvalCount)
-		}
+	err := client.Generate(ctx, req, func(resp api.GenerateResponse) error {
 		return nil
 	})
-
 	if err != nil {
-		fmt.Printf("   ✗ Generate error: %v\n", err)
-	} else {
-		fmt.Printf("   ✓ Response: %s\n", response)
+		panic(err)
 	}
 }
 
-func testBasicChat() {
-	fmt.Println("2. Testing basic Chat API...")
-	client, err := api.ClientFromEnvironment()
-	if err != nil {
-		log.Fatal(err)
-	}
+func testBasicChat(ctx context.Context) {
+	client, server := NewMockOllamaChatForInvoke(ctx)
+	defer server.Close()
 
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
-
+	streamFlag := false
 	req := &api.ChatRequest{
-		Model: "llama3.2:1b",
+		Model: "llama3:8b",
 		Messages: []api.Message{
-			{Role: "user", Content: "Say hello in 5 words"},
+			{Role: "user", Content: "Test basic chat"},
 		},
-		Stream: new(bool),
+		Stream: &streamFlag,
 	}
-	*req.Stream = false
 
-	var response string
-	err = client.Chat(ctx, req, func(resp api.ChatResponse) error {
-		if resp.Done {
-			response = resp.Message.Content
-			fmt.Printf("   ✓ Chat completed: %d prompt tokens, %d completion tokens\n",
-				resp.PromptEvalCount, resp.EvalCount)
-		}
+	err := client.Chat(ctx, req, func(resp api.ChatResponse) error {
 		return nil
 	})
-
 	if err != nil {
-		fmt.Printf("   ✗ Chat error: %v\n", err)
-	} else {
-		fmt.Printf("   ✓ Response: %s\n", response)
+		panic(err)
 	}
 }
 
-func testStreamingGenerate() {
-	fmt.Println("1. Testing streaming Generate API...")
-	client, err := api.ClientFromEnvironment()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
+func testStreamingGenerate(ctx context.Context) {
+	client, server := NewMockOllamaGenerateForStream(ctx)
+	defer server.Close()
 
 	req := &api.GenerateRequest{
-		Model:  "llama3.2:1b",
-		Prompt: "Count from 1 to 5",
+		Model:  "llama3:8b",
+		Prompt: "Test streaming generate",
+		Stream: new(bool),
 	}
+	*req.Stream = true
 
-	chunks := 0
-	firstTokenTime := time.Now()
-	var ttft time.Duration
-	
-	err = client.Generate(ctx, req, func(resp api.GenerateResponse) error {
-		if chunks == 0 && resp.Response != "" {
-			ttft = time.Since(firstTokenTime)
-			fmt.Printf("   ✓ TTFT: %v\n", ttft)
-		}
-		chunks++
-		if resp.Done {
-			fmt.Printf("   ✓ Streaming completed: %d chunks, %d tokens\n", chunks, resp.EvalCount)
-		}
+	chunkCount := 0
+	err := client.Generate(ctx, req, func(resp api.GenerateResponse) error {
+		chunkCount++
 		return nil
 	})
-
 	if err != nil {
-		fmt.Printf("   ✗ Streaming error: %v\n", err)
+		panic(err)
+	}
+
+	if chunkCount < 2 {
+		panic("Expected at least 2 chunks for streaming")
 	}
 }
 
-func testStreamingChat() {
-	fmt.Println("2. Testing streaming Chat API...")
-	client, err := api.ClientFromEnvironment()
-	if err != nil {
-		log.Fatal(err)
-	}
+func testStreamingChat(ctx context.Context) {
+	client, server := NewMockOllamaChatForStream(ctx)
+	defer server.Close()
 
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
-
+	streamFlag := true
 	req := &api.ChatRequest{
-		Model: "llama3.2:1b",
+		Model: "llama3:8b",
 		Messages: []api.Message{
-			{Role: "user", Content: "Count from 1 to 5"},
+			{Role: "user", Content: "Test streaming chat"},
 		},
+		Stream: &streamFlag,
 	}
 
-	chunks := 0
-	firstTokenTime := time.Now()
-	var ttft time.Duration
-
-	err = client.Chat(ctx, req, func(resp api.ChatResponse) error {
-		if chunks == 0 && resp.Message.Content != "" {
-			ttft = time.Since(firstTokenTime)
-			fmt.Printf("   ✓ TTFT: %v\n", ttft)
-		}
-		chunks++
-		if resp.Done {
-			fmt.Printf("   ✓ Streaming completed: %d chunks, %d tokens\n", chunks, resp.EvalCount)
-		}
+	chunkCount := 0
+	err := client.Chat(ctx, req, func(resp api.ChatResponse) error {
+		chunkCount++
 		return nil
 	})
-
 	if err != nil {
-		fmt.Printf("   ✗ Streaming error: %v\n", err)
+		panic(err)
+	}
+
+	if chunkCount < 2 {
+		panic("Expected at least 2 chunks for streaming")
 	}
 }
 
-func testCostTracking() {
-	fmt.Println("1. Testing cost calculation with llama3.2:1b model...")
-	client, err := api.ClientFromEnvironment()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
+func testCostTracking(ctx context.Context) {
+	client, server := NewMockOllamaGenerateWithTokens(ctx, 50, 100)
+	defer server.Close()
 
 	req := &api.GenerateRequest{
-		Model:  "llama3.2:1b", 
-		Prompt: "What is 2+2? Answer in one word.",
+		Model:  "llama3.2:1b",
+		Prompt: "Calculate costs",
 		Stream: new(bool),
 	}
 	*req.Stream = false
 
-	err = client.Generate(ctx, req, func(resp api.GenerateResponse) error {
+	var finalResponse api.GenerateResponse
+	err := client.Generate(ctx, req, func(resp api.GenerateResponse) error {
 		if resp.Done {
-			fmt.Printf("   ✓ Tokens used: prompt=%d, completion=%d\n", 
-				resp.PromptEvalCount, resp.EvalCount)
-			fmt.Println("   ✓ Cost calculated (check telemetry for gen_ai.cost.* attributes)")
+			finalResponse = resp
 		}
 		return nil
 	})
-
 	if err != nil {
-		fmt.Printf("   ✗ Error: %v\n", err)
+		panic(err)
 	}
 
-	fmt.Println("2. Testing streaming cost calculation...")
-	req2 := &api.GenerateRequest{
-		Model:  "llama3.2:1b",
-		Prompt: "Say yes",
-	}
-
-	chunks := 0
-	err = client.Generate(ctx, req2, func(resp api.GenerateResponse) error {
-		chunks++
-		if resp.Done {
-			fmt.Printf("   ✓ Streaming cost tracked: %d chunks\n", chunks)
-		}
-		return nil
-	})
-
-	if err != nil {
-		fmt.Printf("   ✗ Error: %v\n", err)
+	if finalResponse.Metrics.PromptEvalCount != 50 || finalResponse.Metrics.EvalCount != 100 {
+		panic("Token counts don't match expected values for cost calculation")
 	}
 }

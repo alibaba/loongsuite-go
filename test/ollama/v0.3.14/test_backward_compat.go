@@ -16,97 +16,168 @@ package main
 
 import (
 	"context"
-	"fmt"
-	"log"
 	
+	"github.com/alibaba/loongsuite-go-agent/test/verifier"
 	"github.com/ollama/ollama/api"
+	"go.opentelemetry.io/otel/sdk/trace/tracetest"
 )
 
 func main() {
-	client, err := api.ClientFromEnvironment()
-	if err != nil {
-		log.Printf("Creating default client: %v", err)
-		client = &api.Client{}
-	}
-	
 	ctx := context.Background()
+	testGenerateStreamFalse(ctx)
+	testChatStreamFalse(ctx)
+	testGenerateStreamNil(ctx)
+	testGenerateStreamTrue(ctx)
+}
+
+func testGenerateStreamFalse(ctx context.Context) {
+	client, server := SetupMockGenerate(MockGenerateResponse)
+	defer server.Close()
 	
-	fmt.Println("Testing backward compatibility...")
-	fmt.Println("==================================================")
-	
-	// Test 1: Generate with Stream explicitly set to false
-	fmt.Println("\nTest 1: Generate API with Stream=false")
 	streamFalse := false
-	genReqNoStream := &api.GenerateRequest{
-		Model:  "tinyllama",
-		Prompt: "Say hello",
+	req := &api.GenerateRequest{
+		Model:  "llama3:8b",
+		Prompt: "Test prompt",
 		Stream: &streamFalse,
 	}
 	
-	err = client.Generate(ctx, genReqNoStream, func(resp api.GenerateResponse) error {
+	chunkCount := 0
+	var finalResponse api.GenerateResponse
+	
+	err := client.Generate(ctx, req, func(resp api.GenerateResponse) error {
+		chunkCount++
 		if resp.Done {
-			fmt.Printf("Non-streaming response received\n")
-			fmt.Printf("Content: %s\n", resp.Response)
-			fmt.Printf("Tokens - Input: %d, Output: %d\n", 
-				resp.PromptEvalCount, resp.EvalCount)
+			finalResponse = resp
 		}
 		return nil
 	})
 	
 	if err != nil {
-		fmt.Printf("Generate error (expected if no server): %v\n", err)
+		panic(err)
 	}
 	
-	// Test 2: Chat with Stream explicitly set to false
-	fmt.Println("\nTest 2: Chat API with Stream=false")
-	chatReqNoStream := &api.ChatRequest{
-		Model: "tinyllama",
+	if chunkCount != 1 {
+		panic("Non-streaming should receive exactly 1 chunk")
+	}
+	
+	if finalResponse.Metrics.EvalCount != 25 {
+		panic("Unexpected token count")
+	}
+	
+	verifier.WaitAndAssertTraces(func(stubs []tracetest.SpanStubs) {
+		verifier.VerifyLLMAttributes(stubs[0][0], "generate", "ollama", "llama3:8b")
+		
+		streaming := getAttributeValue(stubs[0][0], "gen_ai.response.streaming")
+		if streaming == true {
+			panic("Stream=false should not have streaming attribute as true")
+		}
+	}, 1)
+}
+
+func testChatStreamFalse(ctx context.Context) {
+	client, server := SetupMockChat(MockChatResponse)
+	defer server.Close()
+	
+	streamFalse := false
+	req := &api.ChatRequest{
+		Model: "llama3:8b",
 		Messages: []api.Message{
-			{Role: "user", Content: "Hi"},
+			{Role: "user", Content: "Hello"},
 		},
 		Stream: &streamFalse,
 	}
 	
-	err = client.Chat(ctx, chatReqNoStream, func(resp api.ChatResponse) error {
+	chunkCount := 0
+	var finalResponse api.ChatResponse
+	
+	err := client.Chat(ctx, req, func(resp api.ChatResponse) error {
+		chunkCount++
 		if resp.Done {
-			fmt.Printf("Non-streaming response received\n")
-			fmt.Printf("Content: %s\n", resp.Message.Content)
-			fmt.Printf("Tokens - Input: %d, Output: %d\n", 
-				resp.PromptEvalCount, resp.EvalCount)
+			finalResponse = resp
 		}
 		return nil
 	})
 	
 	if err != nil {
-		fmt.Printf("Chat error (expected if no server): %v\n", err)
+		panic(err)
 	}
 	
-	// Test 3: Default behavior (Stream=nil, should stream)
-	fmt.Println("\nTest 3: Generate API with Stream=nil (default)")
-	genReqDefault := &api.GenerateRequest{
-		Model:  "tinyllama",
-		Prompt: "Say hello",
-		// Stream not set (nil) - should default to streaming
+	if chunkCount != 1 {
+		panic("Non-streaming should receive exactly 1 chunk")
+	}
+	
+	if finalResponse.Metrics.EvalCount != 20 {
+		panic("Unexpected token count")
+	}
+	
+	verifier.WaitAndAssertTraces(func(stubs []tracetest.SpanStubs) {
+		verifier.VerifyLLMAttributes(stubs[0][0], "chat", "ollama", "llama3:8b")
+		
+		streaming := getAttributeValue(stubs[0][0], "gen_ai.response.streaming")
+		if streaming == true {
+			panic("Stream=false should not have streaming attribute as true")
+		}
+	}, 1)
+}
+
+func testGenerateStreamNil(ctx context.Context) {
+	server := NewMockOllamaGenerateStreamServer(MockGenerateStreamChunks)
+	client := NewMockOllamaClient(server)
+	defer server.Close()
+	
+	req := &api.GenerateRequest{
+		Model:  "llama3:8b",
+		Prompt: "Test prompt",
 	}
 	
 	chunkCount := 0
-	err = client.Generate(ctx, genReqDefault, func(resp api.GenerateResponse) error {
+	err := client.Generate(ctx, req, func(resp api.GenerateResponse) error {
 		chunkCount++
-		if resp.Done {
-			fmt.Printf("Default behavior: received %d chunks (streaming=%v)\n", 
-				chunkCount, chunkCount > 1)
-		}
 		return nil
 	})
 	
 	if err != nil {
-		fmt.Printf("Generate error (expected if no server): %v\n", err)
+		panic(err)
 	}
 	
-	fmt.Println("\n" + "==================================================")
-	fmt.Println("Backward compatibility test completed!")
-	fmt.Println("All three modes tested:")
-	fmt.Println("✓ Stream=false (non-streaming)")
-	fmt.Println("✓ Stream=nil (default streaming)")
-	fmt.Println("✓ Stream=true (explicit streaming)")
+	if chunkCount <= 1 {
+		panic("Stream=nil should default to streaming with multiple chunks")
+	}
+	
+	verifier.WaitAndAssertTraces(func(stubs []tracetest.SpanStubs) {
+		verifier.VerifyLLMAttributes(stubs[0][0], "generate", "ollama", "llama3:8b")
+		VerifyOllamaStreamingAttributes(stubs[0][0])
+	}, 1)
+}
+
+func testGenerateStreamTrue(ctx context.Context) {
+	server := NewMockOllamaGenerateStreamServer(MockGenerateStreamChunks)
+	client := NewMockOllamaClient(server)
+	defer server.Close()
+	
+	streamTrue := true
+	req := &api.GenerateRequest{
+		Model:  "llama3:8b",
+		Prompt: "Test prompt",
+		Stream: &streamTrue,
+	}
+	
+	chunkCount := 0
+	err := client.Generate(ctx, req, func(resp api.GenerateResponse) error {
+		chunkCount++
+		return nil
+	})
+	
+	if err != nil {
+		panic(err)
+	}
+	
+	if chunkCount != len(MockGenerateStreamChunks) {
+		panic("Stream=true should receive all streaming chunks")
+	}
+	
+	verifier.WaitAndAssertTraces(func(stubs []tracetest.SpanStubs) {
+		verifier.VerifyLLMAttributes(stubs[0][0], "generate", "ollama", "llama3:8b")
+		VerifyOllamaStreamingAttributes(stubs[0][0])
+	}, 1)
 }

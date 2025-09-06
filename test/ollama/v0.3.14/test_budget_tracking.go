@@ -16,345 +16,167 @@ package main
 
 import (
 	"context"
-	"fmt"
-	"log"
+	"encoding/json"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"time"
 
+	"github.com/alibaba/loongsuite-go-agent/test/verifier"
 	"github.com/ollama/ollama/api"
+	"go.opentelemetry.io/otel/sdk/trace/tracetest"
 )
 
 func main() {
-	fmt.Println("Testing Ollama budget tracking instrumentation...")
-	fmt.Println("==================================================")
-
 	os.Setenv("OLLAMA_ENABLE_COST_TRACKING", "true")
 	os.Setenv("OLLAMA_DEFAULT_CURRENCY", "USD")
-
-	budgetConfig := struct {
-		TotalBudget float64
-		Period      string
-		Thresholds  []float64
-	}{
-		TotalBudget: 0.0001, // $0.0001 budget (very small for testing)
-		Period:      "hourly",
-		Thresholds:  []float64{80, 90, 100}, // Warning at 80%, Critical at 90%, Exceeded at 100%
-	}
-
-	client, err := api.ClientFromEnvironment()
-	if err != nil {
-		log.Fatal("Failed to create client:", err)
-	}
+	os.Setenv("OLLAMA_BUDGET_TOTAL", "0.0001")
+	os.Setenv("OLLAMA_BUDGET_PERIOD", "hourly")
 
 	ctx := context.Background()
 
-	fmt.Println("\n1. Testing progressive budget consumption...")
-	testProgressiveBudgetConsumption(ctx, client, budgetConfig)
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/api/generate" {
+			responses := []api.GenerateResponse{
+				{
+					Model:     "llama3:8b",
+					CreatedAt: time.Now(),
+					Response:  "First response",
+					Done:      true,
+					Metrics: api.Metrics{
+						TotalDuration:      500000000,
+						LoadDuration:       50000000,
+						PromptEvalCount:    10,
+						PromptEvalDuration: 100000000,
+						EvalCount:          20,
+						EvalDuration:       200000000,
+					},
+				},
+				{
+					Model:     "llama3:8b",
+					CreatedAt: time.Now(),
+					Response:  "Second response with more tokens",
+					Done:      true,
+					Metrics: api.Metrics{
+						TotalDuration:      800000000,
+						LoadDuration:       80000000,
+						PromptEvalCount:    25,
+						PromptEvalDuration: 150000000,
+						EvalCount:          50,
+						EvalDuration:       400000000,
+					},
+				},
+				{
+					Model:     "llama3:8b",
+					CreatedAt: time.Now(),
+					Response:  "Third response exceeding budget",
+					Done:      true,
+					Metrics: api.Metrics{
+						TotalDuration:      1200000000,
+						LoadDuration:       100000000,
+						PromptEvalCount:    100,
+						PromptEvalDuration: 300000000,
+						EvalCount:          200,
+						EvalDuration:       800000000,
+					},
+				},
+			}
 
-	fmt.Println("\n2. Testing budget threshold alerts...")
-	testBudgetThresholds(ctx, client, budgetConfig)
+			resp := responses[0]
+			
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(resp)
+		}
+	}))
+	defer server.Close()
 
-	fmt.Println("\n3. Testing sliding window budget tracking...")
-	testSlidingWindowBudget(ctx, client)
+	client := NewMockOllamaClient(server)
 
-	fmt.Println("\n4. Testing cost anomaly detection...")
+	testProgressiveBudgetConsumption(ctx, client)
+
+	testBudgetThresholds(ctx, client)
+
 	testAnomalyDetection(ctx, client)
 
-	fmt.Println("\n==================================================")
-	fmt.Println("Budget tracking tests completed!")
-}
-
-func testProgressiveBudgetConsumption(ctx context.Context, client *api.Client, config struct {
-	TotalBudget float64
-	Period      string
-	Thresholds  []float64
-}) {
-	totalSpent := 0.0
-	requestCount := 0
-
-	prompts := []string{
-		"Say 'a'",
-		"Say 'b'",
-		"Say 'c'",
-		"Say 'd'",
-		"Say 'e'",
-	}
-
-	for _, prompt := range prompts {
-		req := &api.GenerateRequest{
-			Model:  "tinyllama",
-			Prompt: prompt,
-			Stream: new(bool), // false
+	verifier.WaitAndAssertTraces(func(stubs []tracetest.SpanStubs) {
+		if len(stubs[0]) < 1 {
+			panic("Expected at least 1 span for budget tracking")
 		}
 
-		var finalResponse api.GenerateResponse
-		err := client.Generate(ctx, req, func(resp api.GenerateResponse) error {
-			if resp.Done {
-				finalResponse = resp
+		for _, span := range stubs[0] {
+			verifier.VerifyLLMAttributes(span, "generate", "ollama", "llama3:8b")
+			
+			hasbudgetAttr := false
+			for _, attr := range span.Attributes {
+				switch attr.Key {
+				case "gen_ai.cost.total_usd", "gen_ai.cost.input_tokens_usd", "gen_ai.cost.output_tokens_usd":
+					hasbudgetAttr = true
+				case "gen_ai.budget.remaining_usd", "gen_ai.budget.usage_percentage":
+					hasbudgetAttr = true
+				}
 			}
-			return nil
-		})
-
-		if err != nil {
-			log.Printf("Request error: %v", err)
-			continue
+			
+			if hasbudgetAttr {
+				return
+			}
 		}
-
-		requestCount++
-
-		inputCost := float64(finalResponse.PromptEvalCount) / 1000.0 * 0.00001
-		outputCost := float64(finalResponse.EvalCount) / 1000.0 * 0.00002
-		requestCost := inputCost + outputCost
-		totalSpent += requestCost
-
-		usagePercent := (totalSpent / config.TotalBudget) * 100
-		remaining := config.TotalBudget - totalSpent
-
-		fmt.Printf("Request %d: Cost=$%.8f, Total=$%.8f, Usage=%.1f%%, Remaining=$%.8f\n",
-			requestCount, requestCost, totalSpent, usagePercent, remaining)
-
-		if usagePercent >= 100 {
-			fmt.Println("  ⚠️  BUDGET EXCEEDED - Further requests would be monitored/blocked")
-			break
-		}
-
-		time.Sleep(50 * time.Millisecond)
-	}
-
-	fmt.Printf("\nSummary: %d requests, Total cost: $%.8f, Budget: $%.8f\n",
-		requestCount, totalSpent, config.TotalBudget)
+	}, 1)
 }
 
-func testBudgetThresholds(ctx context.Context, client *api.Client, config struct {
-	TotalBudget float64
-	Period      string
-	Thresholds  []float64
-}) {
-	fmt.Println("Simulating budget threshold alerts...")
-
-	usageLevels := []float64{50, 75, 85, 95, 105} // Percentages
-
-	for _, level := range usageLevels {
-		status := getBudgetStatus(level, config.Thresholds)
-		action := getBudgetAction(level, config.Thresholds)
-
-		fmt.Printf("  Usage: %.0f%% - Status: %s, Action: %s\n", level, status, action)
-
-		if level >= 80 {
-			fmt.Printf("    → gen_ai.budget.status: %s\n", status)
-			fmt.Printf("    → gen_ai.budget.usage_percentage: %.1f\n", level)
-		}
-		if level >= 100 {
-			fmt.Printf("    → gen_ai.budget.threshold_exceeded: true\n")
-		}
-	}
-}
-
-func testSlidingWindowBudget(ctx context.Context, client *api.Client) {
-	fmt.Println("Testing sliding window (last hour) budget tracking...")
-
-	windowCosts := make([]float64, 0)
-	windowStart := time.Now()
-
+func testProgressiveBudgetConsumption(ctx context.Context, client *api.Client) {
 	for i := 0; i < 3; i++ {
 		req := &api.GenerateRequest{
-			Model:  "tinyllama",
-			Prompt: fmt.Sprintf("Count to %d", i+1),
-			Stream: new(bool), // false
+			Model:  "llama3:8b",
+			Prompt: "Test prompt for budget tracking",
+			Stream: new(bool),
 		}
+		*req.Stream = false
 
-		var finalResponse api.GenerateResponse
 		err := client.Generate(ctx, req, func(resp api.GenerateResponse) error {
-			if resp.Done {
-				finalResponse = resp
-			}
 			return nil
 		})
-
 		if err != nil {
-			log.Printf("Request error: %v", err)
-			continue
+			return
 		}
-
-		inputCost := float64(finalResponse.PromptEvalCount) / 1000.0 * 0.00001
-		outputCost := float64(finalResponse.EvalCount) / 1000.0 * 0.00002
-		requestCost := inputCost + outputCost
-		windowCosts = append(windowCosts, requestCost)
-
-		elapsed := time.Since(windowStart)
-		windowSum := sum(windowCosts)
-
-		fmt.Printf("  Request %d: Cost=$%.8f, Window sum=$%.8f, Window duration=%v\n",
-			i+1, requestCost, windowSum, elapsed)
-
-		time.Sleep(100 * time.Millisecond)
 	}
+}
 
-	windowDuration := time.Since(windowStart)
-	windowTotal := sum(windowCosts)
-	burnRate := windowTotal / windowDuration.Hours() // $ per hour
-
-	fmt.Printf("\nWindow metrics:\n")
-	fmt.Printf("  Total cost in window: $%.8f\n", windowTotal)
-	fmt.Printf("  Window duration: %v\n", windowDuration)
-	fmt.Printf("  Burn rate: $%.8f/hour\n", burnRate)
-
-	assumedBudget := 0.001 // $0.001
-	if burnRate > 0 {
-		hoursUntilExhaustion := assumedBudget / burnRate
-		exhaustionTime := time.Now().Add(time.Duration(hoursUntilExhaustion * float64(time.Hour)))
-		fmt.Printf("  Predicted budget exhaustion: %v (%.1f hours)\n",
-			exhaustionTime.Format("15:04:05"), hoursUntilExhaustion)
+func testBudgetThresholds(ctx context.Context, client *api.Client) {
+	req := &api.GenerateRequest{
+		Model:  "llama3:8b",
+		Prompt: "Long prompt to test budget thresholds with many tokens",
+		Stream: new(bool),
 	}
+	*req.Stream = false
+
+	client.Generate(ctx, req, func(resp api.GenerateResponse) error {
+		return nil
+	})
 }
 
 func testAnomalyDetection(ctx context.Context, client *api.Client) {
-	fmt.Println("Testing cost anomaly detection (z-score based)...")
-
-	// Normal requests (establish baseline)
-	costs := make([]float64, 0)
-	normalPrompts := []string{"Hi", "Hello", "Test", "OK", "Yes"}
-
-	fmt.Println("  Establishing baseline with normal requests...")
-	for i, prompt := range normalPrompts {
+	normalPrompts := []string{"Hi", "Hello", "Test"}
+	for _, prompt := range normalPrompts {
 		req := &api.GenerateRequest{
-			Model:  "tinyllama",
+			Model:  "llama3:8b",
 			Prompt: prompt,
-			Stream: new(bool), // false
+			Stream: new(bool),
 		}
+		*req.Stream = false
 
-		var finalResponse api.GenerateResponse
-		err := client.Generate(ctx, req, func(resp api.GenerateResponse) error {
-			if resp.Done {
-				finalResponse = resp
-			}
+		client.Generate(ctx, req, func(resp api.GenerateResponse) error {
 			return nil
 		})
-
-		if err != nil {
-			log.Printf("Request error: %v", err)
-			continue
-		}
-
-		inputCost := float64(finalResponse.PromptEvalCount) / 1000.0 * 0.00001
-		outputCost := float64(finalResponse.EvalCount) / 1000.0 * 0.00002
-		requestCost := inputCost + outputCost
-		costs = append(costs, requestCost)
-
-		fmt.Printf("    Request %d: $%.8f\n", i+1, requestCost)
-		time.Sleep(50 * time.Millisecond)
 	}
 
-	// Calculate baseline statistics
-	mean, stdDev := calculateStats(costs)
-	fmt.Printf("\n  Baseline: mean=$%.8f, std_dev=$%.8f\n", mean, stdDev)
-
-	// Anomalous request (much longer prompt)
-	fmt.Println("\n  Testing anomalous request...")
 	anomalousReq := &api.GenerateRequest{
-		Model:  "tinyllama",
-		Prompt: "Write a very long story about a robot learning to paint. Include lots of details about colors, techniques, and emotions. Make it at least 20 sentences long with vivid descriptions.",
-		Stream: new(bool), // false
+		Model:  "llama3:8b",
+		Prompt: "Write a very long story about AI and include many details. This is an anomalously long prompt that should trigger anomaly detection in the budget tracking system.",
+		Stream: new(bool),
 	}
+	*anomalousReq.Stream = false
 
-	var anomalousResponse api.GenerateResponse
-	err := client.Generate(ctx, anomalousReq, func(resp api.GenerateResponse) error {
-		if resp.Done {
-			anomalousResponse = resp
-		}
+	client.Generate(ctx, anomalousReq, func(resp api.GenerateResponse) error {
 		return nil
 	})
-
-	if err == nil {
-		// Calculate anomalous cost
-		inputCost := float64(anomalousResponse.PromptEvalCount) / 1000.0 * 0.00001
-		outputCost := float64(anomalousResponse.EvalCount) / 1000.0 * 0.00002
-		anomalousCost := inputCost + outputCost
-
-		// Calculate z-score
-		zScore := 0.0
-		if stdDev > 0 {
-			zScore = (anomalousCost - mean) / stdDev
-		}
-
-		isAnomaly := zScore > 3.0 // 3 standard deviations
-
-		fmt.Printf("    Anomalous request: $%.8f\n", anomalousCost)
-		fmt.Printf("    Z-score: %.2f\n", zScore)
-		fmt.Printf("    Is anomaly? %v (threshold: z > 3.0)\n", isAnomaly)
-
-		if isAnomaly {
-			fmt.Println("    ⚠️  ANOMALY DETECTED - Cost spike detected!")
-			fmt.Println("    → Would trigger: gen_ai.budget.anomaly_detected: true")
-		}
-	}
 }
-
-// Helper functions
-
-func getBudgetStatus(usagePercent float64, thresholds []float64) string {
-	if usagePercent >= thresholds[2] { // 100%
-		return "EXCEEDED"
-	} else if usagePercent >= thresholds[1] { // 90%
-		return "CRITICAL"
-	} else if usagePercent >= thresholds[0] { // 80%
-		return "WARNING"
-	}
-	return "OK"
-}
-
-func getBudgetAction(usagePercent float64, thresholds []float64) string {
-	if usagePercent >= thresholds[2] {
-		return "alert + potential block"
-	} else if usagePercent >= thresholds[1] {
-		return "alert"
-	} else if usagePercent >= thresholds[0] {
-		return "log warning"
-	}
-	return "none"
-}
-
-func sum(values []float64) float64 {
-	total := 0.0
-	for _, v := range values {
-		total += v
-	}
-	return total
-}
-
-func calculateStats(values []float64) (mean, stdDev float64) {
-	if len(values) == 0 {
-		return 0, 0
-	}
-
-	// Calculate mean
-	sum := 0.0
-	for _, v := range values {
-		sum += v
-	}
-	mean = sum / float64(len(values))
-
-	// Calculate standard deviation
-	variance := 0.0
-	for _, v := range values {
-		diff := v - mean
-		variance += diff * diff
-	}
-
-	if len(values) > 1 {
-		variance = variance / float64(len(values)-1)
-		stdDev = variance
-		if variance > 0 {
-			// Simple square root approximation (in real code, use math.Sqrt)
-			// This is a Newton-Raphson approximation
-			x := variance
-			for i := 0; i < 10; i++ {
-				x = (x + variance/x) / 2
-			}
-			stdDev = x
-		}
-	}
-
-	return mean, stdDev
-}
-

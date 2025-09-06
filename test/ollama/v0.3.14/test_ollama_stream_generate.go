@@ -16,42 +16,29 @@ package main
 
 import (
 	"context"
-	"fmt"
-	"log"
-	
+
+	"github.com/alibaba/loongsuite-go-agent/test/verifier"
 	"github.com/ollama/ollama/api"
+	"go.opentelemetry.io/otel/sdk/trace/tracetest"
 )
 
 func main() {
-	client, err := api.ClientFromEnvironment()
-	if err != nil {
-		log.Printf("Creating default client: %v", err)
-		client = &api.Client{}
-	}
-	
 	ctx := context.Background()
+	client, server := NewMockOllamaGenerateForStream(ctx)
+	defer server.Close()
+	streamFlag := true
 	req := &api.GenerateRequest{
-		Model:  "tinyllama",
-		Prompt: "Hello, world!",
+		Model:  "llama3:8b",
+		Prompt: "Hello",
+		Stream: &streamFlag,
 	}
-	
-	fmt.Println("Testing Generate API instrumentation...")
-	
-	var responses []api.GenerateResponse
-	
-	err = client.Generate(ctx, req, func(resp api.GenerateResponse) error {
-		responses = append(responses, resp)
-		if resp.Done {
-			fmt.Printf("Final response: %s\n", resp.Response)
-			fmt.Printf("Token counts - Input: %d, Output: %d\n", 
-				resp.PromptEvalCount, resp.EvalCount)
-		}
+	err := client.Generate(ctx, req, func(resp api.GenerateResponse) error {
 		return nil
 	})
-	
 	if err != nil {
-		fmt.Printf("Generate error (expected if no server): %v\n", err)
+		panic(err)
 	}
-	
-	fmt.Println("Generate test completed!")
+	verifier.WaitAndAssertTraces(func(stubs []tracetest.SpanStubs) {
+		verifier.VerifyLLMAttributes(stubs[0][0], "generate", "ollama", "llama3:8b")
+	}, 1)
 }

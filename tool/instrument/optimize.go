@@ -200,7 +200,7 @@ func (rp *RuleProcessor) removeOnEnterTrampolineCall(tjump *TJump) error {
 	// Remove generated onEnter trampoline function
 	removed := rp.removeDeclWhen(func(d dst.Decl) bool {
 		if funcDecl, ok := d.(*dst.FuncDecl); ok {
-			return funcDecl.Name.Name == rp.makeName(tjump.rule, tjump.target, true)
+			return funcDecl.Name.Name == makeName(tjump.rule, tjump.target, true)
 		}
 		return false
 	})

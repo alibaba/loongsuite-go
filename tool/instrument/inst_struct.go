@@ -59,7 +59,7 @@ func (rp *RuleProcessor) applyStructRules(bundle *rules.RuleBundle) error {
 		if err != nil {
 			return err
 		}
-		rp.saveDebugFile(newFile)
+		rp.keepForDebug(newFile)
 	}
 	return nil
 }

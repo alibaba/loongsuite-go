@@ -228,7 +228,7 @@ func precheck() error {
 	return nil
 }
 
-func (dp *DepProcessor) saveDebugFiles() {
+func (dp *DepProcessor) keepForDebugs() {
 	dir := filepath.Join(util.GetTempBuildDir(), "changed")
 	err := os.MkdirAll(dir, os.ModePerm)
 	if err == nil {
@@ -255,7 +255,7 @@ func Preprocess() error {
 	defer func() { dp.postProcess() }()
 	{
 		defer util.PhaseTimer("Preprocess")()
-		defer dp.saveDebugFiles()
+		defer dp.keepForDebugs()
 
 		// Backup go.mod and add additional replace directives for the pkg module
 		err = dp.updateGoMod()

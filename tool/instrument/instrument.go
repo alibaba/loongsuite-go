@@ -156,7 +156,7 @@ func (rp *RuleProcessor) replaceCompileArg(newArg string, pred func(string) bool
 		newArg, variant)
 }
 
-func (rp *RuleProcessor) saveDebugFile(path string) {
+func (rp *RuleProcessor) keepForDebug(path string) {
 	escape := func(s string) string {
 		dirName := strings.ReplaceAll(s, "/", "_")
 		dirName = strings.ReplaceAll(dirName, ".", "_")

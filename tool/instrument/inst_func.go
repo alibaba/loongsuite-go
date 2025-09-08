@@ -15,6 +15,7 @@
 package instrument
 
 import (
+	_ "embed"
 	"fmt"
 	"go/parser"
 	"path/filepath"
@@ -32,43 +33,8 @@ import (
 
 const (
 	TJumpLabel         = "/* TRAMPOLINE_JUMP_IF */"
-	OtelAPIFile        = "otel_api.go"
-	OtelTrampolineFile = "otel_trampoline.go"
+	OtelTrampolineFile = "otel.trampoline.go"
 )
-
-// Any modification should be synced with pkg/api declaration
-const APIDeclaration = `type CallContext interface {
-	SetSkipCall(bool)
-	IsSkipCall() bool
-	SetData(interface{})
-	GetData() interface{}
-	GetKeyData(key string) interface{}
-	SetKeyData(key string, val interface{})
-	HasKeyData(key string) bool
-	GetParam(idx int) interface{}
-	SetParam(idx int, val interface{})
-	GetReturnVal(idx int) interface{}
-	SetReturnVal(idx int, val interface{})
-	GetFuncName() string
-	GetPackageName() string
-}`
-
-func copyAPI(target string, pkgName string) (string, error) {
-	snippet := APIDeclaration
-	snippet = "package " + pkgName + "\n" + snippet
-	return util.WriteFile(target, snippet)
-}
-
-func (rp *RuleProcessor) copyOtelApi(pkgName string) error {
-	// Generate  otel_api.go at working directory
-	target := filepath.Join(rp.workDir, OtelAPIFile)
-	file, err := copyAPI(target, pkgName)
-	if err != nil {
-		return err
-	}
-	rp.addCompileArg(file)
-	return nil
-}
 
 func (rp *RuleProcessor) loadAst(filePath string) (*dst.File, error) {
 	file := rp.tryRelocated(filePath)
@@ -100,7 +66,7 @@ func (rp *RuleProcessor) restoreAst(filePath string, root *dst.File) (string, er
 	return newFile, nil
 }
 
-func (rp *RuleProcessor) makeName(r *rules.InstFuncRule,
+func makeName(r *rules.InstFuncRule,
 	funcDecl *dst.FuncDecl, onEnter bool) string {
 	prefix := TrampolineOnExitName
 	if onEnter {
@@ -129,10 +95,7 @@ func findJumpPoint(jumpIf *dst.IfStmt) *dst.BlockStmt {
 	return nil
 }
 
-func (rp *RuleProcessor) insertTJump(t *rules.InstFuncRule,
-	funcDecl *dst.FuncDecl) error {
-	util.Assert(t.OnEnter != "" || t.OnExit != "", "sanity check")
-
+func collectReturnValues(funcDecl *dst.FuncDecl) []dst.Expr {
 	var retVals []dst.Expr // nil by default
 	if retList := funcDecl.Type.Results; retList != nil {
 		retVals = make([]dst.Expr, 0)
@@ -150,7 +113,10 @@ func (rp *RuleProcessor) insertTJump(t *rules.InstFuncRule,
 			}
 		}
 	}
+	return retVals
+}
 
+func collectArguments(funcDecl *dst.FuncDecl) []dst.Expr {
 	// Arguments for onEnter trampoline
 	args := make([]dst.Expr, 0)
 	// Receiver as argument for trampoline func, if any
@@ -168,7 +134,12 @@ func (rp *RuleProcessor) insertTJump(t *rules.InstFuncRule,
 			args = append(args, ast.AddressOf(ast.Ident(name.Name)))
 		}
 	}
+	return args
+}
 
+func (rp *RuleProcessor) createTJumpIf(t *rules.InstFuncRule, funcDecl *dst.FuncDecl,
+	args []dst.Expr, retVals []dst.Expr,
+) *dst.IfStmt {
 	varSuffix := util.Crc32(t.String())
 	if config.GetConf().Verbose {
 		util.Log("varSuffix: %s for %s", varSuffix, t.String())
@@ -177,8 +148,8 @@ func (rp *RuleProcessor) insertTJump(t *rules.InstFuncRule,
 	// Generate the trampoline-jump-if. N.B. Note that future optimization pass
 	// heavily depends on the structure of trampoline-jump-if. Any change in it
 	// should be carefully examined.
-	onEnterCall := ast.CallTo(rp.makeName(t, rp.rawFunc, true), args)
-	onExitCall := ast.CallTo(rp.makeName(t, rp.rawFunc, false), func() []dst.Expr {
+	onEnterCall := ast.CallTo(makeName(t, funcDecl, true), args)
+	onExitCall := ast.CallTo(makeName(t, funcDecl, false), func() []dst.Expr {
 		// NB. DST framework disallows duplicated node in the
 		// AST tree, we need to replicate the return values
 		// as they are already used in return statement above
@@ -212,8 +183,10 @@ func (rp *RuleProcessor) insertTJump(t *rules.InstFuncRule,
 	// Add label for trampoline-jump-if. Note that the label will be cleared
 	// during optimization pass, to make it pretty in the generated code
 	tjump.Decs.If.Append(TJumpLabel)
-	// Find if there is already a trampoline-jump-if, insert new tjump if so,
-	// otherwise prepend to block body
+	return tjump
+}
+
+func (rp *RuleProcessor) insertToFunc(funcDecl *dst.FuncDecl, tjump *dst.IfStmt) {
 	found := false
 	if len(funcDecl.Body.List) > 0 {
 		firstStmt := funcDecl.Body.List[0]
@@ -258,6 +231,39 @@ func (rp *RuleProcessor) insertTJump(t *rules.InstFuncRule,
 		}
 		funcDecl.Body.List = append([]dst.Stmt{tjump}, funcDecl.Body.List...)
 	}
+}
+
+func (rp *RuleProcessor) insertTJump(t *rules.InstFuncRule,
+	funcDecl *dst.FuncDecl) error {
+	util.Assert(t.OnEnter != "" || t.OnExit != "", "sanity check")
+
+	// Collect return values for the trampoline function
+	retVals := collectReturnValues(funcDecl)
+
+	// Collect all arguments for the trampoline function, including the receiver
+	// and the original target function arguments
+	args := collectArguments(funcDecl)
+
+	// Generate the trampoline-jump-if. The trampoline-jump-if is a conditional
+	// jump that jumps to the trampoline function, it looks something like this
+	//
+	//	if ctx, skip := otel_trampoline_onenter(&arg); skip {
+	//	    otel_trampoline_after(ctx, &retval)
+	//	    return ...
+	//	} else {
+	//	    defer otel_trampoline_onexit(ctx, &retval)
+	//	    ...
+	//	}
+	//
+	// The trampoline function is just a relay station that properly assembles
+	// the context, handles exceptions, etc, and ultimately jumps to the real
+	// hook code. By inserting trampoline-jump-if at the target function entry,
+	// we can intercept the original function and execute onenter/onexit hooks.
+	tjump := rp.createTJumpIf(t, funcDecl, args, retVals)
+
+	// Find if there is already a trampoline-jump-if, insert new tjump if so,
+	// otherwise prepend to block body
+	rp.insertToFunc(funcDecl, tjump)
 
 	// Generate corresponding trampoline code
 	err := rp.generateTrampoline(t)
@@ -312,6 +318,9 @@ func sortFuncRules(fnRules []*rules.InstFuncRule) []*rules.InstFuncRule {
 	return fnRules
 }
 
+//go:embed template_api.go
+var templateAPI string
+
 func (rp *RuleProcessor) writeTrampoline(pkgName string) error {
 	// Prepare trampoline code header
 	p := ast.NewAstParser()
@@ -319,8 +328,16 @@ func (rp *RuleProcessor) writeTrampoline(pkgName string) error {
 	if err != nil {
 		return err
 	}
-	// One trampoline file shares common variable declarations
+	// Declare common variable declarations
 	trampoline.Decls = append(trampoline.Decls, rp.varDecls...)
+
+	// Declare the hook context interface
+	api, err := p.ParseSource(templateAPI)
+	if err != nil {
+		return err
+	}
+	trampoline.Decls = append(trampoline.Decls, api.Decls...)
+
 	// Write trampoline code to file
 	path := filepath.Join(rp.workDir, OtelTrampolineFile)
 	trampolineFile, err := ast.WriteFile(trampoline, path)
@@ -328,7 +345,7 @@ func (rp *RuleProcessor) writeTrampoline(pkgName string) error {
 		return err
 	}
 	rp.addCompileArg(trampolineFile)
-	rp.saveDebugFile(path)
+	rp.keepForDebug(path)
 	return nil
 }
 
@@ -351,11 +368,6 @@ func (rp *RuleProcessor) applyFuncRules(bundle *rules.RuleBundle) (err error) {
 	// Nothing to do if no func rules
 	if len(bundle.File2FuncRules) == 0 {
 		return nil
-	}
-	// Copy API file to compilation working directory
-	err = rp.copyOtelApi(bundle.PackageName)
-	if err != nil {
-		return err
 	}
 	// Applied all matched func rules, either inserting raw code or inserting
 	// our trampoline calls.
@@ -426,7 +438,7 @@ func (rp *RuleProcessor) applyFuncRules(bundle *rules.RuleBundle) (err error) {
 		if err != nil {
 			return err
 		}
-		rp.saveDebugFile(newFile)
+		rp.keepForDebug(newFile)
 	}
 
 	err = rp.writeTrampoline(bundle.PackageName)

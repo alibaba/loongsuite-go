@@ -68,7 +68,7 @@ const (
 // - Function and variable names are coupled with the framework, any modification
 //   on them should be synced with the framework
 
-//go:embed template.go
+//go:embed template_impl.go
 var trampolineTemplate string
 
 func (rp *RuleProcessor) materializeTemplate() error {
@@ -384,7 +384,7 @@ func insertAtEnd(funcDecl *dst.FuncDecl, stmt dst.Stmt) {
 
 func (rp *RuleProcessor) renameFunc(t *rules.InstFuncRule) {
 	// Randomize trampoline function names
-	rp.onEnterHookFunc.Name.Name = rp.makeName(t, rp.rawFunc, true)
+	rp.onEnterHookFunc.Name.Name = makeName(t, rp.rawFunc, true)
 	dst.Inspect(rp.onEnterHookFunc, func(node dst.Node) bool {
 		if basicLit, ok := node.(*dst.BasicLit); ok {
 			// Replace OtelOnEnterTrampolinePlaceHolder to real hook func name
@@ -394,7 +394,7 @@ func (rp *RuleProcessor) renameFunc(t *rules.InstFuncRule) {
 		}
 		return true
 	})
-	rp.onExitHookFunc.Name.Name = rp.makeName(t, rp.rawFunc, false)
+	rp.onExitHookFunc.Name.Name = makeName(t, rp.rawFunc, false)
 	dst.Inspect(rp.onExitHookFunc, func(node dst.Node) bool {
 		if basicLit, ok := node.(*dst.BasicLit); ok {
 			if basicLit.Value == TrampolineOnExitNamePlaceholder {

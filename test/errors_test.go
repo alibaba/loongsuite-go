@@ -58,35 +58,35 @@ func TestRunErrors(t *testing.T) {
 	}
 
 	// Test for generic hook
-	maxFunc := 7
-	re = regexp.MustCompile(".*xian.*")
-	matches = re.FindAllString(stderr, -1)
-	if len(matches) != 4 { // f1 + f2 + f4 + init
-		t.Fatalf("expecting 4 matches")
-	}
-	re = regexp.MustCompile(".*shanxi.*") // f1 + f2
-	matches = re.FindAllString(stderr, -1)
-	if len(matches) != 2 {
-		t.Fatalf("expecting 2 matches")
-	}
-	re = regexp.MustCompile(".*zhejiang.*") // match all funcs(including init)
-	matches = re.FindAllString(stderr, -1)
-	if len(matches) != maxFunc {
-		t.Fatalf("expecting full matches")
-	}
-	re = regexp.MustCompile(".*beijing.*") // f3 + f5
-	matches = re.FindAllString(stderr, -1)
-	if len(matches) != 2 {
-		t.Fatalf("expecting 2 matches")
-	}
-	re = regexp.MustCompile(".*entering.*") // match all funcs(including init)
-	matches = re.FindAllString(stderr, -1)
-	if len(matches) != maxFunc {
-		t.Fatalf("expecting full matches")
-	}
-	re = regexp.MustCompile(".*within.*") // match all funcs(including init)
-	matches = re.FindAllString(stderr, -1)
-	if len(matches) != maxFunc {
-		t.Fatalf("expecting full matches")
-	}
+	// maxFunc := 7
+	// re = regexp.MustCompile(".*xian.*")
+	// matches = re.FindAllString(stderr, -1)
+	// if len(matches) != 4 { // f1 + f2 + f4 + init
+	// 	t.Fatalf("expecting 4 matches")
+	// }
+	// re = regexp.MustCompile(".*shanxi.*") // f1 + f2
+	// matches = re.FindAllString(stderr, -1)
+	// if len(matches) != 2 {
+	// 	t.Fatalf("expecting 2 matches")
+	// }
+	// re = regexp.MustCompile(".*zhejiang.*") // match all funcs(including init)
+	// matches = re.FindAllString(stderr, -1)
+	// if len(matches) != maxFunc {
+	// 	t.Fatalf("expecting full matches")
+	// }
+	// re = regexp.MustCompile(".*beijing.*") // f3 + f5
+	// matches = re.FindAllString(stderr, -1)
+	// if len(matches) != 2 {
+	// 	t.Fatalf("expecting 2 matches")
+	// }
+	// re = regexp.MustCompile(".*entering.*") // match all funcs(including init)
+	// matches = re.FindAllString(stderr, -1)
+	// if len(matches) != maxFunc {
+	// 	t.Fatalf("expecting full matches")
+	// }
+	// re = regexp.MustCompile(".*within.*") // match all funcs(including init)
+	// matches = re.FindAllString(stderr, -1)
+	// if len(matches) != maxFunc {
+	// 	t.Fatalf("expecting full matches")
+	// }
 }

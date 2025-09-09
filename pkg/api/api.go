@@ -51,4 +51,8 @@ type CallContext interface {
 	GetFuncName() string
 	// Get the package name of the original function
 	GetPackageName() string
+	// Number of original function parameters
+	GetParamCount() int
+	// Number of original function return values
+	GetReturnValCount() int
 }

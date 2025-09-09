@@ -112,38 +112,5 @@
         "Function": "TargetWithFuncType",
         "OnEnter": "onEnterTargetWithFuncType",
         "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/test/error18"
-    },
-    {
-        "ImportPath": "errorstest/all",
-        "Function": ".*",
-        "OnEnter": "onEnterGeneric",
-        "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/test/error19"
-    },
-    {
-        "ImportPath": "errorstest/all",
-        "Function": "f[12]",
-        "OnEnter": "onEnterGeneric2",
-        "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/test/error19"
-    },
-    {
-        "ImportPath": "errorstest/all",
-        "ReceiverType": ".*",
-        "Function": ".*",
-        "OnEnter": "onEnterGeneric3",
-        "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/test/error19"
-    },
-    {
-        "ImportPath": "errorstest/all",
-        "ReceiverType": "\\*recv.*",
-        "Function": ".*",
-        "OnEnter": "onEnterGeneric4",
-        "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/test/error19"
-    },
-    {
-        "ImportPath": "errorstest/all",
-        "ReceiverType": ".*",
-        "Function": ".*",
-        "OnEnter": "onEnterGeneric5",
-        "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/test/error19"
     }
 ]

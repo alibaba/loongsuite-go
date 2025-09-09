@@ -129,3 +129,4 @@ otel.runtime.go
 *.so
 test/sharedlib/sharedlib
 example/nethttp/demo
+test/dependencies/main

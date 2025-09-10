@@ -155,7 +155,7 @@ func (dp *DepProcessor) newDeps(bundles []*rules.RuleBundle) error {
 						}
 						content += fmt.Sprintf("import _ %q\n", moduleName)
 						addDeps = append(addDeps, Dependency{
-							ImportPath: path,
+							ImportPath: moduleName,
 							// use latest version for the rule import
 							Version:        "v0.0.0-00010101000000-000000000000",
 							Replace:        true,

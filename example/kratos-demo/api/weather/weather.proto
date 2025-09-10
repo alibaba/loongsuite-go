@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package api.weather.v1;
+
+option go_package = "kratos-demo/api/weather/v1;v1";
+
+import "google/api/annotations.proto";
+
+service WeatherService {
+  rpc GetWeatherMessage (GetWeatherMessageRequest) returns (GetWeatherMessageResponse){
+    option (google.api.http) = {
+      get: "/v1/weather/{city}/message"
+    };
+  }
+}
+
+message GetWeatherMessageRequest {
+  string city = 1;
+}
+
+message GetWeatherMessageResponse {
+  string message = 1;
+}

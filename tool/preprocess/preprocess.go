@@ -16,7 +16,6 @@ package preprocess
 
 import (
 	_ "embed"
-	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -64,12 +63,6 @@ func newDepProcessor() *DepProcessor {
 		otelRuntimeGo: "",
 	}
 	return dp
-}
-
-func (dp *DepProcessor) String() string {
-	return fmt.Sprintf("moduleName: %s, modulePath: %s, goBuildCmd: %v, vendorMode: %v, pkgModDir: %s, OtelRuntimeGo: %s",
-		dp.moduleName, dp.modulePath, dp.goBuildCmd, dp.vendorMode,
-		dp.pkgModDir, dp.otelRuntimeGo)
 }
 
 func (dp *DepProcessor) getGoModPath() string {
@@ -235,7 +228,7 @@ func precheck() error {
 	return nil
 }
 
-func (dp *DepProcessor) saveDebugFiles() {
+func (dp *DepProcessor) keepForDebugs() {
 	dir := filepath.Join(util.GetTempBuildDir(), "changed")
 	err := os.MkdirAll(dir, os.ModePerm)
 	if err == nil {
@@ -262,7 +255,7 @@ func Preprocess() error {
 	defer func() { dp.postProcess() }()
 	{
 		defer util.PhaseTimer("Preprocess")()
-		defer dp.saveDebugFiles()
+		defer dp.keepForDebugs()
 
 		// Backup go.mod and add additional replace directives for the pkg module
 		err = dp.updateGoMod()

@@ -66,6 +66,7 @@ The detailed usage of `otel` tool can be found in [**Usage**](./docs/usage.md).
 - [benchmark](./example/benchmark) - Performance testing suite to measure the overhead and efficiency of the auto-instrumentation tool.
 - [sql injection](./example/sqlinject) - Security-focused example demonstrating custom code injection for SQL injection detection and prevention.
 - [nethttp](./example/nethttp) - HTTP monitoring example showcasing automatic instrumentation of request/response headers and network traffic analysis.
+- [kratos-demo](./example/kratos-demo) - This is a demonstration project showcasing loongsuite-go-agent integration with the Kratos framework.
 
 # Supported Libraries
 | Library       | Repository Url                                 | Min           Version | Max           Version |

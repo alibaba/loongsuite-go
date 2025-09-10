@@ -63,7 +63,7 @@ func (rp *RuleProcessor) applyFileRules(bundle *rules.RuleBundle) (err error) {
 			rp.addCompileArg(target)
 		}
 		util.Log("Apply file rule %v (%v)", rule, rp.compileArgs)
-		rp.saveDebugFile(target)
+		rp.keepForDebug(target)
 	}
 	return nil
 }

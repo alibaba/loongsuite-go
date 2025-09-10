@@ -1,29 +1,21 @@
-// Copyright (c) 2024 Alibaba Group Holding Ltd.
+//go:build ignore
+
+// Copyright (c) 2025 Alibaba Group Holding Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//      http://www.apache.org/licenses/LICENSE-2.0
+//	http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+package instrument
 
-package api
-
-// -----------------------------------------------------------------------------
-// Call Context
-//
-// The CallContext struct is used to pass information between the OnEnter and
-// OnExit callbacks. The SkipCall field is used to skip the function call if set
-// to true. Params and ReturnVals holds address of parameters and return values
-// of the original function call. Modification of the Params and ReturnVals will
-// affect the original function call thus should be used with caution.
-
-// !! Any modification MUST be synced with tool/instrument/template_api.go
+// !! Any modification MUST be synced with pkg/api declaration
 type CallContext interface {
 	// Skip the original function call
 	SetSkipCall(bool)

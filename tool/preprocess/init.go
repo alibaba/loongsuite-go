@@ -234,7 +234,7 @@ func findMainDir(pkgs []*packages.Package) (string, error) {
 		if !util.IsGoFile(gofile) {
 			continue
 		}
-		root, err := ast.ParseAstFromFileFast(gofile)
+		root, err := ast.ParseFileFast(gofile)
 		if err != nil {
 			return "", err
 		}

@@ -417,7 +417,7 @@ func (rm *ruleMatcher) match(cmdArgs []string) *rules.RuleBundle {
 			// Check if it matches with file rule early as we try to avoid
 			// parsing the file content, which is time consuming
 			if _, ok := rule.(*rules.InstFileRule); ok {
-				ast, err := ast.ParseAstFromFileOnlyPackage(file)
+				ast, err := ast.ParseFileOnlyPackage(file)
 				if ast == nil || err != nil {
 					util.Log("Failed to parse %s: %v", file, err)
 					continue
@@ -432,7 +432,7 @@ func (rm *ruleMatcher) match(cmdArgs []string) *rules.RuleBundle {
 			// Fair enough, parse the file content
 			var tree *dst.File
 			if _, ok := parsedAst[file]; !ok {
-				fileAst, err := ast.ParseAstFromFileFast(file)
+				fileAst, err := ast.ParseFileFast(file)
 				if fileAst == nil || err != nil {
 					util.Log("failed to parse file %s: %v", file, err)
 					continue

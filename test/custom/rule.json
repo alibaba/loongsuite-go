@@ -4,6 +4,6 @@
         "Function": "main",
         "OnEnter": "mainOnEnter",
         "OnExit": "mainOnExit",
-        "Path": "customhook"
+        "Path": "./hook"
     }
 ]

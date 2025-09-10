@@ -102,21 +102,21 @@ func (ap *AstParser) ParseFile(filePath string, mode parser.Mode) (*dst.File, er
 	return dstFile, nil
 }
 
-func ParseAstFromFileOnlyPackage(filePath string) (*dst.File, error) {
+func ParseFileOnlyPackage(filePath string) (*dst.File, error) {
 	return NewAstParser().ParseFile(filePath, parser.PackageClauseOnly)
 }
 
-func ParseAstFromFileFast(filePath string) (*dst.File, error) {
+func ParseFileFast(filePath string) (*dst.File, error) {
 	return NewAstParser().ParseFile(filePath, parser.SkipObjectResolution)
 }
 
-// ParseAstFromFile parses the AST from complete source file.
-func ParseAstFromFile(filePath string) (*dst.File, error) {
+// ParseFile parses the AST from complete source file.
+func ParseFile(filePath string) (*dst.File, error) {
 	return NewAstParser().ParseFile(filePath, parser.ParseComments)
 }
 
-// WriteAstToFile writes the AST to source file.
-func WriteAstToFile(astRoot *dst.File, filePath string) (string, error) {
+// WriteFile writes the AST to source file.
+func WriteFile(astRoot *dst.File, filePath string) (string, error) {
 	file, err := os.Create(filePath)
 	if err != nil {
 		return "", ex.Error(err)

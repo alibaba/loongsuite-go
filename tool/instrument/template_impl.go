@@ -83,6 +83,8 @@ func (c *CallContextImpl) SetReturnVal(idx int, val interface{}) {
 
 func (c *CallContextImpl) GetFuncName() string    { return c.FuncName }
 func (c *CallContextImpl) GetPackageName() string { return c.PackageName }
+func (c *CallContextImpl) GetParamCount() int     { return len(c.Params) }
+func (c *CallContextImpl) GetReturnValCount() int { return len(c.ReturnVals) }
 
 // Variable Template
 var OtelGetStackImpl func() []byte = nil

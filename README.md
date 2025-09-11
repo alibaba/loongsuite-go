@@ -89,7 +89,7 @@ The detailed usage of `otel` tool can be found in [**Usage**](./docs/usage.md).
 | iris          | https://github.com/kataras/iris                | v12.2.0              | v12.2.11              |
 | client-go     | https://github.com/kubernetes/client-go        | v0.33.3              | -                     |
 | kitex         | https://github.com/cloudwego/kitex             | v0.5.1               | v0.11.3               |
-| kratos        | https://github.com/go-kratos/kratos            | v2.6.3               | v2.8.4                |
+| kratos        | https://github.com/go-kratos/kratos            | v2.8.0               | v2.9.0                |
 | langchaingo   | https://github.com/tmc/langchaingo             | v0.1.13              | v0.1.13               |
 | log           | https://pkg.go.dev/log                         | -                    | -                     |
 | logrus        | https://github.com/sirupsen/logrus             | v1.5.0               | v1.9.3                |

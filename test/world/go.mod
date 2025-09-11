@@ -18,7 +18,7 @@ require (
 	github.com/cloudwego/eino-ext/components/model/qwen v0.0.0-20250718041314-444cfd7822ec
 	github.com/cloudwego/hertz v0.9.3
 	github.com/gin-gonic/gin v1.10.0
-	github.com/go-kratos/kratos/v2 v2.7.2
+	github.com/go-kratos/kratos/v2 v2.8.0
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/gofiber/fiber/v2 v2.52.5
 	github.com/gorilla/mux v1.8.1

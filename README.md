@@ -16,7 +16,7 @@ time. Simply adding `otel` prefix to `go build` to get started :rocket:
 
 | Linux AMD64 | Linux ARM64 | MacOS AMD64 | MacOS ARM64 | Windows AMD64 |
 | -- | -- | -- | -- | -- |
-| [![Download](https://shields.io/badge/-Download-black?logo=winamp)](https://github.com/alibaba/loongsuite-go-agent/releases/latest/download/otel-linux-amd64) | [![Download](https://shields.io/badge/-Download-black?logo=winamp)](https://github.com/alibaba/loongsuite-go-agent/releases/latest/download/otel-linux-arm64) | [![Download](https://shields.io/badge/-Download-black?logo=winamp)](https://github.com/alibaba/loongsuite-go-agent/releases/latest/download/otel-darwin-amd64) | [![Download](https://shields.io/badge/-Download-black?logo=winamp)](https://github.com/alibaba/loongsuite-go-agent/releases/latest/download/otel-darwin-arm64) | [![Download](https://shields.io/badge/-Download-black?logo=winamp)](https://github.com/alibaba/loongsuite-go-agent/releases/latest/download/otel-windows-amd64.exe) | 
+| [![Download](https://shields.io/badge/-Download-black?logo=hootsuite)](https://github.com/alibaba/loongsuite-go-agent/releases/latest/download/otel-linux-amd64) | [![Download](https://shields.io/badge/-Download-black?logo=hootsuite)](https://github.com/alibaba/loongsuite-go-agent/releases/latest/download/otel-linux-arm64) | [![Download](https://shields.io/badge/-Download-black?logo=hootsuite)](https://github.com/alibaba/loongsuite-go-agent/releases/latest/download/otel-darwin-amd64) | [![Download](https://shields.io/badge/-Download-black?logo=hootsuite)](https://github.com/alibaba/loongsuite-go-agent/releases/latest/download/otel-darwin-arm64) | [![Download](https://shields.io/badge/-Download-black?logo=hootsuite)](https://github.com/alibaba/loongsuite-go-agent/releases/latest/download/otel-windows-amd64.exe) |
 
 **This is the recommended way to install the tool.**
 
@@ -61,13 +61,16 @@ The detailed usage of `otel` tool can be found in [**Usage**](./docs/usage.md).
 
 # Examples
 
-- [demo](./example/demo) - Complete end-to-end example demonstrating automatic instrumentation with OpenTelemetry tracing and metrics collection.
-- [zap logging](./example/log) - Integration example showing how to automatically instrument structured logging with the `github.com/uber-go/zap` package.
-- [benchmark](./example/benchmark) - Performance testing suite to measure the overhead and efficiency of the auto-instrumentation tool.
-- [sql injection](./example/sqlinject) - Security-focused example demonstrating custom code injection for SQL injection detection and prevention.
-- [nethttp](./example/nethttp) - HTTP monitoring example showcasing automatic instrumentation of request/response headers and network traffic analysis.
+- [demo](./example/demo) - End-to-end example with OpenTelemetry tracing and metrics
+- [zap logging](./example/log) - Auto-instrumentation for `github.com/uber-go/zap` logging
+- [benchmark](./example/benchmark) - Performance testing and overhead measurement
+- [sql injection](./example/sqlinject) - Custom code injection for SQL injection detection
+- [nethttp](./example/nethttp) - HTTP monitoring with request/response instrumentation
 
 # Supported Libraries
+<details>
+ <summary> List of Supported Libraries </summary>
+
 | Library       | Repository Url                                 | Min           Version | Max           Version |
 |---------------| ---------------------------------------------- |----------------------|-----------------------|
 | database/sql  | https://pkg.go.dev/database/sql                | -                    | -                     |
@@ -107,8 +110,9 @@ The detailed usage of `otel` tool can be found in [**Usage**](./docs/usage.md).
 | pg            | https://github.com/go-pg/pg                    | v1.10.0              | v1.14.0               |
 | gocql         | https://github.com/gocql/gocql                 | v1.3.0                | v1.7.0                |
 | sqlx          | https://github.com/jmoiron/sqlx                | v1.3.0                | v1.4.0                |
+</details>
 
-We are progressively open-sourcing the libraries we have supported, and your contributions are [![](https://shields.io/badge/-Very_Welcome-white?logo=gnu&logoColor=black)](https://github.com/alibaba/loongsuite-go-agent/issues?q=state%3Aopen%20label%3Aavailable)
+We are progressively open-sourcing the libraries we have supported, and your contributions are <kbd>Very Welcome</kbd>
 
 > [!IMPORTANT]
 > The framework you expected is not in the list? Don't worry, you can easily inject your code into any frameworks/libraries that are not officially supported.

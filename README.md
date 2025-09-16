@@ -66,10 +66,11 @@ The detailed usage of `otel` tool can be found in [**Usage**](./docs/usage.md).
 - [benchmark](./example/benchmark) - Performance testing and overhead measurement
 - [sql injection](./example/sqlinject) - Custom code injection for SQL injection detection
 - [nethttp](./example/nethttp) - HTTP monitoring with request/response instrumentation
+- [kratos-demo](./example/kratos-demo) - Integration with the Kratos framework
 
 # Supported Libraries
 <details>
- <summary> List of Supported Libraries </summary>
+ <summary>List of Supported Libraries</summary>
 
 | Library       | Repository Url                                 | Min           Version | Max           Version |
 |---------------| ---------------------------------------------- |----------------------|-----------------------|

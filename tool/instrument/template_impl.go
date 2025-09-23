@@ -108,8 +108,7 @@ func OtelOnEnterTrampoline() (callContext *CallContextImpl, skip bool) {
 	callContext.Params = []interface{}{}
 	callContext.FuncName = ""
 	callContext.PackageName = ""
-	skip = callContext.SkipCall
-	return
+	return callContext, callContext.SkipCall
 }
 
 func OtelOnExitTrampoline(callContext CallContext) {

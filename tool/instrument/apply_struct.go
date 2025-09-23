@@ -49,7 +49,7 @@ func (rp *RuleProcessor) applyStructRules(bundle *rules.RuleBundle) error {
 		}
 		// Once all struct rules are applied, we restore AST to file and use it
 		// in future compilation
-		newFile, err := rp.restoreAst(file, astRoot)
+		newFile, err := rp.writeInstrumented(file, astRoot)
 		if err != nil {
 			return err
 		}

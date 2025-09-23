@@ -382,7 +382,7 @@ func insertAtEnd(funcDecl *dst.FuncDecl, stmt dst.Stmt) {
 	insertAt(funcDecl, stmt, len(funcDecl.Body.List))
 }
 
-func (rp *RuleProcessor) renameFunc(t *rules.InstFuncRule) {
+func (rp *RuleProcessor) renameTrampolineFunc(t *rules.InstFuncRule) {
 	// Randomize trampoline function names
 	rp.onEnterHookFunc.Name.Name = makeName(t, rp.rawFunc, true)
 	dst.Inspect(rp.onEnterHookFunc, func(node dst.Node) bool {
@@ -435,7 +435,7 @@ func (rp *RuleProcessor) buildTrampolineType(onEnter bool) *dst.FieldList {
 	return paramList
 }
 
-func (rp *RuleProcessor) rectifyTypes() {
+func (rp *RuleProcessor) buildTrampolineTypes() {
 	onEnterHookFunc, onExitHookFunc := rp.onEnterHookFunc, rp.onExitHookFunc
 	onEnterHookFunc.Type.Params = rp.buildTrampolineType(true)
 	onExitHookFunc.Type.Params = rp.buildTrampolineType(false)
@@ -633,7 +633,7 @@ func desugarType(param *dst.Field) dst.Expr {
 	return param.Type
 }
 
-func (rp *RuleProcessor) rewriteCallContextImpl() {
+func (rp *RuleProcessor) rewriteCallContext() {
 	util.Assert(len(rp.callCtxMethods) > 4, "sanity check")
 	var (
 		methodSetParam  *dst.FuncDecl
@@ -727,21 +727,25 @@ func (rp *RuleProcessor) callHookFunc(t *rules.InstFuncRule,
 	return nil
 }
 
-func (rp *RuleProcessor) generateTrampoline(t *rules.InstFuncRule) error {
+func (rp *RuleProcessor) createTrampoline(t *rules.InstFuncRule) error {
 	// Materialize various declarations from template file, no one wants to see
 	// a bunch of manual AST code generation, isn't it?
 	err := rp.materializeTemplate()
 	if err != nil {
 		return err
 	}
-	// Implement CallContext interface
+	// Implement HookContext interface methods dynamically
 	rp.implementCallContext(t)
-	// Rewrite type-aware CallContext APIs
-	rp.rewriteCallContextImpl()
-	// Rename trampoline functions
-	rp.renameFunc(t)
-	// Rectify types of trampoline functions
-	rp.rectifyTypes()
+	// Rewrite type-aware HookContext APIs
+	// Make all HookContext methods type-aware according to the target function
+	// signature.
+	rp.rewriteCallContext()
+	// Rename template function to trampoline function
+	rp.renameTrampolineFunc(t)
+	// Build types of trampoline functions. The parameters of the Before trampoline
+	// function are the same as the target function, the parameters of the After
+	// trampoline function are the same as the target function.
+	rp.buildTrampolineTypes()
 	// Generate calls to hook functions
 	if t.OnEnter != "" {
 		err = rp.callHookFunc(t, true)

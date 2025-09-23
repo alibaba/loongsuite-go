@@ -34,7 +34,7 @@ func (rp *RuleProcessor) applyStructRules(bundle *rules.RuleBundle) error {
 	for file, struct2Rules := range bundle.File2StructRules {
 		util.Assert(filepath.IsAbs(file), "file path must be absolute")
 		// Apply struct rules to the file
-		astRoot, err := rp.loadAst(file)
+		astRoot, err := rp.parseAst(file)
 		if err != nil {
 			return err
 		}

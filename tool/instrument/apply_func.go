@@ -36,7 +36,7 @@ const (
 	OtelGlobalsFile = "otel.globals.go"
 )
 
-func (rp *RuleProcessor) loadAst(filePath string) (*dst.File, error) {
+func (rp *RuleProcessor) parseAst(filePath string) (*dst.File, error) {
 	file := rp.tryRelocated(filePath)
 	rp.parser = ast.NewAstParser()
 	var err error
@@ -389,7 +389,7 @@ func (rp *RuleProcessor) applyFuncRules(bundle *rules.RuleBundle) (err error) {
 	// our trampoline calls.
 	for file, fn2rules := range bundle.File2FuncRules {
 		util.Assert(filepath.IsAbs(file), "file path must be absolute")
-		astRoot, err := rp.loadAst(file)
+		astRoot, err := rp.parseAst(file)
 		if err != nil {
 			return err
 		}

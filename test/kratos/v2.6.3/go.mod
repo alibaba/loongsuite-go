@@ -2,14 +2,13 @@ module kratos/v2.5.2
 
 go 1.23.0
 
-
 replace github.com/alibaba/loongsuite-go-agent/test/verifier => ../../../test/verifier
 
 replace github.com/alibaba/loongsuite-go-agent => ../../../
 
 require (
 	github.com/alibaba/loongsuite-go-agent/test/verifier v0.0.0-00010101000000-000000000000
-	github.com/go-kratos/kratos/v2 v2.6.3
+	github.com/go-kratos/kratos/v2 v2.9.1
 	github.com/google/wire v0.6.0
 	go.opentelemetry.io/otel/sdk v1.35.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20240604185151-ef581f913117
@@ -35,10 +34,10 @@ require (
 	go.opentelemetry.io/otel/metric v1.35.0 // indirect
 	go.opentelemetry.io/otel/sdk/metric v1.35.0 // indirect
 	go.opentelemetry.io/otel/trace v1.35.0 // indirect
-	golang.org/x/net v0.26.0 // indirect
-	golang.org/x/sync v0.7.0 // indirect
+	golang.org/x/net v0.33.0 // indirect
+	golang.org/x/sync v0.10.0 // indirect
 	golang.org/x/sys v0.30.0 // indirect
-	golang.org/x/text v0.16.0 // indirect
+	golang.org/x/text v0.21.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240604185151-ef581f913117 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

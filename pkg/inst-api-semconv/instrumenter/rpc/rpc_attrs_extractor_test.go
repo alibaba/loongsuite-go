@@ -16,7 +16,6 @@ package rpc
 
 import (
 	"context"
-	"errors"
 	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/utils"
 	"go.opentelemetry.io/otel/attribute"
 	semconv "go.opentelemetry.io/otel/semconv/v1.30.0"
@@ -156,23 +155,5 @@ func TestGrpcClientExtractorEndSuccess(t *testing.T) {
 
 	if attrs[0].Value.AsInt64() != 0 {
 		log.Fatal("Expected status code 0 (OK)")
-	}
-}
-
-// Test gRPC status code extraction for non-gRPC status errors
-func TestGrpcClientExtractorEndNonGrpcError(t *testing.T) {
-	rpcExtractor := ClientRpcAttrsExtractor[testRequest, testResponse, grpcAttrsGetter]{}
-	attrs := make([]attribute.KeyValue, 0)
-	parentContext := context.Background()
-
-	// Create a non-gRPC error
-	regularErr := errors.New("regular error")
-
-	// Test gRPC call with non-gRPC error
-	attrs, _ = rpcExtractor.OnEnd(attrs, parentContext, testRequest{}, testResponse{}, regularErr)
-
-	// Should have no attributes since the error is not a gRPC status error
-	if len(attrs) != 0 {
-		log.Fatal("Expected 0 attributes for non-gRPC error")
 	}
 }

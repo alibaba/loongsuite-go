@@ -8,14 +8,14 @@ replace github.com/alibaba/loongsuite-go-agent => ../../../
 
 require (
 	github.com/alibaba/loongsuite-go-agent/test/verifier v0.0.0-00010101000000-000000000000
-	github.com/elastic/go-elasticsearch/v8 v8.5.0
+	github.com/elastic/go-elasticsearch/v8 v8.7.1
 	go.opentelemetry.io/otel/sdk v1.35.0
 	go.opentelemetry.io/otel/sdk/metric v1.35.0
 )
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/elastic/elastic-transport-go/v8 v8.0.0-20211216131617-bbee439d559c // indirect
+	github.com/elastic/elastic-transport-go/v8 v8.2.0 // indirect
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/google/uuid v1.6.0 // indirect

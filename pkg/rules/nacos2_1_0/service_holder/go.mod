@@ -7,8 +7,8 @@ replace github.com/alibaba/loongsuite-go-agent/pkg => ../../../../pkg
 require (
 	github.com/alibaba/loongsuite-go-agent/pkg v0.0.0-00010101000000-000000000000
 	github.com/nacos-group/nacos-sdk-go/v2 v2.1.0
-	go.opentelemetry.io/otel v1.36.0
-	go.opentelemetry.io/otel/metric v1.36.0
+	go.opentelemetry.io/otel v1.35.0
+	go.opentelemetry.io/otel/metric v1.35.0
 )
 
 require (

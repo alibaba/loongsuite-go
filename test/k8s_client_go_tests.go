@@ -27,7 +27,7 @@ const client_go_module_name = "k8s-client-go"
 
 func init() {
 	TestCases = append(TestCases,
-		NewGeneralTestCase("k8s-client-go-basic-test", client_go_module_name, "v0.33.3", "", "1.24", "", TestBasicK8sClientGo),
+		NewGeneralTestCase("k8s-client-go-basic-test", client_go_module_name, "v0.33.3", "", "1.23", "", TestBasicK8sClientGo),
 	)
 }
 

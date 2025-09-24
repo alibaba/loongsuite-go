@@ -193,7 +193,7 @@ func RunApp(t *testing.T, appName string, env ...string) (string, string) {
 
 func FetchVersion(t *testing.T, dependency, version string) string {
 	t.Logf("dependency %s, version %s", dependency, version)
-	output, err := exec.Command("go", "get", "-u", dependency+"@"+version).Output()
+	output, err := exec.Command("go", "get", dependency+"@"+version).Output()
 	if err != nil {
 		t.Fatal(output, err)
 	}

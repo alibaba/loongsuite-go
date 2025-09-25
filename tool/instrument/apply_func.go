@@ -60,7 +60,7 @@ func (rp *RuleProcessor) writeInstrumented(filePath string, root *dst.File) (str
 		return arg == filePath
 	})
 	if err != nil {
-		return "", ex.Errorf(err, "filePath %s, compileArgs %v, newArg %s",
+		return "", ex.Wrapf(err, "filePath %s, compileArgs %v, newArg %s",
 			filePath, rp.compileArgs, newFile)
 	}
 	return newFile, nil

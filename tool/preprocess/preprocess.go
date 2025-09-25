@@ -85,7 +85,7 @@ func runCmdCombinedOutput(dir string, env []string, args ...string) (string, err
 	cmd.Env = append(os.Environ(), env...)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return "", ex.Errorf(err, "%s", string(out))
+		return "", ex.Wrapf(err, "%s", string(out))
 	}
 	return string(out), nil
 }
@@ -109,7 +109,7 @@ func (dp *DepProcessor) backupFile(origin string) error {
 	backup = util.GetLogPath(filepath.Join(OtelBackups, backup))
 	err := os.MkdirAll(filepath.Dir(backup), 0777)
 	if err != nil {
-		return ex.Error(err)
+		return ex.Wrap(err)
 	}
 	if _, exist := dp.backups[origin]; !exist {
 		err = util.CopyFile(origin, backup)
@@ -139,13 +139,13 @@ func (dp *DepProcessor) restoreBackupFiles() error {
 func getTempGoCache() (string, error) {
 	goCachePath, err := filepath.Abs(filepath.Join(util.TempBuildDir, GoCacheDir))
 	if err != nil {
-		return "", ex.Error(err)
+		return "", ex.Wrap(err)
 	}
 
 	if !util.PathExists(goCachePath) {
 		err = os.MkdirAll(goCachePath, 0755)
 		if err != nil {
-			return "", ex.Error(err)
+			return "", ex.Wrap(err)
 		}
 	}
 	return goCachePath, nil
@@ -158,7 +158,7 @@ func buildGoCacheEnv(value string) []string {
 func runBuildWithToolexec(goBuildCmd []string) error {
 	exe, err := os.Executable()
 	if err != nil {
-		return ex.Error(err)
+		return ex.Wrap(err)
 	}
 	// go build/install
 	args := []string{}
@@ -205,7 +205,7 @@ func precheck() error {
 	// Check if the project is modularized
 	go11module := os.Getenv("GO111MODULE")
 	if go11module == "off" {
-		return ex.Errorf(nil, "GO111MODULE is off")
+		return ex.Newf("GO111MODULE is off")
 	}
 
 	// Check if the build arguments is sane

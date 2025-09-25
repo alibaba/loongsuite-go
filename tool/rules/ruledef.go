@@ -146,12 +146,12 @@ func (rule *InstFileRule) String() string {
 func verifyRule(rule *InstBaseRule, checkPath bool) error {
 	if checkPath {
 		if rule.Path == "" {
-			return ex.Errorf(nil, "local path is empty")
+			return ex.Newf("local path is empty")
 		}
 	}
 	// Import path should not be empty
 	if rule.ImportPath == "" {
-		return ex.Errorf(nil, "import path is empty")
+		return ex.Newf("import path is empty")
 	}
 	// If version is specified, it should be in the format of [start,end)
 	for _, v := range []string{rule.Version, rule.GoVersion} {
@@ -160,7 +160,7 @@ func verifyRule(rule *InstBaseRule, checkPath bool) error {
 				!strings.Contains(v, ")") ||
 				!strings.Contains(v, ",") ||
 				strings.Contains(v, "v") {
-				return ex.Errorf(nil, "bad version "+v)
+				return ex.Newf("bad version " + v)
 			}
 		}
 	}
@@ -181,7 +181,7 @@ func (rule *InstFileRule) Verify() error {
 		return err
 	}
 	if rule.FileName == "" {
-		return ex.Errorf(nil, "empty file name")
+		return ex.Newf("empty file name")
 	}
 	if !util.IsGoFile(rule.FileName) {
 		return err
@@ -200,10 +200,10 @@ func (rule *InstFuncRule) Verify() error {
 		return err
 	}
 	if rule.Function == "" {
-		return ex.Errorf(nil, "empty function name")
+		return ex.Newf("empty function name")
 	}
 	if rule.OnEnter == "" && rule.OnExit == "" {
-		return ex.Errorf(nil, "empty hook")
+		return ex.Newf("empty hook")
 	}
 	return nil
 }
@@ -214,10 +214,10 @@ func (rule *InstStructRule) Verify() error {
 		return err
 	}
 	if rule.StructType == "" {
-		return ex.Errorf(nil, "empty struct type")
+		return ex.Newf("empty struct type")
 	}
 	if rule.FieldName == "" || rule.FieldType == "" {
-		return ex.Errorf(nil, "empty field name or type")
+		return ex.Newf("empty field name or type")
 	}
 	return nil
 }

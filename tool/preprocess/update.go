@@ -60,7 +60,7 @@ func parseGoMod(gomod string) (*modfile.File, error) {
 	}
 	modFile, err := modfile.Parse(util.GoModFile, []byte(data), nil)
 	if err != nil {
-		return nil, ex.Error(err)
+		return nil, ex.Wrap(err)
 	}
 	return modFile, nil
 }
@@ -68,7 +68,7 @@ func parseGoMod(gomod string) (*modfile.File, error) {
 func writeGoMod(gomod string, modfile *modfile.File) error {
 	bs, err := modfile.Format()
 	if err != nil {
-		return ex.Error(err)
+		return ex.Wrap(err)
 	}
 	_, err = util.WriteFile(gomod, string(bs))
 	if err != nil {
@@ -80,12 +80,12 @@ func writeGoMod(gomod string, modfile *modfile.File) error {
 func extractGZip(data []byte, targetDir string) error {
 	err := os.MkdirAll(targetDir, 0755)
 	if err != nil {
-		return ex.Error(err)
+		return ex.Wrap(err)
 	}
 
 	gzReader, err := gzip.NewReader(strings.NewReader(string(data)))
 	if err != nil {
-		return ex.Error(err)
+		return ex.Wrap(err)
 	}
 	defer func() {
 		err := gzReader.Close()
@@ -101,7 +101,7 @@ func extractGZip(data []byte, targetDir string) error {
 			break
 		}
 		if err != nil {
-			return ex.Error(err)
+			return ex.Wrap(err)
 		}
 
 		// Skip AppleDouble files (._filename) and other hidden files
@@ -143,27 +143,27 @@ func extractGZip(data []byte, targetDir string) error {
 		case tar.TypeDir:
 			err = os.MkdirAll(targetPath, os.FileMode(header.Mode))
 			if err != nil {
-				return ex.Error(err)
+				return ex.Wrap(err)
 			}
 
 		case tar.TypeReg:
 			file, err := os.OpenFile(targetPath, os.O_CREATE|os.O_RDWR,
 				os.FileMode(header.Mode))
 			if err != nil {
-				return ex.Error(err)
+				return ex.Wrap(err)
 			}
 
 			_, err = io.Copy(file, tarReader)
 			if err != nil {
-				return ex.Error(err)
+				return ex.Wrap(err)
 			}
 			err = file.Close()
 			if err != nil {
-				return ex.Error(err)
+				return ex.Wrap(err)
 			}
 
 		default:
-			return ex.Errorf(nil, "unsupported file type: %c in %s",
+			return ex.Newf("unsupported file type: %c in %s",
 				header.Typeflag, header.Name)
 		}
 	}
@@ -320,11 +320,11 @@ func (dp *DepProcessor) updateGoMod() error {
 		if replace.Old.Path == pkgPrefix {
 			err = modfile.DropReplace(pkgPrefix, "")
 			if err != nil {
-				return ex.Error(err)
+				return ex.Wrap(err)
 			}
 			err = modfile.AddReplace(pkgPrefix, "", dp.pkgModDir, "")
 			if err != nil {
-				return ex.Error(err)
+				return ex.Wrap(err)
 			}
 			changed = true
 			break

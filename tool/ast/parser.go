@@ -62,7 +62,7 @@ func (ap *AstParser) ParseSnippet(codeSnippet string) ([]dst.Stmt, error) {
 	snippet := "package main; func _() {" + codeSnippet + "}"
 	file, err := decorator.ParseFile(ap.fset, "", snippet, 0)
 	if err != nil {
-		return nil, ex.Error(err)
+		return nil, ex.Wrap(err)
 	}
 	return file.Decls[0].(*dst.FuncDecl).Body.List, nil
 }
@@ -73,7 +73,7 @@ func (ap *AstParser) ParseSource(source string) (*dst.File, error) {
 	ap.dec = decorator.NewDecorator(ap.fset)
 	dstRoot, err := ap.dec.Parse(source)
 	if err != nil {
-		return nil, ex.Error(err)
+		return nil, ex.Wrap(err)
 	}
 	return dstRoot, nil
 }
@@ -82,7 +82,7 @@ func (ap *AstParser) ParseFile(filePath string, mode parser.Mode) (*dst.File, er
 	name := filepath.Base(filePath)
 	file, err := os.Open(filePath)
 	if err != nil {
-		return nil, ex.Error(err)
+		return nil, ex.Wrap(err)
 	}
 	defer func(file *os.File) {
 		err := file.Close()
@@ -92,12 +92,12 @@ func (ap *AstParser) ParseFile(filePath string, mode parser.Mode) (*dst.File, er
 	}(file)
 	astFile, err := parser.ParseFile(ap.fset, name, file, mode)
 	if err != nil {
-		return nil, ex.Error(err)
+		return nil, ex.Wrap(err)
 	}
 	ap.dec = decorator.NewDecorator(ap.fset)
 	dstFile, err := ap.dec.DecorateFile(astFile)
 	if err != nil {
-		return nil, ex.Error(err)
+		return nil, ex.Wrap(err)
 	}
 	return dstFile, nil
 }
@@ -119,7 +119,7 @@ func ParseFile(filePath string) (*dst.File, error) {
 func WriteFile(astRoot *dst.File, filePath string) (string, error) {
 	file, err := os.Create(filePath)
 	if err != nil {
-		return "", ex.Error(err)
+		return "", ex.Wrap(err)
 	}
 	defer func(file *os.File) {
 		err := file.Close()
@@ -131,7 +131,7 @@ func WriteFile(astRoot *dst.File, filePath string) (string, error) {
 	r := decorator.NewRestorer()
 	err = r.Fprint(file, astRoot)
 	if err != nil {
-		return "", ex.Error(err)
+		return "", ex.Wrap(err)
 	}
 	return file.Name(), nil
 }

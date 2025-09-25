@@ -80,11 +80,11 @@ func (bc *BuildConfig) GetDisabledRules() string {
 
 func (bc *BuildConfig) makeRuleAbs(file string) (string, error) {
 	if util.PathNotExists(file) {
-		return "", ex.Errorf(nil, "file %s not exists", file)
+		return "", ex.Newf("file %s not exists", file)
 	}
 	file, err := filepath.Abs(file)
 	if err != nil {
-		return "", ex.Error(err)
+		return "", ex.Wrap(err)
 	}
 	return file, nil
 }
@@ -129,7 +129,7 @@ func storeConfig(bc *BuildConfig) error {
 	file := getConfPath(BuildConfFile)
 	bs, err := json.Marshal(bc)
 	if err != nil {
-		return ex.Error(err)
+		return ex.Wrap(err)
 	}
 	_, err = util.WriteFile(file, string(bs))
 	if err != nil {
@@ -154,7 +154,7 @@ func loadConfig() (*BuildConfig, error) {
 	bc := &BuildConfig{}
 	err = json.Unmarshal([]byte(data), bc)
 	if err != nil {
-		return nil, ex.Error(err)
+		return nil, ex.Wrap(err)
 	}
 	return bc, nil
 }
@@ -250,7 +250,7 @@ func Configure() error {
 		"Specify the path of the package to be used across multiple instrumentations")
 	err = flag.CommandLine.Parse(os.Args[2:])
 	if err != nil {
-		return ex.Error(err)
+		return ex.Wrap(err)
 	}
 
 	util.Log("Configured in %s", getConfPath(BuildConfFile))

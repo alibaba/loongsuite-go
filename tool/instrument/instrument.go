@@ -136,7 +136,7 @@ func (rp *RuleProcessor) replaceCompileArg(newArg string, pred func(string) bool
 		// instrumented file(path), which is also an absolute path
 		arg, err := filepath.Abs(arg)
 		if err != nil {
-			return ex.Error(err)
+			return ex.Wrap(err)
 		}
 		if pred(arg) {
 			rp.compileArgs[i] = newArg
@@ -152,7 +152,7 @@ func (rp *RuleProcessor) replaceCompileArg(newArg string, pred func(string) bool
 	if variant == "" {
 		variant = fmt.Sprintf("%v", rp.compileArgs)
 	}
-	return ex.Errorf(nil, "instrumentation failed, expect %s, actual %s",
+	return ex.Newf("instrumentation failed, expect %s, actual %s",
 		newArg, variant)
 }
 

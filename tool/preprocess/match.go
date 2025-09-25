@@ -87,7 +87,7 @@ func loadRuleFile(path string) ([]rules.InstRule, error) {
 	content, err := util.ReadFile(path)
 	if err != nil {
 		currentDir, _ := os.Getwd()
-		return nil, ex.Errorf(err, "pwd %s", currentDir)
+		return nil, ex.Wrapf(err, "pwd %s", currentDir)
 	}
 	return loadRuleRaw(content)
 }
@@ -96,7 +96,7 @@ func loadRuleRaw(content string) ([]rules.InstRule, error) {
 	var h []*ruleHolder
 	err := json.Unmarshal([]byte(content), &h)
 	if err != nil {
-		return nil, ex.Error(err)
+		return nil, ex.Wrap(err)
 	}
 	rules := make([]rules.InstRule, 0)
 	for _, rule := range h {
@@ -270,13 +270,13 @@ func matchVersion(version string, ruleVersion string) (bool, error) {
 	}
 	// Check if both rule version and package version are in sane
 	if !strings.Contains(version, "v") {
-		return false, ex.Errorf(nil, "invalid version %v", version)
+		return false, ex.Newf("invalid version %v", version)
 	}
 	if !strings.Contains(ruleVersion, "[") ||
 		!strings.Contains(ruleVersion, ")") ||
 		!strings.Contains(ruleVersion, ",") ||
 		strings.Contains(ruleVersion, "v") {
-		return false, ex.Errorf(nil, "invalid rule version %v", ruleVersion)
+		return false, ex.Newf("invalid rule version %v", ruleVersion)
 	}
 	// Remove extra whitespace from the rule version string
 	ruleVersion = strings.ReplaceAll(ruleVersion, " ", "")
@@ -305,7 +305,7 @@ func matchVersion(version string, ruleVersion string) (bool, error) {
 			return true, nil
 		}
 	default:
-		return false, ex.Errorf(nil, "invalid rule version range %v", ruleVersion)
+		return false, ex.Newf("invalid rule version range %v", ruleVersion)
 	}
 	return false, nil
 }
@@ -550,11 +550,11 @@ func cutPrefix(s, prefix string) (after string, found bool) {
 func parseVendorModules(projDir string) ([]*vendorModule, error) {
 	vendorFile := filepath.Join(projDir, "vendor", "modules.txt")
 	if util.PathNotExists(vendorFile) {
-		return nil, ex.Errorf(nil, "vendor/modules.txt not found")
+		return nil, ex.Newf("vendor/modules.txt not found")
 	}
 	file, err := os.Open(vendorFile)
 	if err != nil {
-		return nil, ex.Error(err)
+		return nil, ex.Wrap(err)
 	}
 	defer func(dryRunLog *os.File) {
 		err := dryRunLog.Close()
@@ -627,7 +627,7 @@ func parseVendorModules(projDir string) ([]*vendorModule, error) {
 	}
 	err = scanner.Err()
 	if err != nil {
-		return nil, ex.Errorf(err, "cannot parse vendor/modules.txt")
+		return nil, ex.Wrapf(err, "cannot parse vendor/modules.txt")
 	}
 	return vms, nil
 }

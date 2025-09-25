@@ -52,7 +52,7 @@ func (dp *DepProcessor) addDependency(gomod string, dependencies []Dependency) e
 		if !alreadyRequire {
 			err = modfile.AddRequire(dependency.ImportPath, dependency.Version)
 			if err != nil {
-				return ex.Error(err)
+				return ex.Wrap(err)
 			}
 			changed = true
 			util.Log("Add require dependency %s %s",
@@ -70,7 +70,7 @@ func (dp *DepProcessor) addDependency(gomod string, dependencies []Dependency) e
 				err = modfile.AddReplace(dependency.ImportPath, "",
 					dependency.ReplacePath, dependency.ReplaceVersion)
 				if err != nil {
-					return ex.Error(err)
+					return ex.Wrap(err)
 				}
 				changed = true
 				util.Log("Add replace dependency %s %s => %s %s",

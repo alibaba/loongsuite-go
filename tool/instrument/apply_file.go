@@ -27,7 +27,7 @@ import (
 func (rp *RuleProcessor) applyFileRules(bundle *rules.RuleBundle) (err error) {
 	for _, rule := range bundle.FileRules {
 		if rule.FileName == "" {
-			return ex.Errorf(nil, "no file name")
+			return ex.Newf("no file name")
 		}
 		// Decorate the source code to remove //go:build exclude
 		// and rename package name

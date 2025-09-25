@@ -174,7 +174,7 @@ func findHookFile(rule *rules.InstFuncRule) (string, error) {
 			return file, nil
 		}
 	}
-	return "", ex.Errorf(nil, "no hook %s/%s found for %s from %v",
+	return "", ex.Newf("no hook %s/%s found for %s from %v",
 		rule.OnEnter, rule.OnExit, rule.Function, files)
 }
 
@@ -212,9 +212,9 @@ func getHookFunc(t *rules.InstFuncRule, onEnter bool) (*dst.FuncDecl, error) {
 	}
 
 	if onEnter {
-		return nil, ex.Errorf(err, "hook %s", t.OnEnter)
+		return nil, ex.Wrapf(err, "hook %s", t.OnEnter)
 	} else {
-		return nil, ex.Errorf(err, "hook %s", t.OnExit)
+		return nil, ex.Wrapf(err, "hook %s", t.OnExit)
 	}
 }
 
@@ -314,7 +314,7 @@ func (rp *RuleProcessor) callOnExitHook(t *rules.InstFuncRule, traits []ParamTra
 
 func rectifyAnyType(paramList *dst.FieldList, traits []ParamTrait) error {
 	if len(paramList.List) != len(traits) {
-		return ex.Errorf(nil, "hook func signature can not match with target function")
+		return ex.Newf("hook func signature can not match with target function")
 	}
 	for i, field := range paramList.List {
 		trait := traits[i]

@@ -119,7 +119,7 @@ func tryLoadPackage(path string) ([]*packages.Package, error) {
 
 	pkgs, err := packages.Load(cfg, path)
 	if err != nil {
-		return nil, ex.Error(err)
+		return nil, ex.Wrap(err)
 	}
 	return pkgs, nil
 }
@@ -191,7 +191,7 @@ func findModule(buildCmd []string) ([]*packages.Package, error) {
 		}
 	}
 	if len(candidates) == 0 {
-		return nil, ex.Errorf(nil, "no package found")
+		return nil, ex.Newf("no package found")
 	}
 
 	return candidates, nil
@@ -210,7 +210,7 @@ func findGoMod(dir string) (string, error) {
 		}
 		dir = par
 	}
-	return "", ex.Errorf(nil, "cannot find go.mod")
+	return "", ex.Newf("cannot find go.mod")
 }
 
 func (dp *DepProcessor) initCmd() {
@@ -245,7 +245,7 @@ func findMainDir(pkgs []*packages.Package) (string, error) {
 			}
 		}
 	}
-	return "", ex.Errorf(nil, "cannot find main function in the source files")
+	return "", ex.Newf("cannot find main function in the source files")
 }
 
 func (dp *DepProcessor) initMod() (err error) {
@@ -314,10 +314,10 @@ func (dp *DepProcessor) initMod() (err error) {
 		}
 	}
 	if dp.moduleName == "" || dp.modulePath == "" {
-		return ex.Errorf(nil, "cannot find compiled module")
+		return ex.Newf("cannot find compiled module")
 	}
 	if dp.otelRuntimeGo == "" {
-		return ex.Errorf(nil, "cannot place otel_importer.go file")
+		return ex.Newf("cannot place otel_importer.go file")
 	}
 
 	// We will import alibaba-otel/pkg module in generated code, which is not
@@ -334,10 +334,10 @@ func (dp *DepProcessor) initMod() (err error) {
 	// to use relative path, so we need to convert the relative path to an absolute
 	dp.pkgModDir, err = filepath.Abs(dp.pkgModDir)
 	if err != nil {
-		return ex.Error(err)
+		return ex.Wrap(err)
 	}
 	if dp.pkgModDir == "" {
-		return ex.Errorf(nil, "cannot find rule cache dir")
+		return ex.Newf("cannot find rule cache dir")
 	}
 	return nil
 }

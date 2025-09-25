@@ -32,6 +32,7 @@ type stackfulError struct {
 }
 
 func (e *stackfulError) Error() string { return strings.Join(e.message, "\n") }
+func (e *stackfulError) Unwrap() error { return e.wrapped }
 
 func getFrames() []string {
 	frameList := make([]string, 0)
@@ -57,37 +58,39 @@ func getFrames() []string {
 	return frameList
 }
 
-func Error(previousErr error) error {
-	se := &stackfulError{}
-	if errors.As(previousErr, &se) {
-		se.message = append(se.message, previousErr.Error())
-		return previousErr
-	}
-	e := &stackfulError{
-		message: []string{previousErr.Error()},
-		frame:   getFrames(),
-		wrapped: previousErr,
-	}
-	return e
-}
-
-// Errorf wraps an error with stack trace information and a formatted message
-// If you want to decorate the existing error, use it.
-func Errorf(previousErr error, format string, args ...any) error {
+func wrapOrCreate(previousErr error, format string, args ...any) error {
 	se := &stackfulError{}
 	if errors.As(previousErr, &se) {
 		se.message = append(se.message, fmt.Sprintf(format, args...))
 		return previousErr
 	}
+	errMsg := fmt.Sprintf(format, args...)
+	if previousErr != nil {
+		errMsg = fmt.Sprintf("%s: %s", errMsg, previousErr.Error())
+	}
 	e := &stackfulError{
-		message: []string{fmt.Sprintf(format, args...)},
+		message: []string{errMsg},
 		frame:   getFrames(),
 		wrapped: previousErr,
 	}
 	return e
 }
 
-func Fatalf(format string, args ...any) { Fatal(Errorf(nil, format, args...)) }
+func Wrap(previousErr error) error {
+	return wrapOrCreate(previousErr, "%s", previousErr.Error())
+}
+
+func Wrapf(previousErr error, format string, args ...any) error {
+	return wrapOrCreate(previousErr, format, args...)
+}
+
+func Newf(format string, args ...any) error {
+	return wrapOrCreate(nil, format, args...)
+}
+
+func Fatalf(format string, args ...any) {
+	Fatal(Newf(format, args...))
+}
 
 func Fatal(err error) {
 	if err == nil {

@@ -60,7 +60,7 @@ func (rb *RuleBundle) IsValid() bool {
 func (rb *RuleBundle) AddFile2FuncRule(file string, rule *InstFuncRule) error {
 	file, err := filepath.Abs(file)
 	if err != nil {
-		return ex.Error(err)
+		return ex.Wrap(err)
 	}
 	fn := rule.Function + "," + rule.ReceiverType
 	util.Assert(fn != "", "sanity check")
@@ -77,7 +77,7 @@ func (rb *RuleBundle) AddFile2FuncRule(file string, rule *InstFuncRule) error {
 func (rb *RuleBundle) AddFile2StructRule(file string, rule *InstStructRule) error {
 	file, err := filepath.Abs(file)
 	if err != nil {
-		return ex.Error(err)
+		return ex.Wrap(err)
 	}
 	st := rule.StructType
 	util.Assert(st != "", "sanity check")
@@ -104,7 +104,7 @@ func StoreRuleBundles(bundles []*RuleBundle) error {
 	ruleFile := util.GetPreprocessLogPath(MatchedRulesJsonFile)
 	bs, err := json.Marshal(bundles)
 	if err != nil {
-		return ex.Error(err)
+		return ex.Wrap(err)
 	}
 	_, err = util.WriteFile(ruleFile, string(bs))
 	if err != nil {
@@ -124,7 +124,7 @@ func LoadRuleBundles() ([]*RuleBundle, error) {
 	var bundles []*RuleBundle
 	err = json.Unmarshal([]byte(data), &bundles)
 	if err != nil {
-		return nil, ex.Errorf(err, "bad "+ruleFile)
+		return nil, ex.Wrapf(err, "bad "+ruleFile)
 	}
 	return bundles, nil
 }

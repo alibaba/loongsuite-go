@@ -27,7 +27,7 @@ import (
 func getCompileCommands() ([]string, error) {
 	dryRunLog, err := os.Open(util.GetLogPath(DryRunLog))
 	if err != nil {
-		return nil, ex.Error(err)
+		return nil, ex.Wrap(err)
 	}
 	defer func(dryRunLog *os.File) {
 		err := dryRunLog.Close()
@@ -51,7 +51,7 @@ func getCompileCommands() ([]string, error) {
 	}
 	err = scanner.Err()
 	if err != nil {
-		return nil, ex.Errorf(err, "cannot parse dry run log")
+		return nil, ex.Wrapf(err, "cannot parse dry run log")
 	}
 	return compileCmds, nil
 }
@@ -60,7 +60,7 @@ func getCompileCommands() ([]string, error) {
 func runDryBuild(goBuildCmd []string) ([]string, error) {
 	dryRunLog, err := os.Create(util.GetLogPath(DryRunLog))
 	if err != nil {
-		return nil, ex.Error(err)
+		return nil, ex.Wrap(err)
 	}
 	// The full build command is: "go build/install -a -x -n  {...}"
 	args := []string{}
@@ -83,7 +83,7 @@ func runDryBuild(goBuildCmd []string) ([]string, error) {
 	cmd.Dir = ""
 	err = cmd.Run()
 	if err != nil {
-		return nil, ex.Errorf(err, "command %v", args)
+		return nil, ex.Wrapf(err, "command %v", args)
 	}
 
 	// Find compile commands from dry run log
@@ -103,7 +103,7 @@ func (dp *DepProcessor) findDeps() ([]string, error) {
 	if err != nil {
 		// Tell us more about what happened in the dry run
 		errLog, _ := util.ReadFile(util.GetLogPath(DryRunLog))
-		return nil, ex.Errorf(err, "dryRunFail: %s", errLog)
+		return nil, ex.Wrapf(err, "dryRunFail: %s", errLog)
 	}
 	return compileCmds, nil
 }

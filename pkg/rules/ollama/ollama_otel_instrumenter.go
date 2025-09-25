@@ -16,6 +16,7 @@ package ollama
 
 import (
 	"context"
+	"time"
 
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/sdk/instrumentation"
@@ -80,6 +81,9 @@ func (o ollamaAttrsGetter) GetAIRequestIsStream(request ollamaRequest) bool {
 }
 
 func (o ollamaAttrsGetter) GetAIOperationName(request ollamaRequest) string {
+	if request.modelOperation != "" {
+		return request.modelOperation
+	}
 	return request.operationType
 }
 
@@ -156,6 +160,9 @@ func BuildOllamaLLMInstrumenter() instrumenter.Instrumenter[ollamaRequest, ollam
 		AddAttributesExtractor(&ai.AILLMAttrsExtractor[ollamaRequest, ollamaResponse, ollamaAttrsGetter, ollamaAttrsGetter]{}).
 		AddAttributesExtractor(&streamingAttributesExtractor{}).
 		AddAttributesExtractor(&costAttributesExtractor{}).
+		AddAttributesExtractor(&embeddingAttributesExtractor{}).
+		AddAttributesExtractor(&modelOperationAttributesExtractor{}).
+		AddAttributesExtractor(&sloAttributesExtractor{}).
 		SetInstrumentationScope(instrumentation.Scope{
 			Name:    OLLAMA_SCOPE_NAME,
 			Version: version.Tag,
@@ -224,6 +231,87 @@ func (c *costAttributesExtractor) OnEnd(attributes []attribute.KeyValue, context
 	}
 	
 	return attributes, context
+}
+
+type embeddingAttributesExtractor struct{}
+
+func (e *embeddingAttributesExtractor) OnStart(attributes []attribute.KeyValue, parentContext context.Context, request ollamaRequest) ([]attribute.KeyValue, context.Context) {
+	return attributes, parentContext
+}
+
+func (e *embeddingAttributesExtractor) OnEnd(attributes []attribute.KeyValue, context context.Context, request ollamaRequest, response ollamaResponse, err error) ([]attribute.KeyValue, context.Context) {
+	if request.operationType == "embed" || request.operationType == "embeddings" {
+		attributes = append(attributes,
+			attribute.Int("gen_ai.embedding.count", request.embeddingCount),
+			attribute.Int("gen_ai.embedding.dimensions", request.embeddingDim),
+		)
+	}
+	return attributes, context
+}
+
+type modelOperationAttributesExtractor struct{}
+
+func (m *modelOperationAttributesExtractor) OnStart(attributes []attribute.KeyValue, parentContext context.Context, request ollamaRequest) ([]attribute.KeyValue, context.Context) {
+	if request.modelOperation != "" {
+		attributes = append(attributes, attribute.String("gen_ai.model.operation", request.modelOperation))
+	}
+	return attributes, parentContext
+}
+
+func (m *modelOperationAttributesExtractor) OnEnd(attributes []attribute.KeyValue, context context.Context, request ollamaRequest, response ollamaResponse, err error) ([]attribute.KeyValue, context.Context) {
+	if response.pullStatus != "" {
+		attributes = append(attributes, attribute.String("gen_ai.model.pull_status", response.pullStatus))
+	}
+	if response.modelInfo != nil {
+		if family, ok := response.modelInfo["family"].(string); ok && family != "" {
+			attributes = append(attributes, attribute.String("gen_ai.model.family", family))
+		}
+		if paramSize, ok := response.modelInfo["parameter_size"].(string); ok && paramSize != "" {
+			attributes = append(attributes, attribute.String("gen_ai.model.parameter_size", paramSize))
+		}
+	}
+	if len(response.modelList) > 0 {
+		attributes = append(attributes, attribute.Int("gen_ai.model.list_count", len(response.modelList)))
+	}
+	return attributes, context
+}
+
+type sloAttributesExtractor struct{}
+
+func (s *sloAttributesExtractor) OnStart(attributes []attribute.KeyValue, parentContext context.Context, request ollamaRequest) ([]attribute.KeyValue, context.Context) {
+	ctx := context.WithValue(parentContext, "start_time", time.Now())
+	return attributes, ctx
+}
+
+func (s *sloAttributesExtractor) OnEnd(attributes []attribute.KeyValue, ctx context.Context, request ollamaRequest, response ollamaResponse, err error) ([]attribute.KeyValue, context.Context) {
+	tracker := globalSLOTracker
+	if tracker != nil {
+		latency := time.Since(ctx.Value("start_time").(time.Time))
+		tracker.RecordRequest(latency, err != nil)
+
+		if tracker.IsPerformanceBottleneck(latency) {
+			attributes = append(attributes, attribute.Bool("gen_ai.performance.bottleneck", true))
+		}
+
+		if tracker.DetectQualityDegradation() {
+			attributes = append(attributes, attribute.Bool("gen_ai.quality.degradation", true))
+		}
+
+		metrics := tracker.GetMetrics()
+		if p50, ok := metrics["p50_ms"].(int64); ok {
+			attributes = append(attributes, attribute.Int64("gen_ai.slo.p50_ms", p50))
+		}
+		if p95, ok := metrics["p95_ms"].(int64); ok {
+			attributes = append(attributes, attribute.Int64("gen_ai.slo.p95_ms", p95))
+		}
+		if p99, ok := metrics["p99_ms"].(int64); ok {
+			attributes = append(attributes, attribute.Int64("gen_ai.slo.p99_ms", p99))
+		}
+		if compliance, ok := metrics["slo_compliance"].(float64); ok {
+			attributes = append(attributes, attribute.Float64("gen_ai.slo.compliance_percentage", compliance))
+		}
+	}
+	return attributes, ctx
 }
 
 var ollamaInstrumenter = BuildOllamaLLMInstrumenter()

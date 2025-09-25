@@ -16,5 +16,68 @@
     "OnEnter": "clientChatOnEnter",
     "OnExit": "clientChatOnExit",
     "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/ollama"
+  },
+  {
+    "Version": "[0.3.14,)",
+    "ImportPath": "github.com/ollama/ollama/api",
+    "Function": "Embed",
+    "ReceiverType": "\\*Client",
+    "OnEnter": "clientEmbedOnEnter",
+    "OnExit": "clientEmbedOnExit",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/ollama"
+  },
+  {
+    "Version": "[0.3.14,)",
+    "ImportPath": "github.com/ollama/ollama/api",
+    "Function": "Embeddings",
+    "ReceiverType": "\\*Client",
+    "OnEnter": "clientEmbeddingsOnEnter",
+    "OnExit": "clientEmbeddingsOnExit",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/ollama"
+  },
+  {
+    "Version": "[0.3.14,)",
+    "ImportPath": "github.com/ollama/ollama/api",
+    "Function": "Pull",
+    "ReceiverType": "\\*Client",
+    "OnEnter": "clientPullOnEnter",
+    "OnExit": "clientPullOnExit",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/ollama"
+  },
+  {
+    "Version": "[0.3.14,)",
+    "ImportPath": "github.com/ollama/ollama/api",
+    "Function": "List",
+    "ReceiverType": "\\*Client",
+    "OnEnter": "clientListOnEnter",
+    "OnExit": "clientListOnExit",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/ollama"
+  },
+  {
+    "Version": "[0.3.14,)",
+    "ImportPath": "github.com/ollama/ollama/api",
+    "Function": "Show",
+    "ReceiverType": "\\*Client",
+    "OnEnter": "clientShowOnEnter",
+    "OnExit": "clientShowOnExit",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/ollama"
+  },
+  {
+    "Version": "[0.3.14,)",
+    "ImportPath": "github.com/ollama/ollama/api",
+    "Function": "Delete",
+    "ReceiverType": "\\*Client",
+    "OnEnter": "clientDeleteOnEnter",
+    "OnExit": "clientDeleteOnExit",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/ollama"
+  },
+  {
+    "Version": "[0.3.14,)",
+    "ImportPath": "github.com/ollama/ollama/api",
+    "Function": "Copy",
+    "ReceiverType": "\\*Client",
+    "OnEnter": "clientCopyOnEnter",
+    "OnExit": "clientCopyOnExit",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/ollama"
   }
 ]

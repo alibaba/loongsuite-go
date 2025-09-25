@@ -31,6 +31,11 @@ type ollamaRequest struct {
 	completionTokens int
 
 	isStreaming bool
+
+	embeddingCount   int
+	embeddingDim     int
+	modelOperation   string
+	downloadProgress float64
 }
 
 type streamingState struct {
@@ -131,6 +136,12 @@ type ollamaResponse struct {
 	err error
 
 	streamingMetrics *streamingState
-	
+
 	costMetrics *CostMetrics
+
+	embeddings       [][]float64
+	modelInfo        map[string]interface{}
+	modelList        []interface{}
+	pullStatus       string
+	pullProgress     float64
 }

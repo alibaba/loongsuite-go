@@ -19,6 +19,10 @@ func init() {
 		NewGeneralTestCase("ollama-0.3.14-cost-calculation-test", ollama_module_name, "0.3.14", "0.3.14", "1.22", "", TestOllamaCostCalculation),
 		NewGeneralTestCase("ollama-0.3.14-budget-tracking-test", ollama_module_name, "0.3.14", "0.3.14", "1.22", "", TestOllamaBudgetTracking),
 		NewGeneralTestCase("ollama-0.3.14-backward-compat-test", ollama_module_name, "0.3.14", "0.3.14", "1.22", "", TestOllamaBackwardCompat),
+		NewGeneralTestCase("ollama-0.3.14-embeddings-test", ollama_module_name, "0.3.14", "0.3.14", "1.22", "", TestOllamaEmbeddings),
+		NewGeneralTestCase("ollama-0.3.14-model-management-test", ollama_module_name, "0.3.14", "0.3.14", "1.22", "", TestOllamaModelManagement),
+		NewGeneralTestCase("ollama-0.3.14-slo-monitoring-test", ollama_module_name, "0.3.14", "0.3.14", "1.22", "", TestOllamaSLOMonitoring),
+		NewGeneralTestCase("ollama-0.3.14-comprehensive-test", ollama_module_name, "0.3.14", "0.3.14", "1.22", "", TestOllamaComprehensive),
 	)
 }
 
@@ -80,4 +84,28 @@ func TestOllamaBackwardCompat(t *testing.T, env ...string) {
 	UseApp("ollama/v0.3.14")
 	RunGoBuild(t, "go", "build", "test_backward_compat.go", "ollama_common.go")
 	RunApp(t, "test_backward_compat", env...)
+}
+
+func TestOllamaEmbeddings(t *testing.T, env ...string) {
+	UseApp("ollama/v0.3.14")
+	RunGoBuild(t, "go", "build", "test_embeddings.go", "ollama_common.go")
+	RunApp(t, "test_embeddings", env...)
+}
+
+func TestOllamaModelManagement(t *testing.T, env ...string) {
+	UseApp("ollama/v0.3.14")
+	RunGoBuild(t, "go", "build", "test_model_management.go", "ollama_common.go")
+	RunApp(t, "test_model_management", env...)
+}
+
+func TestOllamaSLOMonitoring(t *testing.T, env ...string) {
+	UseApp("ollama/v0.3.14")
+	RunGoBuild(t, "go", "build", "test_slo_monitoring.go", "ollama_common.go")
+	RunApp(t, "test_slo_monitoring", env...)
+}
+
+func TestOllamaComprehensive(t *testing.T, env ...string) {
+	UseApp("ollama/v0.3.14")
+	RunGoBuild(t, "go", "build", "test_comprehensive.go", "ollama_common.go")
+	RunApp(t, "test_comprehensive", env...)
 }

@@ -354,3 +354,24 @@ func CreateSimpleTestClient(ctx context.Context, mockType string) (*api.Client, 
 		panic("Unknown mock type: " + mockType)
 	}
 }
+const testModel = "llama3.2:latest"
+
+func checkSpanAttributes(requiredAttributes []string) []string {
+	var missing []string
+	for _, attr := range requiredAttributes {
+		missing = append(missing, attr)
+	}
+	return missing
+}
+
+func isServerUnavailable(err error) bool {
+	if err == nil {
+		return false
+	}
+	switch e := err.(type) {
+	case *api.StatusError:
+		return e.StatusCode == http.StatusServiceUnavailable
+	default:
+		return false
+	}
+}

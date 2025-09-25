@@ -7,8 +7,8 @@ replace github.com/alibaba/loongsuite-go-agent/pkg => ../../../pkg
 require (
 	github.com/alibaba/loongsuite-go-agent/pkg v0.0.0-00010101000000-000000000000
 	go-micro.dev/v5 v5.0.0
-	go.opentelemetry.io/otel v1.36.0
-	go.opentelemetry.io/otel/sdk v1.36.0
+	go.opentelemetry.io/otel v1.35.0
+	go.opentelemetry.io/otel/sdk v1.35.0
 )
 
 require (
@@ -43,8 +43,8 @@ require (
 	github.com/xanzy/ssh-agent v0.3.0 // indirect
 	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
-	go.opentelemetry.io/otel/metric v1.36.0 // indirect
-	go.opentelemetry.io/otel/trace v1.36.0 // indirect
+	go.opentelemetry.io/otel/metric v1.35.0 // indirect
+	go.opentelemetry.io/otel/trace v1.35.0 // indirect
 	golang.org/x/crypto v0.36.0 // indirect
 	golang.org/x/mod v0.21.0 // indirect
 	golang.org/x/net v0.38.0 // indirect

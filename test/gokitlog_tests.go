@@ -22,7 +22,7 @@ import (
 
 func init() {
 	TestCases = append(TestCases,
-		NewGeneralTestCase("gokitlog-test", "gokitlog", "v0.1.0", "v0.2.1", "1.18", "1.24", TestGoKitLog),
+		NewGeneralTestCase("gokitlog-test", "gokitlog", "v0.1.0", "v0.2.1", "1.18", "", TestGoKitLog),
 	)
 }
 

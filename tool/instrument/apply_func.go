@@ -32,11 +32,11 @@ import (
 )
 
 const (
-	TJumpLabel         = "/* TRAMPOLINE_JUMP_IF */"
-	OtelTrampolineFile = "otel.trampoline.go"
+	TJumpLabel      = "/* TRAMPOLINE_JUMP_IF */"
+	OtelGlobalsFile = "otel.globals.go"
 )
 
-func (rp *RuleProcessor) loadAst(filePath string) (*dst.File, error) {
+func (rp *RuleProcessor) parseAst(filePath string) (*dst.File, error) {
 	file := rp.tryRelocated(filePath)
 	rp.parser = ast.NewAstParser()
 	var err error
@@ -47,7 +47,7 @@ func (rp *RuleProcessor) loadAst(filePath string) (*dst.File, error) {
 	return rp.target, nil
 }
 
-func (rp *RuleProcessor) restoreAst(filePath string, root *dst.File) (string, error) {
+func (rp *RuleProcessor) writeInstrumented(filePath string, root *dst.File) (string, error) {
 	rp.parser = nil
 	rp.target = nil
 	filePath = rp.tryRelocated(filePath)
@@ -265,8 +265,24 @@ func (rp *RuleProcessor) insertTJump(t *rules.InstFuncRule,
 	// otherwise prepend to block body
 	rp.insertToFunc(funcDecl, tjump)
 
-	// Generate corresponding trampoline code
-	err := rp.generateTrampoline(t)
+	// Trampoline-jump-if ultimately jumps to the trampoline function, which
+	// typically has the following form
+	//
+	//	func otel_trampoline_before(arg) (HookContext, bool) {
+	//	    defer func () { /* handle panic */ }()
+	//	    // prepare hook context for real hook code
+	//	    hookctx := &HookContextImpl_abc{}
+	//	    ...
+	//	    // Call the real hook code
+	//		realHook(ctx, arg)
+	//	    return ctx, skip
+	//	}
+	//
+	// It catches any potential panic from the real hook code, and prepare the
+	// hook context for the real hook code. Once all preparations are done, it
+	// jumps to the real hook code. Note that each trampoline has its own hook
+	// context implementation, which is generated dynamically.
+	err := rp.createTrampoline(t)
 	if err != nil {
 		return err
 	}
@@ -321,7 +337,7 @@ func sortFuncRules(fnRules []*rules.InstFuncRule) []*rules.InstFuncRule {
 //go:embed template_api.go
 var templateAPI string
 
-func (rp *RuleProcessor) writeTrampoline(pkgName string) error {
+func (rp *RuleProcessor) writeGlobals(pkgName string) error {
 	// Prepare trampoline code header
 	p := ast.NewAstParser()
 	trampoline, err := p.ParseSource("package " + pkgName)
@@ -339,7 +355,7 @@ func (rp *RuleProcessor) writeTrampoline(pkgName string) error {
 	trampoline.Decls = append(trampoline.Decls, api.Decls...)
 
 	// Write trampoline code to file
-	path := filepath.Join(rp.workDir, OtelTrampolineFile)
+	path := filepath.Join(rp.workDir, OtelGlobalsFile)
 	trampolineFile, err := ast.WriteFile(trampoline, path)
 	if err != nil {
 		return err
@@ -373,7 +389,7 @@ func (rp *RuleProcessor) applyFuncRules(bundle *rules.RuleBundle) (err error) {
 	// our trampoline calls.
 	for file, fn2rules := range bundle.File2FuncRules {
 		util.Assert(filepath.IsAbs(file), "file path must be absolute")
-		astRoot, err := rp.loadAst(file)
+		astRoot, err := rp.parseAst(file)
 		if err != nil {
 			return err
 		}
@@ -427,8 +443,9 @@ func (rp *RuleProcessor) applyFuncRules(bundle *rules.RuleBundle) (err error) {
 		if err != nil {
 			return err
 		}
-		// Restore the ast to original file once all rules are applied
-		newFile, err := rp.restoreAst(file, astRoot)
+		// Write the instrumented AST to new file and replace the original
+		// file in the compile command
+		newFile, err := rp.writeInstrumented(file, astRoot)
 		if err != nil {
 			return err
 		}
@@ -441,7 +458,7 @@ func (rp *RuleProcessor) applyFuncRules(bundle *rules.RuleBundle) (err error) {
 		rp.keepForDebug(newFile)
 	}
 
-	err = rp.writeTrampoline(bundle.PackageName)
+	err = rp.writeGlobals(bundle.PackageName)
 	if err != nil {
 		return err
 	}

@@ -20,12 +20,12 @@ const hertz_dependency_name = "github.com/cloudwego/hertz"
 const hertz_module_name = "hertz"
 
 func init() {
-	TestCases = append(TestCases, NewGeneralTestCase("hertz-090-basic-test", hertz_module_name, "v0.9.0", "", "1.18", "1.24", TestBasicHertz),
-		NewGeneralTestCase("hertz-090-basic-test-with-hook", hertz_module_name, "v0.9.0", "", "1.18", "1.24", TestBasicHertzWithHook),
-		NewGeneralTestCase("hertz-090-basic-test-with-exception", hertz_module_name, "v0.9.0", "", "1.18", "1.24", TestBasicHertzWithException),
-		NewGeneralTestCase("hertz-090-basic-test-with-regex", hertz_module_name, "v0.9.0", "", "1.18", "1.24", TestBasicHertzWithRegex),
+	TestCases = append(TestCases, NewGeneralTestCase("hertz-090-basic-test", hertz_module_name, "v0.9.0", "", "1.18", "", TestBasicHertz),
+		NewGeneralTestCase("hertz-090-basic-test-with-hook", hertz_module_name, "v0.9.0", "", "1.18", "", TestBasicHertzWithHook),
+		NewGeneralTestCase("hertz-090-basic-test-with-exception", hertz_module_name, "v0.9.0", "", "1.18", "", TestBasicHertzWithException),
+		NewGeneralTestCase("hertz-090-basic-test-with-regex", hertz_module_name, "v0.9.0", "", "1.18", "", TestBasicHertzWithRegex),
 		NewLatestDepthTestCase("hertz-090-basic-test-latestdepth", hertz_dependency_name, hertz_module_name, "v0.9.0", "", "1.18", "", TestBasicHertz),
-		NewMuzzleTestCase("hertz-090-basic-muzzle", hertz_dependency_name, hertz_module_name, "v0.9.0", "v0.9.1", "1.18", "1.24", []string{"go", "build", "test_hertz_basic.go", "basic_func.go"}),
+		NewMuzzleTestCase("hertz-090-basic-muzzle", hertz_dependency_name, hertz_module_name, "v0.9.0", "v0.9.1", "1.18", "", []string{"go", "build", "test_hertz_basic.go", "basic_func.go"}),
 		NewMuzzleTestCase("hertz-090-basic-muzzle-high", hertz_dependency_name, hertz_module_name, "v0.9.1", "", "1.18", "", []string{"go", "build", "test_hertz_basic.go", "basic_func.go"}))
 }
 

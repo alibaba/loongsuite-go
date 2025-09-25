@@ -91,7 +91,7 @@ var OtelGetStackImpl func() []byte = nil
 var OtelPrintStackImpl func([]byte) = nil
 
 // Trampoline Template
-func OtelOnEnterTrampoline() (CallContext, bool) {
+func OtelOnEnterTrampoline() (callContext *CallContextImpl, skip bool) {
 	defer func() {
 		if err := recover(); err != nil {
 			println("failed to exec onEnter hook", "OtelOnEnterNamePlaceholder")
@@ -104,7 +104,7 @@ func OtelOnEnterTrampoline() (CallContext, bool) {
 			}
 		}
 	}()
-	callContext := &CallContextImpl{}
+	callContext = &CallContextImpl{}
 	callContext.Params = []interface{}{}
 	callContext.FuncName = ""
 	callContext.PackageName = ""

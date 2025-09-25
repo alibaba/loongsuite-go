@@ -27,9 +27,9 @@ func init() {
 		NewGeneralTestCase("dubbo-metrics-test", dubbo_module_name, "v3.3.0", "", "1.21", "", TestMetricsDubbo),
 		NewGeneralTestCase("dubbo-status-test", dubbo_module_name, "v3.3.0", "", "1.21", "", TestDubboStatus),
 		NewLatestDepthTestCase("dubbo-latest-depth-test", dubbo_dependency_name, dubbo_module_name, "v3.3.0", "", "1.21", "", TestBasicDubbo),
-		NewMuzzleTestCase("dubbo-muzzle-test-basic", dubbo_dependency_name, dubbo_module_name, "v3.3.0", "v3.3.0", "1.21", "", []string{"go", "build", "test_dubbo_basic.go", "dubbo_common.go", "greet.triple.go", "greet.pb.go"}),
-		NewMuzzleTestCase("dubbo-muzzle-test-matrics", dubbo_dependency_name, dubbo_module_name, "v3.3.0", "v3.3.0", "1.21", "", []string{"go", "build", "test_dubbo_metrics.go", "dubbo_common.go", "greet.triple.go", "greet.pb.go"}),
-		NewMuzzleTestCase("dubbo-muzzle-test-status", dubbo_dependency_name, dubbo_module_name, "v3.3.0", "v3.3.0", "1.21", "", []string{"go", "build", "test_dubbo_error.go", "dubbo_common.go", "greet.triple.go", "greet.pb.go"}),
+		NewMuzzleTestCase("dubbo-muzzle-test-basic", dubbo_dependency_name, dubbo_module_name, "v3.3.0", "", "1.21", "", []string{"go", "build", "test_dubbo_basic.go", "dubbo_common.go", "greet.triple.go", "greet.pb.go"}),
+		NewMuzzleTestCase("dubbo-muzzle-test-matrics", dubbo_dependency_name, dubbo_module_name, "v3.3.0", "", "1.21", "", []string{"go", "build", "test_dubbo_metrics.go", "dubbo_common.go", "greet.triple.go", "greet.pb.go"}),
+		NewMuzzleTestCase("dubbo-muzzle-test-status", dubbo_dependency_name, dubbo_module_name, "v3.3.0", "", "1.21", "", []string{"go", "build", "test_dubbo_error.go", "dubbo_common.go", "greet.triple.go", "greet.pb.go"}),
 	)
 }
 

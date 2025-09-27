@@ -17,7 +17,6 @@ package eino
 import (
 	"context"
 	"reflect"
-	"sync"
 	_ "unsafe"
 
 	"github.com/alibaba/loongsuite-go-agent/pkg/api"
@@ -33,24 +32,20 @@ import (
 	utilscallbacks "github.com/cloudwego/eino/utils/callbacks"
 )
 
-var once sync.Once
-
 //go:linkname newGraphOnEnter github.com/cloudwego/eino/compose.newGraphOnEnter
 func newGraphOnEnter(call api.CallContext, cfg interface{}) {
 	if !einoEnabler.Enable() {
 		return
 	}
-	once.Do(func() {
-		handler := utilscallbacks.NewHandlerHelper().
-			Graph(NewComposeHandler("graph")).Chain(NewComposeHandler("chain")).
-			Prompt(einoPromptCallbackHandler()).Transformer(einoTransformCallbackHandler()).
-			Embedding(einoEmbeddingCallbackHandler()).Indexer(einoIndexerCallbackHandler()).
-			Retriever(einoRetrieverCallbackHandler()).Loader(einoLoaderCallbackHandler()).
-			Tool(einoToolCallbackHandler()).ToolsNode(einoToolsNodeCallbackHandler()).
-			Lambda(NewComposeHandler("lambda")).
-			Handler()
-		callbacks.AppendGlobalHandlers(handler)
-	})
+	handler := utilscallbacks.NewHandlerHelper().
+		Graph(NewComposeHandler("graph")).Chain(NewComposeHandler("chain")).
+		Prompt(einoPromptCallbackHandler()).Transformer(einoTransformCallbackHandler()).
+		Embedding(einoEmbeddingCallbackHandler()).Indexer(einoIndexerCallbackHandler()).
+		Retriever(einoRetrieverCallbackHandler()).Loader(einoLoaderCallbackHandler()).
+		Tool(einoToolCallbackHandler()).ToolsNode(einoToolsNodeCallbackHandler()).
+		Lambda(NewComposeHandler("lambda")).
+		Handler()
+	callbacks.AppendGlobalHandlers(handler)
 }
 
 //go:linkname openaiGenerateOnEnter github.com/cloudwego/eino-ext/components/model/openai.openaiGenerateOnEnter

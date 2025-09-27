@@ -1,0 +1,78 @@
+/* 自定义样式补充 */
+.task-item.completed .task-title {
+    text-decoration: line-through;
+    color: #9CA3AF;
+}
+
+.task-item.completed .task-content {
+    color: #9CA3AF;
+}
+
+.task-checkbox {
+    width: 1.2rem;
+    height: 1.2rem;
+    cursor: pointer;
+}
+
+.delete-task {
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.task-item:hover .delete-task {
+    opacity: 1;
+}
+
+/* 输入框样式优化 */
+input[type="text"],
+input[type="datetime-local"],
+textarea,
+select {
+    border: 1px solid #D1D5DB;
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+    width: 100%;
+    outline: none;
+    background-color: white;
+    color: #1F2937;
+}
+
+input[type="text"]:focus,
+input[type="datetime-local"]:focus,
+textarea:focus,
+select:focus {
+    border-color: #3B82F6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+/* 动画效果 */
+.task-item {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.task-item:hover {
+    transform: translateY(-1px);
+}
+
+/* 响应式调整 */
+@media (max-width: 640px) {
+    .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    .flex.justify-between {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .flex.space-x-4 {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+} 

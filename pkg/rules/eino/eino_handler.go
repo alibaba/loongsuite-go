@@ -346,6 +346,7 @@ func einoToolCallbackHandler() *callbacksutils.ToolCallbackHandler {
 				operationName: OperationNameExecuteTool,
 				input:         make(map[string]any),
 			}
+			request.input["tool_name"] = info.Name
 			if input != nil {
 				request.input["arguments"] = input.ArgumentsInJSON
 			}
@@ -418,6 +419,7 @@ func einoToolsNodeCallbackHandler() *callbacksutils.ToolsNodeCallbackHandlers {
 				operationName: OperationNameToolNode,
 				input:         make(map[string]any),
 			}
+			request.input["tool_node_name"] = info.Name
 			if input != nil {
 				request.input["role"] = input.Role
 				if input.Content != "" {
@@ -556,6 +558,9 @@ func (c ComposeHandler) Needed(_ context.Context, runInfo *callbacks.RunInfo, ti
 
 func (c ComposeHandler) OnStart(ctx context.Context, info *callbacks.RunInfo, input callbacks.CallbackInput) context.Context {
 	request := einoRequest{operationName: c.operationName}
+	request.input = map[string]interface{}{
+		"name": info.Name,
+	}
 	return einoCommonInstrument.Start(ctx, request)
 }
 

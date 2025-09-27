@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eino Agent Chat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
+    <script src="https://cdn.jsdelivr.net/npm/uuid@latest/dist/umd/uuidv4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css/github-markdown.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-100">
+<div class="flex h-screen p-4 gap-4">
+    <!-- 左侧对话历史 -->
+    <div class="w-72 bg-white rounded-lg shadow-lg overflow-hidden flex flex-col">
+        <div class="p-4 bg-gray-800 text-white">
+            <h2 class="text-lg font-semibold">Chat History</h2>
+        </div>
+        <div id="chat-history" class="flex-1 overflow-y-auto p-4">
+            <!-- 历史记录将在这里动态添加 -->
+        </div>
+        <div class="p-4 border-t">
+            <button id="new-chat" class="w-full bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                New Chat
+            </button>
+        </div>
+    </div>
+
+    <!-- 中间聊天主体 -->
+    <div class="flex-1 flex flex-col bg-white rounded-lg shadow-lg overflow-hidden">
+        <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4">
+            <!-- 消息将在这里动态添加 -->
+        </div>
+        <div class="p-4 border-t">
+            <div class="flex flex-col gap-4">
+                    <textarea id="message-input"
+                              class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[100px] resize-y"
+                              placeholder="Type your message..."></textarea>
+                <button id="send-button"
+                        class="self-end bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors">
+                    Send
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 右侧面板 -->
+    <div id="right-panel" class="w-[500px] flex flex-col gap-4 transition-all duration-300">
+        <!-- Task Panel -->
+        <div class="panel flex-[1_1_60%] bg-white rounded-lg shadow-lg overflow-hidden flex flex-col">
+            <div class="p-4 bg-gray-800 text-white flex justify-between items-center">
+                <h3 class="font-semibold">Task List</h3>
+                <button class="panel-toggle" data-target="task-content">
+                    <svg class="w-5 h-5 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+            </div>
+            <div id="task-content" class="flex-1 min-h-0">
+                <iframe src="/task/" class="w-full h-full border-0"></iframe>
+            </div>
+        </div>
+
+        <!-- Log Panel -->
+        <div class="panel flex-[1_1_300px] bg-white rounded-lg shadow-lg overflow-hidden flex flex-col">
+            <div class="p-4 bg-gray-800 text-white flex justify-between items-center">
+                <h3 class="font-semibold">Log Output</h3>
+                <button class="panel-toggle" data-target="log-content">
+                    <svg class="w-5 h-5 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+            </div>
+            <div id="log-content" class="flex-1 min-h-0">
+                <div id="log-messages" class="h-full overflow-y-auto p-4 font-mono text-sm text-gray-600 whitespace-pre-wrap"></div>
+            </div>
+        </div>
+
+        <!-- Panel Toggle Button -->
+        <button id="toggle-panel" class="absolute right-6 top-6 bg-gray-800 text-white p-2 rounded-lg">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/>
+            </svg>
+        </button>
+    </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html> 

@@ -16,7 +16,6 @@ package eino
 
 import (
 	"os"
-	"sync"
 
 	"github.com/cloudwego/eino/schema"
 )
@@ -40,15 +39,6 @@ type (
 	loaderRequestKey    struct{}
 	toolRequestKey      struct{}
 	transformRequestKey struct{}
-)
-
-var (
-	once       sync.Once
-	openaiOnce sync.Once
-	ollamaOnce sync.Once
-	arkOnce    sync.Once
-	qwenOnce   sync.Once
-	claudeOnce sync.Once
 )
 
 const (

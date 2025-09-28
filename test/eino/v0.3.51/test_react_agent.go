@@ -48,7 +48,7 @@ func main() {
 	}
 	verifier.WaitAndAssertTraces(func(stubs []tracetest.SpanStubs) {
 		verifier.VerifyLLMAttributes(stubs[0][3], "chat", "eino", "mock-chat")
-		verifier.VerifyLLMCommonAttributes(stubs[0][6], "tool_node", "eino", trace.SpanKindClient)
-		verifier.VerifyLLMCommonAttributes(stubs[0][7], "execute_tool", "eino", trace.SpanKindClient)
+		verifier.VerifyLLMCommonAttributes(stubs[0][9], "tool_node", "eino", trace.SpanKindClient)
+		verifier.VerifyLLMCommonAttributes(stubs[0][10], "execute_tool", "eino", trace.SpanKindClient)
 	}, 1)
 }

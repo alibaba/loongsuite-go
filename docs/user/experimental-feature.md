@@ -1,4 +1,4 @@
-## Experimental Features
+# Experimental Features
 
 ## Settings for the kratos instrumentation
 

@@ -1,4 +1,4 @@
-## Context Propagation
+# Context Propagation
 
 Context Propagation in `loongsuite-go-agent` is inspired
 by [Apache-Skywalking](https://github.com/apache/skywalking-go).

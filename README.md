@@ -51,7 +51,7 @@ $ otel go build -gcflags="-m" cmd/app
 
 That's the whole process! The tool will automatically instrument your code with OpenTelemetry, and you can start to observe your application. :telescope:
 
-The detailed usage of `otel` tool can be found in [**Usage**](./docs/usage.md).
+The detailed usage of `otel` tool can be found in [**Usage**](./docs/user/config.md).
 
 > [!NOTE]
 > If you find any compilation failures while `go build` works, it's likely a bug.
@@ -118,7 +118,7 @@ We are progressively open-sourcing the libraries we have supported, and your con
 > [!IMPORTANT]
 > The framework you expected is not in the list? Don't worry, you can easily inject your code into any frameworks/libraries that are not officially supported.
 >
-> Please refer to [this document](./docs/how-to-add-a-new-rule.md) to get started.
+> Please refer to [this document](./docs/dev/overview.md) to get started.
 
 # Community
 
@@ -128,4 +128,4 @@ to engage with us.
 
 | DingTalk | Star History |
 | :---: | :---: |
-| <img src="docs/images/dingtalk.png" height="200"> | <img src="https://api.star-history.com/svg?repos=alibaba/loongsuite-go-agent&type=Date" height="200"> |
+| <img src="./docs/images/dingtalk.png" height="200"> | <img src="https://api.star-history.com/svg?repos=alibaba/loongsuite-go-agent&type=Date" height="200"> |

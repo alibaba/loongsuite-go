@@ -1,4 +1,4 @@
-# `otel` Usage Guide
+# Advanced Configuration
 
 # 1. Introduction
 This guide provides a detailed overview of configuring and using the otel tool effectively. This tool allows you to set various configuration options, build your projects, and customize your workflow for optimal performance.
@@ -90,25 +90,3 @@ If you want to check the version of the otel tool, you can use the `otel version
 ```console
   $ otel version
 ```
-
-# 3. FAQ
-
-## 1. How to add a new plugin(i.e. rule)?
-
-Please refer to [how-to-add-a-new-rule.md](how-to-add-a-new-rule.md).
-
-## 2. How to write tests for plugins?
-
-Please refer to [how-to-write-tests-for-plugins.md](how-to-write-tests-for-plugins.md).
-
-## 3. How to debug the tool?
-
-Please refer to [how-to-debug.md](how-to-debug.md).
-
-## 4. How to know how the tool works?
-
-Please refer to [how-it-works.md](how-it-works.md).
-
-## 5. How to use the tool with manual instrumentation?
-
-Please refer to [manual_instrumentation.md](manual_instrumentation.md).

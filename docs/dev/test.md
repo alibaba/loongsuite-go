@@ -1,4 +1,4 @@
-## How to write tests for plugins
+# Test the Hook Code
 
 Once you've added a new instrumentation rule according
 to [how-to-add-a-new-rule.md](https://github.com/alibaba/loongsuite-go-agent/blob/main/docs/how-to-add-a-new-rule.md),

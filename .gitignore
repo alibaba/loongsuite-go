@@ -130,3 +130,6 @@ otel.runtime.go
 test/sharedlib/sharedlib
 example/nethttp/demo
 test/dependencies/main
+node_modules
+docs/.vitepress/dist
+docs/.vitepress/cache

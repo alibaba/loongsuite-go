@@ -1,4 +1,4 @@
-## Fields of a rule definition
+# Types of Hook Rule
 
 ## Instrument a function
 - `ImportPath`: The import path of the package that contains the function to be instrumented. e.g. `net/http`.

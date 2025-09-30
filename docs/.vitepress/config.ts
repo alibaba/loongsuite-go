@@ -1,7 +1,7 @@
 const repoRoot = 'https://github.com/alibaba/loongsuite-go-agent';
 export default {
     lang: 'en-US',
-    title: ' ',
+    title: 'Otel',
     description: 'It provides an automatic solution for Golang applications that want to leverage OpenTelemetry to enable effective observability. No code changes are required in the target application, the instrumentation is done at compile time. Simply adding `otel` prefix to `go build` to get started ', 
     ignoreDeadLinks: true,
     base: '/loongsuite-go-agent/',
@@ -63,6 +63,7 @@ export default {
                   { text: 'Overview', link: '/hacking/overview' },
                   { text: 'Preprocess Phase', link: '/hacking/preprocess' },
                   { text: 'Instrument Phase', link: '/hacking/instrument' },
+                  { text: 'AST Optimization', link: '/hacking/optimize' },
                   { text: 'Debugging', link: '/hacking/debug' },
                   { text: 'Tool Internal Slides', link: 'https://github.com/alibaba/loongsuite-go-agent/blob/main/docs/otel-alibaba.pdf' },
                 ]

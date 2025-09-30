@@ -3,12 +3,13 @@
 ## 1. Perform instrumentation with debug options
 
 ```bash
-$ otel set -debug
+$ otel set -debug 
+$ otel set -verbose
 ```
 
 When using the `-debug` compilation option, the tool will compile an unoptimized binary 
 while retaining all generated temporary files, such as debug logs and matched rules. You can review 
-them to understand what kind of code the tool is injecting.
+them to understand what kind of code the tool is injecting. The `-verbose` log will show you the detailed process of the tool.
 
 ## 2. Check `.otel-build` directory
 
@@ -27,15 +28,3 @@ Even without using the `-debug` option, the tool will retain the necessary modif
     ├── dry_run.log # dry run log
     └── matched_rules.json # matched rules
 ```
-
-## 3. Environment Variables for Debugging
-
-You can also use environment variables to enable debug mode temporarily without changing your configuration:
-
-```bash
-$ export OTELTOOL_DEBUG=true
-$ export OTELTOOL_VERBOSE=true
-$ otel go build
-```
-
-This approach provides flexibility for testing changes and experimenting with configurations without permanently altering your existing setup.

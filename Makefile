@@ -29,6 +29,9 @@ OUTPUT_WINDOWS_AMD64 = $(OUTPUT_BASE)-windows-amd64.exe
 OUTPUT_DARWIN_ARM64 = $(OUTPUT_BASE)-darwin-arm64
 OUTPUT_LINUX_ARM64 = $(OUTPUT_BASE)-linux-arm64
 
+API_SYNC_SOURCE = pkg/api/api.go
+API_SYNC_TARGET = tool/instrument/api.tmpl
+
 #-------------------------------------------------------------------------------
 # Prepare version
 # Get the current Git commit ID
@@ -64,8 +67,16 @@ endif
 
 #-------------------------------------------------------------------------------
 # Build targets
+.PHONY: pre-build
+pre-build: package-pkg lint
+	@echo "Syncing context API..."
+	@cp $(API_SYNC_SOURCE) $(API_SYNC_TARGET)
+	@echo "Tidying up dependencies..."
+	@go mod tidy
+	@echo "All prerequisite tasks completed"
+
 .PHONY: build
-build: package-pkg tidy lint
+build: pre-build
 	@echo "Building $(OUTPUT_BIN)..."
 	$(eval OUTPUT_BIN=$(OUTPUT_BASE))
 ifeq ($(CURRENT_OS),windows)
@@ -79,30 +90,25 @@ endif
 all: clean darwin_amd64 linux_amd64 windows_amd64 darwin_arm64 linux_arm64
 	@echo "All builds completed: $(OUTPUT_DARWIN_AMD64) $(OUTPUT_LINUX_AMD64) $(OUTPUT_WINDOWS_AMD64) $(OUTPUT_DARWIN_ARM64) $(OUTPUT_LINUX_ARM64)"
 
-darwin_amd64: package-pkg tidy
+darwin_amd64: pre-build
 	@echo "Building darwin_amd64..."
 	@$(call BUILD_CMD,darwin,amd64,$(OUTPUT_DARWIN_AMD64))
 
-linux_amd64: package-pkg tidy
+linux_amd64: pre-build
 	@echo "Building linux_amd64..."
 	@$(call BUILD_CMD,linux,amd64,$(OUTPUT_LINUX_AMD64))
 
-windows_amd64: package-pkg tidy
+windows_amd64: pre-build
 	@echo "Building windows_amd64..."
 	@$(call BUILD_CMD,windows,amd64,$(OUTPUT_WINDOWS_AMD64))
 
-darwin_arm64: package-pkg tidy
+darwin_arm64: pre-build
 	@echo "Building darwin_arm64..."
 	@$(call BUILD_CMD,darwin,arm64,$(OUTPUT_DARWIN_ARM64))
 
-linux_arm64: package-pkg tidy
+linux_arm64: pre-build
 	@echo "Building linux_arm64..."
 	@$(call BUILD_CMD,linux,arm64,$(OUTPUT_LINUX_ARM64))
-
-.PHONY: tidy
-tidy:
-	@echo "Tidying up dependencies..."
-	@go mod tidy
 
 clean:
 	@echo "Cleaning up..."

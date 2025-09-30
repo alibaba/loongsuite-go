@@ -334,7 +334,7 @@ func sortFuncRules(fnRules []*rules.InstFuncRule) []*rules.InstFuncRule {
 	return fnRules
 }
 
-//go:embed template_api.go
+//go:embed api.tmpl
 var templateAPI string
 
 func (rp *RuleProcessor) writeGlobals(pkgName string) error {

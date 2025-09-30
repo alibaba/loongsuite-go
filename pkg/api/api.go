@@ -23,7 +23,7 @@ package api
 // of the original function call. Modification of the Params and ReturnVals will
 // affect the original function call thus should be used with caution.
 
-// !! Any modification MUST be synced with tool/instrument/template_api.go
+// !!! pkg/api/api.go will auto-sync to tool/internal/instrument/api.tmpl
 type CallContext interface {
 	// Skip the original function call
 	SetSkipCall(bool)

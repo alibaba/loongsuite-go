@@ -22,6 +22,7 @@ import (
 	http2 "net/http"
 	"os"
 	"runtime"
+	"strconv"
 	"strings"
 
 	"github.com/alibaba/loongsuite-go-agent/pkg/core/meter"
@@ -67,12 +68,15 @@ const trace_exporter = "OTEL_TRACES_EXPORTER"
 const prometheus_exporter_port = "OTEL_EXPORTER_PROMETHEUS_PORT"
 const default_prometheus_exporter_port = "9464"
 
+const trace_sampler = "OTEL_TRACE_SAMPLER"
+
 var (
 	metricExporter     metric.Exporter
 	spanExporter       trace.SpanExporter
 	traceProvider      *trace.TracerProvider
 	metricsProvider    otelmetric.MeterProvider
 	batchSpanProcessor trace.SpanProcessor
+	spanSampler        trace.Sampler
 )
 
 func init() {
@@ -128,15 +132,40 @@ func newSpanProcessor(ctx context.Context) trace.SpanProcessor {
 	}
 }
 
+func newSpanSampler() trace.Sampler {
+	samplerStr := os.Getenv(trace_sampler)
+	samplerStr = strings.TrimSpace(samplerStr)
+	if samplerStr == "" {
+		return trace.ParentBased(trace.AlwaysSample())
+	}
+
+	sampler, err := strconv.ParseFloat(samplerStr, 64)
+	if err != nil {
+		log.Printf("Invalid OTEL_TRACE_SAMPLER value: %s, fallback to parent based sampler", samplerStr)
+		return trace.ParentBased(trace.AlwaysSample())
+	}
+
+	if sampler <= 0 {
+		return trace.NeverSample()
+	} else if sampler >= 1 {
+		return trace.AlwaysSample()
+	} else {
+		return trace.ParentBased(trace.TraceIDRatioBased(sampler))
+	}
+}
+
 func initOpenTelemetry(ctx context.Context) error {
 
 	batchSpanProcessor = newSpanProcessor(ctx)
+	spanSampler = newSpanSampler()
 
 	if batchSpanProcessor != nil {
 		traceProvider = trace.NewTracerProvider(
-			trace.WithSpanProcessor(batchSpanProcessor))
+			trace.WithSpanProcessor(batchSpanProcessor),
+			trace.WithSampler(spanSampler),
+		)
 	} else {
-		traceProvider = trace.NewTracerProvider()
+		traceProvider = trace.NewTracerProvider(trace.WithSampler(spanSampler))
 	}
 
 	otel.SetTracerProvider(traceProvider)

@@ -41,42 +41,34 @@ func (o ollamaAttrsGetter) GetAIRequestModel(request ollamaRequest) string {
 }
 
 func (o ollamaAttrsGetter) GetAIRequestTemperature(request ollamaRequest) float64 {
-	// Temperature parameter not captured in this implementation
 	return 0
 }
 
 func (o ollamaAttrsGetter) GetAIRequestMaxTokens(request ollamaRequest) int64 {
-	// Max tokens parameter not captured in this implementation
 	return 0
 }
 
 func (o ollamaAttrsGetter) GetAIRequestTopP(request ollamaRequest) float64 {
-	// TopP parameter not captured in this implementation
 	return 0
 }
 
 func (o ollamaAttrsGetter) GetAIRequestTopK(request ollamaRequest) float64 {
-	// TopK parameter not captured in this implementation
 	return 0
 }
 
 func (o ollamaAttrsGetter) GetAIRequestStopSequences(request ollamaRequest) []string {
-	// Stop sequences not captured in this implementation
 	return nil
 }
 
 func (o ollamaAttrsGetter) GetAIRequestFrequencyPenalty(request ollamaRequest) float64 {
-	// Frequency penalty parameter not captured in this implementation
 	return 0
 }
 
 func (o ollamaAttrsGetter) GetAIRequestPresencePenalty(request ollamaRequest) float64 {
-	// Presence penalty parameter not captured in this implementation
 	return 0
 }
 
 func (o ollamaAttrsGetter) GetAIRequestIsStream(request ollamaRequest) bool {
-	// Return true if this is a streaming request
 	return request.isStreaming
 }
 
@@ -88,17 +80,14 @@ func (o ollamaAttrsGetter) GetAIOperationName(request ollamaRequest) string {
 }
 
 func (o ollamaAttrsGetter) GetAIRequestEncodingFormats(request ollamaRequest) []string {
-	// Encoding formats not captured in this implementation
 	return nil
 }
 
 func (o ollamaAttrsGetter) GetAIRequestSeed(request ollamaRequest) int64 {
-	// Seed parameter not captured in this implementation
 	return 0
 }
 
 func (o ollamaAttrsGetter) GetAIResponseModel(request ollamaRequest, response ollamaResponse) string {
-	// Model comes from request
 	return request.model
 }
 
@@ -141,12 +130,10 @@ func (o ollamaAttrsGetter) GetAIResponseFinishReasons(request ollamaRequest, res
 }
 
 func (o ollamaAttrsGetter) GetAIResponseID(request ollamaRequest, response ollamaResponse) string {
-	// Response ID not available in Ollama API
 	return ""
 }
 
 func (o ollamaAttrsGetter) GetAIServerAddress(request ollamaRequest) string {
-	// Server address not captured in this implementation
 	return ""
 }
 
@@ -216,7 +203,7 @@ func (c *costAttributesExtractor) OnEnd(attributes []attribute.KeyValue, context
 			attribute.String("gen_ai.cost.model_pricing_tier", response.costMetrics.PricingTier),
 		)
 		
-		budgetTracker := globalBudget
+		budgetTracker := budgetTracker
 		if budgetTracker != nil {
 			status, percentage, remaining := budgetTracker.GetStatus()
 			attributes = append(attributes, attribute.String("gen_ai.budget.status", string(status)))
@@ -284,7 +271,7 @@ func (s *sloAttributesExtractor) OnStart(attributes []attribute.KeyValue, parent
 }
 
 func (s *sloAttributesExtractor) OnEnd(attributes []attribute.KeyValue, ctx context.Context, request ollamaRequest, response ollamaResponse, err error) ([]attribute.KeyValue, context.Context) {
-	tracker := globalSLOTracker
+	tracker := sloTracker
 	if tracker != nil {
 		latency := time.Since(ctx.Value("start_time").(time.Time))
 		tracker.RecordRequest(latency, err != nil)

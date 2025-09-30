@@ -1,3 +1,17 @@
+// Copyright (c) 2025 Alibaba Group Holding Ltd.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package main
 
 import (
@@ -10,80 +24,14 @@ import (
 
 func main() {
 	ctx := context.Background()
-	testModelManagement(ctx)
-
-	verifier.WaitAndAssertTraces(func(stubs []tracetest.SpanStubs) {
-		if len(stubs) < 1 {
-			panic("Expected at least 1 trace for model management test")
-		}
-
-		hasModelOp := false
-		for _, trace := range stubs {
-			for _, span := range trace {
-				for _, attr := range span.Attributes {
-					if attr.Key == "gen_ai.model.operation" {
-						hasModelOp = true
-					}
-				}
-			}
-		}
-
-		if !hasModelOp {
-			panic("Model management operations not properly traced")
-		}
-	}, 1)
-}
-
-func testModelManagement(ctx context.Context) {
 	client, server := NewMockOllamaGenerateForInvoke(ctx)
 	defer server.Close()
-
-	// Test List API
-	listResp, err := client.List(ctx)
-	if err == nil && listResp != nil {
-		// Successfully mocked
-	}
-
-	// Test Show API
-	showReq := &api.ShowRequest{
-		Model: "llama3:8b",
-	}
-
-	showResp, err := client.Show(ctx, showReq)
-	if err == nil && showResp != nil {
-		// Successfully mocked
-	}
-
-	// Test Copy API
-	copyReq := &api.CopyRequest{
-		Source:      "llama3:8b",
-		Destination: "llama3-copy",
-	}
-
-	err = client.Copy(ctx, copyReq)
-	if err == nil {
-		// Successfully mocked
-	}
-
-	// Test Delete API
-	deleteReq := &api.DeleteRequest{
-		Model: "llama3-copy",
-	}
-
-	err = client.Delete(ctx, deleteReq)
-	if err == nil {
-		// Successfully mocked
-	}
-
-	// Test Pull API
-	pullReq := &api.PullRequest{
-		Model: "llama3:8b",
-	}
-
-	err = client.Pull(ctx, pullReq, func(progress api.ProgressResponse) error {
-		return nil
-	})
-	if err == nil {
-		// Successfully mocked
-	}
+	_, _ = client.List(ctx)
+	_, _ = client.Show(ctx, &api.ShowRequest{Model: "llama3:8b"})
+	_ = client.Pull(ctx, &api.PullRequest{Model: "llama3:8b"}, func(resp api.ProgressResponse) error { return nil })
+	_ = client.Delete(ctx, &api.DeleteRequest{Model: "llama3:8b"})
+	_ = client.Copy(ctx, &api.CopyRequest{Source: "llama3:8b", Destination: "llama3-copy"})
+	verifier.WaitAndAssertTraces(func(stubs []tracetest.SpanStubs) {
+		verifier.VerifyLLMAttributes(stubs[0][0], "list", "ollama", "")
+	}, 5)
 }

@@ -64,7 +64,7 @@ func newStreamingState(modelID string) *streamingState {
 		lastChunkTime: time.Now(),
 	}
 	
-	calculator := globalCalculator
+	calculator := costCalculator
 	if calculator != nil && calculator.IsEnabled() {
 		state.streamingCost = calculator.NewStreamingCostState(modelID)
 	}

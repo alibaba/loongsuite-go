@@ -16,7 +16,7 @@ package ollama
 
 import (
 	"context"
-	_ "unsafe" // Required for go:linkname
+	_ "unsafe"
 
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
@@ -135,7 +135,7 @@ func clientGenerateOnExit(call api.CallContext, err error) {
 			reqPtr.promptTokens = ollamaResp.promptTokens
 			reqPtr.completionTokens = ollamaResp.completionTokens
 			
-			calculator := globalCalculator
+			calculator := costCalculator
 			if calculator != nil && calculator.IsEnabled() {
 				if isStreaming && streamState != nil && streamState.streamingCost != nil {
 					ollamaResp.costMetrics = streamState.streamingCost.GetMetrics()
@@ -149,7 +149,7 @@ func clientGenerateOnExit(call api.CallContext, err error) {
 				}
 				
 				if ollamaResp.costMetrics != nil && ollamaResp.costMetrics.TotalCost > 0 {
-					budgetTracker := globalBudget
+					budgetTracker := budgetTracker
 					if budgetTracker != nil {
 						budgetTracker.RecordCost(ollamaResp.costMetrics.TotalCost)
 					}
@@ -270,7 +270,7 @@ func clientChatOnExit(call api.CallContext, err error) {
 			reqPtr.promptTokens = ollamaResp.promptTokens
 			reqPtr.completionTokens = ollamaResp.completionTokens
 			
-			calculator := globalCalculator
+			calculator := costCalculator
 			if calculator != nil && calculator.IsEnabled() {
 				if isStreaming && streamState != nil && streamState.streamingCost != nil {
 					ollamaResp.costMetrics = streamState.streamingCost.GetMetrics()
@@ -284,7 +284,7 @@ func clientChatOnExit(call api.CallContext, err error) {
 				}
 				
 				if ollamaResp.costMetrics != nil && ollamaResp.costMetrics.TotalCost > 0 {
-					budgetTracker := globalBudget
+					budgetTracker := budgetTracker
 					if budgetTracker != nil {
 						budgetTracker.RecordCost(ollamaResp.costMetrics.TotalCost)
 					}
@@ -333,7 +333,6 @@ func clientEmbedOnExit(call api.CallContext, resp *ollamaapi.EmbedResponse, err 
 	ollamaResp.err = err
 	if err == nil && resp != nil {
 		if len(resp.Embeddings) > 0 {
-			// Convert float32 to float64
 			embeddings := make([][]float64, len(resp.Embeddings))
 			for i, emb := range resp.Embeddings {
 				embeddings[i] = make([]float64, len(emb))

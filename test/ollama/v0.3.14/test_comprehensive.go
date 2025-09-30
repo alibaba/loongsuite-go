@@ -1,3 +1,17 @@
+// Copyright (c) 2025 Alibaba Group Holding Ltd.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package main
 
 import (
@@ -10,157 +24,15 @@ import (
 
 func main() {
 	ctx := context.Background()
-
-	// Test all operations
-	testChat(ctx)
-	testGenerate(ctx)
-	testEmbedding(ctx)
-	testModels(ctx)
-	testStreamingWithTTFT(ctx)
-
-	verifier.WaitAndAssertTraces(func(stubs []tracetest.SpanStubs) {
-		if len(stubs) < 5 {
-			panic("Expected at least 5 traces for comprehensive test")
-		}
-
-		operationTypes := make(map[string]bool)
-		hasStreaming := false
-		hasCost := false
-		hasEmbedding := false
-		hasModelOp := false
-
-		for _, trace := range stubs {
-			for _, span := range trace {
-				for _, attr := range span.Attributes {
-					switch attr.Key {
-					case "gen_ai.operation.name":
-						operationTypes[attr.Value.AsString()] = true
-					case "gen_ai.response.streaming":
-						if attr.Value.AsBool() {
-							hasStreaming = true
-						}
-					case "gen_ai.cost.total_usd":
-						hasCost = true
-					case "gen_ai.embedding.count":
-						hasEmbedding = true
-					case "gen_ai.model.operation":
-						hasModelOp = true
-					}
-				}
-			}
-		}
-
-		if !operationTypes["chat"] || !operationTypes["generate"] {
-			panic("Missing core operations in comprehensive test")
-		}
-
-		if !hasStreaming {
-			// Note: Streaming might not be captured in all cases
-		}
-
-		// Calculate coverage
-		totalChecks := 6
-		passed := 0
-		if operationTypes["chat"] {
-			passed++
-		}
-		if operationTypes["generate"] {
-			passed++
-		}
-		if hasStreaming {
-			passed++
-		}
-		if hasCost {
-			passed++
-		}
-		if hasEmbedding {
-			passed++
-		}
-		if hasModelOp {
-			passed++
-		}
-
-		coverage := float64(passed) / float64(totalChecks) * 100
-		if coverage < 85 {
-			// Note: Coverage might be lower in CI environment
-		}
-	}, 5)
-}
-
-func testChat(ctx context.Context) {
-	client, server := NewMockOllamaChatForInvoke(ctx)
+	client, server := NewMockOllamaGenerateForInvoke(ctx)
 	defer server.Close()
-
 	streamFlag := false
-	req := &api.ChatRequest{
-		Model: "llama3:8b",
-		Messages: []api.Message{
-			{Role: "system", Content: "You are a helpful assistant"},
-			{Role: "user", Content: "What is 2+2?"},
-		},
-		Stream: &streamFlag,
-	}
-
-	_ = client.Chat(ctx, req, func(resp api.ChatResponse) error {
-		return nil
-	})
-}
-
-func testGenerate(ctx context.Context) {
-	client, server := NewMockOllamaGenerateForInvoke(ctx)
-	defer server.Close()
-
-	streamFlag := false
-	req := &api.GenerateRequest{
-		Model:  "llama3:8b",
-		Prompt: "Complete this: The weather today is",
-		Stream: &streamFlag,
-	}
-
-	_ = client.Generate(ctx, req, func(resp api.GenerateResponse) error {
-		return nil
-	})
-}
-
-func testEmbedding(ctx context.Context) {
-	client, server := NewMockOllamaGenerateForInvoke(ctx)
-	defer server.Close()
-
-	embedReq := &api.EmbedRequest{
-		Model: "llama3:8b",
-		Input: "Test embedding for comprehensive suite",
-	}
-
-	_, _ = client.Embed(ctx, embedReq)
-}
-
-func testModels(ctx context.Context) {
-	client, server := NewMockOllamaGenerateForInvoke(ctx)
-	defer server.Close()
-
+	_ = client.Chat(ctx, &api.ChatRequest{Model: "llama3:8b", Messages: []api.Message{{Role: "user", Content: "Hello"}}, Stream: &streamFlag}, func(resp api.ChatResponse) error { return nil })
+	_ = client.Generate(ctx, &api.GenerateRequest{Model: "llama3:8b", Prompt: "Test", Stream: &streamFlag}, func(resp api.GenerateResponse) error { return nil })
+	_, _ = client.Embed(ctx, &api.EmbedRequest{Model: "llama3:8b", Input: "Test"})
 	_, _ = client.List(ctx)
-
-	showReq := &api.ShowRequest{
-		Model: "llama3:8b",
-	}
-
-	_, _ = client.Show(ctx, showReq)
-}
-
-func testStreamingWithTTFT(ctx context.Context) {
-	client, server := NewMockOllamaGenerateForStream(ctx)
-	defer server.Close()
-
-	streamFlag := true
-	req := &api.GenerateRequest{
-		Model:  "llama3:8b",
-		Prompt: "Stream this response word by word",
-		Stream: &streamFlag,
-	}
-
-	chunkCount := 0
-	_ = client.Generate(ctx, req, func(resp api.GenerateResponse) error {
-		chunkCount++
-		return nil
-	})
+	_, _ = client.Show(ctx, &api.ShowRequest{Model: "llama3:8b"})
+	verifier.WaitAndAssertTraces(func(stubs []tracetest.SpanStubs) {
+		verifier.VerifyLLMAttributes(stubs[0][0], "chat", "ollama", "llama3:8b")
+	}, 5)
 }

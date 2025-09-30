@@ -144,9 +144,9 @@ type costDataPoint struct {
 }
 
 var (
-	globalCalculator *CostCalculator
-	globalPricingDB *PricingDatabase
-	globalBudget   *BudgetTracker
+	costCalculator *CostCalculator
+	pricingDB *PricingDatabase
+	budgetTracker   *BudgetTracker
 )
 
 var defaultPricing = map[string]*ModelPricing{
@@ -210,21 +210,21 @@ var defaultExchangeRates = map[Currency]float64{
 }
 
 func init() {
-	globalPricingDB = &PricingDatabase{
+	pricingDB = &PricingDatabase{
 		prices:   make(map[string]*ModelPricing),
 		currency: USD,
 		rates:    defaultExchangeRates,
 	}
 	
 	for modelID, pricing := range defaultPricing {
-		globalPricingDB.prices[modelID] = pricing
+		pricingDB.prices[modelID] = pricing
 		baseName := strings.Split(modelID, ":")[0]
 		if baseName != modelID {
-			globalPricingDB.prices[baseName] = pricing
+			pricingDB.prices[baseName] = pricing
 		}
 	}
 	
-	globalPricingDB.loadCustomPricing()
+	pricingDB.loadCustomPricing()
 
 	enabledStr := "true"
 	if val := os.Getenv("OLLAMA_ENABLE_COST_TRACKING"); val != "" {
@@ -237,16 +237,16 @@ func init() {
 		currencyStr = val
 	}
 	
-	globalCalculator = &CostCalculator{
-		pricingDB:        globalPricingDB,
+	costCalculator = &CostCalculator{
+		pricingDB:        pricingDB,
 		enableCalculation: enabled,
 		defaultCurrency:  Currency(currencyStr),
 	}
-	globalCalculator.totalCost.Store(float64(0))
+	costCalculator.totalCost.Store(float64(0))
 
 	config := getDefaultBudgetConfig()
 	
-	globalBudget = &BudgetTracker{
+	budgetTracker = &BudgetTracker{
 		config:        config,
 		currentSpend:  0,
 		startTime:     time.Now(),
@@ -258,7 +258,7 @@ func init() {
 	}
 	
 	if config.Period != "" {
-		go globalBudget.startPeriodicReset(config.Period)
+		go budgetTracker.startPeriodicReset(config.Period)
 	}
 }
 
@@ -842,10 +842,10 @@ type SLOTracker struct {
 	totalRequests    int64
 }
 
-var globalSLOTracker *SLOTracker
+var sloTracker *SLOTracker
 
 func init() {
-	globalSLOTracker = &SLOTracker{
+	sloTracker = &SLOTracker{
 		config: &SLOConfig{
 			LatencyThreshold:   2 * time.Second,
 			ErrorRateThreshold: 0.01,
@@ -962,7 +962,7 @@ func (st *SLOTracker) DetectQualityDegradation() bool {
 }
 
 func calculateEmbeddingCost(modelID string, embeddingCount int, dimensions int) *CostMetrics {
-	calculator := globalCalculator
+	calculator := costCalculator
 	if calculator == nil || !calculator.IsEnabled() {
 		return nil
 	}

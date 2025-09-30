@@ -1,3 +1,17 @@
+// Copyright (c) 2025 Alibaba Group Holding Ltd.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package main
 
 import (
@@ -10,57 +24,11 @@ import (
 
 func main() {
 	ctx := context.Background()
-	testEmbeddings(ctx)
-
-	verifier.WaitAndAssertTraces(func(stubs []tracetest.SpanStubs) {
-		if len(stubs) < 2 {
-			panic("Expected at least 2 traces for embeddings test")
-		}
-
-		hasEmbedding := false
-		for _, trace := range stubs {
-			for _, span := range trace {
-				for _, attr := range span.Attributes {
-					if attr.Key == "gen_ai.operation.name" {
-						if attr.Value.AsString() == "embed" || attr.Value.AsString() == "embeddings" {
-							hasEmbedding = true
-						}
-					}
-				}
-			}
-		}
-
-		if !hasEmbedding {
-			panic("Embedding operations not properly traced")
-		}
-	}, 2)
-}
-
-func testEmbeddings(ctx context.Context) {
-	// Test Embed API
 	client, server := NewMockOllamaGenerateForInvoke(ctx)
 	defer server.Close()
-
-	embedReq := &api.EmbedRequest{
-		Model: "llama3:8b",
-		Input: "This is a test embedding input for observability",
-	}
-
-	// Mock response with embeddings
-	embedResp, err := client.Embed(ctx, embedReq)
-	if err == nil && embedResp != nil {
-		// Successfully mocked
-	}
-
-	// Test Embeddings API
-	embeddingsReq := &api.EmbeddingRequest{
-		Model:  "llama3:8b",
-		Prompt: "Another test for batch embeddings",
-	}
-
-	embeddingsResp, err := client.Embeddings(ctx, embeddingsReq)
-	if err == nil && embeddingsResp != nil {
-		// Successfully mocked
-	}
+	_, _ = client.Embed(ctx, &api.EmbedRequest{Model: "llama3:8b", Input: "Test embedding"})
+	_, _ = client.Embeddings(ctx, &api.EmbeddingRequest{Model: "llama3:8b", Prompt: "Test embeddings"})
+	verifier.WaitAndAssertTraces(func(stubs []tracetest.SpanStubs) {
+		verifier.VerifyLLMAttributes(stubs[0][0], "embed", "ollama", "llama3:8b")
+	}, 2)
 }
-

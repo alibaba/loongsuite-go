@@ -22,7 +22,48 @@ import (
 	"strings"
 )
 
-const numSkipFrame = 3 // skip the Errorf/Fatalf caller
+// -----------------------------------------------------------------------------
+// Extended Error Handling with Stack Traces
+//
+// These APIs provide an error handling framework that allows errors to carry
+// stack trace information.
+//
+// The core usage pattern is to create an error with a stack trace at its origin
+// This allows the error to be propagated up the call stack by simply returning
+// it (return err), without needing to be re-wrapped at each level.
+//
+// While the simplest pattern is to return the error directly, you can also use
+// Wrap or Wrapf at any point in the call chain to add more contextual information.
+// This is useful when an intermediate function has valuable context that is not
+// available at the error's origin.
+//
+// Create and wrap an error:
+//
+// 1. To wrap an existing error from a standard or third-party library, use Wrap
+//    or Wrapf. This attaches a stack trace to the original error.
+//
+//    Example:
+//    if err := some_lib.DoSomething(); err != nil {
+//        return ex.Wrapf(err, "additional context for the error")
+//    }
+//    if err := some_lib.DoSomething(); err != nil {
+//        return ex.Wrap(err)
+//    }
+//
+// 2. To create a new error from scratch, use Newf. This generates a new
+//    error with a stack trace at the point of creation.
+//
+//    Example:
+//    if unexpected {
+//        return ex.Newf("unexpected error")
+//    }
+//
+// Terminate the program:
+//
+// Use Fatalf or Fatal to exit the program with an stackful error. It will print
+// the error message and stack trace to the standard error output.
+
+const numSkipFrame = 4 // skip the Errorf/Fatalf caller
 
 // stackfulError represents an error with stack trace information
 type stackfulError struct {
@@ -35,9 +76,10 @@ func (e *stackfulError) Error() string { return strings.Join(e.message, "\n") }
 func (e *stackfulError) Unwrap() error { return e.wrapped }
 
 func getFrames() []string {
+	const initFrames = 30
 	frameList := make([]string, 0)
-	pcs := make([]uintptr, 30)
-	n := runtime.Callers(numSkipFrame, pcs[:])
+	pcs := make([]uintptr, initFrames)
+	n := runtime.Callers(numSkipFrame, pcs)
 	if n == 0 {
 		return frameList
 	}
@@ -58,12 +100,19 @@ func getFrames() []string {
 	return frameList
 }
 
+// wrapOrCreate wraps an error with stack trace information and a formatted message
+// If the error is already a stackfulError, it will be decorated with the new message.
+// Otherwise, a new stackfulError will be created.
 func wrapOrCreate(previousErr error, format string, args ...any) error {
 	se := &stackfulError{}
 	if errors.As(previousErr, &se) {
-		se.message = append(se.message, fmt.Sprintf(format, args...))
+		attach := fmt.Sprintf(format, args...)
+		if attach != "" {
+			se.message = append(se.message, attach)
+		}
 		return previousErr
 	}
+	// User defined error message + existing error message
 	errMsg := fmt.Sprintf(format, args...)
 	if previousErr != nil {
 		errMsg = fmt.Sprintf("%s: %s", errMsg, previousErr.Error())
@@ -77,7 +126,7 @@ func wrapOrCreate(previousErr error, format string, args ...any) error {
 }
 
 func Wrap(previousErr error) error {
-	return wrapOrCreate(previousErr, "%s", previousErr.Error())
+	return wrapOrCreate(previousErr, "")
 }
 
 func Wrapf(previousErr error, format string, args ...any) error {

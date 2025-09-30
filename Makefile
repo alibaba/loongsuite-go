@@ -69,11 +69,9 @@ endif
 # Build targets
 .PHONY: pre-build
 pre-build: package-pkg lint
-	@echo "Syncing context API..."
 	@cp $(API_SYNC_SOURCE) $(API_SYNC_TARGET)
-	@echo "Tidying up dependencies..."
 	@go mod tidy
-	@echo "All prerequisite tasks completed"
+	@echo "Pre-build completed"
 
 .PHONY: build
 build: pre-build

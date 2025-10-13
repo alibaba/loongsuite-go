@@ -145,12 +145,12 @@ type ParamTrait struct {
 func isHookDefined(root *dst.File, rule *rules.InstFuncRule) bool {
 	util.Assert(rule.OnEnter != "" || rule.OnExit != "", "hook must be set")
 	if rule.OnEnter != "" {
-		if ast.FindFuncDecl(root, rule.OnEnter) == nil {
+		if ast.FindFuncDeclWithoutRecv(root, rule.OnEnter) == nil {
 			return false
 		}
 	}
 	if rule.OnExit != "" {
-		if ast.FindFuncDecl(root, rule.OnExit) == nil {
+		if ast.FindFuncDeclWithoutRecv(root, rule.OnExit) == nil {
 			return false
 		}
 	}
@@ -203,9 +203,9 @@ func getHookFunc(t *rules.InstFuncRule, onEnter bool) (*dst.FuncDecl, error) {
 	}
 	var target *dst.FuncDecl
 	if onEnter {
-		target = ast.FindFuncDecl(astRoot, t.OnEnter)
+		target = ast.FindFuncDeclWithoutRecv(astRoot, t.OnEnter)
 	} else {
-		target = ast.FindFuncDecl(astRoot, t.OnExit)
+		target = ast.FindFuncDeclWithoutRecv(astRoot, t.OnExit)
 	}
 	if target != nil {
 		return target, nil

@@ -23,6 +23,12 @@ import (
 	"github.com/dave/dst"
 )
 
+// -----------------------------------------------------------------------------
+// AST Shared Utilities
+//
+// This file contains shared utility functions for AST traversal and manipulation.
+// It provides common operations for finding, filtering, and processing AST nodes
+
 func MakeUnusedIdent(ident *dst.Ident) *dst.Ident {
 	ident.Name = IdentIgnore
 	return ident
@@ -122,10 +128,103 @@ func HasReceiver(fn *dst.FuncDecl) bool {
 	return fn.Recv != nil && len(fn.Recv.List) > 0
 }
 
-func FindFuncDecl(root *dst.File, name string) *dst.FuncDecl {
+func findFuncDecls(root *dst.File, lambda func(*dst.FuncDecl) bool) []*dst.FuncDecl {
+	funcDecls := ListFuncDecls(root)
+
+	// The function with receiver and the function without receiver may have
+	// the same name, so they need to be classified into the same name
+	found := make([]*dst.FuncDecl, 0)
+	for _, funcDecl := range funcDecls {
+		if lambda(funcDecl) {
+			found = append(found, funcDecl)
+		}
+	}
+	return found
+}
+
+func FindFuncDeclWithoutRecv(root *dst.File, funcName string) *dst.FuncDecl {
+	decls := findFuncDecls(root, func(funcDecl *dst.FuncDecl) bool {
+		return funcDecl.Name.Name == funcName && !HasReceiver(funcDecl)
+	})
+
+	if len(decls) == 0 {
+		return nil
+	}
+	return decls[0]
+}
+
+func FindFuncDecl(root *dst.File, function string, receiverType string) *dst.FuncDecl {
+	const maxMatchDecls = 2
+	decls := findFuncDecls(root, func(funcDecl *dst.FuncDecl) bool {
+		return funcDecl.Name.Name == function
+	})
+
+	// one with receiver and one without receiver, at most two
+	util.Assert(len(decls) <= maxMatchDecls, "sanity check")
+	util.Assert(isValidRegex(function), "invalid function name pattern")
+	for _, funcDecl := range decls {
+		re := regexp.MustCompile("^" + function + "$") // strict match
+		if !re.MatchString(funcDecl.Name.Name) {
+			return nil
+		}
+		if receiverType != "" {
+			re = regexp.MustCompile("^" + receiverType + "$") // strict match
+			if !HasReceiver(funcDecl) {
+				if re.MatchString("") {
+					return funcDecl
+				}
+			}
+			switch recvTypeExpr := funcDecl.Recv.List[0].Type.(type) {
+			case *dst.StarExpr:
+				if _, ok := recvTypeExpr.X.(*dst.Ident); !ok {
+					// This is a generic type, we don't support it yet
+					return nil
+				}
+				t := "*" + recvTypeExpr.X.(*dst.Ident).Name
+				if re.MatchString(t) {
+					return funcDecl
+				}
+			case *dst.Ident:
+				t := recvTypeExpr.Name
+				if re.MatchString(t) {
+					return funcDecl
+				}
+			case *dst.IndexExpr:
+				// This is a generic type, we don't support it yet
+				return nil
+			default:
+				msg := fmt.Sprintf("unexpected receiver type: %T", recvTypeExpr)
+				util.UnimplementedT(msg)
+			}
+		} else {
+			if HasReceiver(funcDecl) {
+				return nil
+			}
+		}
+	}
+	return nil
+}
+
+func ListFuncDecls(root *dst.File) []*dst.FuncDecl {
+	funcDecls := make([]*dst.FuncDecl, 0)
 	for _, decl := range root.Decls {
-		if fn, ok := decl.(*dst.FuncDecl); ok && fn.Name.Name == name {
-			return fn
+		funcDecl, ok := decl.(*dst.FuncDecl)
+		if !ok {
+			continue
+		}
+		funcDecls = append(funcDecls, funcDecl)
+	}
+	return funcDecls
+}
+
+func FindStructDecl(root *dst.File, structName string) *dst.GenDecl {
+	for _, decl := range root.Decls {
+		if genDecl, ok := decl.(*dst.GenDecl); ok && genDecl.Tok == token.TYPE {
+			if typeSpec, ok1 := genDecl.Specs[0].(*dst.TypeSpec); ok1 {
+				if typeSpec.Name.Name == structName {
+					return genDecl
+				}
+			}
 		}
 	}
 	return nil

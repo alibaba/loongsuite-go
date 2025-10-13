@@ -144,9 +144,9 @@ func IsGoTestFile(path string) bool {
 	return strings.HasSuffix(path, "_test.go")
 }
 
-// SplitCmds splits the command line by space, but keep the quoted part as a
+// SplitCompileCmds splits the command line by space, but keep the quoted part as a
 // whole. For example, "a b" c will be split into ["a b", "c"].
-func SplitCmds(input string) []string {
+func SplitCompileCmds(input string) []string {
 	var args []string
 	var inQuotes bool
 	var arg strings.Builder

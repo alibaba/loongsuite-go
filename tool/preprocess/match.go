@@ -445,7 +445,7 @@ func (rm *ruleMatcher) match(cmdArgs []string) *rules.RuleBundle {
 			case *rules.InstFuncRule:
 				funcDecls := ast.FindFuncDecl(tree, rl.Function, rl.ReceiverType)
 				if len(funcDecls) > 0 {
-					err = bundle.AddFile2FuncRule(file, rl)
+					err = bundle.AddFuncRule(file, rl)
 					if err != nil {
 						util.Log("Failed to add func rule: %v", err)
 						continue
@@ -456,7 +456,7 @@ func (rm *ruleMatcher) match(cmdArgs []string) *rules.RuleBundle {
 			case *rules.InstStructRule:
 				genDecl := ast.FindStructDecl(tree, rl.StructType)
 				if genDecl != nil {
-					err = bundle.AddFile2StructRule(file, rl)
+					err = bundle.AddStructRule(file, rl)
 					if err != nil {
 						util.Log("Failed to add struct rule: %v", err)
 						continue

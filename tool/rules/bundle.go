@@ -28,20 +28,20 @@ const (
 
 // RuleBundle is a collection of rules that matched with one compilation action
 type RuleBundle struct {
-	PackageName      string
-	ImportPath       string
-	FileRules        []*InstFileRule
-	File2FuncRules   map[string]map[string][]*InstFuncRule
-	File2StructRules map[string]map[string][]*InstStructRule
+	PackageName string
+	ImportPath  string
+	FileRules   []*InstFileRule
+	FuncRules   map[string]map[string][]*InstFuncRule
+	StructRules map[string][]*InstStructRule
 }
 
 func NewRuleBundle(importPath string) *RuleBundle {
 	return &RuleBundle{
-		PackageName:      "",
-		ImportPath:       importPath,
-		FileRules:        make([]*InstFileRule, 0),
-		File2FuncRules:   make(map[string]map[string][]*InstFuncRule),
-		File2StructRules: make(map[string]map[string][]*InstStructRule),
+		PackageName: "",
+		ImportPath:  importPath,
+		FileRules:   make([]*InstFileRule, 0),
+		FuncRules:   make(map[string]map[string][]*InstFuncRule),
+		StructRules: make(map[string][]*InstStructRule),
 	}
 }
 
@@ -53,40 +53,37 @@ func (rb *RuleBundle) String() string {
 func (rb *RuleBundle) IsValid() bool {
 	return rb != nil &&
 		(len(rb.FileRules) > 0 ||
-			len(rb.File2FuncRules) > 0 ||
-			len(rb.File2StructRules) > 0)
+			len(rb.FuncRules) > 0 ||
+			len(rb.StructRules) > 0)
 }
 
-func (rb *RuleBundle) AddFile2FuncRule(file string, rule *InstFuncRule) error {
+func (rb *RuleBundle) AddFuncRule(file string, rule *InstFuncRule) error {
 	file, err := filepath.Abs(file)
 	if err != nil {
 		return ex.Wrap(err)
 	}
 	fn := rule.Function + "," + rule.ReceiverType
 	util.Assert(fn != "", "sanity check")
-	if _, exist := rb.File2FuncRules[file]; !exist {
-		rb.File2FuncRules[file] = make(map[string][]*InstFuncRule)
-		rb.File2FuncRules[file][fn] = []*InstFuncRule{rule}
+	if _, exist := rb.FuncRules[file]; !exist {
+		rb.FuncRules[file] = make(map[string][]*InstFuncRule)
+		rb.FuncRules[file][fn] = []*InstFuncRule{rule}
 	} else {
-		rb.File2FuncRules[file][fn] =
-			append(rb.File2FuncRules[file][fn], rule)
+		rb.FuncRules[file][fn] =
+			append(rb.FuncRules[file][fn], rule)
 	}
 	return nil
 }
 
-func (rb *RuleBundle) AddFile2StructRule(file string, rule *InstStructRule) error {
+func (rb *RuleBundle) AddStructRule(file string, rule *InstStructRule) error {
 	file, err := filepath.Abs(file)
 	if err != nil {
 		return ex.Wrap(err)
 	}
-	st := rule.StructType
-	util.Assert(st != "", "sanity check")
-	if _, exist := rb.File2StructRules[file]; !exist {
-		rb.File2StructRules[file] = make(map[string][]*InstStructRule)
-		rb.File2StructRules[file][st] = []*InstStructRule{rule}
+	if _, exist := rb.StructRules[file]; !exist {
+		rb.StructRules[file] = make([]*InstStructRule, 0)
+		rb.StructRules[file] = []*InstStructRule{rule}
 	} else {
-		rb.File2StructRules[file][st] =
-			append(rb.File2StructRules[file][st], rule)
+		rb.StructRules[file] = append(rb.StructRules[file], rule)
 	}
 	return nil
 }

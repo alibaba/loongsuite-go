@@ -230,7 +230,7 @@ func (dp *DepProcessor) updateRule(bundles []*rules.RuleBundle) error {
 	}
 	rectified := map[string]bool{}
 	for _, bundle := range bundles {
-		for _, funcRules := range bundle.File2FuncRules {
+		for _, funcRules := range bundle.FuncRules {
 			for _, rs := range funcRules {
 				for _, rule := range rs {
 					if rule.UseRaw {

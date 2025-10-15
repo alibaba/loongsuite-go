@@ -382,12 +382,12 @@ func (rp *RuleProcessor) enableLineDirective(filePath string) error {
 
 func (rp *RuleProcessor) applyFuncRules(bundle *rules.RuleBundle) (err error) {
 	// Nothing to do if no func rules
-	if len(bundle.File2FuncRules) == 0 {
+	if len(bundle.FuncRules) == 0 {
 		return nil
 	}
 	// Applied all matched func rules, either inserting raw code or inserting
 	// our trampoline calls.
-	for file, fn2rules := range bundle.File2FuncRules {
+	for file, fn2rules := range bundle.FuncRules {
 		util.Assert(filepath.IsAbs(file), "file path must be absolute")
 		astRoot, err := rp.parseAst(file)
 		if err != nil {

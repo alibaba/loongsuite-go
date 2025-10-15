@@ -144,7 +144,7 @@ func (dp *DepProcessor) newDeps(bundles []*rules.RuleBundle) error {
 	// Generate the otel.runtime.go file with the rule bundles
 	addDeps := make([]Dependency, 0)
 	for _, bundle := range bundles {
-		for _, funcRules := range bundle.File2FuncRules {
+		for _, funcRules := range bundle.FuncRules {
 			for _, rules := range funcRules {
 				for _, rule := range rules {
 					path := rule.GetPath()

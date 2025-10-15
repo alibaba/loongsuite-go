@@ -32,21 +32,19 @@ func (rp *RuleProcessor) addStructField(rule *rules.InstStructRule, decl dst.Dec
 }
 
 func (rp *RuleProcessor) applyStructRules(bundle *rules.RuleBundle) error {
-	for file, struct2Rules := range bundle.File2StructRules {
+	for file, stRules := range bundle.StructRules {
 		util.Assert(filepath.IsAbs(file), "file path must be absolute")
 		// Apply struct rules to the file
 		astRoot, err := rp.parseAst(file)
 		if err != nil {
 			return err
 		}
-		for structName, rules := range struct2Rules {
-			structDecl := ast.FindStructDecl(astRoot, structName)
+		for _, stRule := range stRules {
+			structDecl := ast.FindStructDecl(astRoot, stRule.StructType)
 			if structDecl != nil {
-				for _, rule := range rules {
-					rp.addStructField(rule, structDecl)
-				}
+				rp.addStructField(stRule, structDecl)
 			} else {
-				return ex.Newf("struct %s not found", structName)
+				return ex.Newf("struct %s not found", stRule.StructType)
 			}
 		}
 		// Once all struct rules are applied, we restore AST to file and use it

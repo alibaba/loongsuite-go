@@ -18,6 +18,7 @@ import (
 	"path/filepath"
 
 	"github.com/alibaba/loongsuite-go-agent/tool/ast"
+	"github.com/alibaba/loongsuite-go-agent/tool/ex"
 	"github.com/alibaba/loongsuite-go-agent/tool/rules"
 	"github.com/alibaba/loongsuite-go-agent/tool/util"
 	"github.com/dave/dst"
@@ -38,13 +39,14 @@ func (rp *RuleProcessor) applyStructRules(bundle *rules.RuleBundle) error {
 		if err != nil {
 			return err
 		}
-		for _, decl := range astRoot.Decls {
-			for structName, rules := range struct2Rules {
-				if ast.MatchStructDecl(decl, structName) {
-					for _, rule := range rules {
-						rp.addStructField(rule, decl)
-					}
+		for structName, rules := range struct2Rules {
+			structDecl := ast.FindStructDecl(astRoot, structName)
+			if structDecl != nil {
+				for _, rule := range rules {
+					rp.addStructField(rule, structDecl)
 				}
+			} else {
+				return ex.Newf("struct %s not found", structName)
 			}
 		}
 		// Once all struct rules are applied, we restore AST to file and use it

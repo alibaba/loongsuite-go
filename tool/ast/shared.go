@@ -153,56 +153,50 @@ func FindFuncDeclWithoutRecv(root *dst.File, funcName string) *dst.FuncDecl {
 	return decls[0]
 }
 
-func FindFuncDecl(root *dst.File, function string, receiverType string) *dst.FuncDecl {
-	const maxMatchDecls = 2
+func FindFuncDecl(root *dst.File, function string, receiverType string) []*dst.FuncDecl {
 	decls := findFuncDecls(root, func(funcDecl *dst.FuncDecl) bool {
-		return funcDecl.Name.Name == function
-	})
-
-	// one with receiver and one without receiver, at most two
-	util.Assert(len(decls) <= maxMatchDecls, "sanity check")
-	util.Assert(isValidRegex(function), "invalid function name pattern")
-	for _, funcDecl := range decls {
 		re := regexp.MustCompile("^" + function + "$") // strict match
-		if !re.MatchString(funcDecl.Name.Name) {
-			return nil
-		}
-		if receiverType != "" {
-			re = regexp.MustCompile("^" + receiverType + "$") // strict match
+		return re.MatchString(funcDecl.Name.Name)
+	})
+	if receiverType != "" {
+		filtered := make([]*dst.FuncDecl, 0)
+		for _, funcDecl := range decls {
+			if !HasReceiver(funcDecl) {
+				continue
+			}
+			re := regexp.MustCompile("^" + receiverType + "$") // strict match
 			if !HasReceiver(funcDecl) {
 				if re.MatchString("") {
-					return funcDecl
+					filtered = append(filtered, funcDecl)
 				}
 			}
 			switch recvTypeExpr := funcDecl.Recv.List[0].Type.(type) {
 			case *dst.StarExpr:
 				if _, ok := recvTypeExpr.X.(*dst.Ident); !ok {
 					// This is a generic type, we don't support it yet
-					return nil
+					continue
 				}
 				t := "*" + recvTypeExpr.X.(*dst.Ident).Name
 				if re.MatchString(t) {
-					return funcDecl
+					filtered = append(filtered, funcDecl)
 				}
 			case *dst.Ident:
 				t := recvTypeExpr.Name
 				if re.MatchString(t) {
-					return funcDecl
+					filtered = append(filtered, funcDecl)
 				}
 			case *dst.IndexExpr:
 				// This is a generic type, we don't support it yet
-				return nil
+				continue
 			default:
 				msg := fmt.Sprintf("unexpected receiver type: %T", recvTypeExpr)
 				util.UnimplementedT(msg)
 			}
-		} else {
-			if HasReceiver(funcDecl) {
-				return nil
-			}
 		}
+		return filtered
 	}
-	return nil
+
+	return decls
 }
 
 func ListFuncDecls(root *dst.File) []*dst.FuncDecl {
@@ -275,17 +269,4 @@ func MatchFuncDecl(decl dst.Decl, function string, receiverType string) bool {
 		}
 	}
 	return true
-}
-
-func MatchStructDecl(decl dst.Decl, structType string) bool {
-	if genDecl, ok := decl.(*dst.GenDecl); ok {
-		if genDecl.Tok == token.TYPE {
-			if typeSpec, ok := genDecl.Specs[0].(*dst.TypeSpec); ok {
-				if typeSpec.Name.Name == structType {
-					return true
-				}
-			}
-		}
-	}
-	return false
 }

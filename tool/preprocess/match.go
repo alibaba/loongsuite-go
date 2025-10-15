@@ -443,25 +443,25 @@ func (rm *ruleMatcher) match(cmdArgs []string) *rules.RuleBundle {
 			valid := false
 			switch rl := rule.(type) {
 			case *rules.InstFuncRule:
-				funcDecl := ast.FindFuncDecl(tree, rl.Function, rl.ReceiverType)
-				if funcDecl != nil {
-					util.Log("Match func rule %s with %v", rule, cmdArgs)
+				funcDecls := ast.FindFuncDecl(tree, rl.Function, rl.ReceiverType)
+				if len(funcDecls) > 0 {
 					err = bundle.AddFile2FuncRule(file, rl)
 					if err != nil {
 						util.Log("Failed to add func rule: %v", err)
 						continue
 					}
+					util.Log("Match func rule %s with %v", rule, cmdArgs)
 					valid = true
 				}
 			case *rules.InstStructRule:
 				genDecl := ast.FindStructDecl(tree, rl.StructType)
 				if genDecl != nil {
-					util.Log("Match struct rule %s with %v", rule, cmdArgs)
 					err = bundle.AddFile2StructRule(file, rl)
 					if err != nil {
 						util.Log("Failed to add struct rule: %v", err)
 						continue
 					}
+					util.Log("Match struct rule %s with %v", rule, cmdArgs)
 					valid = true
 				}
 			case *rules.InstFileRule:

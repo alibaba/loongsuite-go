@@ -155,8 +155,7 @@ func FindFuncDeclWithoutRecv(root *dst.File, funcName string) *dst.FuncDecl {
 
 func FindFuncDecl(root *dst.File, function string, receiverType string) []*dst.FuncDecl {
 	decls := findFuncDecls(root, func(funcDecl *dst.FuncDecl) bool {
-		re := regexp.MustCompile("^" + function + "$") // strict match
-		return re.MatchString(funcDecl.Name.Name)
+		return function == funcDecl.Name.Name
 	})
 	if receiverType != "" {
 		filtered := make([]*dst.FuncDecl, 0)
@@ -195,8 +194,15 @@ func FindFuncDecl(root *dst.File, function string, receiverType string) []*dst.F
 		}
 		return filtered
 	}
+	// Receiver type is not specified, return all functions without receiver
+	filtered := make([]*dst.FuncDecl, 0)
+	for _, funcDecl := range decls {
+		if !HasReceiver(funcDecl) {
+			filtered = append(filtered, funcDecl)
+		}
+	}
+	return filtered
 
-	return decls
 }
 
 func ListFuncDecls(root *dst.File) []*dst.FuncDecl {

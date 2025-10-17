@@ -434,7 +434,6 @@ func (rp *RuleProcessor) applyFuncRules(bundle *rules.RuleBundle) (err error) {
 						}
 						util.Log("Apply func rule %s (%v)", rule, rp.compileArgs)
 					}
-					// break
 				}
 			}
 		}

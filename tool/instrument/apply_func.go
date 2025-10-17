@@ -379,7 +379,7 @@ func (rp *RuleProcessor) enableLineDirective(filePath string) error {
 	return nil
 }
 
-func (rp *RuleProcessor) applyFuncRules(bundle *rules.RuleBundle) (err error) {
+func (rp *RuleProcessor) applyFuncRules(bundle *rules.InstRuleSet) (err error) {
 	// Nothing to do if no func rules
 	if len(bundle.FuncRules) == 0 {
 		return nil

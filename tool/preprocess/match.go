@@ -337,7 +337,7 @@ func (rm *ruleMatcher) matchDependencies(rule rules.InstRule) bool {
 
 // match gives compilation arguments and finds out all interested rules
 // for it.
-func (rm *ruleMatcher) match(cmdArgs []string) *rules.RuleBundle {
+func (rm *ruleMatcher) match(cmdArgs []string) *rules.InstRuleSet {
 	importPath := findFlagValue(cmdArgs, util.BuildPattern)
 	util.Assert(importPath != "", "sanity check")
 	if config.GetConf().Verbose {
@@ -621,12 +621,12 @@ func parseVendorModules(projDir string) ([]*vendorModule, error) {
 	return vms, nil
 }
 
-func runMatch(matcher *ruleMatcher, cmd string, ch chan *rules.RuleBundle) {
+func runMatch(matcher *ruleMatcher, cmd string, ch chan *rules.InstRuleSet) {
 	bundle := matcher.match(util.SplitCompileCmds(cmd))
 	ch <- bundle
 }
 
-func (dp *DepProcessor) matchRules() ([]*rules.RuleBundle, error) {
+func (dp *DepProcessor) matchRules() ([]*rules.InstRuleSet, error) {
 	defer util.PhaseTimer("Match")()
 	compileCmds, err := dp.findDeps()
 	if err != nil {
@@ -649,12 +649,12 @@ func (dp *DepProcessor) matchRules() ([]*rules.RuleBundle, error) {
 	}
 
 	// Find used instrumentation rule according to compile commands
-	ch := make(chan *rules.RuleBundle)
+	ch := make(chan *rules.InstRuleSet)
 	for _, cmd := range compileCmds {
 		go runMatch(matcher, cmd, ch)
 	}
 	cnt := 0
-	bundles := make([]*rules.RuleBundle, 0)
+	bundles := make([]*rules.InstRuleSet, 0)
 	for cnt < len(compileCmds) {
 		bundle := <-ch
 		if bundle.IsValid() {

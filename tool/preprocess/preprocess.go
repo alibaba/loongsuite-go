@@ -280,7 +280,7 @@ func Preprocess() error {
 		// These final rules are used to perform a final update of the rule import.
 		// At this point, all preparations are complete, and the process can
 		// advance to the second stage: instrumentation.
-		bundles := make([]*rules.RuleBundle, 0)
+		bundles := make([]*rules.InstRuleSet, 0)
 		for i := 0; i < 3; i++ {
 			util.Log("Round %d of rule matching", i+1)
 			err = dp.newDeps(bundles)

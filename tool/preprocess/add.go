@@ -110,7 +110,7 @@ func (dp *DepProcessor) findRuleDir(path string) (string, string, error) {
 	}
 }
 
-func (dp *DepProcessor) newDeps(bundles []*rules.RuleBundle) error {
+func (dp *DepProcessor) newDeps(bundles []*rules.InstRuleSet) error {
 	content := "package main\n"
 	builtin := map[string]string{
 		// for go:linkname when declaring printstack/getstack variable

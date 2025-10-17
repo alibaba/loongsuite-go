@@ -31,7 +31,7 @@ func (rp *RuleProcessor) addStructField(rule *rules.InstStructRule, decl dst.Dec
 	ast.AddStructField(decl, rule.FieldName, rule.FieldType)
 }
 
-func (rp *RuleProcessor) applyStructRules(bundle *rules.RuleBundle) error {
+func (rp *RuleProcessor) applyStructRules(bundle *rules.InstRuleSet) error {
 	for file, stRules := range bundle.StructRules {
 		util.Assert(filepath.IsAbs(file), "file path must be absolute")
 		// Apply struct rules to the file

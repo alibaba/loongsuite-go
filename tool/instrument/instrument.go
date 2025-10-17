@@ -177,7 +177,7 @@ func (rp *RuleProcessor) keepForDebug(path string) {
 	}
 }
 
-func (rp *RuleProcessor) applyRules(bundle *rules.RuleBundle) (err error) {
+func (rp *RuleProcessor) applyRules(bundle *rules.InstRuleSet) (err error) {
 	// Apply file instrument rules first
 	err = rp.applyFileRules(bundle)
 	if err != nil {
@@ -206,7 +206,7 @@ func matchImportPath(importPath string, args []string) bool {
 	return false
 }
 
-func compileRemix(bundle *rules.RuleBundle, args []string) error {
+func compileRemix(bundle *rules.InstRuleSet, args []string) error {
 	rp := newRuleProcessor(args, bundle.PackageName)
 	err := rp.applyRules(bundle)
 	if err != nil {

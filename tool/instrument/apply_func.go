@@ -400,40 +400,41 @@ func (rp *RuleProcessor) applyFuncRules(bundle *rules.RuleBundle) (err error) {
 		oldDecls := make([]dst.Decl, len(astRoot.Decls))
 		copy(oldDecls, astRoot.Decls)
 		for fnName, rules := range fn2rules {
-			for _, decl := range oldDecls {
-				nameAndRecvType := strings.Split(fnName, ",")
-				name := nameAndRecvType[0]
-				recvType := nameAndRecvType[1]
-				if ast.MatchFuncDecl(decl, name, recvType) {
-					fnDecl := decl.(*dst.FuncDecl)
-					util.Assert(fnDecl.Body != nil, "target func body is empty")
-					fnName := fnDecl.Name.Name
-					// Save raw function declaration
-					rp.rawFunc = fnDecl
-					// The func rule can either fully match the target function
-					// or use a regexp to match a batch of functions. The
-					// generation of tjump differs slightly between these two
-					// cases. In the former case, the hook function is required
-					// to have the same signature as the target function, while
-					// the latter does not have this requirement.
-					rp.exact = fnName == name
-					// Add explicit names for return values, they can be further
-					// referenced if we're willing
-					nameReturnValues(fnDecl)
+			nameAndRecvType := strings.Split(fnName, ",")
+			name := nameAndRecvType[0]
+			recvType := nameAndRecvType[1]
+			funcDecls := ast.FindFuncDecl(astRoot, name, recvType)
+			if len(funcDecls) == 0 {
+				continue
+			}
+			for _, funcDecl := range funcDecls {
+				util.Assert(funcDecl.Body != nil, "target func body is empty")
+				fnName := funcDecl.Name.Name
+				// Save raw function declaration
+				rp.rawFunc = funcDecl
+				// The func rule can either fully match the target function
+				// or use a regexp to match a batch of functions. The
+				// generation of tjump differs slightly between these two
+				// cases. In the former case, the hook function is required
+				// to have the same signature as the target function, while
+				// the latter does not have this requirement.
+				rp.exact = fnName == name
+				// Add explicit names for return values, they can be further
+				// referenced if we're willing
+				nameReturnValues(funcDecl)
 
-					// Apply all matched rules for this function
-					fnRules := sortFuncRules(rules)
-					for _, rule := range fnRules {
-						if rule.UseRaw {
-							err = rp.insertRaw(rule, fnDecl)
-						} else {
-							err = rp.insertTJump(rule, fnDecl)
-						}
-						if err != nil {
-							return err
-						}
-						util.Log("Apply func rule %s (%v)", rule, rp.compileArgs)
+				// Apply all matched rules for this function
+				fnRules := sortFuncRules(rules)
+				for _, rule := range fnRules {
+					if rule.UseRaw {
+						err = rp.insertRaw(rule, funcDecl)
+					} else {
+						err = rp.insertTJump(rule, funcDecl)
 					}
+					if err != nil {
+						return err
+					}
+					util.Log("Apply func rule %s (%v)", rule, rp.compileArgs)
 				}
 			}
 		}

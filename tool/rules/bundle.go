@@ -16,7 +16,6 @@ package rules
 
 import (
 	"encoding/json"
-	"path/filepath"
 
 	"github.com/alibaba/loongsuite-go-agent/tool/ex"
 	"github.com/alibaba/loongsuite-go-agent/tool/util"
@@ -35,7 +34,7 @@ type InstRuleSet struct {
 	StructRules map[string][]*InstStructRule
 }
 
-func NewRuleBundle(importPath string) *InstRuleSet {
+func NewInstRuleSet(importPath string) *InstRuleSet {
 	return &InstRuleSet{
 		PackageName: "",
 		ImportPath:  importPath,
@@ -57,32 +56,22 @@ func (rb *InstRuleSet) IsValid() bool {
 			len(rb.StructRules) > 0)
 }
 
-func (rb *InstRuleSet) AddFuncRule(file string, rule *InstFuncRule) error {
-	file, err := filepath.Abs(file)
-	if err != nil {
-		return ex.Wrap(err)
-	}
+func (rb *InstRuleSet) AddFuncRule(file string, rule *InstFuncRule) {
 	if _, exist := rb.FuncRules[file]; !exist {
 		rb.FuncRules[file] = make([]*InstFuncRule, 0)
 		rb.FuncRules[file] = []*InstFuncRule{rule}
 	} else {
 		rb.FuncRules[file] = append(rb.FuncRules[file], rule)
 	}
-	return nil
 }
 
-func (rb *InstRuleSet) AddStructRule(file string, rule *InstStructRule) error {
-	file, err := filepath.Abs(file)
-	if err != nil {
-		return ex.Wrap(err)
-	}
+func (rb *InstRuleSet) AddStructRule(file string, rule *InstStructRule) {
 	if _, exist := rb.StructRules[file]; !exist {
 		rb.StructRules[file] = make([]*InstStructRule, 0)
 		rb.StructRules[file] = []*InstStructRule{rule}
 	} else {
 		rb.StructRules[file] = append(rb.StructRules[file], rule)
 	}
-	return nil
 }
 
 func (rb *InstRuleSet) SetPackageName(name string) {

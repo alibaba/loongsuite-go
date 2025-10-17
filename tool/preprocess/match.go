@@ -365,7 +365,7 @@ func (rm *ruleMatcher) match(cmdArgs []string) *rules.InstRuleSet {
 	}
 
 	parsedAst := make(map[string]*dst.File)
-	bundle := rules.NewRuleBundle(importPath)
+	bundle := rules.NewInstRuleSet(importPath)
 
 	goVersion := findFlagValue(cmdArgs, util.BuildGoVer)
 	util.Assert(goVersion != "", "sanity check")
@@ -376,7 +376,11 @@ func (rm *ruleMatcher) match(cmdArgs []string) *rules.InstRuleSet {
 		if !util.IsGoFile(candidate) {
 			continue
 		}
-		file := candidate
+		file, err := filepath.Abs(candidate)
+		if err != nil {
+			util.Log("Failed to get absolute path of file %s: %v", candidate, err)
+			continue
+		}
 
 		// If it's a vendor build, we need to extract the version of the module
 		// from vendor/modules.txt, otherwise we find the version from source
@@ -445,22 +449,14 @@ func (rm *ruleMatcher) match(cmdArgs []string) *rules.InstRuleSet {
 			case *rules.InstFuncRule:
 				funcDecls := ast.FindFuncDecl(tree, rl.Function, rl.ReceiverType)
 				if len(funcDecls) > 0 {
-					err = bundle.AddFuncRule(file, rl)
-					if err != nil {
-						util.Log("Failed to add func rule: %v", err)
-						continue
-					}
+					bundle.AddFuncRule(file, rl)
 					util.Log("Match func rule %s with %v", rule, cmdArgs)
 					valid = true
 				}
 			case *rules.InstStructRule:
 				genDecl := ast.FindStructDecl(tree, rl.StructType)
 				if genDecl != nil {
-					err = bundle.AddStructRule(file, rl)
-					if err != nil {
-						util.Log("Failed to add struct rule: %v", err)
-						continue
-					}
+					bundle.AddStructRule(file, rl)
 					util.Log("Match struct rule %s with %v", rule, cmdArgs)
 					valid = true
 				}

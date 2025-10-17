@@ -31,7 +31,7 @@ type RuleBundle struct {
 	PackageName string
 	ImportPath  string
 	FileRules   []*InstFileRule
-	FuncRules   map[string]map[string][]*InstFuncRule
+	FuncRules   map[string][]*InstFuncRule
 	StructRules map[string][]*InstStructRule
 }
 
@@ -40,7 +40,7 @@ func NewRuleBundle(importPath string) *RuleBundle {
 		PackageName: "",
 		ImportPath:  importPath,
 		FileRules:   make([]*InstFileRule, 0),
-		FuncRules:   make(map[string]map[string][]*InstFuncRule),
+		FuncRules:   make(map[string][]*InstFuncRule),
 		StructRules: make(map[string][]*InstStructRule),
 	}
 }
@@ -62,14 +62,11 @@ func (rb *RuleBundle) AddFuncRule(file string, rule *InstFuncRule) error {
 	if err != nil {
 		return ex.Wrap(err)
 	}
-	fn := rule.Function + "," + rule.ReceiverType
-	util.Assert(fn != "", "sanity check")
 	if _, exist := rb.FuncRules[file]; !exist {
-		rb.FuncRules[file] = make(map[string][]*InstFuncRule)
-		rb.FuncRules[file][fn] = []*InstFuncRule{rule}
+		rb.FuncRules[file] = make([]*InstFuncRule, 0)
+		rb.FuncRules[file] = []*InstFuncRule{rule}
 	} else {
-		rb.FuncRules[file][fn] =
-			append(rb.FuncRules[file][fn], rule)
+		rb.FuncRules[file] = append(rb.FuncRules[file], rule)
 	}
 	return nil
 }

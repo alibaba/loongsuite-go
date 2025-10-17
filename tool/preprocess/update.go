@@ -231,21 +231,19 @@ func (dp *DepProcessor) updateRule(bundles []*rules.RuleBundle) error {
 	rectified := map[string]bool{}
 	for _, bundle := range bundles {
 		for _, funcRules := range bundle.FuncRules {
-			for _, rs := range funcRules {
-				for _, rule := range rs {
-					if rule.UseRaw {
-						continue
-					}
-					if rectified[rule.GetPath()] {
-						continue
-					}
-					_, path, err := dp.findRuleDir(rule.GetPath())
-					if err != nil {
-						return err
-					}
-					rule.SetPath(path)
-					rectified[path] = true
+			for _, rule := range funcRules {
+				if rule.UseRaw {
+					continue
 				}
+				if rectified[rule.GetPath()] {
+					continue
+				}
+				_, path, err := dp.findRuleDir(rule.GetPath())
+				if err != nil {
+					return err
+				}
+				rule.SetPath(path)
+				rectified[path] = true
 			}
 		}
 		for _, fileRule := range bundle.FileRules {

@@ -21,7 +21,6 @@ import (
 	"path/filepath"
 	"regexp"
 	"sort"
-	"strings"
 
 	"github.com/alibaba/loongsuite-go-agent/tool/ast"
 	"github.com/alibaba/loongsuite-go-agent/tool/config"
@@ -387,25 +386,17 @@ func (rp *RuleProcessor) applyFuncRules(bundle *rules.RuleBundle) (err error) {
 	}
 	// Applied all matched func rules, either inserting raw code or inserting
 	// our trampoline calls.
-	for file, fn2rules := range bundle.FuncRules {
+	for file, funcRules := range bundle.FuncRules {
 		util.Assert(filepath.IsAbs(file), "file path must be absolute")
 		astRoot, err := rp.parseAst(file)
 		if err != nil {
 			return err
 		}
 		rp.trampolineJumps = make([]*TJump, 0)
-		// Since we may generate many functions into the same file, while we don't
-		// want to further instrument these functions, we need to make sure that
-		// the generated function are excluded from the instrumented file.
-		oldDecls := make([]dst.Decl, len(astRoot.Decls))
-		copy(oldDecls, astRoot.Decls)
-		for fnName, rules := range fn2rules {
-			nameAndRecvType := strings.Split(fnName, ",")
-			name := nameAndRecvType[0]
-			recvType := nameAndRecvType[1]
-			funcDecls := ast.FindFuncDecl(astRoot, name, recvType)
+		for _, rule := range sortFuncRules(funcRules) {
+			funcDecls := ast.FindFuncDecl(astRoot, rule.Function, rule.ReceiverType)
 			if len(funcDecls) == 0 {
-				continue
+				return ex.Newf("func %s not found", rule.Function)
 			}
 			for _, funcDecl := range funcDecls {
 				util.Assert(funcDecl.Body != nil, "target func body is empty")
@@ -418,24 +409,21 @@ func (rp *RuleProcessor) applyFuncRules(bundle *rules.RuleBundle) (err error) {
 				// cases. In the former case, the hook function is required
 				// to have the same signature as the target function, while
 				// the latter does not have this requirement.
-				rp.exact = fnName == name
+				rp.exact = fnName == rule.Function
 				// Add explicit names for return values, they can be further
 				// referenced if we're willing
 				nameReturnValues(funcDecl)
 
 				// Apply all matched rules for this function
-				fnRules := sortFuncRules(rules)
-				for _, rule := range fnRules {
-					if rule.UseRaw {
-						err = rp.insertRaw(rule, funcDecl)
-					} else {
-						err = rp.insertTJump(rule, funcDecl)
-					}
-					if err != nil {
-						return err
-					}
-					util.Log("Apply func rule %s (%v)", rule, rp.compileArgs)
+				if rule.UseRaw {
+					err = rp.insertRaw(rule, funcDecl)
+				} else {
+					err = rp.insertTJump(rule, funcDecl)
 				}
+				if err != nil {
+					return err
+				}
+				util.Log("Apply func rule %s (%v)", rule, rp.compileArgs)
 			}
 		}
 		// Optimize generated trampoline-jump-ifs

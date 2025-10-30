@@ -1,7 +1,13 @@
 [
   {
     "ImportPath": "gorm.io/driver/mysql",
-    "StructType": "Dialector",
+    "StructType": "Config",
+    "FieldName": "DbInfo",
+    "FieldType": "interface{}"
+  },
+  {
+    "ImportPath": "gorm.io/driver/postgres",
+    "StructType": "Config",
     "FieldName": "DbInfo",
     "FieldType": "interface{}"
   },

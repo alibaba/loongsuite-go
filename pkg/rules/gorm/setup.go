@@ -109,13 +109,13 @@ func getDbInfo(dial gorm.Dialector) (string, string, string, string) {
 	if !ok {
 		return "", "", "", ""
 	}
-	if cfg, ok := res.DbInfo.(*driver.Config); ok {
+	if cfg, ok := res.Config.DbInfo.(*driver.Config); ok {
 		return cfg.DBName, cfg.Addr, "mysql", cfg.User
 	}
 	cfg, err := driver.ParseDSN(res.Config.DSN)
 	if err != nil {
 		return "", "", "", ""
 	}
-	res.DbInfo = cfg
+	res.Config.DbInfo = cfg
 	return cfg.DBName, cfg.Addr, "mysql", cfg.User
 }

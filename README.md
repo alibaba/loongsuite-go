@@ -83,11 +83,12 @@ The detailed usage of `otel` tool can be found in [**Usage**](./docs/user/config
 | elasticsearch  | https://github.com/elastic/go-elasticsearch                 | v8.4.0          | v8.15.0       |
 
 ## 缓存
-| Library         | Repository Url                                               | Min Version     | Max Version   |
-|----------------|-------------------------------------------------------------|-----------------|--------------|
-| redis (go-redis)| https://github.com/redis/go-redis                           | v9.0.5          | v9.5.1        |
-| redis v8        | https://github.com/go-redis/redis/v8                        | v8.11.0         | v8.11.5       |
-| redigo          | https://github.com/gomodule/redigo                          | v1.9.0          | v1.9.3        |
+| Library          | Repository Url                                           | Min Version     | Max Version |
+|------------------|----------------------------------------------------------|-----------------|-------------|
+| redis (go-redis) | https://github.com/redis/go-redis                        | v9.0.5          | v9.5.1      |
+| redis v8         | https://github.com/go-redis/redis/v8                     | v8.11.0         | v8.11.5     |
+| redigo           | https://github.com/gomodule/redigo                       | v1.9.0          | v1.9.3      |
+| rueidis          | https://github.com/redis/rueidis                         | v1.0.30         | -           |
 
 ## 消息队列
 | Library         | Repository Url                                               | Min Version     | Max Version   |

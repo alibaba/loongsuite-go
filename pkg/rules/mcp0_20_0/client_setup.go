@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package mcp
+package mcp0_20_0
 
 import (
 	"context"
@@ -26,15 +26,23 @@ import (
 	"github.com/mark3labs/mcp-go/mcp"
 )
 
-//go:linkname clientOnEnter github.com/mark3labs/mcp-go/client.clientOnEnter
-func clientOnEnter(call api.CallContext, c *client.Client,
+//go:linkname clientSseOnEnter github.com/mark3labs/mcp-go/client.clientSseOnEnter
+func clientSseOnEnter(call api.CallContext, c *client.SSEMCPClient,
 	ctx context.Context,
 	method string,
 	params interface{}) {
-	clientEnter(call, ctx, method, params)
+	clientOnEnter(call, ctx, method, params)
 }
 
-func clientEnter(call api.CallContext,
+//go:linkname clientStdioOnEnter github.com/mark3labs/mcp-go/client.clientStdioOnEnter
+func clientStdioOnEnter(call api.CallContext, c *client.StdioMCPClient,
+	ctx context.Context,
+	method string,
+	params interface{}) {
+	clientOnEnter(call, ctx, method, params)
+}
+
+func clientOnEnter(call api.CallContext,
 	ctx context.Context,
 	method string,
 	params interface{}) {
@@ -60,12 +68,16 @@ func clientEnter(call api.CallContext,
 	call.SetData(data)
 }
 
-//go:linkname clientOnExit github.com/mark3labs/mcp-go/client.clientOnExit
-func clientOnExit(call api.CallContext, j *json.RawMessage, err error) {
-	clientExit(call, j, err)
+//go:linkname clientSseOnExit github.com/mark3labs/mcp-go/client.clientSseOnExit
+func clientSseOnExit(call api.CallContext, j *json.RawMessage, err error) {
+	clientOnExit(call, j, err)
 }
 
-func clientExit(call api.CallContext, j *json.RawMessage, err error) {
+//go:linkname clientStdioOnExit github.com/mark3labs/mcp-go/client.clientStdioOnExit
+func clientStdioOnExit(call api.CallContext, j *json.RawMessage, err error) {
+	clientOnExit(call, j, err)
+}
+func clientOnExit(call api.CallContext, j *json.RawMessage, err error) {
 	data, ok := call.GetData().(map[string]interface{})
 	if !ok {
 		return

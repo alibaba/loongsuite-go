@@ -25,6 +25,7 @@ func init() {
 	TestCases = append(TestCases,
 		NewGeneralTestCase("mcp-0.20.0-sse-tool-test", mcp_module_name, "0.20.0", "0.20.0", "1.22.0", "", TestMcpTool),
 		NewGeneralTestCase("mcp-0.20.0-sse-prompt-test", mcp_module_name, "0.20.0", "0.20.0", "1.22.0", "", TestMcpPrompt),
+		NewGeneralTestCase("mcp-0.41.1-sse-prompt-test", mcp_module_name, "0.20.0", "", "1.22.0", "", TestMcpPrompt041),
 		NewGeneralTestCase("mcp-0.20.0-sse-resource-test", mcp_module_name, "0.20.0", "0.20.0", "1.22.0", "", TestMcpResource),
 	)
 
@@ -40,6 +41,13 @@ func TestMcpPrompt(t *testing.T, env ...string) {
 	RunGoBuild(t, "go", "build", "test_sse_prompt.go", "ext.go")
 	RunApp(t, "test_sse_prompt", env...)
 }
+
+func TestMcpPrompt041(t *testing.T, env ...string) {
+	UseApp("mcp/v0.41.1")
+	RunGoBuild(t, "go", "build", "test_sse_prompt.go", "ext.go")
+	RunApp(t, "test_sse_prompt", env...)
+}
+
 func TestMcpResource(t *testing.T, env ...string) {
 	UseApp("mcp/v0.20.0")
 	RunGoBuild(t, "go", "build", "test_sse_resource.go", "ext.go")

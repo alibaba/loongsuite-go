@@ -154,7 +154,7 @@ func main() {
 	}
 
 	fmt.Println("\n🎉 所有测试完成!")
-	time.Sleep(5 * time.Second)
+	time.Sleep(2 * time.Second)
 	verifier.WaitAndAssertTraces(func(stubs []tracetest.SpanStubs) {
 		traceNum := len(stubs)
 		verifier.Assert(traceNum == 10, "Expected 10 trace num, got %d", traceNum)

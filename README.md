@@ -67,6 +67,7 @@ The detailed usage of `otel` tool can be found in [**Usage**](./docs/user/config
 - [sql injection](https://github.com/alibaba/loongsuite-go-agent/tree/main/example/sqlinject) - Custom code injection for SQL injection detection
 - [nethttp](https://github.com/alibaba/loongsuite-go-agent/tree/main/example/nethttp) - HTTP monitoring with request/response instrumentation
 - [kratos-demo](https://github.com/alibaba/loongsuite-go-agent/tree/main/example/kratos-demo) - Integration with the Kratos framework
+- [kafka-demo](https://github.com/alibaba/loongsuite-go-agent/tree/main/example/kafka-demo) - Kafka Consumer Message monitoring
 
 # Supported Libraries
 <details>
@@ -106,7 +107,6 @@ The detailed usage of `otel` tool can be found in [**Usage**](./docs/user/config
 | kratos          | https://github.com/go-kratos/kratos                         | v2.6.3          | -            |
 | go-micro        | https://github.com/micro/go-micro                           | v5.0.0          | v5.3.0        |
 | trpc-go         | https://github.com/trpc-group/trpc-go                       | v1.0.0          | -            |
-| eino            | https://github.com/cloudwego/eino                           | v0.3.51         | -            |
 
 ## HTTP/Web 框架
 | Library         | Repository Url                                               | Min Version     | Max Version   |
@@ -142,6 +142,7 @@ The detailed usage of `otel` tool can be found in [**Usage**](./docs/user/config
 |----------------|-------------------------------------------------------------|-----------------|--------------|
 | langchaingo     | https://github.com/tmc/langchaingo                          | v0.1.13         | -            |
 | ollama          | https://github.com/ollama/ollama                            | v0.3.14         | -            |
+| eino            | https://github.com/cloudwego/eino                           | v0.3.51         | -            |
 
 ## 限流/熔断
 | Library         | Repository Url                                               | Min Version     | Max Version   |

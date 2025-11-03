@@ -64,6 +64,7 @@ The detailed usage of `otel` tool can be found in [**Usage**](./user/config.md).
 - [sql injection](https://github.com/alibaba/loongsuite-go-agent/tree/main/example/sqlinject) - Custom code injection for SQL injection detection
 - [nethttp](https://github.com/alibaba/loongsuite-go-agent/tree/main/example/nethttp) - HTTP monitoring with request/response instrumentation
 - [kratos-demo](https://github.com/alibaba/loongsuite-go-agent/tree/main/example/kratos-demo) - Integration with the Kratos framework
+- [kafka-demo](https://github.com/alibaba/loongsuite-go-agent/tree/main/example/kafka-demo) - Kafka Consumer Message monitoring
 
 # Community
 

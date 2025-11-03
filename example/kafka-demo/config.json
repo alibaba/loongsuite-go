@@ -1,7 +1,7 @@
 [
   {
     "ImportPath":"kafka-demo/consumer",
-    "Function":"CommitMessage",
+    "Function":"ConsumerMsg",
     "OnEnter":"consumerMessageOnEnter",
     "ReceiverType": "\\*KafkaConsumer",
     "OnExit": "consumerMessageOnExit",

@@ -60,6 +60,8 @@ $ otel go build -gcflags="-m" cmd/app
 - [sql injection](https://github.com/alibaba/loongsuite-go-agent/tree/main/example/sqlinject) - 用于SQL注入检测的自定义代码注入
 - [nethttp](https://github.com/alibaba/loongsuite-go-agent/tree/main/example/nethttp) - 带有请求/响应埋点的HTTP监控
 - [kratos-demo](https://github.com/alibaba/loongsuite-go-agent/tree/main/example/kratos-demo) - 与Kratos框架的集成
+- [kafka-demo](https://github.com/alibaba/loongsuite-go-agent/tree/main/example/kafka-demo) - Kafka消息消费流程自定义代码注入
+
 
 # 社区
 

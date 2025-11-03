@@ -8,8 +8,9 @@ import (
 	"time"
 )
 
+var milli = time.Now().UnixMilli()
+
 func main() {
-	milli := time.Now().UnixMilli()
 	index := int(milli % 10)
 	topic := fmt.Sprintf("%s-%v", topicPrefix, index)
 	group := fmt.Sprintf("%s-%v", groupPrefix, index)
@@ -42,7 +43,6 @@ func SetMessage() {
 	for {
 		select {
 		case <-ticker.C:
-			milli := time.Now().UnixMilli()
 			index := int(milli % 10)
 			topic := fmt.Sprintf("%s-%v", topicPrefix, index)
 			group := fmt.Sprintf("%s-%v", groupPrefix, index)

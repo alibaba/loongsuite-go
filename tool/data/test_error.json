@@ -112,5 +112,11 @@
         "Function": "TargetWithFuncType",
         "OnEnter": "onEnterTargetWithFuncType",
         "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/test/error18"
+    },
+    {
+        "ImportPath": "errorstest/auxiliary",
+        "Function": "Unused",
+        "OnEnter": "onEnterUnusedName",
+        "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/test/error19"
     }
 ]

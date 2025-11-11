@@ -98,35 +98,35 @@ func findJumpPoint(jumpIf *dst.IfStmt) *dst.BlockStmt {
 	return nil
 }
 
-func collectReturnValues(funcDecl *dst.FuncDecl) []dst.Expr {
-	var retVals []dst.Expr // nil by default
+func collectReturnValues(funcDecl *dst.FuncDecl) []string {
+	var retVals []string // nil by default
 	if retList := funcDecl.Type.Results; retList != nil {
-		retVals = make([]dst.Expr, 0)
+		retVals = make([]string, 0)
 		// If return values are named, collect their names, otherwise we try to
 		// name them manually for further use
 		for i, field := range retList.List {
 			if field.Names != nil {
 				for _, name := range field.Names {
-					retVals = append(retVals, dst.NewIdent(name.Name))
+					retVals = append(retVals, name.Name)
 				}
 			} else {
 				retValIdent := dst.NewIdent(fmt.Sprintf("retVal%d", i))
 				field.Names = []*dst.Ident{retValIdent}
-				retVals = append(retVals, dst.Clone(retValIdent).(*dst.Ident))
+				retVals = append(retVals, retValIdent.Name)
 			}
 		}
 	}
 	return retVals
 }
 
-func collectArguments(funcDecl *dst.FuncDecl) []dst.Expr {
+func collectArguments(funcDecl *dst.FuncDecl) []string {
 	// Arguments for onEnter trampoline
-	args := make([]dst.Expr, 0)
+	args := make([]string, 0)
 	// Receiver as argument for trampoline func, if any
 	if ast.HasReceiver(funcDecl) {
 		if recv := funcDecl.Recv.List; recv != nil {
 			receiver := recv[0].Names[0].Name
-			args = append(args, ast.AddressOf(ast.Ident(receiver)))
+			args = append(args, receiver)
 		} else {
 			util.Unimplemented()
 		}
@@ -134,14 +134,28 @@ func collectArguments(funcDecl *dst.FuncDecl) []dst.Expr {
 	// Original function arguments as arguments for trampoline func
 	for _, field := range funcDecl.Type.Params.List {
 		for _, name := range field.Names {
-			args = append(args, ast.AddressOf(ast.Ident(name.Name)))
+			args = append(args, name.Name)
 		}
 	}
 	return args
 }
 
+func buildArgs(names []string) []dst.Expr {
+	exprs := make([]dst.Expr, 0)
+	for _, name := range names {
+		// Pass nil to trampoline func if the argument of target func is "_"
+		// Otherwise, pass the pointer of the argument
+		if name == "_" {
+			exprs = append(exprs, ast.Nil())
+		} else {
+			exprs = append(exprs, ast.AddressOf(name))
+		}
+	}
+	return exprs
+}
+
 func (rp *RuleProcessor) createTJumpIf(t *rules.InstFuncRule, funcDecl *dst.FuncDecl,
-	args []dst.Expr, retVals []dst.Expr,
+	args []string, retVals []string,
 ) *dst.IfStmt {
 	varSuffix := util.Crc32(t.String())
 	if config.GetConf().Verbose {
@@ -151,18 +165,12 @@ func (rp *RuleProcessor) createTJumpIf(t *rules.InstFuncRule, funcDecl *dst.Func
 	// Generate the trampoline-jump-if. N.B. Note that future optimization pass
 	// heavily depends on the structure of trampoline-jump-if. Any change in it
 	// should be carefully examined.
-	onEnterCall := ast.CallTo(makeName(t, funcDecl, true), args)
-	onExitCall := ast.CallTo(makeName(t, funcDecl, false), func() []dst.Expr {
-		// NB. DST framework disallows duplicated node in the
-		// AST tree, we need to replicate the return values
-		// as they are already used in return statement above
-		clone := make([]dst.Expr, len(retVals)+1)
-		clone[0] = ast.Ident(TrampolineCallContextName + varSuffix)
-		for i := 1; i < len(clone); i++ {
-			clone[i] = ast.AddressOf(retVals[i-1])
-		}
-		return clone
-	}())
+	argsToOnEnter := buildArgs(args)
+	argsToOnExit := buildArgs(retVals)
+	argCallContext := ast.Ident(TrampolineCallContextName + varSuffix)
+	argsToOnExit = append([]dst.Expr{argCallContext}, argsToOnExit...)
+	onEnterCall := ast.CallTo(makeName(t, funcDecl, true), argsToOnEnter)
+	onExitCall := ast.CallTo(makeName(t, funcDecl, false), argsToOnExit)
 	tjumpInit := ast.DefineStmts(
 		ast.Exprs(
 			ast.Ident(TrampolineCallContextName+varSuffix),
@@ -171,9 +179,13 @@ func (rp *RuleProcessor) createTJumpIf(t *rules.InstFuncRule, funcDecl *dst.Func
 		ast.Exprs(onEnterCall),
 	)
 	tjumpCond := ast.Ident(TrampolineSkipName + varSuffix)
+	tjumpReturn := make([]dst.Expr, 0)
+	for _, retVal := range retVals {
+		tjumpReturn = append(tjumpReturn, ast.Ident(retVal))
+	}
 	tjumpBody := ast.BlockStmts(
 		ast.ExprStmt(onExitCall),
-		ast.ReturnStmt(retVals),
+		ast.ReturnStmt(tjumpReturn),
 	)
 	tjumpElse := ast.Block(ast.DeferStmt(onExitCall))
 	tjump := ast.IfStmt(tjumpInit, tjumpCond, tjumpBody, tjumpElse)

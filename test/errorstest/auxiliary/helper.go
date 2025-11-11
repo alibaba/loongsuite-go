@@ -56,3 +56,5 @@ func NilArg(arg1 *int) {}
 type Fn func()
 
 func TargetWithFuncType(fn ...Fn) {}
+
+func Unused(a, _ int) {}

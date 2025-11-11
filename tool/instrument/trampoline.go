@@ -16,6 +16,7 @@ package instrument
 
 import (
 	_ "embed"
+	"fmt"
 	"go/token"
 	"strconv"
 
@@ -409,20 +410,32 @@ func addCallContext(list *dst.FieldList) {
 }
 
 func (rp *RuleProcessor) buildTrampolineType(onEnter bool) *dst.FieldList {
+	// Since target function parameter names might be "_", we may use the target
+	// function parameters in the trampoline function, which would cause a syntax
+	// error, so we assign them a specific name and use them.
+	renameField := func(field *dst.Field, prefix string) {
+		for i, names := range field.Names {
+			names.Name = fmt.Sprintf("%s%d", prefix, i)
+		}
+	}
+	// Build parameter list of trampoline function
 	paramList := &dst.FieldList{List: []*dst.Field{}}
 	if onEnter {
 		if ast.HasReceiver(rp.targetFunc) {
 			recvField := dst.Clone(rp.targetFunc.Recv.List[0]).(*dst.Field)
+			renameField(recvField, "recv")
 			paramList.List = append(paramList.List, recvField)
 		}
 		for _, field := range rp.targetFunc.Type.Params.List {
 			paramField := dst.Clone(field).(*dst.Field)
+			renameField(paramField, "arg")
 			paramList.List = append(paramList.List, paramField)
 		}
 	} else {
 		if rp.targetFunc.Type.Results != nil {
 			for _, field := range rp.targetFunc.Type.Results.List {
 				retField := dst.Clone(field).(*dst.Field)
+				renameField(retField, "arg")
 				paramList.List = append(paramList.List, retField)
 			}
 		}

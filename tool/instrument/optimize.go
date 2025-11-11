@@ -133,7 +133,7 @@ func replenishCallContextLiteral(tjump *TJump, expr dst.Expr) {
 	// Replenish call context literal with addresses of all arguments
 	names := make([]dst.Expr, 0)
 	for _, name := range getNames(rawFunc.Type.Params) {
-		names = append(names, ast.AddressOf(ast.Ident(name)))
+		names = append(names, ast.AddressOf(name))
 	}
 	elems := expr.(*dst.UnaryExpr).X.(*dst.CompositeLit).Elts
 	paramLiteral := elems[0].(*dst.KeyValueExpr).Value.(*dst.CompositeLit)
@@ -142,7 +142,7 @@ func replenishCallContextLiteral(tjump *TJump, expr dst.Expr) {
 	if rawFunc.Type.Results != nil {
 		rets := make([]dst.Expr, 0)
 		for _, name := range getNames(rawFunc.Type.Results) {
-			rets = append(rets, ast.AddressOf(ast.Ident(name)))
+			rets = append(rets, ast.AddressOf(name))
 		}
 		elems = expr.(*dst.UnaryExpr).X.(*dst.CompositeLit).Elts
 		returnLiteral := elems[1].(*dst.KeyValueExpr).Value.(*dst.CompositeLit)

@@ -38,8 +38,8 @@ const (
 // operations throughout the instrumentation toolchain, ensuring consistent
 // handling of common AST patterns and reducing code duplication.
 
-func AddressOf(expr dst.Expr) *dst.UnaryExpr {
-	return &dst.UnaryExpr{Op: token.AND, X: dst.Clone(expr).(dst.Expr)}
+func AddressOf(name string) *dst.UnaryExpr {
+	return &dst.UnaryExpr{Op: token.AND, X: Ident(name)}
 }
 
 func CallTo(name string, args []dst.Expr) *dst.CallExpr {
@@ -53,6 +53,10 @@ func Ident(name string) *dst.Ident {
 	return &dst.Ident{
 		Name: name,
 	}
+}
+
+func Nil() dst.Expr {
+	return Ident(IdentNil)
 }
 
 func StringLit(value string) *dst.BasicLit {

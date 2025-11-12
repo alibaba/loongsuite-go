@@ -413,9 +413,11 @@ func (rp *RuleProcessor) buildTrampolineType(onEnter bool) *dst.FieldList {
 	// Since target function parameter names might be "_", we may use the target
 	// function parameters in the trampoline function, which would cause a syntax
 	// error, so we assign them a specific name and use them.
+	idx := 0
 	renameField := func(field *dst.Field, prefix string) {
-		for i, names := range field.Names {
-			names.Name = fmt.Sprintf("%s%d", prefix, i)
+		for _, names := range field.Names {
+			names.Name = fmt.Sprintf("%s%d", prefix, idx)
+			idx++
 		}
 	}
 	// Build parameter list of trampoline function

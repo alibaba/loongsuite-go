@@ -140,7 +140,7 @@ func collectArguments(funcDecl *dst.FuncDecl) []string {
 	return args
 }
 
-func buildArgs(names []string) []dst.Expr {
+func buildTJumpArgs(names []string) []dst.Expr {
 	exprs := make([]dst.Expr, 0)
 	for _, name := range names {
 		// Pass nil to trampoline func if the argument of target func is "_"
@@ -165,8 +165,8 @@ func (rp *RuleProcessor) createTJumpIf(t *rules.InstFuncRule, funcDecl *dst.Func
 	// Generate the trampoline-jump-if. N.B. Note that future optimization pass
 	// heavily depends on the structure of trampoline-jump-if. Any change in it
 	// should be carefully examined.
-	argsToOnEnter := buildArgs(args)
-	argsToOnExit := buildArgs(retVals)
+	argsToOnEnter := buildTJumpArgs(args)
+	argsToOnExit := buildTJumpArgs(retVals)
 	argCallContext := ast.Ident(TrampolineCallContextName + varSuffix)
 	argsToOnExit = append([]dst.Expr{argCallContext}, argsToOnExit...)
 	onEnterCall := ast.CallTo(makeName(t, funcDecl, true), argsToOnEnter)

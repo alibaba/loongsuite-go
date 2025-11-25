@@ -1,26 +1,27 @@
 [
   {
+    "Version": "[9.0.5,)",
     "ImportPath": "github.com/redis/go-redis/v9",
     "Function": "NewClient",
     "OnExit": "afterNewRedisClient",
     "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/goredis"
   },
   {
-    "Version": "[9.0.5,9.5.2)",
+    "Version": "[9.0.5,)",
     "ImportPath": "github.com/redis/go-redis/v9",
     "Function": "NewFailoverClient",
     "OnExit": "afterNewFailOverRedisClient",
     "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/goredis"
   },
   {
-    "Version": "[9.0.5,9.5.2)",
+    "Version": "[9.0.5,)",
     "ImportPath": "github.com/redis/go-redis/v9",
     "Function": "NewSentinelClient",
     "OnExit": "afterNewSentinelClient",
     "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/goredis"
   },
   {
-    "Version": "[9.0.5,9.5.2)",
+    "Version": "[9.0.5,)",
     "ImportPath": "github.com/redis/go-redis/v9",
     "Function": "Conn",
     "ReceiverType": "\\*Client",
@@ -28,14 +29,14 @@
     "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/goredis"
   },
   {
-    "Version": "[9.0.5,9.5.2)",
+    "Version": "[9.0.5,)",
     "ImportPath": "github.com/redis/go-redis/v9",
     "Function": "NewClusterClient",
     "OnExit": "afterNewClusterClient",
     "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/goredis"
   },
   {
-    "Version": "[9.0.5,9.5.2)",
+    "Version": "[9.0.5,)",
     "ImportPath": "github.com/redis/go-redis/v9",
     "Function": "NewRing",
     "OnExit": "afterNewRingClient",

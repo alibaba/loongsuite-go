@@ -52,7 +52,7 @@ func TestMySql8x(t *testing.T, env ...string) {
 
 func init5xMySqlContainer() (testcontainers.Container, nat.Port) {
 	ctx := context.Background()
-	mysqlContainer, err := mysql.Run(ctx, "mysql:5.6")
+	mysqlContainer, err := mysql.Run(ctx, "registry.cn-hangzhou.aliyuncs.com/private-mesh/hellob:mysql-5.6")
 	if err != nil {
 		panic(err)
 	}

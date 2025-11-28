@@ -25,6 +25,7 @@ type InstRuleSet struct {
 	FileRules   []*InstFileRule
 	FuncRules   map[string][]*InstFuncRule
 	StructRules map[string][]*InstStructRule
+	HasCgo      bool
 }
 
 func NewInstRuleSet(importPath string) *InstRuleSet {
@@ -34,6 +35,7 @@ func NewInstRuleSet(importPath string) *InstRuleSet {
 		FileRules:   make([]*InstFileRule, 0),
 		FuncRules:   make(map[string][]*InstFuncRule),
 		StructRules: make(map[string][]*InstStructRule),
+		HasCgo:      false,
 	}
 }
 

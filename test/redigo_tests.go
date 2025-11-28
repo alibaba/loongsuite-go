@@ -70,8 +70,7 @@ func TestRedigoTransactions(t *testing.T, env ...string) {
 
 func initRedigoContainer() (testcontainers.Container, nat.Port) {
 	req := testcontainers.ContainerRequest{
-		Image:        "registry.cn-hangzhou.aliyuncs.com/private-mesh/hellob:redis",
-		ReaperImage:  "registry.cn-hangzhou.aliyuncs.com/private-mesh/hellob:redis",
+		Image:        "redis:latest",
 		ExposedPorts: []string{"6379/tcp"},
 		WaitingFor:   wait.ForLog("Ready to accept connections"),
 	}

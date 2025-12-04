@@ -119,9 +119,39 @@ func TestMuzzle(t *testing.T) {
 	}
 }
 
-func TestLatest(t *testing.T) {
+func TestLatest1(t *testing.T) {
 	cases := findLatest()
-	for _, c := range cases {
+	for _, c := range cases[:len(cases)/4] {
+		t.Run(c.TestName, func(t *testing.T) {
+			ExecLatestTest(t, c.DependencyName, c.ModuleName, c.MinVersion,
+				c.MaxVersion, c.LatestDepthFunc)
+		})
+	}
+}
+
+func TestLatest2(t *testing.T) {
+	cases := findLatest()
+	for _, c := range cases[len(cases)/4 : len(cases)/2] {
+		t.Run(c.TestName, func(t *testing.T) {
+			ExecLatestTest(t, c.DependencyName, c.ModuleName, c.MinVersion,
+				c.MaxVersion, c.LatestDepthFunc)
+		})
+	}
+}
+
+func TestLatest3(t *testing.T) {
+	cases := findLatest()
+	for _, c := range cases[len(cases)/2 : (len(cases)/2 + len(cases)/4)] {
+		t.Run(c.TestName, func(t *testing.T) {
+			ExecLatestTest(t, c.DependencyName, c.ModuleName, c.MinVersion,
+				c.MaxVersion, c.LatestDepthFunc)
+		})
+	}
+}
+
+func TestLatest4(t *testing.T) {
+	cases := findLatest()
+	for _, c := range cases[(len(cases)/2 + len(cases)/4):] {
 		t.Run(c.TestName, func(t *testing.T) {
 			ExecLatestTest(t, c.DependencyName, c.ModuleName, c.MinVersion,
 				c.MaxVersion, c.LatestDepthFunc)

@@ -71,9 +71,9 @@ func (rp *RuleProcessor) writeInstrumented(root *dst.File, filePath string) erro
 
 func makeName(r *rules.InstFuncRule,
 	funcDecl *dst.FuncDecl, onEnter bool) string {
-	prefix := TrampolineOnExitName
+	prefix := trampolineOnExitName
 	if onEnter {
-		prefix = TrampolineOnEnterName
+		prefix = trampolineOnEnterName
 	}
 	return fmt.Sprintf("%s_%s%s",
 		prefix, funcDecl.Name.Name, util.Crc32(r.String()))
@@ -145,7 +145,7 @@ func createHookArgs(names []string) []dst.Expr {
 	for _, name := range names {
 		// Pass nil to trampoline func if the argument of target func is "_"
 		// Otherwise, pass the pointer of the argument
-		if name == "_" {
+		if name == ast.IdentIgnore {
 			exprs = append(exprs, ast.Nil())
 		} else {
 			exprs = append(exprs, ast.AddressOf(name))
@@ -167,18 +167,18 @@ func (rp *RuleProcessor) createTJumpIf(t *rules.InstFuncRule, funcDecl *dst.Func
 	// should be carefully examined.
 	argsToOnEnter := createHookArgs(args)
 	argsToOnExit := createHookArgs(retVals)
-	argCallContext := ast.Ident(TrampolineCallContextName + varSuffix)
+	argCallContext := ast.Ident(trampolineCallContextName + varSuffix)
 	argsToOnExit = append([]dst.Expr{argCallContext}, argsToOnExit...)
 	onEnterCall := ast.CallTo(makeName(t, funcDecl, true), argsToOnEnter)
 	onExitCall := ast.CallTo(makeName(t, funcDecl, false), argsToOnExit)
 	tjumpInit := ast.DefineStmts(
 		ast.Exprs(
-			ast.Ident(TrampolineCallContextName+varSuffix),
-			ast.Ident(TrampolineSkipName+varSuffix),
+			ast.Ident(trampolineCallContextName+varSuffix),
+			ast.Ident(trampolineSkipName+varSuffix),
 		),
 		ast.Exprs(onEnterCall),
 	)
-	tjumpCond := ast.Ident(TrampolineSkipName + varSuffix)
+	tjumpCond := ast.Ident(trampolineSkipName + varSuffix)
 	tjumpReturn := make([]dst.Expr, 0)
 	for _, retVal := range retVals {
 		tjumpReturn = append(tjumpReturn, ast.Ident(retVal))

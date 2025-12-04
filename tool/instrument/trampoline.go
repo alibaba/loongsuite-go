@@ -39,24 +39,25 @@ import (
 // guaranteed to be generated within one line to avoid confusing debugging, as
 // its name suggests, it jumps to the trampoline function from raw function.
 const (
-	TrampolineSetParamName           = "SetParam"
-	TrampolineGetParamName           = "GetParam"
-	TrampolineSetReturnValName       = "SetReturnVal"
-	TrampolineGetReturnValName       = "GetReturnVal"
-	TrampolineValIdentifier          = "val"
-	TrampolineCtxIdentifier          = "c"
-	TrampolineParamsIdentifier       = "Params"
-	TrampolineFuncNameIdentifier     = "FuncName"
-	TrampolinePackageNameIdentifier  = "PackageName"
-	TrampolineReturnValsIdentifier   = "ReturnVals"
-	TrampolineSkipName               = "skip"
-	TrampolineCallContextName        = "callContext"
-	TrampolineCallContextType        = "CallContext"
-	TrampolineCallContextImplType    = "CallContextImpl"
-	TrampolineOnEnterName            = "OtelOnEnterTrampoline"
-	TrampolineOnExitName             = "OtelOnExitTrampoline"
-	TrampolineOnEnterNamePlaceholder = "\"OtelOnEnterNamePlaceholder\""
-	TrampolineOnExitNamePlaceholder  = "\"OtelOnExitNamePlaceholder\""
+	trampolineSetParamName           = "SetParam"
+	trampolineGetParamName           = "GetParam"
+	trampolineSetReturnValName       = "SetReturnVal"
+	trampolineGetReturnValName       = "GetReturnVal"
+	trampolineValIdentifier          = "val"
+	trampolineCtxIdentifier          = "c"
+	trampolineParamsIdentifier       = "Params"
+	trampolineFuncNameIdentifier     = "FuncName"
+	trampolinePackageNameIdentifier  = "PackageName"
+	trampolineReturnValsIdentifier   = "ReturnVals"
+	trampolineSetSkipCallName        = "SetSkipCall"
+	trampolineSkipName               = "skip"
+	trampolineCallContextName        = "callContext"
+	trampolineCallContextType        = "CallContext"
+	trampolineCallContextImplType    = "CallContextImpl"
+	trampolineOnEnterName            = "OtelOnEnterTrampoline"
+	trampolineOnExitName             = "OtelOnExitTrampoline"
+	trampolineOnEnterNamePlaceholder = "\"OtelOnEnterNamePlaceholder\""
+	trampolineOnExitNamePlaceholder  = "\"OtelOnExitNamePlaceholder\""
 )
 
 // @@ Modification on this trampoline template should be cautious, as it imposes
@@ -86,16 +87,16 @@ func (rp *RuleProcessor) materializeTemplate() error {
 	for _, node := range astRoot.Decls {
 		// Materialize function declarations
 		if decl, ok := node.(*dst.FuncDecl); ok {
-			if decl.Name.Name == TrampolineOnEnterName {
+			if decl.Name.Name == trampolineOnEnterName {
 				rp.onEnterHookFunc = decl
 				rp.addDecl(decl)
-			} else if decl.Name.Name == TrampolineOnExitName {
+			} else if decl.Name.Name == trampolineOnExitName {
 				rp.onExitHookFunc = decl
 				rp.addDecl(decl)
 			} else if ast.HasReceiver(decl) {
 				// We know exactly this is CallContextImpl method
 				t := decl.Recv.List[0].Type.(*dst.StarExpr).X.(*dst.Ident).Name
-				util.Assert(t == TrampolineCallContextImplType, "sanity check")
+				util.Assert(t == trampolineCallContextImplType, "sanity check")
 				rp.callCtxMethods = append(rp.callCtxMethods, decl)
 				rp.addDecl(decl)
 			}
@@ -243,7 +244,7 @@ func (rp *RuleProcessor) callOnEnterHook(t *rules.InstFuncRule, traits []ParamTr
 	}
 	// Hook: 	   func onEnterFoo(callContext* CallContext, p*[]int)
 	// Trampoline: func OtelOnEnterTrampoline_foo(p *[]int)
-	args := []dst.Expr{dst.NewIdent(TrampolineCallContextName)}
+	args := []dst.Expr{dst.NewIdent(trampolineCallContextName)}
 	if rp.exact {
 		for idx, field := range rp.onEnterHookFunc.Type.Params.List {
 			trait := traits[idx+1 /*CallContext*/]
@@ -279,7 +280,7 @@ func (rp *RuleProcessor) callOnExitHook(t *rules.InstFuncRule, traits []ParamTra
 	var args []dst.Expr
 	for idx, field := range rp.onExitHookFunc.Type.Params.List {
 		if idx == 0 {
-			args = append(args, dst.NewIdent(TrampolineCallContextName))
+			args = append(args, dst.NewIdent(trampolineCallContextName))
 			if !rp.exact {
 				// Generic hook function, no need to process parameters
 				break
@@ -384,7 +385,7 @@ func (rp *RuleProcessor) renameTrampolineFunc(t *rules.InstFuncRule) {
 	dst.Inspect(rp.onEnterHookFunc, func(node dst.Node) bool {
 		if basicLit, ok := node.(*dst.BasicLit); ok {
 			// Replace OtelOnEnterTrampolinePlaceHolder to real hook func name
-			if basicLit.Value == TrampolineOnEnterNamePlaceholder {
+			if basicLit.Value == trampolineOnEnterNamePlaceholder {
 				basicLit.Value = strconv.Quote(t.OnEnter)
 			}
 		}
@@ -393,7 +394,7 @@ func (rp *RuleProcessor) renameTrampolineFunc(t *rules.InstFuncRule) {
 	rp.onExitHookFunc.Name.Name = makeName(t, rp.targetFunc, false)
 	dst.Inspect(rp.onExitHookFunc, func(node dst.Node) bool {
 		if basicLit, ok := node.(*dst.BasicLit); ok {
-			if basicLit.Value == TrampolineOnExitNamePlaceholder {
+			if basicLit.Value == trampolineOnExitNamePlaceholder {
 				basicLit.Value = strconv.Quote(t.OnExit)
 			}
 		}
@@ -403,8 +404,8 @@ func (rp *RuleProcessor) renameTrampolineFunc(t *rules.InstFuncRule) {
 
 func addCallContext(list *dst.FieldList) {
 	callCtx := ast.NewField(
-		TrampolineCallContextName,
-		dst.NewIdent(TrampolineCallContextType),
+		trampolineCallContextName,
+		dst.NewIdent(trampolineCallContextType),
 	)
 	list.List = append([]*dst.Field{callCtx}, list.List...)
 }
@@ -502,12 +503,12 @@ func (rp *RuleProcessor) populateCallContext(onEnter bool) bool {
 			lhs := assignStmt.Lhs
 			if sel, ok := lhs[0].(*dst.SelectorExpr); ok {
 				switch sel.Sel.Name {
-				case TrampolineFuncNameIdentifier:
+				case trampolineFuncNameIdentifier:
 					util.Assert(onEnter, "sanity check")
 					// callContext.FuncName = "..."
 					assigned := assignString(assignStmt, rp.targetFunc.Name.Name)
 					util.Assert(assigned, "sanity check")
-				case TrampolinePackageNameIdentifier:
+				case trampolinePackageNameIdentifier:
 					util.Assert(onEnter, "sanity check")
 					// callContext.PackageName = "..."
 					assigned := assignString(assignStmt, rp.target.Name.Name)
@@ -551,7 +552,7 @@ func (rp *RuleProcessor) populateCallContext(onEnter bool) bool {
 func (rp *RuleProcessor) implementCallContext(t *rules.InstFuncRule) {
 	suffix := util.Crc32(t.String())
 	structType := rp.callCtxDecl.Specs[0].(*dst.TypeSpec)
-	util.Assert(structType.Name.Name == TrampolineCallContextImplType,
+	util.Assert(structType.Name.Name == trampolineCallContextImplType,
 		"sanity check")
 	structType.Name.Name += suffix             // type declaration
 	for _, method := range rp.callCtxMethods { // method declaration
@@ -560,7 +561,7 @@ func (rp *RuleProcessor) implementCallContext(t *rules.InstFuncRule) {
 	for _, node := range []dst.Node{rp.onEnterHookFunc, rp.onExitHookFunc} {
 		dst.Inspect(node, func(node dst.Node) bool {
 			if ident, ok := node.(*dst.Ident); ok {
-				if ident.Name == TrampolineCallContextImplType {
+				if ident.Name == trampolineCallContextImplType {
 					ident.Name += suffix
 					return false
 				}
@@ -573,12 +574,12 @@ func (rp *RuleProcessor) implementCallContext(t *rules.InstFuncRule) {
 func setValue(field string, idx int, typ dst.Expr) *dst.CaseClause {
 	// *(c.Params[idx].(*int)) = val.(int)
 	// c.Params[idx] = val iff type is interface{}
-	se := ast.SelectorExpr(ast.Ident(TrampolineCtxIdentifier), field)
+	se := ast.SelectorExpr(ast.Ident(trampolineCtxIdentifier), field)
 	ie := ast.IndexExpr(se, ast.IntLit(idx))
 	te := ast.TypeAssertExpr(ie, ast.DereferenceOf(typ))
 	pe := ast.ParenExpr(te)
 	de := ast.DereferenceOf(pe)
-	val := ast.Ident(TrampolineValIdentifier)
+	val := ast.Ident(trampolineValIdentifier)
 	assign := ast.AssignStmt(de, ast.TypeAssertExpr(val, typ))
 	if ast.IsInterfaceType(typ) {
 		assign = ast.AssignStmt(ie, val)
@@ -593,7 +594,7 @@ func setValue(field string, idx int, typ dst.Expr) *dst.CaseClause {
 func getValue(field string, idx int, typ dst.Expr) *dst.CaseClause {
 	// return *(c.Params[idx].(*int))
 	// return c.Params[idx] iff type is interface{}
-	se := ast.SelectorExpr(ast.Ident(TrampolineCtxIdentifier), field)
+	se := ast.SelectorExpr(ast.Ident(trampolineCtxIdentifier), field)
 	ie := ast.IndexExpr(se, ast.IntLit(idx))
 	te := ast.TypeAssertExpr(ie, ast.DereferenceOf(typ))
 	pe := ast.ParenExpr(te)
@@ -610,19 +611,19 @@ func getValue(field string, idx int, typ dst.Expr) *dst.CaseClause {
 }
 
 func getParamClause(idx int, typ dst.Expr) *dst.CaseClause {
-	return getValue(TrampolineParamsIdentifier, idx, typ)
+	return getValue(trampolineParamsIdentifier, idx, typ)
 }
 
 func setParamClause(idx int, typ dst.Expr) *dst.CaseClause {
-	return setValue(TrampolineParamsIdentifier, idx, typ)
+	return setValue(trampolineParamsIdentifier, idx, typ)
 }
 
 func getReturnValClause(idx int, typ dst.Expr) *dst.CaseClause {
-	return getValue(TrampolineReturnValsIdentifier, idx, typ)
+	return getValue(trampolineReturnValsIdentifier, idx, typ)
 }
 
 func setReturnValClause(idx int, typ dst.Expr) *dst.CaseClause {
-	return setValue(TrampolineReturnValsIdentifier, idx, typ)
+	return setValue(trampolineReturnValsIdentifier, idx, typ)
 }
 
 // desugarType desugars parameter type to its original type, if parameter
@@ -639,13 +640,13 @@ func (rp *RuleProcessor) rewriteCallContext() {
 	var methodSetParam, methodGetParam, methodGetRetVal, methodSetRetVal *dst.FuncDecl
 	for _, decl := range rp.callCtxMethods {
 		switch decl.Name.Name {
-		case TrampolineSetParamName:
+		case trampolineSetParamName:
 			methodSetParam = decl
-		case TrampolineGetParamName:
+		case trampolineGetParamName:
 			methodGetParam = decl
-		case TrampolineGetReturnValName:
+		case trampolineGetReturnValName:
 			methodGetRetVal = decl
-		case TrampolineSetReturnValName:
+		case trampolineSetReturnValName:
 			methodSetRetVal = decl
 		}
 	}

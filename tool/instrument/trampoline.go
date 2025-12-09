@@ -323,7 +323,7 @@ func replaceTypeWithAny(traits []ParamTrait, paramTypes, genericTypes *dst.Field
 			field.Type = ast.InterfaceType()
 		} else {
 			// Replace type parameters with interface{} (for linkname compatibility)
-			field.Type = replaceTypeParamsWithAny(field.Type, genericTypes)
+			field.Type = replaceTypeParamsWithAny(desugarType(field), genericTypes)
 		}
 	}
 	return nil
@@ -340,6 +340,7 @@ func (rp *RuleProcessor) addHookFuncVar(t *rules.InstFuncRule,
 	if rp.exact {
 		// Hook functions may uses interface{} as parameter type, as some types of
 		// raw function is not exposed
+		util.Log("instrument %s %s", t.Function, t.OnEnter)
 		err := replaceTypeWithAny(traits, paramTypes, genericTypes)
 		if err != nil {
 			return err

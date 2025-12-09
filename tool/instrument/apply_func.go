@@ -169,8 +169,8 @@ func (rp *RuleProcessor) createTJumpIf(t *rules.InstFuncRule, funcDecl *dst.Func
 	argsToOnExit := createHookArgs(retVals)
 	argCallContext := ast.Ident(trampolineCallContextName + varSuffix)
 	argsToOnExit = append([]dst.Expr{argCallContext}, argsToOnExit...)
-	onEnterCall := ast.CallTo(makeName(t, funcDecl, true), argsToOnEnter)
-	onExitCall := ast.CallTo(makeName(t, funcDecl, false), argsToOnExit)
+	onEnterCall := ast.CallTo(makeName(t, funcDecl, true), nil, argsToOnEnter)
+	onExitCall := ast.CallTo(makeName(t, funcDecl, false), nil, argsToOnExit)
 	tjumpInit := ast.DefineStmts(
 		ast.Exprs(
 			ast.Ident(trampolineCallContextName+varSuffix),

@@ -124,6 +124,12 @@ func SelectorExpr(x dst.Expr, sel string) *dst.SelectorExpr {
 	}
 }
 
+func Ellipsis(elt dst.Expr) *dst.Ellipsis {
+	return &dst.Ellipsis{
+		Elt: elt,
+	}
+}
+
 func IndexExpr(x dst.Expr, index dst.Expr) *dst.IndexExpr {
 	return &dst.IndexExpr{
 		X:     dst.Clone(x).(dst.Expr),

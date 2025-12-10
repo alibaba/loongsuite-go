@@ -323,7 +323,7 @@ func replaceTypeWithAny(traits []ParamTrait, paramTypes, genericTypes *dst.Field
 			field.Type = ast.InterfaceType()
 		} else {
 			// Replace type parameters with interface{} (for linkname compatibility)
-			field.Type = replaceTypeParamsWithAny(desugarType(field), genericTypes)
+			field.Type = replaceTypeParamsWithAny(field.Type, genericTypes)
 		}
 	}
 	return nil
@@ -897,6 +897,8 @@ func replaceTypeParamsWithAny(t dst.Expr, typeParams *dst.FieldList) dst.Expr {
 	case *dst.Ident, *dst.SelectorExpr, *dst.InterfaceType:
 		// Base types without type parameters, return as-is
 		return t
+	case *dst.Ellipsis:
+		return ast.Ellipsis(replaceTypeParamsWithAny(tType.Elt, typeParams))
 	default:
 		// Unsupported cases:
 		// - *dst.FuncType (function types with type parameters)

@@ -340,7 +340,6 @@ func (rp *RuleProcessor) addHookFuncVar(t *rules.InstFuncRule,
 	if rp.exact {
 		// Hook functions may uses interface{} as parameter type, as some types of
 		// raw function is not exposed
-		util.Log("instrument %s %s", t.Function, t.OnEnter)
 		err := replaceTypeWithAny(traits, paramTypes, genericTypes)
 		if err != nil {
 			return err
@@ -898,12 +897,13 @@ func replaceTypeParamsWithAny(t dst.Expr, typeParams *dst.FieldList) dst.Expr {
 		// Base types without type parameters, return as-is
 		return t
 	case *dst.Ellipsis:
+		// ...T -> ...interface{}
 		return ast.Ellipsis(replaceTypeParamsWithAny(tType.Elt, typeParams))
 	default:
 		// Unsupported cases:
 		// - *dst.FuncType (function types with type parameters)
 		// - Other uncommon type expressions
-		util.Unimplemented(fmt.Sprintf("unexpected generic type: %T", tType))
+		// util.Unimplemented(fmt.Sprintf("unexpected generic type: %T", tType))
 		return t
 	}
 }

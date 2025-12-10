@@ -221,8 +221,7 @@ func FindFuncDecl(root *dst.File, function string, receiverType string) []*dst.F
 				msg := fmt.Sprintf("unexpected receiver type: %T", recvTypeExpr)
 				util.Unimplemented(msg)
 			}
-
-			if baseType == receiverType {
+			if re.MatchString(baseType) {
 				filtered = append(filtered, funcDecl)
 			}
 		}

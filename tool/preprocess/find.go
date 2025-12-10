@@ -22,6 +22,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/alibaba/loongsuite-go-agent/tool/config"
 	"github.com/alibaba/loongsuite-go-agent/tool/ex"
 	"github.com/alibaba/loongsuite-go-agent/tool/util"
 )
@@ -120,7 +121,9 @@ func getCompileCommands() ([]string, error) {
 		if util.IsCompileCommand(line) {
 			line = strings.Trim(line, " ")
 			line = fixGoSourcePath(cgoSources, line)
-			util.Log("Fixed go source path: %s", line)
+			if config.GetConf().Verbose {
+				util.Log("Fixed go source path: %s", line)
+			}
 			compileCmds = append(compileCmds, line)
 		}
 		// If it's the cgo command, we need to concatenate the previous line and

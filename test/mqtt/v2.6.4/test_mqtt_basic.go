@@ -66,6 +66,10 @@ func main() {
 	// Wait for message processing
 	time.Sleep(messageWaitTime)
 
+	if err := tp.ForceFlush(context.Background()); err != nil {
+		log.Printf("Warning: Failed to flush spans: %v", err)
+	}
+
 	// Verify message was received
 	if !messageReceived {
 		log.Fatal("Message was not received")

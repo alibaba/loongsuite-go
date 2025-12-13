@@ -56,6 +56,7 @@ func InitTracerProvider() (*trace.TracerProvider, *tracetest.InMemoryExporter) {
 	exporter := tracetest.NewInMemoryExporter()
 	tp := trace.NewTracerProvider(
 		trace.WithSyncer(exporter),
+		trace.WithSampler(trace.AlwaysSample()), // Ensure all spans are sampled
 	)
 	otel.SetTracerProvider(tp)
 

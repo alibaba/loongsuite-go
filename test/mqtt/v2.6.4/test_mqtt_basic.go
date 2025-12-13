@@ -40,6 +40,13 @@ func main() {
 	// Initialize TracerProvider first
 	tp, exporter := InitTracerProvider()
 	defer func() {
+		// Force flush before shutdown
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		if err := tp.ForceFlush(ctx); err != nil {
+			log.Printf("Error flushing spans: %v", err)
+		}
+		cancel()
+
 		if err := tp.Shutdown(context.Background()); err != nil {
 			log.Printf("Error shutting down tracer provider: %v", err)
 		}
@@ -63,12 +70,17 @@ func main() {
 	}
 	log.Printf("Message published to topic: %s", testTopic)
 
-	// Wait for message processing
 	time.Sleep(messageWaitTime)
 
-	if err := tp.ForceFlush(context.Background()); err != nil {
-		log.Printf("Warning: Failed to flush spans: %v", err)
+	log.Println("Forcing flush of pending spans...")
+	flushCtx, flushCancel := context.WithTimeout(context.Background(), 5*time.Second)
+	if err := tp.ForceFlush(flushCtx); err != nil {
+		log.Printf("Warning: Failed to force flush spans: %v", err)
 	}
+	flushCancel()
+
+	// Additional wait for export completion
+	time.Sleep(500 * time.Millisecond)
 
 	// Verify message was received
 	if !messageReceived {

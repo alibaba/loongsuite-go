@@ -1,4 +1,4 @@
-module mqtt
+module github.com/alibaba/loongsuite-go-agent/pkg/rules/mqtt
 
 go 1.23.0
 

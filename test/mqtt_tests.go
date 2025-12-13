@@ -24,9 +24,9 @@ const (
 
 func init() {
 	TestCases = append(TestCases,
-		NewGeneralTestCase("mqtt_basic-test", mqttModuleName, "2.6.4", "", "1.18", "", TestMQTTBasic),
-		NewGeneralTestCase("mqtt_publisher-test", mqttModuleName, "2.6.4", "", "1.18", "", TestMQTTPublisher),
-		NewGeneralTestCase("mqtt_subscriber-test", mqttModuleName, "2.6.4", "", "1.18", "", TestMQTTSubscriber),
+		NewGeneralTestCase("mqtt_basic_test", mqttModuleName, "2.6.4", "", "1.18", "", TestMQTTBasic),
+		NewGeneralTestCase("mqtt_publisher_test", mqttModuleName, "2.6.4", "", "1.18", "", TestMQTTPublisher),
+		NewGeneralTestCase("mqtt_subscriber_test", mqttModuleName, "2.6.4", "", "1.18", "", TestMQTTSubscriber),
 	)
 }
 

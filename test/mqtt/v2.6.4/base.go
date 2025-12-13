@@ -68,16 +68,11 @@ func InitTracerProvider() (*trace.TracerProvider, *tracetest.InMemoryExporter) {
 }
 
 // GetSpans returns collected spans from the exporter
-func GetSpans() []tracetest.SpanStubs {
+func GetSpans() tracetest.SpanStubs {
 	if traceExporter == nil {
 		return nil
 	}
-	spans := traceExporter.GetSpans()
-	result := make([]tracetest.SpanStubs, 0)
-	if len(spans) > 0 {
-		result = append(result, spans)
-	}
-	return result
+	return traceExporter.GetSpans()
 }
 
 // ResetSpans clears all collected spans
@@ -121,14 +116,12 @@ func initMQTTServer() *mqtt.Server {
 	// Allow all connections with auth hook
 	if err := server.AddHook(new(auth.AllowHook), nil); err != nil {
 		log.Fatalf("Failed to add auth hook: %v", err)
-		panic(err)
 	}
 
 	// Add tracing hook
 	tracingHook := &TracingHook{}
 	if err := server.AddHook(tracingHook, nil); err != nil {
 		log.Fatalf("Failed to add tracing hook: %v", err)
-		panic(err)
 	}
 
 	// Add TCP listener
@@ -138,7 +131,6 @@ func initMQTTServer() *mqtt.Server {
 	})
 	if err := server.AddListener(tcp); err != nil {
 		log.Fatalf("Failed to add TCP listener: %v", err)
-		panic(err)
 	}
 
 	// Add WebSocket listener (optional)
@@ -167,16 +159,11 @@ func initMQTTServer() *mqtt.Server {
 // stopMQTTServer gracefully stops the MQTT server
 func stopMQTTServer(server *mqtt.Server) {
 	if server != nil {
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
-
 		if err := server.Close(); err != nil {
 			log.Printf("Error closing MQTT server: %v", err)
 		} else {
 			log.Println("MQTT server stopped successfully")
 		}
-
-		<-ctx.Done()
 	}
 }
 

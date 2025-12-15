@@ -1,0 +1,20 @@
+[
+  {
+    "Version": "[2.6.4,)",
+    "ImportPath": "github.com/mochi-mqtt/server/v2",
+    "ReceiverType": "\\*Server",
+    "Function": "processPublish",
+    "OnEnter": "processPublishOnEnter",
+    "OnExit": "processPublishOnExit",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/mqtt"
+  },
+  {
+    "Version": "[2.6.4,)",
+    "ImportPath": "github.com/mochi-mqtt/server/v2",
+    "ReceiverType": "\\*Server",
+    "Function": "publishToClient",
+    "OnEnter": "publishToClientOnEnter",
+    "OnExit": "publishToClientOnExit",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/mqtt"
+  }
+]

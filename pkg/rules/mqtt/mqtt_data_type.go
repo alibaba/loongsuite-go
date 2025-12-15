@@ -44,3 +44,4 @@ type DeliverRequest struct {
 // DeliverResponse represents the result of processing a DeliverRequest on the consumer (subscriber) side.
 // This type is used as a placeholder for future extensions where additional response information
 // may be needed after a delivery operation. Currently, it does not contain any fields.
+type DeliverResponse struct{}

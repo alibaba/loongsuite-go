@@ -25,9 +25,9 @@ import (
 )
 
 //go:linkname processPublishOnEnter github.com/mochi-mqtt/server/v2.processPublishOnEnter
-func processPublishOnEnter(call api.CallContext, s interface{}, cl interface{}, pk packets.Packet) (context.Context, interface{}, packets.Packet) {
+func processPublishOnEnter(call api.CallContext, s interface{}, cl interface{}, pk packets.Packet) {
 	if !mqttEnabler.Enable() {
-		return nil, cl, pk
+		return
 	}
 
 	// Extract client information using reflection
@@ -66,8 +66,6 @@ func processPublishOnEnter(call api.CallContext, s interface{}, cl interface{}, 
 		"ctx": newCtx,
 		"req": req,
 	})
-
-	return newCtx, cl, pk
 }
 
 //go:linkname processPublishOnExit github.com/mochi-mqtt/server/v2.processPublishOnExit
@@ -97,7 +95,7 @@ func processPublishOnExit(call api.CallContext, err error) {
 }
 
 //go:linkname publishToClientOnEnter github.com/mochi-mqtt/server/v2.publishToClientOnEnter
-func publishToClientOnEnter(call api.CallContext, _ interface{}, ctx context.Context, cl interface{}, pk packets.Packet) {
+func publishToClientOnEnter(call api.CallContext, s interface{}, cl interface{}, sub packets.Subscription, pk packets.Packet) {
 	if !mqttEnabler.Enable() {
 		return
 	}
@@ -132,7 +130,7 @@ func publishToClientOnEnter(call api.CallContext, _ interface{}, ctx context.Con
 		Remote:   remote,
 	}
 
-	newCtx := StartDeliver(ctx, req)
+	newCtx := StartDeliver(context.Background(), req)
 
 	// Store context and request for exit hook
 	call.SetData(map[string]interface{}{

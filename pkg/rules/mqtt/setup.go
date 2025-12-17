@@ -24,6 +24,78 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
+//go:linkname processPublishOnEnter github.com/mochi-mqtt/server/v2.processPublishOnEnter
+func processPublishOnEnter(call api.CallContext, s interface{}, cl interface{}, pk packets.Packet) (context.Context, interface{}, packets.Packet) {
+	if !mqttEnabler.Enable() {
+		return nil, cl, pk
+	}
+
+	// Extract client information using reflection
+	clientID := ""
+	remote := ""
+
+	if cl != nil {
+		v := reflect.ValueOf(cl)
+		if v.Kind() == reflect.Ptr {
+			v = v.Elem()
+		}
+
+		// Extract ID field
+		if idField := v.FieldByName("ID"); idField.IsValid() && idField.Kind() == reflect.String {
+			clientID = idField.String()
+		}
+
+		// Extract Net.Remote field
+		if netField := v.FieldByName("Net"); netField.IsValid() {
+			if remoteField := netField.FieldByName("Remote"); remoteField.IsValid() && remoteField.Kind() == reflect.String {
+				remote = remoteField.String()
+			}
+		}
+	}
+
+	req := PublishRequest{
+		Packet:   &pk,
+		ClientID: clientID,
+		Remote:   remote,
+	}
+
+	newCtx := StartPublish(context.Background(), req)
+
+	// Store context and request for exit hook
+	call.SetData(map[string]interface{}{
+		"ctx": newCtx,
+		"req": req,
+	})
+
+	return newCtx, cl, pk
+}
+
+//go:linkname processPublishOnExit github.com/mochi-mqtt/server/v2.processPublishOnExit
+func processPublishOnExit(call api.CallContext, err error) {
+	if !mqttEnabler.Enable() {
+		return
+	}
+
+	data, ok := call.GetData().(map[string]interface{})
+	if !ok {
+		return
+	}
+
+	ctx, ok := data["ctx"].(context.Context)
+	if !ok {
+		return
+	}
+
+	req, ok := data["req"].(PublishRequest)
+	if !ok {
+		return
+	}
+
+	res := PublishResponse{}
+
+	EndPublish(ctx, req, res, err)
+}
+
 //go:linkname publishToClientOnEnter github.com/mochi-mqtt/server/v2.publishToClientOnEnter
 func publishToClientOnEnter(call api.CallContext, _ interface{}, ctx context.Context, cl interface{}, pk packets.Packet) {
 	if !mqttEnabler.Enable() {

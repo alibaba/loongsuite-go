@@ -140,7 +140,7 @@ func publishToClientOnEnter(call api.CallContext, s interface{}, cl interface{},
 }
 
 //go:linkname publishToClientOnExit github.com/mochi-mqtt/server/v2.publishToClientOnExit
-func publishToClientOnExit(call api.CallContext, err error) {
+func publishToClientOnExit(call api.CallContext, retPk packets.Packet, err error) {
 	if !mqttEnabler.Enable() {
 		return
 	}

@@ -153,6 +153,48 @@ func FindFuncDeclWithoutRecv(root *dst.File, funcName string) *dst.FuncDecl {
 	return decls[0]
 }
 
+// stripGenericTypes extracts the base type name from a receiver expression,
+// handling both generic and non-generic types.
+// For example:
+// - *MyStruct -> *MyStruct
+// - MyStruct -> MyStruct
+// - *GenStruct[T] -> *GenStruct
+// - GenStruct[T] -> GenStruct
+func stripGenericTypes(recvTypeExpr dst.Expr) string {
+	switch expr := recvTypeExpr.(type) {
+	case *dst.StarExpr: // func (*Recv)T or func (*Recv[T])T
+		// Check if X is an Ident (non-generic) or IndexExpr/IndexListExpr (generic)
+		switch x := expr.X.(type) {
+		case *dst.Ident:
+			// Non-generic pointer receiver: *MyStruct
+			return "*" + x.Name
+		case *dst.IndexExpr:
+			// Generic pointer receiver with single type param: *GenStruct[T]
+			if baseIdent, ok := x.X.(*dst.Ident); ok {
+				return "*" + baseIdent.Name
+			}
+		case *dst.IndexListExpr:
+			// Generic pointer receiver with multiple type params: *GenStruct[T, U]
+			if baseIdent, ok := x.X.(*dst.Ident); ok {
+				return "*" + baseIdent.Name
+			}
+		}
+	case *dst.Ident: // func (Recv)T
+		return expr.Name
+	case *dst.IndexExpr:
+		// Generic value receiver with single type param: GenStruct[T]
+		if baseIdent, ok := expr.X.(*dst.Ident); ok {
+			return baseIdent.Name
+		}
+	case *dst.IndexListExpr:
+		// Generic value receiver with multiple type params: GenStruct[T, U]
+		if baseIdent, ok := expr.X.(*dst.Ident); ok {
+			return baseIdent.Name
+		}
+	}
+	return ""
+}
+
 func FindFuncDecl(root *dst.File, function string, receiverType string) []*dst.FuncDecl {
 	decls := findFuncDecls(root, func(funcDecl *dst.FuncDecl) bool {
 		return function == funcDecl.Name.Name
@@ -169,27 +211,18 @@ func FindFuncDecl(root *dst.File, function string, receiverType string) []*dst.F
 					filtered = append(filtered, funcDecl)
 				}
 			}
-			switch recvTypeExpr := funcDecl.Recv.List[0].Type.(type) {
-			case *dst.StarExpr:
-				if _, ok := recvTypeExpr.X.(*dst.Ident); !ok {
-					// This is a generic type, we don't support it yet
-					continue
-				}
-				t := "*" + recvTypeExpr.X.(*dst.Ident).Name
-				if re.MatchString(t) {
-					filtered = append(filtered, funcDecl)
-				}
-			case *dst.Ident:
-				t := recvTypeExpr.Name
-				if re.MatchString(t) {
-					filtered = append(filtered, funcDecl)
-				}
-			case *dst.IndexExpr:
-				// This is a generic type, we don't support it yet
-				continue
-			default:
+
+			// Receiver type is specified, and target function has receiver
+			// Match both func name and receiver type
+			recvTypeExpr := funcDecl.Recv.List[0].Type
+			baseType := stripGenericTypes(recvTypeExpr)
+
+			if baseType == "" {
 				msg := fmt.Sprintf("unexpected receiver type: %T", recvTypeExpr)
 				util.Unimplemented(msg)
+			}
+			if re.MatchString(baseType) {
+				filtered = append(filtered, funcDecl)
 			}
 		}
 		return filtered
@@ -228,4 +261,47 @@ func FindStructDecl(root *dst.File, structName string) *dst.GenDecl {
 		}
 	}
 	return nil
+}
+
+// SplitMultiNameFields splits fields that have multiple names into separate fields.
+// For example, a field like "a, b int" becomes two fields: "a int" and "b int".
+func SplitMultiNameFields(fieldList *dst.FieldList) *dst.FieldList {
+	if fieldList == nil {
+		return nil
+	}
+	result := &dst.FieldList{List: []*dst.Field{}}
+	for _, field := range fieldList.List {
+		// Handle unnamed fields (e.g., embedded types) or fields with single/multiple names
+		namesToProcess := field.Names
+		if len(namesToProcess) == 0 {
+			// For unnamed fields, create one field with no names
+			namesToProcess = []*dst.Ident{nil}
+		}
+
+		for _, name := range namesToProcess {
+			clonedType := util.AssertType[dst.Expr](dst.Clone(field.Type))
+
+			var names []*dst.Ident
+			if name != nil {
+				clonedName := util.AssertType[*dst.Ident](dst.Clone(name))
+				names = []*dst.Ident{clonedName}
+			}
+
+			newField := &dst.Field{
+				Names: names,
+				Type:  clonedType,
+			}
+			result.List = append(result.List, newField)
+		}
+	}
+	return result
+}
+
+// CloneTypeParams safely clones a type parameter field list for generic functions.
+// Returns nil if the input is nil.
+func CloneTypeParams(typeParams *dst.FieldList) *dst.FieldList {
+	if typeParams == nil {
+		return nil
+	}
+	return util.AssertType[*dst.FieldList](dst.Clone(typeParams))
 }

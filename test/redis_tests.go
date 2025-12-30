@@ -143,7 +143,8 @@ func TestV8RedisUniversal(t *testing.T, env ...string) {
 
 func initRedisContainer() (testcontainers.Container, nat.Port) {
 	req := testcontainers.ContainerRequest{
-		Image:        "redis:latest",
+		Image:        "registry.cn-hangzhou.aliyuncs.com/private-mesh/hellob:redis",
+		ReaperImage:  "registry.cn-hangzhou.aliyuncs.com/private-mesh/hellob:redis",
 		ExposedPorts: []string{"6379/tcp"},
 		WaitingFor:   wait.ForLog("Ready to accept connections"),
 	}

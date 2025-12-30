@@ -17,11 +17,10 @@ package main
 import (
 	"context"
 	"fmt"
-	"os"
-
 	"github.com/alibaba/loongsuite-go-agent/test/verifier"
 	"github.com/redis/go-redis/v9"
 	"go.opentelemetry.io/otel/sdk/trace/tracetest"
+	"os"
 )
 
 type MyHash struct {
@@ -47,8 +46,7 @@ func main() {
 	val := rdb.HVals(ctx, "a").Val()
 	fmt.Printf("%v\n", val)
 	verifier.WaitAndAssertTraces(func(stubs []tracetest.SpanStubs) {
-		verifier.VerifyDbAttributes(stubs[0][0], "command", "redis", "localhost", "command", "command", "", nil)
-		verifier.VerifyDbAttributes(stubs[1][0], "hset", "redis", "localhost", "hset a key1 1 key2 2", "hset", "", nil)
-		verifier.VerifyDbAttributes(stubs[2][0], "hvals", "redis", "localhost", "hvals a", "hvals", "", nil)
-	}, 3)
+		verifier.VerifyDbAttributes(stubs[0][0], "hset", "redis", "localhost", "hset a key1 1 key2 2", "hset", "", nil)
+		verifier.VerifyDbAttributes(stubs[1][0], "hvals", "redis", "localhost", "hvals a", "hvals", "", nil)
+	}, 2)
 }

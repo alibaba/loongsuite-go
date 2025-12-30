@@ -162,6 +162,21 @@ func groupRules(rset *rules.InstRuleSet) map[string][]rules.InstRule {
 	return file2rules
 }
 
+func (rp *RuleProcessor) findSourceFile(rset *rules.InstRuleSet, file string) string {
+	if !rset.HasCgo {
+		return file
+	}
+	base := filepath.Base(file)
+	file = strings.TrimSuffix(base, ".go")
+	file = file + ".cgo1.go"
+	for _, arg := range rp.compileArgs {
+		if strings.HasSuffix(arg, file) {
+			return arg
+		}
+	}
+	return file
+}
+
 func (rp *RuleProcessor) instrument(rset *rules.InstRuleSet) (err error) {
 	hasFuncRule := false
 	// Apply file rules first because they can introduce new files that used
@@ -175,6 +190,7 @@ func (rp *RuleProcessor) instrument(rset *rules.InstRuleSet) (err error) {
 	for file, rs := range groupRules(rset) {
 		// Group rules by file, then parse the target file once
 		util.Assert(filepath.IsAbs(file), "file path must be absolute")
+		file = rp.findSourceFile(rset, file)
 		root, err := rp.parseAst(file)
 		if err != nil {
 			return err
@@ -258,7 +274,7 @@ func interceptCompile(args []string) ([]string, error) {
 		// Strip -complete flag as we may insert some hook points that are
 		// not ready yet, i.e. they don't have function body
 		rp.compileArgs = stripCompleteFlag(rp.compileArgs)
-		util.Log("Run instrumented command", "args", rp.compileArgs)
+		util.Log("Run instrumented command %s", rp.compileArgs)
 	}
 
 	return rp.compileArgs, nil

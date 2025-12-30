@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"go/token"
 
+	"github.com/alibaba/loongsuite-go-agent/tool/util"
 	"github.com/dave/dst"
 )
 
@@ -42,13 +43,34 @@ func AddressOf(name string) *dst.UnaryExpr {
 	return &dst.UnaryExpr{Op: token.AND, X: Ident(name)}
 }
 
-func CallTo(name string, args []dst.Expr) *dst.CallExpr {
+// CallTo creates a call expression to a function with optional type arguments for generics.
+// For non-generic functions (typeArgs is nil or empty), creates a simple call: Foo(args...)
+// For generic functions with type arguments, creates: Foo[T1, T2](args...)
+func CallTo(name string, typeArgs *dst.FieldList, args []dst.Expr) *dst.CallExpr {
+	if typeArgs == nil || len(typeArgs.List) == 0 {
+		return &dst.CallExpr{
+			Fun:  &dst.Ident{Name: name},
+			Args: args,
+		}
+	}
+
+	var indices []dst.Expr
+	for _, field := range typeArgs.List {
+		for _, ident := range field.Names {
+			indices = append(indices, Ident(ident.Name))
+		}
+	}
+	var fun dst.Expr
+	if len(indices) == 1 {
+		fun = IndexExpr(Ident(name), indices[0])
+	} else {
+		fun = IndexListExpr(Ident(name), indices)
+	}
 	return &dst.CallExpr{
-		Fun:  &dst.Ident{Name: name},
+		Fun:  fun,
 		Args: args,
 	}
 }
-
 func Ident(name string) *dst.Ident {
 	return &dst.Ident{
 		Name: name,
@@ -102,10 +124,24 @@ func SelectorExpr(x dst.Expr, sel string) *dst.SelectorExpr {
 	}
 }
 
+func Ellipsis(elt dst.Expr) *dst.Ellipsis {
+	return &dst.Ellipsis{
+		Elt: elt,
+	}
+}
+
 func IndexExpr(x dst.Expr, index dst.Expr) *dst.IndexExpr {
 	return &dst.IndexExpr{
 		X:     dst.Clone(x).(dst.Expr),
 		Index: dst.Clone(index).(dst.Expr),
+	}
+}
+
+func IndexListExpr(x dst.Expr, indices []dst.Expr) *dst.IndexListExpr {
+	e := util.AssertType[dst.Expr](dst.Clone(x))
+	return &dst.IndexListExpr{
+		X:       e,
+		Indices: indices,
 	}
 }
 
@@ -139,7 +175,9 @@ func BoolFalse() *dst.BasicLit {
 }
 
 func InterfaceType() *dst.InterfaceType {
-	return &dst.InterfaceType{Methods: &dst.FieldList{List: nil}}
+	return &dst.InterfaceType{
+		Methods: &dst.FieldList{Opening: true, Closing: true},
+	}
 }
 
 func ArrayType(elem dst.Expr) *dst.ArrayType {

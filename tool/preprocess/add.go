@@ -19,6 +19,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alibaba/loongsuite-go-agent/tool/ast"
 	"github.com/alibaba/loongsuite-go-agent/tool/ex"
 	"github.com/alibaba/loongsuite-go-agent/tool/rules"
 	"github.com/alibaba/loongsuite-go-agent/tool/util"
@@ -114,7 +115,7 @@ func (dp *DepProcessor) newDeps(bundles []*rules.InstRuleSet) error {
 	content := "package main\n"
 	builtin := map[string]string{
 		// for go:linkname when declaring printstack/getstack variable
-		"unsafe": "_",
+		"unsafe": ast.IdentIgnore,
 		// for debug.Stack and log.Printf when declaring printstack/getstack
 		// we do need import alias because user may declare global variable such
 		// as "log" or "debug" in their code, which will conflict with the import
@@ -122,10 +123,10 @@ func (dp *DepProcessor) newDeps(bundles []*rules.InstRuleSet) error {
 		// for log.Printf when declaring printstack/getstack variable
 		"log": "_otel_log",
 		// otel setup
-		"github.com/alibaba/loongsuite-go-agent/pkg": "_",
-		"go.opentelemetry.io/otel":                   "_",
-		"go.opentelemetry.io/otel/sdk/trace":         "_",
-		"go.opentelemetry.io/otel/baggage":           "_",
+		"github.com/alibaba/loongsuite-go-agent/pkg": ast.IdentIgnore,
+		"go.opentelemetry.io/otel":                   ast.IdentIgnore,
+		"go.opentelemetry.io/otel/sdk/trace":         ast.IdentIgnore,
+		"go.opentelemetry.io/otel/baggage":           ast.IdentIgnore,
 	}
 	for pkg, alias := range builtin {
 		content += fmt.Sprintf("import %s %q\n", alias, pkg)

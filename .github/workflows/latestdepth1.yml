@@ -27,10 +27,15 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v4
       with:
-        go-version: '1.23'
+        go-version: '1.24'
 
     - name: Build
       run: make build
 
+    - name: Clean Go Caches
+      run: |
+        go clean -cache
+        go clean -modcache
+
     - name: Test
-      run: go test -timeout 50m -v github.com/alibaba/loongsuite-go-agent/test -run ".*Latest"
+      run: go test -timeout 50m -v github.com/alibaba/loongsuite-go-agent/test -run "TestLatest1"

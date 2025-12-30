@@ -1,6 +1,6 @@
 [
   {
-    "Version": "[1.9.0,1.9.4)",
+    "Version": "[1.9.0,)",
     "ImportPath": "github.com/gomodule/redigo/redis",
     "Function": "DialContext",
     "OnEnter": "onBeforeDialContext",

@@ -34,6 +34,7 @@ const (
 
 const (
 	BuildPattern    = "-p"
+	BuildImportPath = "-importpath"
 	BuildGoVer      = "-goversion"
 	BuildPgoProfile = "-pgoprofile"
 	BuildModeVendor = "-mod=vendor"
@@ -53,12 +54,11 @@ func AssertGoBuild(args []string) {
 	}
 }
 
-func IsCompileCommand(line string) bool {
-	check := []string{"-o", "-p", "-buildid"}
+func isToolCommand(tool string, line string, check []string) bool {
 	if IsWindows() {
-		check = append(check, "compile.exe")
+		check = append(check, tool+".exe")
 	} else if IsUnix() {
-		check = append(check, "compile")
+		check = append(check, tool)
 	} else {
 		ShouldNotReachHere()
 	}
@@ -72,6 +72,13 @@ func IsCompileCommand(line string) bool {
 	return true
 }
 
+func IsCompileCommand(line string) bool {
+	return isToolCommand("compile", line, []string{"-o", "-p", "-buildid"})
+}
+
+func IsCgoCommand(line string) bool {
+	return isToolCommand("cgo", line, []string{"-importpath"})
+}
 func GetMatchedRuleFile() string {
 	const matchedRuleFile = "matched.json"
 	return GetTempBuildDirWith(matchedRuleFile)
@@ -134,6 +141,10 @@ func IsModPath(path string) bool {
 
 func IsGoFile(path string) bool {
 	return strings.HasSuffix(path, ".go")
+}
+
+func IsCgo1GoFile(path string) bool {
+	return strings.HasSuffix(path, ".cgo1.go")
 }
 
 func IsGoModFile(path string) bool {

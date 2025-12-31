@@ -1,74 +1,10 @@
 [
   {
-    "Version": "[2.3.0,2.42.1)",
+    "Version": "[2.13.0,)",
     "ImportPath": "github.com/ClickHouse/clickhouse-go/v2",
-    "ReceiverType": "\\clickhouse",
-    "Function": "ServerVersion",
-    "OnEnter": "beforeServerVersion",
-    "OnExit": "afterServerVersion",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/clickhousev2"
-  },
-  {
-    "Version": "[2.3.0,2.42.1)",
-    "ImportPath": "github.com/ClickHouse/clickhouse-go/v2",
-    "ReceiverType": "\\clickhouse",
-    "Function": "Select",
-    "OnEnter": "beforeSelect",
-    "OnExit": "afterSelect",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/clickhousev2"
-  },
-  {
-    "Version": "[2.3.0,2.42.1)",
-    "ImportPath": "github.com/ClickHouse/clickhouse-go/v2",
-    "ReceiverType": "\\clickhouse",
-    "Function": "Query",
-    "OnEnter": "beforeQuery",
-    "OnExit": "afterQuery",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/clickhousev2"
-  },
-  {
-    "Version": "[2.3.0,2.42.1)",
-    "ImportPath": "github.com/ClickHouse/clickhouse-go/v2",
-    "ReceiverType": "\\clickhouse",
-    "Function": "QueryRow",
-    "OnEnter": "beforeQueryRow",
-    "OnExit": "afterQueryRow",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/clickhousev2"
-  },
-  {
-    "Version": "[2.3.0,2.42.1)",
-    "ImportPath": "github.com/ClickHouse/clickhouse-go/v2",
-    "ReceiverType": "\\clickhouse",
-    "Function": "PrepareBatch",
-    "OnEnter": "beforePrepareBatch",
-    "OnExit": "afterPrepareBatch",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/clickhousev2"
-  },
-  {
-    "Version": "[2.3.0,2.42.1)",
-    "ImportPath": "github.com/ClickHouse/clickhouse-go/v2",
-    "ReceiverType": "\\clickhouse",
-    "Function": "Exec",
-    "OnEnter": "beforeExec",
-    "OnExit": "afterExec",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/clickhousev2"
-  },
-  {
-    "Version": "[2.3.0,2.42.1)",
-    "ImportPath": "github.com/ClickHouse/clickhouse-go/v2",
-    "ReceiverType": "\\clickhouse",
-    "Function": "AsyncInsert",
-    "OnEnter": "beforeAsyncInsert",
-    "OnExit": "afterAsyncInsert",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/clickhousev2"
-  },
-  {
-    "Version": "[2.3.0,2.42.1)",
-    "ImportPath": "github.com/ClickHouse/clickhouse-go/v2",
-    "ReceiverType": "\\clickhouse",
-    "Function": "Ping",
-    "OnEnter": "beforePing",
-    "OnExit": "afterPing",
+    "Function": "Open",
+    "OnEnter": "beforeOpen",
+    "OnExit": "afterOpen",
     "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/clickhousev2"
   }
 ]

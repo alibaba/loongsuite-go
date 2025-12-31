@@ -1,3 +1,17 @@
+// Copyright (c) 2024 Alibaba Group Holding Ltd.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package test
 
 import (
@@ -13,32 +27,39 @@ const clickhousev2_dependency_name = "github.com/ClickHouse/clickhouse-go/v2"
 const clickhousev2_module_name = "clickhousev2"
 
 func init() {
-	TestCases = append(TestCases, NewGeneralTestCase("test_clickhousev2_crud", clickhousev2_module_name, "2.3.0", "2.7.0", "1.19", "", TestClickhousev2CrudV230),
-		NewLatestDepthTestCase("test_clickhousev2_latestdepth_crud", clickhousev2_dependency_name, clickhousev2_module_name, "1.3.0", "v1.7.0", "1.19", "", TestClickhousev2CrudV230),
-		NewGeneralTestCase("test_clickhousev2_crud", clickhousev2_module_name, "1.3.0", "v1.7.0", "1.19", "", TestClickhousev2CrudV230))
+	TestCases = append(TestCases, NewGeneralTestCase("test_clickhousev2_crud", clickhousev2_module_name, "v2.13.0", "v2.42.0", "1.23", "1.24", TestClickhousev2CrudV2130),
+		NewLatestDepthTestCase("test_clickhousev2_latestdepth_crud", clickhousev2_dependency_name, clickhousev2_module_name, "v2.13.0", "v2.42.0", "1.23", "1.24", TestClickhousev2CrudV2420),
+		NewGeneralTestCase("test_clickhousev2_crud", clickhousev2_module_name, "v2.13.0", "v2.42.0", "1.23", "1.24", TestClickhousev2CrudV2130))
 }
 
-func TestClickhousev2CrudV230(t *testing.T, env ...string) {
-	//_, clickhousePort := initClickhouseContainer()
-	UseApp("clickhousev2/v2.3.0")
+func TestClickhousev2CrudV2130(t *testing.T, env ...string) {
+	_, clickhousePort := initClickhouseContainer()
+	UseApp("clickhousev2/v2.13.0")
 	RunGoBuild(t, "go", "build", "test_clickhousev2_crud.go")
-	//env = append(env, "CLICKHOUSE_PORT="+clickhousePort.Port())
-	env = append(env, "CLICKHOUSE_PORT=8123")
+	env = append(env, "CLICKHOUSE_PORT="+clickhousePort.Port())
 	RunApp(t, "test_clickhousev2_crud", env...)
+}
+
+func TestClickhousev2CrudV2420(t *testing.T, env ...string) {
+	_, clickhousePort := initClickhouseContainer()
+	UseApp("clickhousev2/v2.42.0")
+	RunGoBuild(t, "go", "build", "test_clickhousev2_crud.go")
+	env = append(env, "CLICKHOUSE_PORT="+clickhousePort.Port())
+	RunApp(t, "test_clickhousev2_latestdepth_crud", env...)
 }
 
 func initClickhouseContainer() (testcontainers.Container, nat.Port) {
 	containerReqeust := testcontainers.ContainerRequest{
 		Image:        "clickhouse:25.3",
 		ExposedPorts: []string{"8123/tcp", "9000/tcp"},
-		WaitingFor:   wait.ForLog("Startup complete").WithStartupTimeout(180 * time.Second)}
-	cassandraC, err := testcontainers.GenericContainer(context.Background(), testcontainers.GenericContainerRequest{ContainerRequest: containerReqeust, Started: true})
+		WaitingFor:   wait.ForLog("Startup complete").WithStartupTimeout(30 * time.Second)}
+	clickhouseC, err := testcontainers.GenericContainer(context.Background(), testcontainers.GenericContainerRequest{ContainerRequest: containerReqeust, Started: true})
 	if err != nil {
 		panic(err)
 	}
-	port, err := cassandraC.MappedPort(context.Background(), "8123")
+	port, err := clickhouseC.MappedPort(context.Background(), "9000")
 	if err != nil {
 		panic(err)
 	}
-	return cassandraC, port
+	return clickhouseC, port
 }

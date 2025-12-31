@@ -1,3 +1,17 @@
+// Copyright (c) 2024 Alibaba Group Holding Ltd.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package clickhousev2
 
 import (
@@ -7,6 +21,8 @@ import (
 	"github.com/alibaba/loongsuite-go-agent/pkg/api"
 	"os"
 	"strings"
+	"time"
+	_ "unsafe"
 )
 
 type clickhouseInnerEnabled struct {
@@ -21,249 +37,169 @@ var innerEnabled = clickhouseInnerEnabled{enabled: os.Getenv("OTEL_INSTRUMENTATI
 
 var clickhouseInstrumenter = BuildClickhouseInstrumenter()
 
-//go:linkname beforeServerVersion github.com/ClickHouse/clickhouse-go/v2.beforeServerVersion
-func beforeServerVersion(ctx api.CallContext, con driver.Conn) {
-	if !innerEnabled.Enable() {
-		return
-	}
-	ck, ok := con.(*clickhouse.clickhouse)
-	if !ok {
-		return
-	}
+func NewOtelCon(con driver.Conn, opts *clickhouse.Options) *OtelCon {
+	return &OtelCon{con: con, opts: opts}
+}
+
+type OtelCon struct {
+	con  driver.Conn
+	opts *clickhouse.Options
+}
+
+func (oc *OtelCon) Contributors() []string {
+	return oc.con.Contributors()
+}
+
+func (oc *OtelCon) ServerVersion() (*driver.ServerVersion, error) {
+	startTime := time.Now()
+	sv, err := oc.con.ServerVersion()
 	request := clickhouseRequest{
 		Statement: "SERVER_VERSION",
-		DbName:    ck.opt.Auth.Database,
-		User:      ck.opt.Auth.Username,
-		Addr:      strings.Join(ck.opt.Addr, ","),
+		DbName:    oc.opts.Auth.Database,
+		User:      oc.opts.Auth.Username,
+		Addr:      strings.Join(oc.opts.Addr, ","),
 		Op:        "SERVER_VERSION",
 		BatchSize: 1,
 	}
-	clickhouseInstrumenter.Start(context.Background(), request)
-	ctx.SetData(request)
+	clickhouseInstrumenter.StartAndEnd(context.Background(), request, nil, err, startTime, time.Now())
+	return sv, err
 }
 
-//go:linkname afterServerVersion github.com/ClickHouse/clickhouse-go/v2.afterServerVersion
-func afterServerVersion(ctx api.CallContext, con driver.Conn, _ *clickhouse.ServerVersion, err error) {
-	if !innerEnabled.Enable() {
-		return
-	}
-	request := ctx.GetData().(clickhouseRequest)
-	clickhouseInstrumenter.End(context.Background(), request, nil, err)
-}
-
-//go:linkname beforeSelect github.com/ClickHouse/clickhouse-go/v2.beforeSelect
-func beforeSelect(ctx api.CallContext, con driver.Conn, _ context.Context, _ any, query string, args ...any) {
-	if !innerEnabled.Enable() {
-		return
-	}
-	ck, ok := con.(*clickhouse.clickhouse)
-	if !ok {
-		return
-	}
+func (oc *OtelCon) Select(ctx context.Context, dest any, query string, args ...any) error {
+	startTime := time.Now()
+	err := oc.con.Select(ctx, dest, query, args...)
 	request := clickhouseRequest{
 		Statement: query,
-		DbName:    ck.opt.Auth.Database,
-		User:      ck.opt.Auth.Username,
-		Addr:      strings.Join(ck.opt.Addr, ","),
+		DbName:    oc.opts.Auth.Database,
+		User:      oc.opts.Auth.Username,
+		Addr:      strings.Join(oc.opts.Addr, ","),
 		Op:        "SELECT",
 		BatchSize: 1,
 		Params:    args,
 	}
-	clickhouseInstrumenter.Start(context.Background(), request)
-	ctx.SetData(request)
+	clickhouseInstrumenter.StartAndEnd(context.Background(), request, nil, err, startTime, time.Now())
+	return err
 }
 
-//go:linkname afterQuery github.com/ClickHouse/clickhouse-go/v2.afterSelect
-func afterSelect(ctx api.CallContext, _ driver.Conn, err error) {
-	if !innerEnabled.Enable() {
-		return
-	}
-	request := ctx.GetData().(clickhouseRequest)
-	clickhouseInstrumenter.End(context.Background(), request, nil, err)
-}
-
-//go:linkname beforeQuery github.com/ClickHouse/clickhouse-go/v2.beforeQuery
-func beforeQuery(ctx api.CallContext, con driver.Conn, _ context.Context, query string, args ...any) {
-	if !innerEnabled.Enable() {
-		return
-	}
-	ck, ok := con.(*clickhouse.clickhouse)
-	if !ok {
-		return
-	}
+func (oc *OtelCon) Query(ctx context.Context, query string, args ...any) (driver.Rows, error) {
+	startTime := time.Now()
+	rows, err := oc.con.Query(ctx, query, args...)
 	request := clickhouseRequest{
 		Statement: query,
-		DbName:    ck.opt.Auth.Database,
-		User:      ck.opt.Auth.Username,
-		Addr:      strings.Join(ck.opt.Addr, ","),
+		DbName:    oc.opts.Auth.Database,
+		User:      oc.opts.Auth.Username,
+		Addr:      strings.Join(oc.opts.Addr, ","),
 		Op:        "QUERY",
 		BatchSize: 1,
 		Params:    args,
 	}
-	clickhouseInstrumenter.Start(context.Background(), request)
-	ctx.SetData(request)
+	clickhouseInstrumenter.StartAndEnd(context.Background(), request, nil, err, startTime, time.Now())
+	return rows, err
 }
 
-//go:linkname afterQuery github.com/ClickHouse/clickhouse-go/v2.afterQuery
-func afterQuery(ctx api.CallContext, _ driver.Conn, _ driver.Rows, err error) {
-	if !innerEnabled.Enable() {
-		return
-	}
-	request := ctx.GetData().(clickhouseRequest)
-	clickhouseInstrumenter.End(context.Background(), request, nil, err)
-}
-
-//go:linkname beforeQueryRow github.com/ClickHouse/clickhouse-go/v2.beforeQueryRow
-func beforeQueryRow(ctx api.CallContext, con driver.Conn, _ context.Context, query string, args ...any) {
-	if !innerEnabled.Enable() {
-		return
-	}
-	ck, ok := con.(*clickhouse.clickhouse)
-	if !ok {
-		return
-	}
+func (oc *OtelCon) QueryRow(ctx context.Context, query string, args ...any) driver.Row {
+	startTime := time.Now()
+	row := oc.con.QueryRow(ctx, query, args...)
 	request := clickhouseRequest{
 		Statement: query,
-		DbName:    ck.opt.Auth.Database,
-		User:      ck.opt.Auth.Username,
-		Addr:      strings.Join(ck.opt.Addr, ","),
+		DbName:    oc.opts.Auth.Database,
+		User:      oc.opts.Auth.Username,
+		Addr:      strings.Join(oc.opts.Addr, ","),
 		Op:        "QUERY_ROW",
 		BatchSize: 1,
 		Params:    args,
 	}
-	clickhouseInstrumenter.Start(context.Background(), request)
-	ctx.SetData(request)
+	clickhouseInstrumenter.StartAndEnd(context.Background(), request, nil, row.Err(), startTime, time.Now())
+	return row
 }
 
-//go:linkname afterQueryRow github.com/ClickHouse/clickhouse-go/v2.afterQueryRow
-func afterQueryRow(ctx api.CallContext, _ driver.Conn, row driver.Row) {
-	if !innerEnabled.Enable() {
-		return
-	}
-	request := ctx.GetData().(clickhouseRequest)
-	clickhouseInstrumenter.End(context.Background(), request, nil, row.Err())
-}
-
-//go:linkname beforePrepareBatch github.com/ClickHouse/clickhouse-go/v2.beforePrepareBatch
-func beforePrepareBatch(ctx api.CallContext, con driver.Conn, _ context.Context, query string, _ ...driver.PrepareBatchOption) {
-	if !innerEnabled.Enable() {
-		return
-	}
-	ck, ok := con.(*clickhouse.clickhouse)
-	if !ok {
-		return
-	}
+func (oc *OtelCon) PrepareBatch(ctx context.Context, query string, opts ...driver.PrepareBatchOption) (driver.Batch, error) {
+	startTime := time.Now()
+	batch, err := oc.con.PrepareBatch(ctx, query, opts...)
 	request := clickhouseRequest{
 		Statement: query,
-		DbName:    ck.opt.Auth.Database,
-		User:      ck.opt.Auth.Username,
-		Addr:      strings.Join(ck.opt.Addr, ","),
+		DbName:    oc.opts.Auth.Database,
+		User:      oc.opts.Auth.Username,
+		Addr:      strings.Join(oc.opts.Addr, ","),
 		Op:        "PREPARE_BATCH",
 		BatchSize: 1,
 		Params:    nil,
 	}
-	clickhouseInstrumenter.Start(context.Background(), request)
-	ctx.SetData(request)
+	clickhouseInstrumenter.StartAndEnd(context.Background(), request, nil, err, startTime, time.Now())
+	return batch, err
 }
 
-//go:linkname afterPrepareBatch github.com/ClickHouse/clickhouse-go/v2.afterPrepareBatch
-func afterPrepareBatch(ctx api.CallContext, _ driver.Conn, _ driver.Batch, err error) {
-	if !innerEnabled.Enable() {
-		return
-	}
-	request := ctx.GetData().(clickhouseRequest)
-	clickhouseInstrumenter.End(context.Background(), request, nil, err)
-}
-
-//go:linkname beforeExec github.com/ClickHouse/clickhouse-go/v2.beforeExec
-func beforeExec(ctx api.CallContext, con driver.Conn, _ context.Context, query string, args ...any) {
-	if !innerEnabled.Enable() {
-		return
-	}
-	ck, ok := con.(*clickhouse.clickhouse)
-	if !ok {
-		return
-	}
+func (oc *OtelCon) Exec(ctx context.Context, query string, args ...any) error {
+	startTime := time.Now()
+	err := oc.con.Exec(ctx, query, args...)
 	request := clickhouseRequest{
 		Statement: query,
-		DbName:    ck.opt.Auth.Database,
-		User:      ck.opt.Auth.Username,
-		Addr:      strings.Join(ck.opt.Addr, ","),
+		DbName:    oc.opts.Auth.Database,
+		User:      oc.opts.Auth.Username,
+		Addr:      strings.Join(oc.opts.Addr, ","),
 		Op:        "EXEC",
 		BatchSize: 1,
 		Params:    args,
 	}
-	clickhouseInstrumenter.Start(context.Background(), request)
-	ctx.SetData(request)
+	clickhouseInstrumenter.StartAndEnd(context.Background(), request, nil, err, startTime, time.Now())
+	return err
 }
 
-//go:linkname afterExec github.com/ClickHouse/clickhouse-go/v2.afterExec
-func afterExec(ctx api.CallContext, _ driver.Conn, err error) {
-	if !innerEnabled.Enable() {
-		return
-	}
-	request := ctx.GetData().(clickhouseRequest)
-	clickhouseInstrumenter.End(context.Background(), request, nil, err)
-}
-
-//go:linkname beforeAsyncInsert github.com/ClickHouse/clickhouse-go/v2.beforeAsyncInsert
-func beforeAsyncInsert(ctx api.CallContext, con driver.Conn, _ context.Context, query string, _ bool, args ...any) {
-	if !innerEnabled.Enable() {
-		return
-	}
-	ck, ok := con.(*clickhouse.clickhouse)
-	if !ok {
-		return
-	}
+func (oc *OtelCon) AsyncInsert(ctx context.Context, query string, wait bool, args ...any) error {
+	startTime := time.Now()
+	err := oc.con.AsyncInsert(ctx, query, wait, args...)
 	request := clickhouseRequest{
 		Statement: query,
-		DbName:    ck.opt.Auth.Database,
-		User:      ck.opt.Auth.Username,
-		Addr:      strings.Join(ck.opt.Addr, ","),
+		DbName:    oc.opts.Auth.Database,
+		User:      oc.opts.Auth.Username,
+		Addr:      strings.Join(oc.opts.Addr, ","),
 		Op:        "ASYNC_INSERT",
 		BatchSize: 1,
 		Params:    args,
 	}
-	clickhouseInstrumenter.Start(context.Background(), request)
-	ctx.SetData(request)
+	clickhouseInstrumenter.StartAndEnd(context.Background(), request, nil, err, startTime, time.Now())
+	return err
 }
 
-//go:linkname afterAsyncInsert github.com/ClickHouse/clickhouse-go/v2.afterAsyncInsert
-func afterAsyncInsert(ctx api.CallContext, _ driver.Conn, err error) {
-	if !innerEnabled.Enable() {
-		return
-	}
-	request := ctx.GetData().(clickhouseRequest)
-	clickhouseInstrumenter.End(context.Background(), request, nil, err)
-}
-
-//go:linkname beforePing github.com/ClickHouse/clickhouse-go/v2.beforePing
-func beforePing(ctx api.CallContext, con driver.Conn, _ context.Context) {
-	if !innerEnabled.Enable() {
-		return
-	}
-	ck, ok := con.(*clickhouse.clickhouse)
-	if !ok {
-		return
-	}
+func (oc *OtelCon) Ping(ctx context.Context) error {
+	startTime := time.Now()
+	err := oc.con.Ping(ctx)
 	request := clickhouseRequest{
 		Statement: "PING",
-		DbName:    ck.opt.Auth.Database,
-		User:      ck.opt.Auth.Username,
-		Addr:      strings.Join(ck.opt.Addr, ","),
+		DbName:    oc.opts.Auth.Database,
+		User:      oc.opts.Auth.Username,
+		Addr:      strings.Join(oc.opts.Addr, ","),
 		Op:        "PING",
 		BatchSize: 1,
 		Params:    nil,
 	}
-	clickhouseInstrumenter.Start(context.Background(), request)
-	ctx.SetData(request)
+	clickhouseInstrumenter.StartAndEnd(context.Background(), request, nil, err, startTime, time.Now())
+	return err
 }
 
-//go:linkname afterPing github.com/ClickHouse/clickhouse-go/v2.afterPing
-func afterPing(ctx api.CallContext, _ driver.Conn, err error) {
+func (oc *OtelCon) Stats() driver.Stats {
+	return oc.con.Stats()
+}
+
+func (oc *OtelCon) Close() error {
+	return oc.con.Close()
+}
+
+//go:linkname beforeOpen github.com/ClickHouse/clickhouse-go/v2.beforeOpen
+func beforeOpen(ctx api.CallContext, options *clickhouse.Options) {
 	if !innerEnabled.Enable() {
 		return
 	}
-	request := ctx.GetData().(clickhouseRequest)
-	clickhouseInstrumenter.End(context.Background(), request, nil, err)
+	ctx.SetData(options)
+}
+
+//go:linkname afterOpen github.com/ClickHouse/clickhouse-go/v2.afterOpen
+func afterOpen(ctx api.CallContext, con driver.Conn, err error) {
+	if err != nil {
+		return
+	}
+	if !innerEnabled.Enable() {
+		return
+	}
+	ctx.SetReturnVal(0, NewOtelCon(con, ctx.GetData().(*clickhouse.Options)))
 }

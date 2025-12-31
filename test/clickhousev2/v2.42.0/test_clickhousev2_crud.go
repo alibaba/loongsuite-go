@@ -114,7 +114,7 @@ func TestPing() {
 }
 
 func main() {
-	addr := "10.175.230.54:" + os.Getenv("CLICKHOUSE_PORT")
+	addr := "127.0.0.1:" + os.Getenv("CLICKHOUSE_PORT")
 	tmpCon, err := clickhouse.Open(&clickhouse.Options{
 		Addr:     []string{addr},
 		Protocol: clickhouse.Native,

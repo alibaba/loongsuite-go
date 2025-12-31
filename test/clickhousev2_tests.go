@@ -50,7 +50,7 @@ func TestClickhousev2CrudV2420(t *testing.T, env ...string) {
 
 func initClickhouseContainer() (testcontainers.Container, nat.Port) {
 	containerReqeust := testcontainers.ContainerRequest{
-		Image:        "clickhouse:25.3",
+		Image:        "clickhouse:24.3.4.147",
 		ExposedPorts: []string{"8123/tcp", "9000/tcp"},
 		WaitingFor:   wait.ForListeningPort("9000/tcp").WithStartupTimeout(time.Minute)}
 	clickhouseC, err := testcontainers.GenericContainer(context.Background(), testcontainers.GenericContainerRequest{ContainerRequest: containerReqeust, Started: true})

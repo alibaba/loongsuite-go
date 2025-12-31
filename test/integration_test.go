@@ -75,7 +75,7 @@ func findLatest() []*TestCase {
 // This is useful for CI to avoid timeout issues.
 func TestPlugins1(t *testing.T) {
 	cases := findPlugin()
-	for _, c := range cases {
+	for _, c := range cases[:len(cases)/4] {
 		t.Run(c.TestName, func(t *testing.T) {
 			c.TestFunc(t)
 		})

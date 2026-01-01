@@ -36,7 +36,7 @@ var (
 	createTable = `CREATE TABLE IF NOT EXISTS users (
 		id String, 
 		name String,
-		age UInt8
+		age Int32
 	) ENGINE = MergeTree() ORDER BY id`
 
 	insert = `INSERT INTO users (id, name, age) VALUES (?, ?, ?)`

@@ -46,7 +46,7 @@ const (
 )
 
 var (
-	tracer         = otel.Tracer("mochi-mqtt-test")
+	tracer         oteltrace.Tracer
 	traceExporter  *tracetest.InMemoryExporter
 	tracerProvider *trace.TracerProvider
 )
@@ -55,17 +55,15 @@ var (
 func InitTracerProvider() (*trace.TracerProvider, *tracetest.InMemoryExporter) {
 	exporter := tracetest.NewInMemoryExporter()
 
-	bsp := trace.NewBatchSpanProcessor(exporter)
-
 	tp := trace.NewTracerProvider(
-		trace.WithSpanProcessor(bsp),
+		trace.WithSpanProcessor(trace.NewSimpleSpanProcessor(exporter)),
 		trace.WithSampler(trace.AlwaysSample()),
 	)
 	otel.SetTracerProvider(tp)
 
 	traceExporter = exporter
 	tracerProvider = tp
-	tracer = otel.Tracer("mochi-mqtt-test")
+	tracer = tp.Tracer("mochi-mqtt-test")
 
 	log.Println("TracerProvider initialized successfully")
 	return tp, exporter
@@ -187,8 +185,10 @@ func (h *TracingHook) Provides(b byte) bool {
 func (h *TracingHook) OnPublish(cl *mqtt.Client, pk packets.Packet) (packets.Packet, error) {
 	ctx := context.Background()
 
+	tr := otel.GetTracerProvider().Tracer("mochi-mqtt-test")
+
 	// Create publish span
-	ctx, span := tracer.Start(ctx, pk.TopicName+" publish",
+	ctx, span := tr.Start(ctx, pk.TopicName+" publish",
 		oteltrace.WithSpanKind(oteltrace.SpanKindProducer),
 		oteltrace.WithAttributes(
 			attribute.String("messaging.system", "mqtt"),
@@ -213,8 +213,10 @@ func (h *TracingHook) OnPublish(cl *mqtt.Client, pk packets.Packet) (packets.Pac
 func (h *TracingHook) OnPublished(cl *mqtt.Client, pk packets.Packet) {
 	ctx := context.Background()
 
+	tr := otel.GetTracerProvider().Tracer("mochi-mqtt-test")
+
 	// Create receive/process span
-	_, span := tracer.Start(ctx, pk.TopicName+" process",
+	_, span := tr.Start(ctx, pk.TopicName+" process",
 		oteltrace.WithSpanKind(oteltrace.SpanKindConsumer),
 		oteltrace.WithAttributes(
 			attribute.String("messaging.system", "mqtt"),

@@ -16,6 +16,7 @@ package main
 
 import (
 	"context"
+	"go.opentelemetry.io/otel"
 	"log"
 	"time"
 
@@ -39,17 +40,14 @@ var (
 func main() {
 	// Initialize TracerProvider first
 	tp, exporter := InitTracerProvider()
+	log.Printf("DEBUG: TracerProvider set: %v", otel.GetTracerProvider() != nil)
+	log.Printf("DEBUG: TracerProvider type: %T", otel.GetTracerProvider())
 	defer func() {
 		// Force flush before shutdown
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 		log.Println("Shutting down tracer provider...")
-		if err := tp.ForceFlush(ctx); err != nil {
-			log.Printf("Error flushing spans: %v", err)
-		}
-		cancel()
-
-		if err := tp.Shutdown(context.Background()); err != nil {
+		if err := tp.Shutdown(ctx); err != nil {
 			log.Printf("Error shutting down tracer provider: %v", err)
 		}
 	}()

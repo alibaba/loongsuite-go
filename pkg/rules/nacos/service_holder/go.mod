@@ -1,6 +1,8 @@
 module github.com/alibaba/loongsuite-go-agent/pkg/rules/nacos/service_holder
 
-go 1.23.0
+go 1.24.0
+
+toolchain go1.24.11
 
 replace github.com/alibaba/loongsuite-go-agent/pkg => ../../../../pkg
 
@@ -12,6 +14,7 @@ require (
 )
 
 require (
+	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/go-errors/errors v1.0.1 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/multierr v1.10.0 // indirect

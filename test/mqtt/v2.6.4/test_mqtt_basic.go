@@ -29,7 +29,7 @@ const (
 	testMessageContent = "Hello Mochi MQTT"
 	testQoS            = 1       // int type for Subscribe
 	testQoSByte        = byte(1) // byte type for Publish
-	messageWaitTime    = 2 * time.Second
+	messageWaitTime    = 3 * time.Second
 )
 
 var (
@@ -41,7 +41,9 @@ func main() {
 	tp, exporter := InitTracerProvider()
 	defer func() {
 		// Force flush before shutdown
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		log.Println("Shutting down tracer provider...")
 		if err := tp.ForceFlush(ctx); err != nil {
 			log.Printf("Error flushing spans: %v", err)
 		}
@@ -73,14 +75,14 @@ func main() {
 	time.Sleep(messageWaitTime)
 
 	log.Println("Forcing flush of pending spans...")
-	flushCtx, flushCancel := context.WithTimeout(context.Background(), 5*time.Second)
+	flushCtx, flushCancel := context.WithTimeout(context.Background(), 10*time.Second)
 	if err := tp.ForceFlush(flushCtx); err != nil {
 		log.Printf("Warning: Failed to force flush spans: %v", err)
 	}
 	flushCancel()
 
 	// Additional wait for export completion
-	time.Sleep(500 * time.Millisecond)
+	time.Sleep(1 * time.Second)
 
 	// Verify message was received
 	if !messageReceived {
@@ -95,7 +97,20 @@ func main() {
 
 // messageHandler handles incoming MQTT messages
 func messageHandler(cl *mqtt.Client, sub packets.Subscription, pk packets.Packet) {
-	log.Printf("Received message on topic %s: %s", pk.TopicName, string(pk.Payload))
+	traceID := ""
+	for _, prop := range pk.Properties.User {
+		if prop.Key == "otel-trace-id" {
+			traceID = prop.Val
+			break
+		}
+	}
+
+	if traceID != "" {
+		log.Printf(" trace_id=%sReceived message on topic %s: %s", traceID, pk.TopicName, string(pk.Payload))
+	} else {
+		log.Printf("Received message on topic %s: %s", pk.TopicName, string(pk.Payload))
+	}
+
 	messageReceived = true
 }
 
@@ -105,6 +120,11 @@ func verifyBasicTraces(exporter *tracetest.InMemoryExporter) {
 	spans := exporter.GetSpans()
 
 	log.Printf("Total spans collected: %d", len(spans))
+
+	for i, span := range spans {
+		log.Printf("Span %d: Name=%s, Kind=%v, TraceID=%s",
+			i, span.Name, span.SpanKind, span.SpanContext.TraceID())
+	}
 
 	if len(spans) < 2 {
 		log.Fatalf("Insufficient spans collected for verification. Expected at least 2, got %d", len(spans))

@@ -54,9 +54,12 @@ var (
 // InitTracerProvider initializes the OpenTelemetry tracer provider
 func InitTracerProvider() (*trace.TracerProvider, *tracetest.InMemoryExporter) {
 	exporter := tracetest.NewInMemoryExporter()
+
+	bsp := trace.NewBatchSpanProcessor(exporter)
+
 	tp := trace.NewTracerProvider(
-		trace.WithSyncer(exporter),
-		trace.WithSampler(trace.AlwaysSample()), // Ensure all spans are sampled
+		trace.WithSpanProcessor(bsp),
+		trace.WithSampler(trace.AlwaysSample()),
 	)
 	otel.SetTracerProvider(tp)
 

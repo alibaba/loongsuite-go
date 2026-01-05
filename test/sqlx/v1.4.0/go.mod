@@ -7,5 +7,5 @@ replace github.com/alibaba/loongsuite-go-agent/test/verifier => ../../../test/ve
 require (
 	github.com/alibaba/loongsuite-go-agent/test/verifier v0.0.0-00010101000000-000000000000
 	github.com/jmoiron/sqlx v1.4.0
-	go.opentelemetry.io/otel/sdk v1.35.0
+	go.opentelemetry.io/otel/sdk v1.39.0
 )

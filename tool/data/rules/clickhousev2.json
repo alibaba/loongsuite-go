@@ -1,0 +1,10 @@
+[
+  {
+    "Version": "[2.13.0,)",
+    "ImportPath": "github.com/ClickHouse/clickhouse-go/v2",
+    "Function": "Open",
+    "OnEnter": "beforeOpen",
+    "OnExit": "afterOpen",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/clickhousev2"
+  }
+]

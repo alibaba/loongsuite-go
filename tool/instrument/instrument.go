@@ -15,13 +15,13 @@
 package instrument
 
 import (
-	"fmt"
+	"go/scanner"
+	"go/token"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/alibaba/loongsuite-go-agent/tool/ast"
-	"github.com/alibaba/loongsuite-go-agent/tool/ex"
 	"github.com/alibaba/loongsuite-go-agent/tool/rules"
 	"github.com/alibaba/loongsuite-go-agent/tool/util"
 	"github.com/dave/dst"
@@ -53,14 +53,14 @@ type RuleProcessor struct {
 	onExitHookFunc *dst.FuncDecl
 	// Variable declarations waiting to be inserted into target source file
 	varDecls []dst.Decl
-	// Relocated files
-	relocated map[string]string
 	// Optimization candidates for the trampoline function
 	trampolineJumps []*TJump
 	// The declaration of the call context, it should be replenished later
 	callCtxDecl *dst.GenDecl
 	// The methods of the call context
 	callCtxMethods []*dst.FuncDecl
+	// Map of target identifiers to check for during pre-filtering
+	targetIdentifiers map[string]bool
 }
 
 func (rp *RuleProcessor) addDecl(decl dst.Decl) {
@@ -75,17 +75,6 @@ func (rp *RuleProcessor) removeDeclWhen(pred func(dst.Decl) bool) dst.Decl {
 		}
 	}
 	return nil
-}
-
-func (rp *RuleProcessor) setRelocated(name, target string) {
-	rp.relocated[name] = target
-}
-
-func (rp *RuleProcessor) tryRelocated(name string) string {
-	if target, ok := rp.relocated[name]; ok {
-		return target
-	}
-	return name
 }
 
 func (rp *RuleProcessor) addCompileArg(newArg string) {
@@ -103,33 +92,6 @@ func haveSameSuffix(s1, s2 string) bool {
 		}
 	}
 	return true
-}
-
-func (rp *RuleProcessor) replaceCompileArg(newArg string, pred func(string) bool) error {
-	variant := ""
-	for i, arg := range rp.compileArgs {
-		// Use absolute file path of the compile argument to compare with the
-		// instrumented file(path), which is also an absolute path
-		arg, err := filepath.Abs(arg)
-		if err != nil {
-			return ex.Wrap(err)
-		}
-		if pred(arg) {
-			rp.compileArgs[i] = newArg
-			// Relocate the replaced file to new target, any rules targeting the
-			// replaced file should be updated to target the new file as well
-			rp.setRelocated(arg, newArg)
-			return nil
-		}
-		if haveSameSuffix(arg, newArg) {
-			variant = arg
-		}
-	}
-	if variant == "" {
-		variant = fmt.Sprintf("%v", rp.compileArgs)
-	}
-	return ex.Newf("instrumentation failed, expect %s, actual %s",
-		newArg, variant)
 }
 
 func (rp *RuleProcessor) keepForDebug(name string) {
@@ -177,62 +139,76 @@ func (rp *RuleProcessor) findSourceFile(rset *rules.InstRuleSet, file string) st
 	return file
 }
 
-func (rp *RuleProcessor) instrument(rset *rules.InstRuleSet) (err error) {
-	hasFuncRule := false
-	// Apply file rules first because they can introduce new files that used
-	// by other rules such as raw rules
-	for _, rule := range rset.FileRules {
-		err := rp.applyFileRule(rule, rset.PackageName)
-		if err != nil {
-			return err
-		}
-	}
-	for file, rs := range groupRules(rset) {
-		// Group rules by file, then parse the target file once
-		util.Assert(filepath.IsAbs(file), "file path must be absolute")
-		file = rp.findSourceFile(rset, file)
-		root, err := rp.parseAst(file)
-		if err != nil {
-			return err
-		}
-		// Apply the rules to the target file
-		rp.trampolineJumps = make([]*TJump, 0)
-		for _, r := range rs {
-			switch rt := r.(type) {
-			case *rules.InstFuncRule:
-				err1 := rp.applyFuncRule(rt, root)
-				if err1 != nil {
-					return err1
-				}
-				hasFuncRule = true
-			case *rules.InstStructRule:
-				err1 := rp.applyStructRule(rt, root)
-				if err1 != nil {
-					return err1
-				}
-			default:
-				util.ShouldNotReachHere()
+// precomputeTargetIdentifiers precomputes the target identifiers for all rules in the rule set
+func (rp *RuleProcessor) precomputeTargetIdentifiers(rset *rules.InstRuleSet) {
+	rp.targetIdentifiers = make(map[string]bool)
+	
+	// Process FuncRules
+	for _, rules := range rset.FuncRules {
+		for _, rule := range rules {
+			// Add function name as a target identifier
+			rp.targetIdentifiers[rule.Function] = true
+			// Add receiver type if present
+			if rule.ReceiverType != "" {
+				rp.targetIdentifiers[rule.ReceiverType] = true
 			}
 		}
-		// Optimize generated trampoline-jump-ifs
-		err = rp.optimizeTJumps()
-		if err != nil {
-			return err
+	}
+	
+	// Process StructRules
+	for _, rules := range rset.StructRules {
+		for _, rule := range rules {
+			// Add struct type as a target identifier
+			rp.targetIdentifiers[rule.StructType] = true
 		}
+	}
+}
 
-		// Once all func rules targeting this file are applied, write instrumented
-		// AST to new file and replace the original file in the compile command
-		err = rp.writeInstrumented(root, file)
-		if err != nil {
-			return err
+// hasTargetIdentifiers performs a quick pre-filtering scan to check if the file contains any target identifiers
+func (rp *RuleProcessor) hasTargetIdentifiers(filePath string) (bool, error) {
+	// First try with go/scanner.Scanner for token-level scanning
+	fset := token.NewFileSet()
+	
+	// Read the file content
+	src, err := os.ReadFile(filePath)
+	if err != nil {
+		return false, err
+	}
+
+	// Add file to fset and initialize scanner
+	file := fset.AddFile(filePath, fset.Base(), len(src))
+	var scan scanner.Scanner
+	scan.Init(file, src, nil, scanner.ScanComments)
+	
+	for {
+		_, tok, lit := scan.Scan()
+		if tok == token.EOF {
+			break
+		}
+		
+		// Check if the token is an identifier and matches our targets
+		if tok == token.IDENT {
+			if _, exists := rp.targetIdentifiers[lit]; exists {
+				return true, nil
+			}
 		}
 	}
-	// Write globals file if any function is instrumented because injected code
-	// always requires some global variables and auxiliary declarations
-	if hasFuncRule {
-		return rp.writeGlobals(rset.PackageName)
+	
+	// If scanner didn't find anything, do a simple string search as fallback
+	contentStr := string(src)
+	for identifier := range rp.targetIdentifiers {
+		if strings.Contains(contentStr, identifier) {
+			return true, nil
+		}
 	}
-	return nil
+	
+	return false, nil
+}
+
+// Enhanced version of the instrument function using overlays
+func (rp *RuleProcessor) instrument(rset *rules.InstRuleSet) (err error) {
+	// Use the overlay-based approach for instrumentation
+	return rp.instrumentWithOverlay(rset)
 }
 
 func stripCompleteFlag(args []string) []string {
@@ -253,7 +229,6 @@ func interceptCompile(args []string) ([]string, error) {
 		workDir:     filepath.Dir(target),
 		target:      nil,
 		compileArgs: args,
-		relocated:   make(map[string]string),
 	}
 
 	// Load matched hook rules from setup phase

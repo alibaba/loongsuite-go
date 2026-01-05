@@ -35,8 +35,7 @@ import (
 	prometheus_client "github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	otelruntime "go.opentelemetry.io/contrib/instrumentation/runtime"
-
-	// The version of the following packages/modules must be fixed
+	"go.opentelemetry.io/contrib/propagators/b3"
 	"go.opentelemetry.io/otel"
 	_ "go.opentelemetry.io/otel/baggage"
 	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc"
@@ -60,12 +59,14 @@ import (
 // your service name: OTEL_SERVICE_NAME
 // your otlp endpoint: OTEL_EXPORTER_OTLP_ENDPOINT OTEL_EXPORTER_OTLP_TRACES_ENDPOINT OTEL_EXPORTER_OTLP_METRICS_ENDPOINT OTEL_EXPORTER_OTLP_LOGS_ENDPOINT
 // your otlp header: OTEL_EXPORTER_OTLP_HEADERS
+// your otlp propagate contribution: OTEL_PROPAGATORS
 const exec_name = "otel"
 const report_protocol = "OTEL_EXPORTER_OTLP_PROTOCOL"
 const trace_report_protocol = "OTEL_EXPORTER_OTLP_TRACES_PROTOCOL"
 const metrics_exporter = "OTEL_METRICS_EXPORTER"
 const trace_exporter = "OTEL_TRACES_EXPORTER"
 const prometheus_exporter_port = "OTEL_EXPORTER_PROMETHEUS_PORT"
+const propagators = "OTEL_PROPAGATORS"
 const default_prometheus_exporter_port = "9464"
 const metrics_temporality_preference = "OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE"
 
@@ -271,8 +272,41 @@ func initOpenTelemetry(ctx context.Context) error {
 
 	traceProvider = trace.NewTracerProvider(options...)
 	otel.SetTracerProvider(traceProvider)
-	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
+	initPropagators()
 	return initMetrics()
+}
+
+func initPropagators() {
+	var (
+		b3Encodings b3.Encoding = 0
+	)
+	propagator := os.Getenv(propagators)
+	if propagator == "" {
+		propagator = "tracecontext,baggage"
+	}
+	propagatorStringList := strings.Split(propagator, ",")
+	propagatorList := make([]propagation.TextMapPropagator, 0)
+	for _, p := range propagatorStringList {
+		switch p {
+		case "tracecontext":
+			propagatorList = append(propagatorList, propagation.TraceContext{})
+		case "baggage":
+			propagatorList = append(propagatorList, propagation.Baggage{})
+		case "b3":
+			b3Encodings = b3Encodings | b3.B3SingleHeader
+		case "b3multi":
+			b3Encodings = b3Encodings | b3.B3MultipleHeader
+		default:
+			log.Printf("Unknown propagator: %s", p)
+		}
+	}
+
+	if b3Encodings > 0 {
+		b3Propagator := b3.New(b3.WithInjectEncoding(b3Encodings))
+		propagatorList = append(propagatorList, b3Propagator)
+	}
+
+	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagatorList...))
 }
 
 func initMetrics() error {

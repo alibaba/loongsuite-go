@@ -263,7 +263,7 @@ func ExpectSame(t *testing.T, expected, actual string) {
 
 func ExpectWhen(t *testing.T, prediction func() (res bool, msg string)) {
 	if r, m := prediction(); !r {
-		t.Fatalf(m)
+		t.Fatalf("%s", m)
 	}
 }
 

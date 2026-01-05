@@ -73,11 +73,16 @@ func main() {
 	time.Sleep(messageWaitTime)
 
 	log.Println("Forcing flush of pending spans...")
-	flushCtx, flushCancel := context.WithTimeout(context.Background(), 10*time.Second)
-	if err := tp.ForceFlush(flushCtx); err != nil {
-		log.Printf("Warning: Failed to force flush spans: %v", err)
+
+	for i := 0; i < 3; i++ {
+		log.Println("Forcing flush of pending spans...")
+		flushCtx, flushCancel := context.WithTimeout(context.Background(), 5*time.Second)
+		if err := tp.ForceFlush(flushCtx); err != nil {
+			log.Printf("Warning: Failed to force flush spans (attempt %d): %v", i+1, err)
+		}
+		flushCancel()
+		time.Sleep(500 * time.Millisecond)
 	}
-	flushCancel()
 
 	// Additional wait for export completion
 	time.Sleep(1 * time.Second)

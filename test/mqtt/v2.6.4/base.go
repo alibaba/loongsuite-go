@@ -56,7 +56,7 @@ func InitTracerProvider() (*trace.TracerProvider, *tracetest.InMemoryExporter) {
 	exporter := tracetest.NewInMemoryExporter()
 
 	tp := trace.NewTracerProvider(
-		trace.WithSpanProcessor(trace.NewSimpleSpanProcessor(exporter)),
+		trace.WithSpanProcessor(trace.NewBatchSpanProcessor(exporter)),
 		trace.WithSampler(trace.AlwaysSample()),
 	)
 	otel.SetTracerProvider(tp)
@@ -183,6 +183,7 @@ func (h *TracingHook) Provides(b byte) bool {
 }
 
 func (h *TracingHook) OnPublish(cl *mqtt.Client, pk packets.Packet) (packets.Packet, error) {
+	log.Printf("DEBUG: OnPublish called for topic: %s", pk.TopicName)
 	ctx := context.Background()
 
 	tr := otel.GetTracerProvider().Tracer("mochi-mqtt-test")
@@ -198,7 +199,7 @@ func (h *TracingHook) OnPublish(cl *mqtt.Client, pk packets.Packet) (packets.Pac
 			attribute.Int("messaging.message.body.size", len(pk.Payload)),
 		),
 	)
-
+	defer span.End()
 	// Store context in packet for later use
 	pk.Properties.User = append(pk.Properties.User, packets.UserProperty{
 		Key: "otel-trace-id",
@@ -211,6 +212,7 @@ func (h *TracingHook) OnPublish(cl *mqtt.Client, pk packets.Packet) (packets.Pac
 }
 
 func (h *TracingHook) OnPublished(cl *mqtt.Client, pk packets.Packet) {
+	log.Printf("DEBUG: OnPublish called for topic: %s", pk.TopicName)
 	ctx := context.Background()
 
 	tr := otel.GetTracerProvider().Tracer("mochi-mqtt-test")

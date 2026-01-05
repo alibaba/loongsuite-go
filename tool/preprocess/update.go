@@ -31,22 +31,22 @@ const (
 )
 
 var otelDeps = map[string]string{
-	"go.opentelemetry.io/otel":                                          "v1.35.0",
-	"go.opentelemetry.io/otel/sdk":                                      "v1.35.0",
-	"go.opentelemetry.io/otel/trace":                                    "v1.35.0",
-	"go.opentelemetry.io/otel/metric":                                   "v1.35.0",
-	"go.opentelemetry.io/otel/sdk/metric":                               "v1.35.0",
-	"go.opentelemetry.io/otel/exporters/otlp/otlptrace":                 "v1.35.0",
-	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc":   "v1.35.0",
-	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp":   "v1.35.0",
-	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc": "v1.35.0",
-	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp": "v1.35.0",
-	"go.opentelemetry.io/otel/exporters/prometheus":                     "v0.57.0",
-	"go.opentelemetry.io/contrib/instrumentation/runtime":               "v0.60.0",
+	"go.opentelemetry.io/otel":                                          "v1.39.0",
+	"go.opentelemetry.io/otel/sdk":                                      "v1.39.0",
+	"go.opentelemetry.io/otel/trace":                                    "v1.39.0",
+	"go.opentelemetry.io/otel/metric":                                   "v1.39.0",
+	"go.opentelemetry.io/otel/sdk/metric":                               "v1.39.0",
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace":                 "v1.39.0",
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc":   "v1.39.0",
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp":   "v1.39.0",
+	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc": "v1.39.0",
+	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp": "v1.39.0",
+	"go.opentelemetry.io/otel/exporters/prometheus":                     "v0.61.0",
+	"go.opentelemetry.io/contrib/instrumentation/runtime":               "v0.63.0",
 	"google.golang.org/protobuf":                                        "v1.35.2",
-	"go.opentelemetry.io/otel/exporters/stdout/stdoutmetric":            "v1.35.0",
-	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace":             "v1.35.0",
-	"go.opentelemetry.io/otel/exporters/zipkin":                         "v1.35.0",
+	"go.opentelemetry.io/otel/exporters/stdout/stdoutmetric":            "v1.39.0",
+	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace":             "v1.39.0",
+	"go.opentelemetry.io/otel/exporters/zipkin":                         "v1.39.0",
 }
 
 func parseGoMod(gomod string) (*modfile.File, error) {

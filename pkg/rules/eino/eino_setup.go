@@ -20,9 +20,6 @@ import (
 	_ "unsafe"
 
 	"github.com/alibaba/loongsuite-go-agent/pkg/api"
-	"github.com/cloudwego/eino-ext/components/model/ark"
-	"github.com/cloudwego/eino-ext/components/model/claude"
-	"github.com/cloudwego/eino-ext/components/model/ollama"
 	"github.com/cloudwego/eino-ext/components/model/openai"
 	"github.com/cloudwego/eino-ext/components/model/qwen"
 	"github.com/cloudwego/eino/callbacks"
@@ -118,111 +115,6 @@ func openaiStreamOnEnter(call api.CallContext, cm *openai.ChatModel, ctx context
 	call.SetParam(1, ctx)
 }
 
-//go:linkname ollamaGenerateOnEnter github.com/cloudwego/eino-ext/components/model/ollama.ollamaGenerateOnEnter
-func ollamaGenerateOnEnter(call api.CallContext, cm *ollama.ChatModel, ctx context.Context, input []*schema.Message, opts ...model.Option) {
-	if !einoEnabler.Enable() {
-		return
-	}
-	config := ChatModelConfig{}
-
-	conf := reflect.ValueOf(*cm).FieldByName("config")
-	if conf.IsValid() && !conf.IsNil() {
-		if conf.Elem().FieldByName("BaseURL").IsValid() {
-			config.BaseURL = conf.Elem().FieldByName("BaseURL").String()
-		}
-	}
-	handler := utilscallbacks.NewHandlerHelper().ChatModel(einoModelCallHandler(config)).Handler()
-	info := &callbacks.RunInfo{
-		Name:      "Ollama Generate",
-		Type:      "Ollama",
-		Component: components.ComponentOfChatModel,
-	}
-	ctx = callbacks.InitCallbacks(ctx, info, handler)
-
-	call.SetParam(1, ctx)
-}
-
-//go:linkname ollamaStreamOnEnter github.com/cloudwego/eino-ext/components/model/ollama.ollamaStreamOnEnter
-func ollamaStreamOnEnter(call api.CallContext, cm *ollama.ChatModel, ctx context.Context, input []*schema.Message, opts ...model.Option) {
-	if !einoEnabler.Enable() {
-		return
-	}
-	config := ChatModelConfig{}
-
-	conf := reflect.ValueOf(*cm).FieldByName("config")
-	if conf.IsValid() && !conf.IsNil() {
-		if conf.Elem().FieldByName("BaseURL").IsValid() {
-			config.BaseURL = conf.Elem().FieldByName("BaseURL").String()
-		}
-	}
-
-	handler := utilscallbacks.NewHandlerHelper().ChatModel(einoModelCallHandler(config)).Handler()
-	info := &callbacks.RunInfo{
-		Name:      "Ollama Stream",
-		Type:      "Ollama",
-		Component: components.ComponentOfChatModel,
-	}
-	ctx = callbacks.InitCallbacks(ctx, info, handler)
-
-	call.SetParam(1, ctx)
-}
-
-//go:linkname arkGenerateOnEnter github.com/cloudwego/eino-ext/components/model/ark.arkGenerateOnEnter
-func arkGenerateOnEnter(call api.CallContext, cm *ark.ChatModel, ctx context.Context, input []*schema.Message, opts ...model.Option) {
-	if !einoEnabler.Enable() {
-		return
-	}
-	config := ChatModelConfig{}
-
-	chatModel := reflect.ValueOf(*cm).FieldByName("chatModel")
-	if chatModel.IsValid() && !chatModel.IsNil() {
-		if chatModel.Elem().FieldByName("frequencyPenalty").IsValid() && !chatModel.Elem().FieldByName("frequencyPenalty").IsNil() {
-			config.FrequencyPenalty = chatModel.Elem().FieldByName("frequencyPenalty").Elem().Float()
-		}
-		if chatModel.Elem().FieldByName("presencePenalty").IsValid() && !chatModel.Elem().FieldByName("presencePenalty").IsNil() {
-			config.PresencePenalty = chatModel.Elem().FieldByName("presencePenalty").Elem().Float()
-		}
-	}
-
-	handler := utilscallbacks.NewHandlerHelper().ChatModel(einoModelCallHandler(config)).Handler()
-	info := &callbacks.RunInfo{
-		Name:      "Ark Generate",
-		Type:      "Ark",
-		Component: components.ComponentOfChatModel,
-	}
-	ctx = callbacks.InitCallbacks(ctx, info, handler)
-
-	call.SetParam(1, ctx)
-}
-
-//go:linkname arkStreamOnEnter github.com/cloudwego/eino-ext/components/model/ark.arkStreamOnEnter
-func arkStreamOnEnter(call api.CallContext, cm *ark.ChatModel, ctx context.Context, in []*schema.Message, opts ...model.Option) {
-	if !einoEnabler.Enable() {
-		return
-	}
-	config := ChatModelConfig{}
-
-	chatModel := reflect.ValueOf(*cm).FieldByName("chatModel")
-	if chatModel.IsValid() && !chatModel.IsNil() {
-		if chatModel.Elem().FieldByName("frequencyPenalty").IsValid() && !chatModel.Elem().FieldByName("frequencyPenalty").IsNil() {
-			config.FrequencyPenalty = chatModel.Elem().FieldByName("frequencyPenalty").Elem().Float()
-		}
-		if chatModel.Elem().FieldByName("presencePenalty").IsValid() && !chatModel.Elem().FieldByName("presencePenalty").IsNil() {
-			config.PresencePenalty = chatModel.Elem().FieldByName("presencePenalty").Elem().Float()
-		}
-	}
-
-	handler := utilscallbacks.NewHandlerHelper().ChatModel(einoModelCallHandler(config)).Handler()
-	info := &callbacks.RunInfo{
-		Name:      "Ark Stream",
-		Type:      "Ark",
-		Component: components.ComponentOfChatModel,
-	}
-	ctx = callbacks.InitCallbacks(ctx, info, handler)
-
-	call.SetParam(1, ctx)
-}
-
 //go:linkname qwenGenerateOnEnter github.com/cloudwego/eino-ext/components/model/qwen.qwenGenerateOnEnter
 func qwenGenerateOnEnter(call api.CallContext, cm *qwen.ChatModel, ctx context.Context, in []*schema.Message, opts ...model.Option) {
 	if !einoEnabler.Enable() {
@@ -290,52 +182,6 @@ func qwenStreamOnEnter(call api.CallContext, cm *qwen.ChatModel, ctx context.Con
 	info := &callbacks.RunInfo{
 		Name:      "Qwen Stream",
 		Type:      "Qwen",
-		Component: components.ComponentOfChatModel,
-	}
-	ctx = callbacks.InitCallbacks(ctx, info, handler)
-
-	call.SetParam(1, ctx)
-}
-
-//go:linkname claudeGenerateOnEnter github.com/cloudwego/eino-ext/components/model/claude.claudeGenerateOnEnter
-func claudeGenerateOnEnter(call api.CallContext, cm *claude.ChatModel, ctx context.Context, input []*schema.Message, opts ...model.Option) {
-	if !einoEnabler.Enable() {
-		return
-	}
-	config := ChatModelConfig{}
-
-	topK := reflect.ValueOf(*cm).FieldByName("topK")
-	if topK.IsValid() && !topK.IsNil() {
-		config.TopK = topK.Elem().Float()
-	}
-
-	handler := utilscallbacks.NewHandlerHelper().ChatModel(einoModelCallHandler(config)).Handler()
-	info := &callbacks.RunInfo{
-		Name:      "Claude Generate",
-		Type:      "Claude",
-		Component: components.ComponentOfChatModel,
-	}
-	ctx = callbacks.InitCallbacks(ctx, info, handler)
-
-	call.SetParam(1, ctx)
-}
-
-//go:linkname claudeStreamOnEnter github.com/cloudwego/eino-ext/components/model/claude.claudeStreamOnEnter
-func claudeStreamOnEnter(call api.CallContext, cm *claude.ChatModel, ctx context.Context, in []*schema.Message, opts ...model.Option) {
-	if !einoEnabler.Enable() {
-		return
-	}
-	config := ChatModelConfig{}
-
-	topK := reflect.ValueOf(*cm).FieldByName("topK")
-	if topK.IsValid() && !topK.IsNil() {
-		config.TopK = topK.Elem().Float()
-	}
-
-	handler := utilscallbacks.NewHandlerHelper().ChatModel(einoModelCallHandler(config)).Handler()
-	info := &callbacks.RunInfo{
-		Name:      "Claude Stream",
-		Type:      "Claude",
 		Component: components.ComponentOfChatModel,
 	}
 	ctx = callbacks.InitCallbacks(ctx, info, handler)

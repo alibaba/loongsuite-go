@@ -179,7 +179,6 @@ func (rp *RuleProcessor) findSourceFile(rset *rules.InstRuleSet, file string) st
 
 func (rp *RuleProcessor) instrument(rset *rules.InstRuleSet) (err error) {
 	hasFuncRule := false
-
 	// Apply file rules first because they can introduce new files that used
 	// by other rules such as raw rules
 	for _, rule := range rset.FileRules {
@@ -188,18 +187,14 @@ func (rp *RuleProcessor) instrument(rset *rules.InstRuleSet) (err error) {
 			return err
 		}
 	}
-
 	for file, rs := range groupRules(rset) {
 		// Group rules by file, then parse the target file once
 		util.Assert(filepath.IsAbs(file), "file path must be absolute")
 		file = rp.findSourceFile(rset, file)
-
-		// Parse the AST and apply rules
 		root, err := rp.parseAst(file)
 		if err != nil {
 			return err
 		}
-
 		// Apply the rules to the target file
 		rp.trampolineJumps = make([]*TJump, 0)
 		for _, r := range rs {

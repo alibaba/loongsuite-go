@@ -16,8 +16,6 @@ package instrument
 
 import (
 	"fmt"
-	"go/scanner"
-	"go/token"
 	"os"
 	"path/filepath"
 	"strings"
@@ -63,8 +61,6 @@ type RuleProcessor struct {
 	callCtxDecl *dst.GenDecl
 	// The methods of the call context
 	callCtxMethods []*dst.FuncDecl
-	// Map of target identifiers to check for during pre-filtering
-	targetIdentifiers map[string]bool
 }
 
 func (rp *RuleProcessor) addDecl(decl dst.Decl) {
@@ -181,77 +177,8 @@ func (rp *RuleProcessor) findSourceFile(rset *rules.InstRuleSet, file string) st
 	return file
 }
 
-// precomputeTargetIdentifiers precomputes the target identifiers for all rules in the rule set
-func (rp *RuleProcessor) precomputeTargetIdentifiers(rset *rules.InstRuleSet) {
-	rp.targetIdentifiers = make(map[string]bool)
-
-	// Process FuncRules
-	for _, rules := range rset.FuncRules {
-		for _, rule := range rules {
-			// Add function name as a target identifier
-			rp.targetIdentifiers[rule.Function] = true
-			// Add receiver type if present
-			if rule.ReceiverType != "" {
-				rp.targetIdentifiers[rule.ReceiverType] = true
-			}
-		}
-	}
-
-	// Process StructRules
-	for _, rules := range rset.StructRules {
-		for _, rule := range rules {
-			// Add struct type as a target identifier
-			rp.targetIdentifiers[rule.StructType] = true
-		}
-	}
-}
-
-// hasTargetIdentifiers performs a quick pre-filtering scan to check if the file contains any target identifiers
-func (rp *RuleProcessor) hasTargetIdentifiers(filePath string) (bool, error) {
-	// First try with go/scanner.Scanner for token-level scanning
-	fset := token.NewFileSet()
-
-	// Read the file content
-	src, err := os.ReadFile(filePath)
-	if err != nil {
-		return false, err
-	}
-
-	// Add file to fset and initialize scanner
-	file := fset.AddFile(filePath, fset.Base(), len(src))
-	var scan scanner.Scanner
-	scan.Init(file, src, nil, scanner.ScanComments)
-
-	for {
-		_, tok, lit := scan.Scan()
-		if tok == token.EOF {
-			break
-		}
-
-		// Check if the token is an identifier and matches our targets
-		if tok == token.IDENT {
-			if _, exists := rp.targetIdentifiers[lit]; exists {
-				return true, nil
-			}
-		}
-	}
-
-	// If scanner didn't find anything, do a simple string search as fallback
-	contentStr := string(src)
-	for identifier := range rp.targetIdentifiers {
-		if strings.Contains(contentStr, identifier) {
-			return true, nil
-		}
-	}
-
-	return false, nil
-}
-
 func (rp *RuleProcessor) instrument(rset *rules.InstRuleSet) (err error) {
 	hasFuncRule := false
-
-	// Precompute target identifiers for pre-filtering
-	rp.precomputeTargetIdentifiers(rset)
 
 	// Apply file rules first because they can introduce new files that used
 	// by other rules such as raw rules
@@ -267,20 +194,7 @@ func (rp *RuleProcessor) instrument(rset *rules.InstRuleSet) (err error) {
 		util.Assert(filepath.IsAbs(file), "file path must be absolute")
 		file = rp.findSourceFile(rset, file)
 
-		// Pre-filter: check if the file contains any target identifiers
-		containsTarget, err := rp.hasTargetIdentifiers(file)
-		if err != nil {
-			util.Log("Error pre-filtering file %s: %v", file, err)
-			// Continue with full parsing as fallback
-			containsTarget = true
-		}
-
-		if !containsTarget {
-			util.Log("Skipping file %s - no target identifiers found", file)
-			continue
-		}
-
-		// File passed pre-filtering, now parse the AST and apply rules
+		// Parse the AST and apply rules
 		root, err := rp.parseAst(file)
 		if err != nil {
 			return err

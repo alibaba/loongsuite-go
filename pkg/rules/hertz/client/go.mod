@@ -1,8 +1,6 @@
 module github.com/alibaba/loongsuite-go-agent/pkg/rules/hertz/client
 
-go 1.24.0
-
-
+go 1.24
 
 replace github.com/alibaba/loongsuite-go-agent/pkg => ../../../../pkg
 
@@ -14,11 +12,11 @@ require (
 )
 
 require (
-	github.com/bytedance/gopkg v0.1.2 // indirect
-	github.com/bytedance/sonic v1.13.2 // indirect
-	github.com/bytedance/sonic/loader v0.2.4 // indirect
+	github.com/bytedance/gopkg v0.1.3 // indirect
+	github.com/bytedance/sonic v1.14.1 // indirect
+	github.com/bytedance/sonic/loader v0.3.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
-	github.com/cloudwego/base64x v0.1.5 // indirect
+	github.com/cloudwego/base64x v0.1.6 // indirect
 	github.com/cloudwego/gopkg v0.1.4 // indirect
 	github.com/cloudwego/netpoll v0.7.0 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect

@@ -1,14 +1,12 @@
 module github.com/alibaba/loongsuite-go-agent/pkg/rules/eino
 
-go 1.24.0
-
-
+go 1.24
 
 replace github.com/alibaba/loongsuite-go-agent/pkg => ../../../pkg
 
 require (
 	github.com/alibaba/loongsuite-go-agent/pkg v0.0.0-20250707083332-bbadcb2d53b5
-	github.com/bytedance/sonic v1.13.2
+	github.com/bytedance/sonic v1.14.1
 	github.com/cloudwego/eino v0.3.51
 	github.com/cloudwego/eino-ext/components/model/ark v0.1.16
 	github.com/cloudwego/eino-ext/components/model/claude v0.1.1
@@ -35,9 +33,10 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.28.10 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.33.9 // indirect
 	github.com/aws/smithy-go v1.22.1 // indirect
-	github.com/bytedance/sonic/loader v0.2.4 // indirect
+	github.com/bytedance/gopkg v0.1.3 // indirect
+	github.com/bytedance/sonic/loader v0.3.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
-	github.com/cloudwego/base64x v0.1.5 // indirect
+	github.com/cloudwego/base64x v0.1.6 // indirect
 	github.com/cloudwego/eino-ext/libs/acl/openai v0.0.0-20250626133421-3c142631c961 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/evanphx/json-patch v0.5.2 // indirect

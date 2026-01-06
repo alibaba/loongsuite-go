@@ -35,13 +35,13 @@ func init() {
 		NewGeneralTestCase("eino-document-test", eino_module_name, "v0.3.51", "", "1.24", "", TestDocumentEino),
 		NewGeneralTestCase("test-invoke-chatmodel-metrics", eino_module_name, "v0.3.51", "", "1.24", "", TestInvokeChatModelMetrics),
 		NewGeneralTestCase("test-stream-chatmodel-metrics", eino_module_name, "v0.3.51", "", "1.24", "", TestStreamChatModelMetrics),
-		NewLatestDepthTestCase("eino-latest-depth-test", eino_dependency_name, eino_module_name, "v0.3.51", "", "1.24", "", TestOpenAIInvokeEino),
-		NewMuzzleTestCase("eino-muzzle-test-react-agent", eino_dependency_name, eino_module_name, "v0.3.51", "", "1.24", "", []string{"go", "build", "test_react_agent.go", "eino_common.go"}),
-		NewMuzzleTestCase("eino-muzzle-test-openai-invoke", eino_dependency_name, eino_module_name, "v0.3.51", "", "1.24", "", []string{"go", "build", "test_openai_invoke_chatmodel.go", "eino_common.go"}),
-		NewMuzzleTestCase("eino-muzzle-test-openai-stream", eino_dependency_name, eino_module_name, "v0.3.51", "", "1.24", "", []string{"go", "build", "test_openai_stream_chatmodel.go", "eino_common.go"}),
-		NewMuzzleTestCase("eino-muzzle-test-ollama-invoke", eino_dependency_name, eino_module_name, "v0.3.51", "", "1.24", "", []string{"go", "build", "test_ollama_invoke_chatmodel.go", "eino_common.go"}),
-		NewMuzzleTestCase("eino-muzzle-test-ollama-stream", eino_dependency_name, eino_module_name, "v0.3.51", "", "1.24", "", []string{"go", "build", "test_ollama_stream_chatmodel.go", "eino_common.go"}),
-		NewMuzzleTestCase("eino-muzzle-test-document-test", eino_dependency_name, eino_module_name, "v0.3.51", "", "1.24", "", []string{"go", "build", "test_document_graph.go", "eino_common.go"}),
+		NewLatestDepthTestCase("eino-latest-depth-test", eino_dependency_name, eino_module_name, "v0.3.51", "v0.7.0", "1.24", "", TestOpenAIInvokeEino),
+		NewMuzzleTestCase("eino-muzzle-test-react-agent", eino_dependency_name, eino_module_name, "v0.3.51", "v0.7.0", "1.24", "", []string{"go", "build", "test_react_agent.go", "eino_common.go"}),
+		NewMuzzleTestCase("eino-muzzle-test-openai-invoke", eino_dependency_name, eino_module_name, "v0.3.51", "v0.7.0", "1.24", "", []string{"go", "build", "test_openai_invoke_chatmodel.go", "eino_common.go"}),
+		NewMuzzleTestCase("eino-muzzle-test-openai-stream", eino_dependency_name, eino_module_name, "v0.3.51", "v0.7.0", "1.24", "", []string{"go", "build", "test_openai_stream_chatmodel.go", "eino_common.go"}),
+		NewMuzzleTestCase("eino-muzzle-test-ollama-invoke", eino_dependency_name, eino_module_name, "v0.3.51", "v0.7.0", "1.24", "", []string{"go", "build", "test_ollama_invoke_chatmodel.go", "eino_common.go"}),
+		NewMuzzleTestCase("eino-muzzle-test-ollama-stream", eino_dependency_name, eino_module_name, "v0.3.51", "v0.7.0", "1.24", "", []string{"go", "build", "test_ollama_stream_chatmodel.go", "eino_common.go"}),
+		NewMuzzleTestCase("eino-muzzle-test-document-test", eino_dependency_name, eino_module_name, "v0.3.51", "v0.7.0", "1.24", "", []string{"go", "build", "test_document_graph.go", "eino_common.go"}),
 	)
 }
 

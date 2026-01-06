@@ -56,7 +56,10 @@ func InitTracerProvider() (*trace.TracerProvider, *tracetest.InMemoryExporter) {
 	exporter := tracetest.NewInMemoryExporter()
 
 	tp := trace.NewTracerProvider(
-		trace.WithSpanProcessor(trace.NewBatchSpanProcessor(exporter)),
+		trace.WithBatcher(exporter,
+			trace.WithBatchTimeout(100*time.Millisecond), // 快速批处理
+			trace.WithMaxExportBatchSize(10),
+		),
 		trace.WithSampler(trace.AlwaysSample()),
 	)
 	otel.SetTracerProvider(tp)
@@ -66,6 +69,8 @@ func InitTracerProvider() (*trace.TracerProvider, *tracetest.InMemoryExporter) {
 	tracer = tp.Tracer("mochi-mqtt-test")
 
 	log.Println("TracerProvider initialized successfully")
+	log.Printf("DEBUG: Using BatchSpanProcessor with exporter: %p", exporter)
+
 	return tp, exporter
 }
 
@@ -109,7 +114,7 @@ func getClientID() string {
 }
 
 // initMQTTServer creates and starts a new Mochi MQTT server
-func initMQTTServer() *mqtt.Server {
+func initMQTTServer(tp *trace.TracerProvider) *mqtt.Server {
 	// Create new MQTT server instance
 	server := mqtt.New(&mqtt.Options{
 		InlineClient: true, // Enable inline client for testing
@@ -121,7 +126,10 @@ func initMQTTServer() *mqtt.Server {
 	}
 
 	// Add tracing hook
-	tracingHook := &TracingHook{}
+	tracingHook := &TracingHook{
+		tp:     tp,
+		tracer: tp.Tracer("mochi-mqtt-test"),
+	}
 	if err := server.AddHook(tracingHook, nil); err != nil {
 		log.Fatalf("Failed to add tracing hook: %v", err)
 	}
@@ -172,6 +180,8 @@ func stopMQTTServer(server *mqtt.Server) {
 // TracingHook implements OpenTelemetry tracing for MQTT operations
 type TracingHook struct {
 	mqtt.HookBase
+	tp     *trace.TracerProvider
+	tracer oteltrace.Tracer
 }
 
 func (h *TracingHook) ID() string {
@@ -183,13 +193,10 @@ func (h *TracingHook) Provides(b byte) bool {
 }
 
 func (h *TracingHook) OnPublish(cl *mqtt.Client, pk packets.Packet) (packets.Packet, error) {
-	log.Printf("DEBUG: OnPublish called for topic: %s", pk.TopicName)
 	ctx := context.Background()
 
-	tr := otel.GetTracerProvider().Tracer("mochi-mqtt-test")
-
 	// Create publish span
-	ctx, span := tr.Start(ctx, pk.TopicName+" publish",
+	ctx, span := h.tracer.Start(ctx, pk.TopicName+" publish",
 		oteltrace.WithSpanKind(oteltrace.SpanKindProducer),
 		oteltrace.WithAttributes(
 			attribute.String("messaging.system", "mqtt"),
@@ -199,8 +206,9 @@ func (h *TracingHook) OnPublish(cl *mqtt.Client, pk packets.Packet) (packets.Pac
 			attribute.Int("messaging.message.body.size", len(pk.Payload)),
 		),
 	)
-	defer span.End()
-	// Store context in packet for later use
+
+	log.Printf("DEBUG: Span created in OnPublish: %s", span.SpanContext().SpanID())
+
 	pk.Properties.User = append(pk.Properties.User, packets.UserProperty{
 		Key: "otel-trace-id",
 		Val: span.SpanContext().TraceID().String(),
@@ -208,17 +216,15 @@ func (h *TracingHook) OnPublish(cl *mqtt.Client, pk packets.Packet) (packets.Pac
 
 	span.End()
 
+	log.Printf("DEBUG: Span ended in OnPublish")
+
 	return pk, nil
 }
 
 func (h *TracingHook) OnPublished(cl *mqtt.Client, pk packets.Packet) {
-	log.Printf("DEBUG: OnPublish called for topic: %s", pk.TopicName)
 	ctx := context.Background()
 
-	tr := otel.GetTracerProvider().Tracer("mochi-mqtt-test")
-
-	// Create receive/process span
-	_, span := tr.Start(ctx, pk.TopicName+" process",
+	_, span := h.tracer.Start(ctx, pk.TopicName+" process",
 		oteltrace.WithSpanKind(oteltrace.SpanKindConsumer),
 		oteltrace.WithAttributes(
 			attribute.String("messaging.system", "mqtt"),
@@ -229,7 +235,11 @@ func (h *TracingHook) OnPublished(cl *mqtt.Client, pk packets.Packet) {
 		),
 	)
 
+	log.Printf("DEBUG: Span created in OnPublished: %s", span.SpanContext().SpanID())
+
 	span.End()
+
+	log.Printf("DEBUG: Span ended in OnPublished")
 }
 
 // MQTTConfig holds MQTT client configuration

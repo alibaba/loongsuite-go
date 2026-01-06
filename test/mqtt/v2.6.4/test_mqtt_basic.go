@@ -16,7 +16,6 @@ package main
 
 import (
 	"context"
-	"go.opentelemetry.io/otel"
 	"log"
 	"time"
 
@@ -40,10 +39,7 @@ var (
 func main() {
 	// Initialize TracerProvider first
 	tp, exporter := InitTracerProvider()
-	log.Printf("DEBUG: TracerProvider set: %v", otel.GetTracerProvider() != nil)
-	log.Printf("DEBUG: TracerProvider type: %T", otel.GetTracerProvider())
 	defer func() {
-		// Force flush before shutdown
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 		log.Println("Shutting down tracer provider...")
@@ -52,8 +48,7 @@ func main() {
 		}
 	}()
 
-	// Initialize MQTT server
-	server := initMQTTServer()
+	server := initMQTTServer(tp)
 	defer stopMQTTServer(server)
 
 	// Subscribe to topic with callback

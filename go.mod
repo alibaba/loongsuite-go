@@ -2,8 +2,6 @@ module github.com/alibaba/loongsuite-go-agent
 
 go 1.24.0
 
-toolchain go1.24.11
-
 require (
 	github.com/dave/dst v0.27.3
 	github.com/docker/docker v28.2.2+incompatible

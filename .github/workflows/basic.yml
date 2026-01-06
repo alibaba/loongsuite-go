@@ -33,8 +33,8 @@ jobs:
       # If you want to matrix build , you can append the following list.
       matrix:
         go_version:
-          - 1.23
           - 1.24
+          - 1.25
         os:
           - ubuntu-latest
           - windows-latest

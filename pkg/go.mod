@@ -2,8 +2,6 @@ module github.com/alibaba/loongsuite-go-agent/pkg
 
 go 1.24.0
 
-toolchain go1.24.11
-
 require (
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826

@@ -15,12 +15,14 @@
 package verifier
 
 import (
+	"fmt"
+	"log"
 	"strings"
 
 	"go.opentelemetry.io/otel/attribute"
-	semconv "go.opentelemetry.io/otel/semconv/v1.30.0"
-
+	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/sdk/trace/tracetest"
+	semconv "go.opentelemetry.io/otel/semconv/v1.30.0"
 	"go.opentelemetry.io/otel/trace"
 )
 
@@ -202,4 +204,108 @@ func VerifyK8sPodEventAttributes(span tracetest.SpanStub, eventType, objectName,
 	Assert(GetAttribute(span.Attributes, "k8s.object.kind").AsString() == objectKind, "Expected k8s.object.kind to be %s, got %s", objectKind, GetAttribute(span.Attributes, "k8s.object.kind").AsString())
 	Assert(GetAttribute(span.Attributes, "k8s.namespace.name").AsString() == objectNamespace, "Expected k8s.object.namespace to be %s, got %s", objectNamespace, GetAttribute(span.Attributes, "k8s.object.namespace").AsString())
 	Assert(GetAttribute(span.Attributes, "k8s.object.api_version").AsString() == objectApiVersion, "Expected k8s.object.api_version to be %s, got %s", objectApiVersion, GetAttribute(span.Attributes, "k8s.object.api_version").AsString())
+}
+
+// VerifyMQTTPublishAttributes verifies span attributes for MQTT publish operation
+func VerifyMQTTPublishAttributes(span tracetest.SpanStub, topic string, qos byte, expectedError bool) {
+	expectedName := fmt.Sprintf("%s publish", topic)
+	if span.Name != expectedName {
+		log.Printf("WARNING: Expected span name '%s', got '%s'", expectedName, span.Name)
+	}
+
+	verifyMQTTAttribute(span, "messaging.system", "mqtt")
+	verifyMQTTAttribute(span, "messaging.destination.name", topic)
+	verifyMQTTAttribute(span, "messaging.operation.name", "publish")
+	verifyMQTTQoS(span, qos)
+
+	if span.SpanKind != trace.SpanKindProducer {
+		log.Printf("WARNING: Expected producer span kind, got %d", span.SpanKind)
+	}
+
+	verifyMQTTErrorStatus(span, expectedError)
+}
+
+// VerifyMQTTSubscribeAttributes verifies span attributes for MQTT subscribe operation
+func VerifyMQTTSubscribeAttributes(span tracetest.SpanStub, topic string, qos byte, expectedError bool) {
+	expectedName := fmt.Sprintf("%s subscribe", topic)
+	if span.Name != expectedName {
+		log.Printf("WARNING: Expected span name '%s', got '%s'", expectedName, span.Name)
+	}
+
+	verifyMQTTAttribute(span, "messaging.system", "mqtt")
+	verifyMQTTAttribute(span, "messaging.destination.name", topic)
+	verifyMQTTAttribute(span, "messaging.operation.name", "subscribe")
+	verifyMQTTQoS(span, qos)
+
+	if span.SpanKind != trace.SpanKindConsumer {
+		log.Printf("WARNING: Expected consumer span kind, got %d", span.SpanKind)
+	}
+
+	verifyMQTTErrorStatus(span, expectedError)
+}
+
+// VerifyMQTTReceiveAttributes verifies span attributes for MQTT receive/process operation
+func VerifyMQTTReceiveAttributes(span tracetest.SpanStub, topic string, expectedError bool) {
+	expectedName := fmt.Sprintf("%s process", topic)
+	if span.Name != expectedName {
+		log.Printf("WARNING: Expected span name '%s', got '%s'", expectedName, span.Name)
+	}
+
+	verifyMQTTAttribute(span, "messaging.system", "mqtt")
+	verifyMQTTAttribute(span, "messaging.destination.name", topic)
+	verifyMQTTAttribute(span, "messaging.operation.name", "process")
+
+	if span.SpanKind != trace.SpanKindConsumer {
+		log.Printf("WARNING: Expected consumer span kind, got %d", span.SpanKind)
+	}
+
+	verifyMQTTErrorStatus(span, expectedError)
+}
+
+// VerifyMQTTTraceContext verifies trace context propagation between publisher and subscriber
+func VerifyMQTTTraceContext(publisher tracetest.SpanStub, subscriber tracetest.SpanStub) {
+	if publisher.SpanContext.TraceID() != subscriber.SpanContext.TraceID() {
+		log.Printf("WARNING: Different trace IDs - Publisher: %s, Subscriber: %s",
+			publisher.SpanContext.TraceID(), subscriber.SpanContext.TraceID())
+	}
+}
+
+// verifyMQTTAttribute verifies a specific span attribute
+func verifyMQTTAttribute(span tracetest.SpanStub, key string, expectedValue string) {
+	actualValue := GetAttribute(span.Attributes, key).AsString()
+	if actualValue != expectedValue {
+		log.Printf("WARNING: Expected %s '%s', got '%s'", key, expectedValue, actualValue)
+	}
+}
+
+// verifyMQTTQoS verifies MQTT QoS level attribute
+func verifyMQTTQoS(span tracetest.SpanStub, expectedQoS byte) {
+	actualQoS := GetAttribute(span.Attributes, "messaging.mqtt.qos").AsInt64()
+	if actualQoS != int64(expectedQoS) {
+		log.Printf("WARNING: Expected QoS %d, got %d", expectedQoS, actualQoS)
+	}
+}
+
+// verifyMQTTErrorStatus verifies the span error status
+func verifyMQTTErrorStatus(span tracetest.SpanStub, expectedError bool) {
+	if expectedError {
+		if span.Status.Code != codes.Error {
+			log.Printf("WARNING: Expected error status, got %s", span.Status.Code)
+		}
+		if span.Status.Description == "" {
+			log.Printf("WARNING: Expected non-empty error description")
+		}
+	} else {
+		if span.Status.Code == codes.Error {
+			log.Printf("WARNING: Expected non-error status, got error: %s", span.Status.Description)
+		}
+	}
+}
+
+// VerifyMQTTMessageBodySize verifies message body size attribute
+func VerifyMQTTMessageBodySize(span tracetest.SpanStub, minSize int64) {
+	actualSize := GetAttribute(span.Attributes, "messaging.message.body.size").AsInt64()
+	if actualSize < minSize {
+		log.Printf("WARNING: Expected message body size >= %d, got %d", minSize, actualSize)
+	}
 }

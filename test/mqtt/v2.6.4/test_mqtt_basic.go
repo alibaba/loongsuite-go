@@ -19,6 +19,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/alibaba/loongsuite-go-agent/test/verifier"
 	mqtt "github.com/mochi-mqtt/server/v2"
 	"github.com/mochi-mqtt/server/v2/packets"
 	"go.opentelemetry.io/otel/sdk/trace/tracetest"
@@ -133,11 +134,11 @@ func verifyBasicTraces(exporter *tracetest.InMemoryExporter) {
 	receiveSpan := spans[1]
 
 	// Verify publish and receive spans
-	VerifyMQTTPublishAttributes(publishSpan, testTopic, testQoSByte, false)
-	VerifyMQTTReceiveAttributes(receiveSpan, testTopic, false)
+	verifier.VerifyMQTTPublishAttributes(publishSpan, testTopic, testQoSByte, false)
+	verifier.VerifyMQTTReceiveAttributes(receiveSpan, testTopic, false)
 
 	// Verify trace context
-	VerifyMQTTTraceContext(publishSpan, receiveSpan)
+	verifier.VerifyMQTTTraceContext(publishSpan, receiveSpan)
 
 	log.Println("✓ Basic trace verification passed")
 }

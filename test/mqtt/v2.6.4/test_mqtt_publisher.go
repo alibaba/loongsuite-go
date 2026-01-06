@@ -19,6 +19,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/alibaba/loongsuite-go-agent/test/verifier"
 	mqtt "github.com/mochi-mqtt/server/v2"
 	"go.opentelemetry.io/otel/sdk/trace/tracetest"
 )
@@ -170,7 +171,7 @@ func verifyPublisherTraces(exporter *tracetest.InMemoryExporter, topic string, q
 
 	// Get the last span (most recent publish)
 	span := spans[len(spans)-1]
-	VerifyMQTTPublishAttributes(span, topic, qos, expectError)
+	verifier.VerifyMQTTPublishAttributes(span, topic, qos, expectError)
 
 	log.Printf("Publisher trace verification passed for topic: %s", topic)
 }

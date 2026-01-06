@@ -21,6 +21,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/alibaba/loongsuite-go-agent/test/verifier"
 	mqtt "github.com/mochi-mqtt/server/v2"
 	"github.com/mochi-mqtt/server/v2/packets"
 	"go.opentelemetry.io/otel/sdk/trace/tracetest"
@@ -133,11 +134,11 @@ func verifySubscriberTraces(exporter *tracetest.InMemoryExporter) {
 
 		// Check if this is a publish span
 		if publishSpan.Name == multiTestTopic+" publish" {
-			VerifyMQTTPublishAttributes(publishSpan, multiTestTopic, multiTestQoSByte, false)
+			verifier.VerifyMQTTPublishAttributes(publishSpan, multiTestTopic, multiTestQoSByte, false)
 
 			// Check if next span is the corresponding process span
 			if receiveSpan.Name == multiTestTopic+" process" {
-				VerifyMQTTReceiveAttributes(receiveSpan, multiTestTopic, false)
+				verifier.VerifyMQTTReceiveAttributes(receiveSpan, multiTestTopic, false)
 				verifiedCount++
 				log.Printf("✓ Message %d trace verification passed", verifiedCount)
 			}

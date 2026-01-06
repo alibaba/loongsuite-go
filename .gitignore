@@ -9,6 +9,7 @@ otelbuild
 otelbuild-*
 otel
 otel-*
+!pkg/rules/otel-*
 *.log
 .otel-build
 

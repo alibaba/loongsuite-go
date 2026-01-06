@@ -1,13 +1,11 @@
 [
   {
-    "Version": "[0.7.13,)",
     "ImportPath": "github.com/cloudwego/eino/compose",
     "Function": "newGraph",
     "OnEnter": "newGraphOnEnter",
     "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/eino"
   },
   {
-    "Version": "[0.7.13,)",
     "ImportPath": "github.com/cloudwego/eino-ext/components/model/openai",
     "Function": "Generate",
     "ReceiverType": "\\*ChatModel",
@@ -15,7 +13,6 @@
     "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/eino"
   },
   {
-    "Version": "[0.7.13,)",
     "ImportPath": "github.com/cloudwego/eino-ext/components/model/openai",
     "Function": "Stream",
     "ReceiverType": "\\*ChatModel",
@@ -23,7 +20,6 @@
     "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/eino"
   },
   {
-    "Version": "[0.7.13,)",
     "ImportPath": "github.com/cloudwego/eino-ext/components/model/ollama",
     "Function": "Generate",
     "ReceiverType": "\\*ChatModel",
@@ -31,7 +27,6 @@
     "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/eino"
   },
   {
-    "Version": "[0.7.13,)",
     "ImportPath": "github.com/cloudwego/eino-ext/components/model/ollama",
     "Function": "Stream",
     "ReceiverType": "\\*ChatModel",
@@ -39,7 +34,6 @@
     "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/eino"
   },
   {
-    "Version": "[0.7.13,)",
     "ImportPath": "github.com/cloudwego/eino-ext/components/model/ark",
     "Function": "Generate",
     "ReceiverType": "\\*ChatModel",
@@ -47,7 +41,6 @@
     "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/eino"
   },
   {
-    "Version": "[0.7.13,)",
     "ImportPath": "github.com/cloudwego/eino-ext/components/model/ark",
     "Function": "Stream",
     "ReceiverType": "\\*ChatModel",
@@ -55,7 +48,6 @@
     "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/eino"
   },
   {
-    "Version": "[0.7.13,)",
     "ImportPath": "github.com/cloudwego/eino-ext/components/model/qwen",
     "Function": "Generate",
     "ReceiverType": "\\*ChatModel",
@@ -63,7 +55,6 @@
     "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/eino"
   },
   {
-    "Version": "[0.7.0,)",
     "ImportPath": "github.com/cloudwego/eino-ext/components/model/qwen",
     "Function": "Stream",
     "ReceiverType": "\\*ChatModel",
@@ -71,7 +62,6 @@
     "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/eino"
   },
   {
-    "Version": "[0.7.13,)",
     "ImportPath": "github.com/cloudwego/eino-ext/components/model/claude",
     "Function": "Generate",
     "ReceiverType": "\\*ChatModel",
@@ -79,7 +69,6 @@
     "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/eino"
   },
   {
-    "Version": "[0.7.13,)",
     "ImportPath": "github.com/cloudwego/eino-ext/components/model/claude",
     "Function": "Stream",
     "ReceiverType": "\\*ChatModel",

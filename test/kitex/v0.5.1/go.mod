@@ -1,8 +1,6 @@
 module kitex/v0.5.1
 
-go 1.24.0
-
-
+go 1.24
 
 replace github.com/alibaba/loongsuite-go-agent => ../../../
 
@@ -19,7 +17,7 @@ require (
 	github.com/alibaba/loongsuite-go-agent/pkg v0.0.0-20251031085506-d38edbf99f97 // indirect
 	github.com/bytedance/gopkg v0.0.0-20240711085056-a03554c296f8 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
-	github.com/choleraehyq/pid v0.0.19 // indirect
+	github.com/choleraehyq/pid v0.0.21 // indirect
 	github.com/cloudwego/fastpb v0.0.4 // indirect
 	github.com/cloudwego/frugal v0.2.0 // indirect
 	github.com/cloudwego/gopkg v0.1.0 // indirect

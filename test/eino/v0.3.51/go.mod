@@ -1,6 +1,6 @@
 module eino
 
-go 1.24
+go 1.24.0
 
 replace github.com/alibaba/loongsuite-go-agent/test/verifier => ../../verifier
 
@@ -8,7 +8,7 @@ replace github.com/alibaba/loongsuite-go-agent => ../../..
 
 require (
 	github.com/alibaba/loongsuite-go-agent/test/verifier v0.0.0-00010101000000-000000000000
-	github.com/cloudwego/eino v0.7.0
+	github.com/cloudwego/eino v0.7.5
 	go.opentelemetry.io/otel/sdk v1.39.0
 	go.opentelemetry.io/otel/sdk/metric v1.39.0
 	go.opentelemetry.io/otel/trace v1.39.0
@@ -49,7 +49,7 @@ require (
 	github.com/cloudwego/eino-ext/libs/acl/openai v0.1.2 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
-	github.com/eino-contrib/jsonschema v1.0.2 // indirect
+	github.com/eino-contrib/jsonschema v1.0.3 // indirect
 	github.com/eino-contrib/ollama v0.1.0 // indirect
 	github.com/evanphx/json-patch v0.5.2 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect

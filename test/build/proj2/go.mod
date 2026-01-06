@@ -1,6 +1,6 @@
 module proj2
 
-go 1.22
+go 1.24
 
 require github.com/zeromicro/go-zero v1.7.2
 

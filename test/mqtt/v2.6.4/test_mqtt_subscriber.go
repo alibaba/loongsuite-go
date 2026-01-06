@@ -49,7 +49,7 @@ func main() {
 	}()
 
 	// Initialize MQTT server
-	server := initMQTTServer()
+	server := initMQTTServer(tp)
 	defer stopMQTTServer(server)
 
 	// Subscribe to topic

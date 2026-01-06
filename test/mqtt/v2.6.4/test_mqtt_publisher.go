@@ -42,7 +42,7 @@ func main() {
 	}()
 
 	// Initialize MQTT server
-	server := initMQTTServer()
+	server := initMQTTServer(tp)
 	defer stopMQTTServer(server)
 
 	// Define test cases

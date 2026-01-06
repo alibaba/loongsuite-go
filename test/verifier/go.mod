@@ -2,7 +2,7 @@ module github.com/alibaba/loongsuite-go-agent/test/verifier
 
 go 1.24.0
 
-toolchain go1.24.11
+
 
 require (
 	github.com/alibaba/loongsuite-go-agent/pkg v0.0.0-20251031085506-d38edbf99f97

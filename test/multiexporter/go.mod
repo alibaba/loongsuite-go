@@ -2,7 +2,7 @@ module multiexporter
 
 go 1.24.0
 
-toolchain go1.24.11
+
 
 require go.opentelemetry.io/otel v1.39.0
 

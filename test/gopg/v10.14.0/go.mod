@@ -2,7 +2,7 @@ module gopg/v10.0.0
 
 go 1.24.0
 
-toolchain go1.24.11
+
 
 replace github.com/alibaba/loongsuite-go-agent/test/verifier => ../../../../loongsuite-go-agent/test/verifier
 

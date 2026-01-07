@@ -2,8 +2,6 @@ module test/ollama
 
 go 1.24.0
 
-
-
 require (
 	github.com/alibaba/loongsuite-go-agent/test/verifier v0.0.0
 	github.com/ollama/ollama v0.3.14

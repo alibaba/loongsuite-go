@@ -2,8 +2,6 @@ module github.com/alibaba/loongsuite-go-agent/pkg/rules/nacos2_1_0/service_holde
 
 go 1.24.0
 
-
-
 replace github.com/alibaba/loongsuite-go-agent/pkg => ../../../../pkg
 
 require (

@@ -2,8 +2,6 @@ module test_temporality
 
 go 1.24.0
 
-
-
 require go.opentelemetry.io/otel v1.39.0
 
 require (

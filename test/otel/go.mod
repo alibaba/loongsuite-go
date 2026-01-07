@@ -2,8 +2,6 @@ module otel
 
 go 1.24.0
 
-
-
 replace github.com/alibaba/loongsuite-go-agent/test/verifier => ../../../loongsuite-go-agent/test/verifier
 
 replace github.com/alibaba/loongsuite-go-agent => ../../../loongsuite-go-agent

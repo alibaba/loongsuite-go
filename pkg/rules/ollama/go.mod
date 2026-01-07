@@ -2,8 +2,6 @@ module github.com/alibaba/loongsuite-go-agent/pkg/rules/ollama
 
 go 1.24.0
 
-
-
 require (
 	github.com/alibaba/loongsuite-go-agent/pkg v0.0.0
 	github.com/ollama/ollama v0.3.14

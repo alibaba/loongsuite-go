@@ -2,8 +2,6 @@ module mongo/v1.11.1
 
 go 1.24.0
 
-
-
 replace github.com/alibaba/loongsuite-go-agent/test/verifier => ../../../test/verifier
 
 replace github.com/alibaba/loongsuite-go-agent => ../../../

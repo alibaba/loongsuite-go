@@ -2,6 +2,13 @@ module github.com/alibaba/loongsuite-go-agent/pkg
 
 go 1.24.0
 
+// Exclude old monolithic google.golang.org/genproto versions that conflict
+// with the new split packages (googleapis/api and googleapis/rpc)
+// See: https://github.com/alibaba/loongsuite-go-agent/issues/627
+exclude google.golang.org/genproto v0.0.0-20230410155749-daa745c078e1
+
+exclude google.golang.org/genproto v0.0.0-20221118155620-16455021b5e6
+
 require (
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826
@@ -22,6 +29,8 @@ require (
 	go.opentelemetry.io/otel/sdk v1.39.0
 	go.opentelemetry.io/otel/sdk/metric v1.39.0
 	go.opentelemetry.io/otel/trace v1.39.0
+	google.golang.org/genproto/googleapis/api v0.0.0-20251202230838-ff82c1b0f217 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20251202230838-ff82c1b0f217 // indirect
 	google.golang.org/grpc v1.77.0 // indirect; FIXME: not minimal
 )
 
@@ -46,8 +55,6 @@ require (
 	golang.org/x/net v0.47.0 // indirect
 	golang.org/x/sys v0.39.0 // indirect
 	golang.org/x/text v0.31.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20251202230838-ff82c1b0f217 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20251202230838-ff82c1b0f217 // indirect
 	google.golang.org/protobuf v1.36.10 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

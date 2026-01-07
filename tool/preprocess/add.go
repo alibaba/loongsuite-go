@@ -90,6 +90,42 @@ func (dp *DepProcessor) addDependency(gomod string, dependencies []Dependency) e
 	return nil
 }
 
+func (dp *DepProcessor) addExcludes(gomod string, excludeVersions map[string][]string) error {
+	modfile, err := parseGoMod(gomod)
+	if err != nil {
+		return err
+	}
+	
+	changed := false
+	for modulePath, versions := range excludeVersions {
+		for _, version := range versions {
+			alreadyExcluded := false
+			for _, e := range modfile.Exclude {
+				if e.Mod.Path == modulePath && e.Mod.Version == version {
+					alreadyExcluded = true
+					break
+				}
+			}
+			if !alreadyExcluded {
+				err = modfile.AddExclude(modulePath, version)
+				if err != nil {
+					return ex.Wrap(err)
+				}
+				changed = true
+				util.Log("Add exclude %s %s", modulePath, version)
+			}
+		}
+	}
+	
+	if changed {
+		err = writeGoMod(gomod, modfile)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (dp *DepProcessor) findRuleDir(path string) (string, string, error) {
 	// The rule can be either a standard rule or a custom rule
 	// We should identify it and define how to find it
@@ -139,6 +175,40 @@ func (dp *DepProcessor) newDeps(bundles []*rules.InstRuleSet) error {
 		if err != nil {
 			return err
 		}
+
+		// Add explicit genproto split package dependencies to resolve ambiguous imports
+		// See: https://github.com/alibaba/loongsuite-go-agent/issues/627
+		genprotoDeps := []Dependency{
+			{
+				ImportPath: "google.golang.org/genproto/googleapis/api",
+				Version:    "v0.0.0-20251202230838-ff82c1b0f217",
+				Replace:    false,
+			},
+			{
+				ImportPath: "google.golang.org/genproto/googleapis/rpc",
+				Version:    "v0.0.0-20251202230838-ff82c1b0f217",
+				Replace:    false,
+			},
+		}
+		err = dp.addDependency(dp.getGoModPath(), genprotoDeps)
+		if err != nil {
+			return err
+		}
+
+		// Exclude old monolithic google.golang.org/genproto versions that conflict
+		// with the new split packages (googleapis/api and googleapis/rpc)
+		// See: https://github.com/alibaba/loongsuite-go-agent/issues/627
+		excludeVersions := map[string][]string{
+			"google.golang.org/genproto": {
+				"v0.0.0-20230410155749-daa745c078e1",
+				"v0.0.0-20221118155620-16455021b5e6",
+			},
+		}
+		err = dp.addExcludes(dp.getGoModPath(), excludeVersions)
+		if err != nil {
+			return err
+		}
+
 		return nil
 	}
 
@@ -198,5 +268,39 @@ func (dp *DepProcessor) newDeps(bundles []*rules.InstRuleSet) error {
 	if err != nil {
 		return err
 	}
+
+	// Add explicit genproto split package dependencies to resolve ambiguous imports
+	// See: https://github.com/alibaba/loongsuite-go-agent/issues/627
+	genprotoDeps := []Dependency{
+		{
+			ImportPath: "google.golang.org/genproto/googleapis/api",
+			Version:    "v0.0.0-20251202230838-ff82c1b0f217",
+			Replace:    false,
+		},
+		{
+			ImportPath: "google.golang.org/genproto/googleapis/rpc",
+			Version:    "v0.0.0-20251202230838-ff82c1b0f217",
+			Replace:    false,
+		},
+	}
+	err = dp.addDependency(dp.getGoModPath(), genprotoDeps)
+	if err != nil {
+		return err
+	}
+
+	// Exclude old monolithic google.golang.org/genproto versions that conflict
+	// with the new split packages (googleapis/api and googleapis/rpc)
+	// See: https://github.com/alibaba/loongsuite-go-agent/issues/627
+	excludeVersions := map[string][]string{
+		"google.golang.org/genproto": {
+			"v0.0.0-20230410155749-daa745c078e1",
+			"v0.0.0-20221118155620-16455021b5e6",
+		},
+	}
+	err = dp.addExcludes(dp.getGoModPath(), excludeVersions)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

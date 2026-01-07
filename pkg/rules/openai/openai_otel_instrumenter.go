@@ -16,7 +16,6 @@ package openai
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api-semconv/instrumenter/ai"
 	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/instrumenter"
@@ -194,12 +193,4 @@ func (a *AIMetricsRecorder) Start(ctx context.Context, request openaiRequest) co
 
 func (a *AIMetricsRecorder) End(ctx context.Context, request openaiRequest, response openaiResponse, err error) {
 	a.instrumenter.End(ctx, request, response, err)
-}
-
-// Helper function to create a formatted error message
-func formatOpenAIError(err error, operation string) string {
-	if err == nil {
-		return ""
-	}
-	return fmt.Sprintf("OpenAI %s error: %v", operation, err)
 }

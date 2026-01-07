@@ -126,7 +126,7 @@ func (dp *DepProcessor) addExcludes(gomod string, excludeVersions map[string][]s
 	if err != nil {
 		return err
 	}
-	
+
 	changed := false
 	for modulePath, versions := range excludeVersions {
 		for _, version := range versions {
@@ -147,7 +147,7 @@ func (dp *DepProcessor) addExcludes(gomod string, excludeVersions map[string][]s
 			}
 		}
 	}
-	
+
 	if changed {
 		err = writeGoMod(gomod, modfile)
 		if err != nil {

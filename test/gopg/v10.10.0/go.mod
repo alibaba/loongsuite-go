@@ -2,8 +2,6 @@ module gopg/v10.0.0
 
 go 1.24.0
 
-
-
 replace (
 	github.com/alibaba/loongsuite-go-agent/test/verifier => ../../../../loongsuite-go-agent/test/verifier
 	google.golang.org/genproto => google.golang.org/genproto v0.0.0-20250218202821-56aae31c358a

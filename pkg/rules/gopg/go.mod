@@ -2,8 +2,6 @@ module github.com/alibaba/loongsuite-go-agent/pkg/rules/gopg
 
 go 1.24.0
 
-
-
 replace (
 	github.com/alibaba/loongsuite-go-agent/pkg => ../../../pkg
 	google.golang.org/genproto => google.golang.org/genproto v0.0.0-20250218202821-56aae31c358a

@@ -2,8 +2,6 @@ module github.com/alibaba/loongsuite-go-agent/pkg/rules/mcp0_20_0
 
 go 1.24.0
 
-
-
 replace github.com/alibaba/loongsuite-go-agent/pkg => ../../../pkg
 
 require (

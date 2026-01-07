@@ -1,6 +1,8 @@
 module kitex/v0.5.1
 
-go 1.24
+go 1.24.0
+
+toolchain go1.24.11
 
 replace github.com/alibaba/loongsuite-go-agent => ../../../
 

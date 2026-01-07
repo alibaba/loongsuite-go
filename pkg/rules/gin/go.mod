@@ -1,6 +1,8 @@
 module github.com/alibaba/loongsuite-go-agent/pkg/rules/gin
 
-go 1.24
+go 1.24.0
+
+toolchain go1.24.11
 
 replace github.com/alibaba/loongsuite-go-agent/pkg => ../../../pkg
 

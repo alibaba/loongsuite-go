@@ -1,6 +1,8 @@
 module eino-demo
 
-go 1.23
+go 1.23.0
+
+toolchain go1.24.11
 
 require (
 	github.com/cloudwego/eino v0.4.7

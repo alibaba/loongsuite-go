@@ -20,7 +20,6 @@ import (
 
 	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api-semconv/instrumenter/ai"
 	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/instrumenter"
-	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/utils"
 	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/version"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/sdk/instrumentation"
@@ -171,12 +170,10 @@ func BuildOpenAIClientOtelInstrumenter() instrumenter.Instrumenter[openaiRequest
 			},
 		}).
 		SetInstrumentationScope(instrumentation.Scope{
-			Name:    utils.OPENAI_SCOPE_NAME,
+			Name:    "loongsuite.instrumentation.openai",
 			Version: version.Tag,
 		}).
-		AddOperationMetrics(ai.BuildOperationLatencyMetric()).
-		AddOperationMetrics(ai.BuildOperationDurationMetric()).
-		AddOperationMetrics(ai.BuildOpenAITokenMetric()).
+		AddOperationListeners(ai.AIClientMetrics("openai-client")).
 		BuildInstrumenter()
 }
 

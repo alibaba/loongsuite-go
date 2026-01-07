@@ -20,21 +20,29 @@ const openai_dependency_name = "github.com/sashabaranov/go-openai"
 const openai_module_name = "openai"
 
 func init() {
-	TestCases = append(TestCases,
-		NewGeneralTestCase("openai-community-chat-completion-test", openai_module_name, "community-sdk", "", "1.24", "", TestOpenAICommunitySDKChatCompletion),
-		NewGeneralTestCase("openai-community-chat-stream-test", openai_module_name, "community-sdk", "", "1.24", "", TestOpenAICommunitySDKChatStream),
-		NewMuzzleTestCase("openai-community-muzzle-test", openai_dependency_name, openai_module_name, "community-sdk", "", "1.24", "", []string{"go", "build", "test_chat_completion.go"}),
-	)
+	tc1 := NewGeneralTestCase("openai-community-chat-completion-test", openai_module_name, "v1.36.1", "", "1.22.0", "", TestOpenAICommunitySDKChatCompletion)
+	tc2 := NewGeneralTestCase("openai-community-chat-stream-test", openai_module_name, "v1.36.1", "", "1.22.0", "", TestOpenAICommunitySDKChatStream)
+	tc3 := NewMuzzleTestCase("openai-community-muzzle-test", openai_dependency_name, openai_module_name, "v1.36.1", "", "1.22.0", "", []string{"go", "build", "test_chat_completion.go"})
+	
+	if tc1 != nil {
+		TestCases = append(TestCases, tc1)
+	}
+	if tc2 != nil {
+		TestCases = append(TestCases, tc2)
+	}
+	if tc3 != nil {
+		TestCases = append(TestCases, tc3)
+	}
 }
 
 func TestOpenAICommunitySDKChatCompletion(t *testing.T, env ...string) {
-	UseApp("openai/community-sdk")
+	UseApp("openai/v1.36.1")
 	RunGoBuild(t, "go", "build", "test_chat_completion.go")
 	RunApp(t, "./test_chat_completion", env...)
 }
 
 func TestOpenAICommunitySDKChatStream(t *testing.T, env ...string) {
-	UseApp("openai/community-sdk")
+	UseApp("openai/v1.36.1")
 	RunGoBuild(t, "go", "build", "test_chat_completion_stream.go")
 	RunApp(t, "./test_chat_completion_stream", env...)
 }

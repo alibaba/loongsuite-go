@@ -1,0 +1,36 @@
+[
+  {
+    "Version": "[1.0.0,2.0.0)",
+    "ImportPath": "github.com/openai/openai-go/chat/completions",
+    "Function": "New",
+    "OnEnter": "officialNewChatCompletionOnEnter",
+    "OnExit": "officialNewChatCompletionOnExit",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/openai"
+  },
+  {
+    "Version": "[1.0.0,2.0.0)",
+    "ImportPath": "github.com/openai/openai-go/chat/completions",
+    "Function": "NewStreaming",
+    "OnEnter": "officialNewChatCompletionStreamOnEnter",
+    "OnExit": "officialNewChatCompletionStreamOnExit",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/openai"
+  },
+  {
+    "Version": "[1.0.0,2.0.0)",
+    "ImportPath": "github.com/sashabaranov/go-openai",
+    "ReceiverType": "\\*Client",
+    "Function": "CreateChatCompletion",
+    "OnEnter": "communityCreateChatCompletionOnEnter",
+    "OnExit": "communityCreateChatCompletionOnExit",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/openai"
+  },
+  {
+    "Version": "[1.0.0,2.0.0)",
+    "ImportPath": "github.com/sashabaranov/go-openai",
+    "ReceiverType": "\\*Client",
+    "Function": "CreateChatCompletionStream",
+    "OnEnter": "communityCreateChatCompletionStreamOnEnter",
+    "OnExit": "communityCreateChatCompletionStreamOnExit",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/openai"
+  }
+]

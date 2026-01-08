@@ -47,9 +47,13 @@ func communityCreateChatCompletionOnEnter(call api.CallContext, client interface
 		req.modelName = modelField.String()
 	}
 
-	// Extract temperature
-	if tempField := reqVal.FieldByName("Temperature"); tempField.IsValid() && tempField.Kind() == reflect.Float64 {
-		req.temperature = tempField.Float()
+	// Extract temperature (can be float32 or float64)
+	if tempField := reqVal.FieldByName("Temperature"); tempField.IsValid() {
+		if tempField.Kind() == reflect.Float64 {
+			req.temperature = tempField.Float()
+		} else if tempField.Kind() == reflect.Float32 {
+			req.temperature = float64(tempField.Float())
+		}
 	}
 
 	// Extract max_tokens
@@ -57,19 +61,31 @@ func communityCreateChatCompletionOnEnter(call api.CallContext, client interface
 		req.maxTokens = int64(maxTokensField.Int())
 	}
 
-	// Extract top_p
-	if topPField := reqVal.FieldByName("TopP"); topPField.IsValid() && topPField.Kind() == reflect.Float64 {
-		req.topP = topPField.Float()
+	// Extract top_p (can be float32 or float64)
+	if topPField := reqVal.FieldByName("TopP"); topPField.IsValid() {
+		if topPField.Kind() == reflect.Float64 {
+			req.topP = topPField.Float()
+		} else if topPField.Kind() == reflect.Float32 {
+			req.topP = float64(topPField.Float())
+		}
 	}
 
-	// Extract frequency_penalty
-	if freqField := reqVal.FieldByName("FrequencyPenalty"); freqField.IsValid() && freqField.Kind() == reflect.Float64 {
-		req.frequencyPenalty = freqField.Float()
+	// Extract frequency_penalty (can be float32 or float64)
+	if freqField := reqVal.FieldByName("FrequencyPenalty"); freqField.IsValid() {
+		if freqField.Kind() == reflect.Float64 {
+			req.frequencyPenalty = freqField.Float()
+		} else if freqField.Kind() == reflect.Float32 {
+			req.frequencyPenalty = float64(freqField.Float())
+		}
 	}
 
-	// Extract presence_penalty
-	if presField := reqVal.FieldByName("PresencePenalty"); presField.IsValid() && presField.Kind() == reflect.Float64 {
-		req.presencePenalty = presField.Float()
+	// Extract presence_penalty (can be float32 or float64)
+	if presField := reqVal.FieldByName("PresencePenalty"); presField.IsValid() {
+		if presField.Kind() == reflect.Float64 {
+			req.presencePenalty = presField.Float()
+		} else if presField.Kind() == reflect.Float32 {
+			req.presencePenalty = float64(presField.Float())
+		}
 	}
 
 	// Extract seed
@@ -159,6 +175,8 @@ func communityCreateChatCompletionOnExit(call api.CallContext, resp interface{},
 		if usageField := respVal.FieldByName("Usage"); usageField.IsValid() {
 			if promptTokensField := usageField.FieldByName("PromptTokens"); promptTokensField.IsValid() {
 				response.usageInputTokens = int64(promptTokensField.Int())
+				// Also update the request with input tokens for the instrumenter
+				request.inputTokens = response.usageInputTokens
 			}
 			if completionTokensField := usageField.FieldByName("CompletionTokens"); completionTokensField.IsValid() {
 				response.usageOutputTokens = int64(completionTokensField.Int())
@@ -215,8 +233,13 @@ func communityCreateChatCompletionStreamOnEnter(call api.CallContext, client int
 		req.modelName = modelField.String()
 	}
 
-	if tempField := reqVal.FieldByName("Temperature"); tempField.IsValid() && tempField.Kind() == reflect.Float64 {
-		req.temperature = tempField.Float()
+	// Extract temperature (can be float32 or float64)
+	if tempField := reqVal.FieldByName("Temperature"); tempField.IsValid() {
+		if tempField.Kind() == reflect.Float64 {
+			req.temperature = tempField.Float()
+		} else if tempField.Kind() == reflect.Float32 {
+			req.temperature = float64(tempField.Float())
+		}
 	}
 
 	if maxTokensField := reqVal.FieldByName("MaxTokens"); maxTokensField.IsValid() && maxTokensField.Kind() == reflect.Int {

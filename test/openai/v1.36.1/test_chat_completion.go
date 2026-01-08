@@ -83,7 +83,8 @@ func main() {
 		// Verify additional attributes
 		span := stubs[0][0]
 		temp := verifier.GetAttribute(span.Attributes, "gen_ai.request.temperature").AsFloat64()
-		verifier.Assert(temp == 0.7, "Expected temperature to be 0.7, got %f", temp)
+		// Use approximate comparison for float values due to float32 -> float64 conversion
+		verifier.Assert(temp > 0.69 && temp < 0.71, "Expected temperature to be approximately 0.7, got %f", temp)
 		
 		maxTokens := verifier.GetAttribute(span.Attributes, "gen_ai.request.max_tokens").AsInt64()
 		verifier.Assert(maxTokens == 100, "Expected max_tokens to be 100, got %d", maxTokens)

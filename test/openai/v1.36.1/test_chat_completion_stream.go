@@ -108,7 +108,8 @@ func main() {
 		
 		// Verify temperature
 		temp := verifier.GetAttribute(span.Attributes, "gen_ai.request.temperature").AsFloat64()
-		verifier.Assert(temp == 0.8, "Expected temperature to be 0.8, got %f", temp)
+		// Use approximate comparison for float values due to float32 -> float64 conversion
+		verifier.Assert(temp > 0.79 && temp < 0.81, "Expected temperature to be approximately 0.8, got %f", temp)
 		
 		// Verify message count
 		msgCount := verifier.GetAttribute(span.Attributes, "gen_ai.request.message_count").AsInt64()

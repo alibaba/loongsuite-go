@@ -1,36 +1,38 @@
 [
   {
-    "Version": "[1.0.0,2.0.0)",
-    "ImportPath": "github.com/openai/openai-go/chat/completions",
+    "Version": "[1.5.0,2.0.0)",
+    "ImportPath": "github.com/openai/openai-go",
     "Function": "New",
-    "OnEnter": "officialNewChatCompletionOnEnter",
-    "OnExit": "officialNewChatCompletionOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/openai"
+    "ReceiverType": "\\*ChatCompletionService",
+    "OnEnter": "newChatCompletionOnEnter",
+    "OnExit": "newChatCompletionOnExit",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/openai-go"
   },
   {
-    "Version": "[1.0.0,2.0.0)",
-    "ImportPath": "github.com/openai/openai-go/chat/completions",
+    "Version": "[1.5.0,2.0.0)",
+    "ImportPath": "github.com/openai/openai-go",
     "Function": "NewStreaming",
+    "ReceiverType": "\\*ChatCompletionService",
     "OnEnter": "officialNewChatCompletionStreamOnEnter",
     "OnExit": "officialNewChatCompletionStreamOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/openai"
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/openai-go"
   },
   {
-    "Version": "[1.0.0,2.0.0)",
+    "Version": "[1.30.0,)",
     "ImportPath": "github.com/sashabaranov/go-openai",
     "ReceiverType": "\\*Client",
     "Function": "CreateChatCompletion",
     "OnEnter": "communityCreateChatCompletionOnEnter",
     "OnExit": "communityCreateChatCompletionOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/openai"
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/go-openai"
   },
   {
-    "Version": "[1.0.0,2.0.0)",
+    "Version": "[1.30.0,)",
     "ImportPath": "github.com/sashabaranov/go-openai",
     "ReceiverType": "\\*Client",
     "Function": "CreateChatCompletionStream",
     "OnEnter": "communityCreateChatCompletionStreamOnEnter",
     "OnExit": "communityCreateChatCompletionStreamOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/openai"
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/go-openai"
   }
 ]

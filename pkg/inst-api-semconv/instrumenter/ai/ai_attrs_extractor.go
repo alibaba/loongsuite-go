@@ -18,6 +18,7 @@ import (
 	"context"
 	"go.opentelemetry.io/otel/attribute"
 	semconv "go.opentelemetry.io/otel/semconv/v1.30.0"
+	semconv7 "go.opentelemetry.io/otel/semconv/v1.37.0"
 )
 
 // TODO: remove server.address and put it into NetworkAttributesExtractor
@@ -80,11 +81,11 @@ func (h *AILLMAttrsExtractor[REQUEST, RESPONSE, GETTER1, GETTER2]) OnStart(attri
 		Key:   semconv.GenAIRequestTopPKey,
 		Value: attribute.Float64Value(h.LLMGetter.GetAIRequestTopP(request)),
 	}, attribute.KeyValue{
-		Key:   semconv.GenAIUsageInputTokensKey,
-		Value: attribute.Int64Value(h.LLMGetter.GetAIUsageInputTokens(request)),
-	}, attribute.KeyValue{
 		Key:   semconv.GenAIRequestSeedKey,
 		Value: attribute.Int64Value(h.LLMGetter.GetAIRequestSeed(request)),
+	}, attribute.KeyValue{
+		Key:   semconv7.GenAIInputMessagesKey,
+		Value: attribute.StringValue(h.LLMGetter.GetAIInput(request)),
 	})
 
 	if serverAddress := h.LLMGetter.GetAIServerAddress(request); serverAddress != "" {
@@ -114,6 +115,9 @@ func (h *AILLMAttrsExtractor[REQUEST, RESPONSE, GETTER1, GETTER2]) OnEnd(attribu
 	}, attribute.KeyValue{
 		Key:   semconv.GenAIUsageOutputTokensKey,
 		Value: attribute.Int64Value(h.LLMGetter.GetAIUsageOutputTokens(request, response)),
+	}, attribute.KeyValue{
+		Key:   semconv7.GenAIOutputMessagesKey,
+		Value: attribute.StringValue(h.LLMGetter.GetAIOutput(response)),
 	})
 
 	// Only add response id if it's not empty

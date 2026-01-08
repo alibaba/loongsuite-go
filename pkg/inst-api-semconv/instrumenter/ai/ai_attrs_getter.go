@@ -36,4 +36,6 @@ type LLMAttrsGetter[REQUEST any, RESPONSE any] interface {
 	GetAIResponseID(request REQUEST, response RESPONSE) string
 	GetAIServerAddress(request REQUEST) string
 	GetAIRequestSeed(request REQUEST) int64
+	GetAIInput(request REQUEST) string
+	GetAIOutput(response RESPONSE) string
 }

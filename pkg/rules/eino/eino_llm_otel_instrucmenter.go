@@ -185,6 +185,14 @@ func (e einoLLMAttrsGetter) GetAIRequestSeed(request einoLLMRequest) int64 {
 	return request.seed
 }
 
+func (e einoLLMAttrsGetter) GetAIInput(request einoLLMRequest) string {
+	return request.inputMsg
+}
+
+func (e einoLLMAttrsGetter) GetAIOutput(response einoLLMResponse) string {
+	return response.output
+}
+
 func BuildEinoLLMInstrumenter() instrumenter.Instrumenter[einoLLMRequest, einoLLMResponse] {
 	builder := instrumenter.Builder[einoLLMRequest, einoLLMResponse]{}
 	return builder.Init().SetSpanNameExtractor(&ai.AISpanNameExtractor[einoLLMRequest, einoLLMResponse]{Getter: einoLLMAttrsGetter{}}).

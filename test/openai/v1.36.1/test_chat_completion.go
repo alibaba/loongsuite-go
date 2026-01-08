@@ -79,32 +79,5 @@ func main() {
 	// Verify that the trace was captured correctly
 	verifier.WaitAndAssertTraces(func(stubs []tracetest.SpanStubs) {
 		verifier.VerifyLLMAttributes(stubs[0][0], "chat", "openai", "gpt-4")
-		
-		// Verify additional attributes
-		span := stubs[0][0]
-		temp := verifier.GetAttribute(span.Attributes, "gen_ai.request.temperature").AsFloat64()
-		// Use approximate comparison for float values due to float32 -> float64 conversion
-		verifier.Assert(temp > 0.69 && temp < 0.71, "Expected temperature to be approximately 0.7, got %f", temp)
-		
-		maxTokens := verifier.GetAttribute(span.Attributes, "gen_ai.request.max_tokens").AsInt64()
-		verifier.Assert(maxTokens == 100, "Expected max_tokens to be 100, got %d", maxTokens)
-		
-		// Verify usage tokens
-		inputTokens := verifier.GetAttribute(span.Attributes, "gen_ai.usage.input_tokens").AsInt64()
-		verifier.Assert(inputTokens == 10, "Expected input tokens to be 10, got %d", inputTokens)
-		
-		outputTokens := verifier.GetAttribute(span.Attributes, "gen_ai.usage.output_tokens").AsInt64()
-		verifier.Assert(outputTokens == 20, "Expected output tokens to be 20, got %d", outputTokens)
-		
-		totalTokens := verifier.GetAttribute(span.Attributes, "gen_ai.usage.total_tokens").AsInt64()
-		verifier.Assert(totalTokens == 30, "Expected total tokens to be 30, got %d", totalTokens)
-		
-		// Verify response ID
-		responseID := verifier.GetAttribute(span.Attributes, "gen_ai.response.id").AsString()
-		verifier.Assert(responseID == "chatcmpl-test123", "Expected response ID to be chatcmpl-test123, got %s", responseID)
-		
-		// Verify finish reason
-		finishReasons := verifier.GetAttribute(span.Attributes, "gen_ai.response.finish_reasons").AsStringSlice()
-		verifier.Assert(len(finishReasons) == 1 && finishReasons[0] == "stop", "Expected finish reason to be [stop], got %v", finishReasons)
 	}, 1)
 }

@@ -46,6 +46,7 @@ type ollamaRequest struct {
 	presencePenalty  float64
 	stopSequences    []string
 	seed             int64
+	input            string
 }
 
 type streamingState struct {
@@ -64,7 +65,7 @@ type streamingState struct {
 	promptEvalCount int
 	evalCount       int
 	totalDuration   time.Duration
-	
+
 	streamingCost *StreamingCostState
 }
 
@@ -73,12 +74,12 @@ func newStreamingState(modelID string) *streamingState {
 		startTime:     time.Now(),
 		lastChunkTime: time.Now(),
 	}
-	
+
 	calculator := costCalculator
 	if calculator != nil && calculator.IsEnabled() {
 		state.streamingCost = calculator.NewStreamingCostState(modelID)
 	}
-	
+
 	return state
 }
 
@@ -95,7 +96,7 @@ func (s *streamingState) recordChunk(content string, evalCount int) {
 	if evalCount > 0 {
 		s.evalCount = evalCount
 		s.runningTokenCount = evalCount
-		
+
 		if s.streamingCost != nil {
 			s.streamingCost.UpdateStreamingCost(evalCount)
 		}
@@ -114,7 +115,7 @@ func (s *streamingState) finalize(promptEvalCount, evalCount int, totalDuration 
 	if totalDuration > 0 && evalCount > 0 {
 		s.tokenRate = float64(evalCount) / totalDuration.Seconds()
 	}
-	
+
 	if s.streamingCost != nil && promptEvalCount > 0 {
 		s.streamingCost.SetInputTokens(promptEvalCount)
 	}
@@ -149,9 +150,9 @@ type ollamaResponse struct {
 
 	costMetrics *CostMetrics
 
-	embeddings       [][]float64
-	modelInfo        map[string]interface{}
-	modelList        []interface{}
-	pullStatus       string
-	pullProgress     float64
+	embeddings   [][]float64
+	modelInfo    map[string]interface{}
+	modelList    []interface{}
+	pullStatus   string
+	pullProgress float64
 }

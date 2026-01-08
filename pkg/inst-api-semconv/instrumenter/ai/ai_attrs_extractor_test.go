@@ -71,8 +71,12 @@ func (ollamaRequest) GetAIResponseID(request testRequest, response testResponse)
 func (ollamaRequest) GetAIServerAddress(request testRequest) string {
 	return "127.0.0.1:1234"
 }
-func (ollamaRequest) GetAIRequestSeed(request testRequest) int64 {
+func (testRequest) GetAIRequestSeed(request testRequest) int64 {
 	return 100
+}
+
+func (o testRequest) GetAIInput(request testRequest) string {
+	return ""
 }
 
 func TestCommonExtractorStart(t *testing.T) {

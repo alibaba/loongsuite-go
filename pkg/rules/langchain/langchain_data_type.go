@@ -35,10 +35,12 @@ type langChainLLMRequest struct {
 	topP             float64
 	serverAddress    string
 	seed             int64
+	input            string
 }
 type langChainLLMResponse struct {
 	responseFinishReasons []string
 	responseModel         string
 	usageOutputTokens     int64
 	responseID            string
+	output                string
 }

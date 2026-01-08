@@ -63,6 +63,14 @@ func (aiLLMRequest) GetAIRequestSeed(request langChainLLMRequest) int64 {
 	return request.seed
 }
 
+func (aiLLMRequest) GetAIInput(request langChainLLMRequest) string {
+	return request.input
+}
+
+func (aiLLMRequest) GetAIOutput(response langChainLLMResponse) string {
+	return response.output
+}
+
 func (aiLLMRequest) GetAIUsageOutputTokens(request langChainLLMRequest, response langChainLLMResponse) int64 {
 	return response.usageOutputTokens
 }

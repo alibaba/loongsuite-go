@@ -83,6 +83,14 @@ func (o ollamaAttrsGetter) GetAIRequestSeed(request ollamaRequest) int64 {
 	return request.seed
 }
 
+func (o ollamaAttrsGetter) GetAIInput(request ollamaRequest) string {
+	return request.input
+}
+
+func (o ollamaAttrsGetter) GetAIOutput(response ollamaResponse) string { // Changed from response.output to response.output
+	return response.content
+}
+
 func (o ollamaAttrsGetter) GetAIResponseModel(request ollamaRequest, response ollamaResponse) string {
 	return request.model
 }

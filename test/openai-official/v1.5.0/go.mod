@@ -6,7 +6,7 @@ replace github.com/alibaba/loongsuite-go-agent => ../../../
 
 require (
 	github.com/alibaba/loongsuite-go-agent/test/verifier v0.0.0-20260107074919-08c36b668c42
-	github.com/openai/openai-go v1.10.0
+	github.com/openai/openai-go v1.5.0
 	go.opentelemetry.io/otel/sdk v1.39.0
 )
 
@@ -20,7 +20,7 @@ require (
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/stretchr/testify v1.11.1 // indirect
-	github.com/tidwall/gjson v1.14.4 // indirect
+	github.com/tidwall/gjson v1.18.0 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
 	github.com/tidwall/sjson v1.2.5 // indirect

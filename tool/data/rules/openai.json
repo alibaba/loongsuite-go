@@ -9,6 +9,24 @@
     "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/openai-go"
   },
   {
+    "Version": "[2.0.0,3.0.0)",
+    "ImportPath": "github.com/openai/openai-go",
+    "Function": "New",
+    "ReceiverType": "\\*ChatCompletionService",
+    "OnEnter": "newChatCompletionOnEnter",
+    "OnExit": "newChatCompletionOnExit",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/openai-go"
+  },
+  {
+    "Version": "[3.0.0,)",
+    "ImportPath": "github.com/openai/openai-go",
+    "Function": "New",
+    "ReceiverType": "\\*ChatCompletionService",
+    "OnEnter": "newChatCompletionOnEnter",
+    "OnExit": "newChatCompletionOnExit",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/openai-go"
+  },
+  {
     "Version": "[1.30.0,)",
     "ImportPath": "github.com/sashabaranov/go-openai",
     "ReceiverType": "\\*Client",

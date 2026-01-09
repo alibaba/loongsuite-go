@@ -19,7 +19,6 @@ import (
 	"encoding/json"
 	openai "github.com/openai/openai-go"
 	"github.com/openai/openai-go/option"
-	"github.com/openai/openai-go/packages/ssestream"
 	_ "unsafe"
 
 	"github.com/alibaba/loongsuite-go-agent/pkg/api"
@@ -100,7 +99,7 @@ func newChatCompletionOnExit(call api.CallContext, resp *openai.ChatCompletion, 
 	recorder.End(ctx, request, response, err)
 }
 
-//go:linkname officialNewChatCompletionStreamOnEnter github.com/openai/openai-go/chat/completions.officialNewChatCompletionStreamOnEnter
+//go:linkname officialNewChatCompletionStreamOnEnter github.com/openai/openai-go.officialNewChatCompletionStreamOnEnter
 func officialNewChatCompletionStreamOnEnter(call api.CallContext, r *openai.ChatCompletionService, ctx context.Context, body openai.ChatCompletionNewParams, opts ...option.RequestOption) {
 	if !openaiEnabler.Enable() {
 		return
@@ -132,8 +131,8 @@ func officialNewChatCompletionStreamOnEnter(call api.CallContext, r *openai.Chat
 	call.SetParam(0, instrumentedCtx)
 }
 
-//go:linkname officialNewChatCompletionStreamOnExit github.com/openai/openai-go/chat/completions.officialNewChatCompletionStreamOnExit
-func officialNewChatCompletionStreamOnExit(call api.CallContext, stream *ssestream.Stream[openai.ChatCompletionChunk]) {
+//go:linkname officialNewChatCompletionStreamOnExit github.com/openai/openai-go.officialNewChatCompletionStreamOnExit
+func officialNewChatCompletionStreamOnExit(call api.CallContext, stream interface{}) {
 	data := call.GetData().(map[string]interface{})
 	if data == nil {
 		return

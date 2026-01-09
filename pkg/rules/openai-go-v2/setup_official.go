@@ -17,9 +17,8 @@ package openai
 import (
 	"context"
 	"encoding/json"
-	openai "github.com/openai/openai-go"
-	"github.com/openai/openai-go/option"
-	"github.com/openai/openai-go/packages/ssestream"
+	openai "github.com/openai/openai-go/v2"
+	"github.com/openai/openai-go/v2/option"
 	_ "unsafe"
 
 	"github.com/alibaba/loongsuite-go-agent/pkg/api"
@@ -27,7 +26,7 @@ import (
 
 // Hooks for github.com/openai/openai-go (official OpenAI SDK)
 
-//go:linkname newChatCompletionOnEnter github.com/openai/openai-go.newChatCompletionOnEnter
+//go:linkname newChatCompletionOnEnter github.com/openai/openai-go/v2.newChatCompletionOnEnter
 func newChatCompletionOnEnter(call api.CallContext, r *openai.ChatCompletionService, ctx context.Context, body openai.ChatCompletionNewParams, opts ...option.RequestOption) {
 	if !openaiEnabler.Enable() {
 		return
@@ -61,7 +60,7 @@ func newChatCompletionOnEnter(call api.CallContext, r *openai.ChatCompletionServ
 	call.SetParam(1, instrumentedCtx)
 }
 
-//go:linkname newChatCompletionOnExit github.com/openai/openai-go.newChatCompletionOnExit
+//go:linkname newChatCompletionOnExit github.com/openai/openai-go/v2.newChatCompletionOnExit
 func newChatCompletionOnExit(call api.CallContext, resp *openai.ChatCompletion, err error) {
 	data := call.GetData().(map[string]interface{})
 	if data == nil {
@@ -100,7 +99,7 @@ func newChatCompletionOnExit(call api.CallContext, resp *openai.ChatCompletion, 
 	recorder.End(ctx, request, response, err)
 }
 
-//go:linkname officialNewChatCompletionStreamOnEnter github.com/openai/openai-go/chat/completions.officialNewChatCompletionStreamOnEnter
+//go:linkname officialNewChatCompletionStreamOnEnter github.com/openai/openai-go/v2/chat/completions.officialNewChatCompletionStreamOnEnter
 func officialNewChatCompletionStreamOnEnter(call api.CallContext, r *openai.ChatCompletionService, ctx context.Context, body openai.ChatCompletionNewParams, opts ...option.RequestOption) {
 	if !openaiEnabler.Enable() {
 		return
@@ -132,8 +131,8 @@ func officialNewChatCompletionStreamOnEnter(call api.CallContext, r *openai.Chat
 	call.SetParam(0, instrumentedCtx)
 }
 
-//go:linkname officialNewChatCompletionStreamOnExit github.com/openai/openai-go/chat/completions.officialNewChatCompletionStreamOnExit
-func officialNewChatCompletionStreamOnExit(call api.CallContext, stream *ssestream.Stream[openai.ChatCompletionChunk]) {
+//go:linkname officialNewChatCompletionStreamOnExit github.com/openai/openai-go/v2/chat/completions.officialNewChatCompletionStreamOnExit
+func officialNewChatCompletionStreamOnExit(call api.CallContext, stream interface{}) {
 	data := call.GetData().(map[string]interface{})
 	if data == nil {
 		return

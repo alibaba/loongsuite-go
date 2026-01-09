@@ -17,13 +17,14 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/openai/openai-go/v2/shared"
 	"net/http"
 	"net/http/httptest"
 	"time"
 
 	"github.com/alibaba/loongsuite-go-agent/test/verifier"
-	"github.com/openai/openai-go"
-	"github.com/openai/openai-go/option"
+	openai "github.com/openai/openai-go/v2"
+	"github.com/openai/openai-go/v2/option"
 	"go.opentelemetry.io/otel/sdk/trace/tracetest"
 )
 
@@ -66,11 +67,11 @@ func main() {
 
 	// Make a streaming chat completion request (this will be instrumented)
 	stream := client.Chat.Completions.NewStreaming(ctx, openai.ChatCompletionNewParams{
-		Model: openai.F("gpt-4"),
-		Messages: openai.F([]openai.ChatCompletionMessageParamUnion{
+		Model: shared.ChatModelGPT4,
+		Messages: []openai.ChatCompletionMessageParamUnion{
 			openai.UserMessage("Hello, how are you?"),
-		}),
-		Temperature: openai.F(0.7),
+		},
+		Temperature: openai.Float(0.7),
 		MaxTokens:   openai.Int(100),
 	})
 

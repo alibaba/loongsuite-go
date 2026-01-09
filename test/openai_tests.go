@@ -16,13 +16,21 @@ package test
 
 import "testing"
 
-const openai_dependency_name = "github.com/sashabaranov/go-openai"
-const openai_module_name = "openai"
+const openai_community_dependency_name = "github.com/sashabaranov/go-openai"
+const openai_official_dependency_name = "github.com/openai/openai-go"
+const openai_community_module_name = "openai"
+const openai_official_module_name = "openai-official"
 
 func init() {
-	tc1 := NewGeneralTestCase("openai-community-chat-completion-test", openai_module_name, "v1.36.1", "", "1.22.0", "", TestOpenAICommunitySDKChatCompletion)
-	tc2 := NewGeneralTestCase("openai-community-chat-stream-test", openai_module_name, "v1.36.1", "", "1.22.0", "", TestOpenAICommunitySDKChatStream)
-	tc3 := NewMuzzleTestCase("openai-community-muzzle-test", openai_dependency_name, openai_module_name, "v1.36.1", "", "1.22.0", "", []string{"go", "build", "test_chat_completion.go"})
+	// Community SDK tests (go-openai)
+	tc1 := NewGeneralTestCase("openai-community-chat-completion-test", openai_community_module_name, "v1.36.1", "", "1.22.0", "", TestOpenAICommunitySDKChatCompletion)
+	tc2 := NewGeneralTestCase("openai-community-chat-stream-test", openai_community_module_name, "v1.36.1", "", "1.22.0", "", TestOpenAICommunitySDKChatStream)
+	tc3 := NewMuzzleTestCase("openai-community-muzzle-test", openai_community_dependency_name, openai_community_module_name, "v1.36.1", "", "1.22.0", "", []string{"go", "build", "test_chat_completion.go"})
+	
+	// Official SDK tests (openai-go)
+	// Note: Streaming tests are skipped due to limitations with instrumenting generic types
+	tc4 := NewGeneralTestCase("openai-official-chat-completion-test", openai_official_module_name, "v1.5.0", "", "1.22.0", "", TestOpenAIOfficialSDKChatCompletion)
+	tc5 := NewMuzzleTestCase("openai-official-muzzle-test", openai_official_dependency_name, openai_official_module_name, "v1.5.0", "", "1.22.0", "", []string{"go", "build", "test_chat_completion.go"})
 	
 	if tc1 != nil {
 		TestCases = append(TestCases, tc1)
@@ -33,8 +41,15 @@ func init() {
 	if tc3 != nil {
 		TestCases = append(TestCases, tc3)
 	}
+	if tc4 != nil {
+		TestCases = append(TestCases, tc4)
+	}
+	if tc5 != nil {
+		TestCases = append(TestCases, tc5)
+	}
 }
 
+// Community SDK (sashabaranov/go-openai) tests
 func TestOpenAICommunitySDKChatCompletion(t *testing.T, env ...string) {
 	UseApp("openai/v1.36.1")
 	RunGoBuild(t, "go", "build", "test_chat_completion.go")
@@ -45,4 +60,11 @@ func TestOpenAICommunitySDKChatStream(t *testing.T, env ...string) {
 	UseApp("openai/v1.36.1")
 	RunGoBuild(t, "go", "build", "test_chat_completion_stream.go")
 	RunApp(t, "./test_chat_completion_stream", env...)
+}
+
+// Official SDK (openai/openai-go) tests
+func TestOpenAIOfficialSDKChatCompletion(t *testing.T, env ...string) {
+	UseApp("openai-official/v1.5.0")
+	RunGoBuild(t, "go", "build", "test_chat_completion.go")
+	RunApp(t, "./test_chat_completion", env...)
 }

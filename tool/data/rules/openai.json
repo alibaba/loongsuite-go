@@ -9,15 +9,6 @@
     "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/openai-go"
   },
   {
-    "Version": "[1.5.0,2.0.0)",
-    "ImportPath": "github.com/openai/openai-go",
-    "Function": "NewStreaming",
-    "ReceiverType": "\\*ChatCompletionService",
-    "OnEnter": "officialNewChatCompletionStreamOnEnter",
-    "OnExit": "officialNewChatCompletionStreamOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/openai-go"
-  },
-  {
     "Version": "[1.30.0,)",
     "ImportPath": "github.com/sashabaranov/go-openai",
     "ReceiverType": "\\*Client",

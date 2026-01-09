@@ -99,7 +99,7 @@ func newChatCompletionOnExit(call api.CallContext, resp *openai.ChatCompletion, 
 	recorder.End(ctx, request, response, err)
 }
 
-//go:linkname officialNewChatCompletionStreamOnEnter github.com/openai/openai-go/v2/chat/completions.officialNewChatCompletionStreamOnEnter
+//go:linkname officialNewChatCompletionStreamOnEnter github.com/openai/openai-go/v2.officialNewChatCompletionStreamOnEnter
 func officialNewChatCompletionStreamOnEnter(call api.CallContext, r *openai.ChatCompletionService, ctx context.Context, body openai.ChatCompletionNewParams, opts ...option.RequestOption) {
 	if !openaiEnabler.Enable() {
 		return
@@ -131,7 +131,7 @@ func officialNewChatCompletionStreamOnEnter(call api.CallContext, r *openai.Chat
 	call.SetParam(0, instrumentedCtx)
 }
 
-//go:linkname officialNewChatCompletionStreamOnExit github.com/openai/openai-go/v2/chat/completions.officialNewChatCompletionStreamOnExit
+//go:linkname officialNewChatCompletionStreamOnExit github.com/openai/openai-go/v2.officialNewChatCompletionStreamOnExit
 func officialNewChatCompletionStreamOnExit(call api.CallContext, stream interface{}) {
 	data := call.GetData().(map[string]interface{})
 	if data == nil {

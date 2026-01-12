@@ -89,5 +89,5 @@ The upgrade from v1.35.0 to v1.39.0 resolves the semconv version mismatch issue.
 ## Verification Date
 2026-01-12
 
-## Tested By
-GitHub Copilot (Automated Verification)
+## Verification Method
+Automated testing and manual code review

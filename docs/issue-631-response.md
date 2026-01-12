@@ -59,4 +59,4 @@ See [issue-631-verification.md](./issue-631-verification.md) for the complete ve
 
 ---
 *Verification performed on: 2026-01-12*
-*Main branch commit: 3d06269*
+*Base commit: 3d06269a (Add OpenAI monitoring hooks with GenAI semantic convention compliance)*

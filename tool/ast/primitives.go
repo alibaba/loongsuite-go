@@ -272,6 +272,13 @@ func DereferenceOf(expr dst.Expr) dst.Expr {
 	return &dst.StarExpr{X: expr}
 }
 
+func LineComments(comments ...string) dst.NodeDecs {
+	return dst.NodeDecs{
+		Before: dst.NewLine,
+		Start:  dst.Decorations(comments),
+	}
+}
+
 func KeyValueExpr(key string, value dst.Expr) *dst.KeyValueExpr {
 	return &dst.KeyValueExpr{
 		Key:   Ident(key),

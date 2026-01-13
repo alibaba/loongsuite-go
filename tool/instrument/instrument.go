@@ -47,10 +47,10 @@ type RuleProcessor struct {
 	targetFunc *dst.FuncDecl
 	// Whether the rule is exact match with target function, or it's a regexp match
 	exact bool
-	// The enter hook function, it should be inserted into the target source file
-	onEnterHookFunc *dst.FuncDecl
-	// The exit hook function, it should be inserted into the target source file
-	onExitHookFunc *dst.FuncDecl
+	// The enter trampoline function, it should be inserted into the target source file
+	enterTrampFunc *dst.FuncDecl
+	// The exit trampoline function, it should be inserted into the target source file
+	exitTrampFunc *dst.FuncDecl
 	// Variable declarations waiting to be inserted into target source file
 	varDecls []dst.Decl
 	// Relocated files

@@ -120,6 +120,8 @@ The detailed usage of `otel` tool can be found in [**Usage**](./docs/user/config
 | trpc-go            | https://github.com/trpc-group/trpc-go           | v1.0.0      | -           |
 | zap                | https://github.com/uber-go/zap                  | v1.20.0     | v1.27.0     |
 | zerolog            | https://github.com/rs/zerolog                   | v1.10.0     | v1.33.0     |
+| go-openai          | https://github.com/sashabaranov/go-openai       | v1.30.0     | -           |
+| openai-go          | https://github.com/openai/openai-go             | v1.5.0      | -           |
 
 </details>
 

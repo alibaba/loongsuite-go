@@ -377,6 +377,11 @@ func (rm *ruleMatcher) match(cmdArgs []string) *rules.InstRuleSet {
 	util.Assert(strings.HasPrefix(goVersion, "go"), "sanity check")
 	goVersion = strings.Replace(goVersion, "go", "v", 1)
 	for _, candidate := range cmdArgs {
+		// Rewrite the quoted file path to the unquoted one, this usually happens
+		// on Windows, for example, "C:\\Program Files\\abc.go" will be rewritten
+		// to C:\\Program Files\\abc.go
+		candidate = strings.Trim(candidate, `"`)
+
 		// It's not a go file, ignore silently
 		if !util.IsGoFile(candidate) {
 			continue

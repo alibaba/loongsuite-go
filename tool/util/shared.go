@@ -201,7 +201,7 @@ func SplitCompileCmds(input string) []string {
 func FindFlagValue(cmd []string, flag string) string {
 	for i, v := range cmd {
 		if v == flag {
-			return cmd[i+1]
+			return strings.Trim(cmd[i+1], `"`)
 		}
 	}
 	return ""

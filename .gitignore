@@ -136,3 +136,4 @@ docs/.vitepress/dist
 docs/.vitepress/cache
 test/build/go.work.sum
 test/dubbo/v3.3.0/test_dubbo_basictest.test
+test/dubbo/v3.3.0/test_dubbo_basic

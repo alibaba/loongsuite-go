@@ -47,6 +47,11 @@ Multiple Rule Files: Combine multiple custom rule files along with the default r
   $ otel set -rule=a.json,b.json
 ```
 
+GoCache Path: Reduce compilation time by more than 50%
+```bash
+  $ otel set -gocache=/tmp/go-cache
+```
+
 Using Environment Variables: In addition to using the `otel set` command, configuration can also be overridden using environment variables. For example, the `OTELTOOL_DEBUG` environment variable allows you to force the tool into debug mode temporarily, making this approach effective for one-time configurations without altering permanent settings.
 
 ```bash

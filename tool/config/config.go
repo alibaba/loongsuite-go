@@ -251,6 +251,8 @@ func Configure() error {
 		"Enable debug mode, leave temporary files for debugging")
 	flag.StringVar(&bc.RuleJsonFiles, "rule", bc.RuleJsonFiles,
 		"Use custom.json rules. Multiple rules are separated by comma.")
+	flag.StringVar(&bc.GoCache, "gocache", bc.GoCache,
+		"Use gocache config. Reduce compilation time.")
 	flag.StringVar(&bc.DisableRules, "disable", bc.DisableRules,
 		"Disable specific rules. Use 'all' to disable all default rules, or comma-separated list of rule file names to disable specific rules")
 	flag.StringVar(&bc.PkgPath, "pkg", bc.PkgPath,

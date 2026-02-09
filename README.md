@@ -49,6 +49,13 @@ $ otel go build -o app cmd/app
 $ otel go build -gcflags="-m" cmd/app
 ```
 
+Use go cache reduce compilation time by more than 50%, cache path can be defined freely:
+
+```bash
+$ export OTELTOOL_GO_CACHE="/tmp/go-otel-cache" 
+```
+
+
 That's the whole process! The tool will automatically instrument your code with OpenTelemetry, and you can start to observe your application. :telescope:
 
 The detailed usage of `otel` tool can be found in [**Usage**](./docs/user/config.md).

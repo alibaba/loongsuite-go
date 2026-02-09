@@ -166,13 +166,13 @@ func runBuildWithToolexec(goBuildCmd []string) error {
 	// Remix toolexec
 	args = append(args, "-toolexec="+exe+" "+CompileRemix)
 
-	// Leave the temporary compilation directory
-	args = append(args, util.BuildWork)
-
-	// Force rebuilding
-	args = append(args, "-a")
-
 	if config.GetConf().Debug {
+		// Leave the temporary compilation directory
+		args = append(args, util.BuildWork)
+
+		// Force rebuilding
+		args = append(args, "-a")
+
 		// Disable compiler optimizations for debugging mode
 		args = append(args, "-gcflags=all=-N -l")
 	}

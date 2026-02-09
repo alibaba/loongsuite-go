@@ -60,6 +60,9 @@ type BuildConfig struct {
 	// PkgPath specifies the path of the package to be used across multiple
 	// instrumentations
 	PkgPath string
+
+	//go build cache path
+	GoCache string
 }
 
 var conf *BuildConfig
@@ -76,6 +79,10 @@ func (bc *BuildConfig) IsDisableAll() bool {
 // GetDisabledRules returns a set of rule file names that should be disabled
 func (bc *BuildConfig) GetDisabledRules() string {
 	return bc.DisableRules
+}
+
+func (bc *BuildConfig) GetGoCache() string {
+	return bc.GoCache
 }
 
 func (bc *BuildConfig) makeRuleAbs(file string) (string, error) {

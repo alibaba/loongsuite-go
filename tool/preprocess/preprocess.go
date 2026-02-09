@@ -133,6 +133,10 @@ func (dp *DepProcessor) restoreBackupFiles() error {
 }
 
 func getTempGoCache() (string, error) {
+	cache := config.GetConf().GoCache
+	if cache != "" {
+		return cache, nil
+	}
 	goCachePath, err := filepath.Abs(filepath.Join(util.TempBuildDir, GoCacheDir))
 	if err != nil {
 		return "", ex.Wrap(err)

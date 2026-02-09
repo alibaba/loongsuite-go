@@ -166,13 +166,18 @@ func runBuildWithToolexec(goBuildCmd []string) error {
 	// Remix toolexec
 	args = append(args, "-toolexec="+exe+" "+CompileRemix)
 
-	if config.GetConf().Debug {
-		// Leave the temporary compilation directory
-		args = append(args, util.BuildWork)
-
+	// Leave the temporary compilation directory
+	args = append(args, util.BuildWork)
+	var goCachePath string
+	cache := config.GetConf().GoCache
+	if cache != "" {
+		goCachePath = cache
+	} else {
 		// Force rebuilding
 		args = append(args, "-a")
+	}
 
+	if config.GetConf().Debug {
 		// Disable compiler optimizations for debugging mode
 		args = append(args, "-gcflags=all=-N -l")
 	}
@@ -184,9 +189,11 @@ func runBuildWithToolexec(goBuildCmd []string) error {
 	util.AssertGoBuild(args)
 
 	// get the temporary build cache path
-	goCachePath, err := getTempGoCache()
-	if err != nil {
-		return err
+	if goCachePath == "" {
+		goCachePath, err = getTempGoCache()
+		if err != nil {
+			return err
+		}
 	}
 	util.Log("Using isolated GOCACHE: %s", goCachePath)
 

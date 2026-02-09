@@ -93,7 +93,7 @@ func init() {
 	}
 	path, err := os.Executable()
 	if err != nil {
-		panic(err)
+		log.Fatalf("Failed to get executable path: %v", err)
 	}
 	// skip when the executable is otel itself
 	if strings.HasSuffix(path, exec_name) {

@@ -4,7 +4,11 @@ go 1.24.0
 
 toolchain go1.24.11
 
-replace github.com/alibaba/loongsuite-go-agent/pkg => ../../../pkg
+replace (
+	github.com/alibaba/loongsuite-go-agent/pkg => ../../../pkg
+	google.golang.org/genproto/googleapis/api => google.golang.org/genproto/googleapis/api v0.0.0-20251202230838-ff82c1b0f217
+	google.golang.org/genproto/googleapis/rpc => google.golang.org/genproto/googleapis/rpc v0.0.0-20251202230838-ff82c1b0f217
+)
 
 require (
 	github.com/alibaba/loongsuite-go-agent/pkg v0.0.0-00010101000000-000000000000

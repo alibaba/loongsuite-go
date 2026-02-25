@@ -43,10 +43,12 @@ var otelDeps = map[string]string{
 	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp": "v1.39.0",
 	"go.opentelemetry.io/otel/exporters/prometheus":                     "v0.61.0",
 	"go.opentelemetry.io/contrib/instrumentation/runtime":               "v0.63.0",
-	"google.golang.org/protobuf":                                        "v1.35.2",
+	"google.golang.org/protobuf":                                        "v1.36.10",
 	"go.opentelemetry.io/otel/exporters/stdout/stdoutmetric":            "v1.39.0",
 	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace":             "v1.39.0",
 	"go.opentelemetry.io/otel/exporters/zipkin":                         "v1.39.0",
+	"google.golang.org/genproto/googleapis/api":                         "v0.0.0-20251202230838-ff82c1b0f217",
+	"google.golang.org/genproto/googleapis/rpc":                         "v0.0.0-20251202230838-ff82c1b0f217",
 }
 
 func parseGoMod(gomod string) (*modfile.File, error) {

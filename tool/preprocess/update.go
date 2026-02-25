@@ -47,6 +47,11 @@ var otelDeps = map[string]string{
 	"go.opentelemetry.io/otel/exporters/stdout/stdoutmetric":            "v1.39.0",
 	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace":             "v1.39.0",
 	"go.opentelemetry.io/otel/exporters/zipkin":                         "v1.39.0",
+	// Keep genproto modules aligned to avoid ambiguous imports between the
+	// legacy root module and split googleapis/* submodules.
+	"google.golang.org/genproto":                "v0.0.0-20250218202821-56aae31c358a",
+	"google.golang.org/genproto/googleapis/api": "v0.0.0-20250218202821-56aae31c358a",
+	"google.golang.org/genproto/googleapis/rpc": "v0.0.0-20250218202821-56aae31c358a",
 }
 
 func parseGoMod(gomod string) (*modfile.File, error) {

@@ -9,7 +9,7 @@
 | elasticsearch       | https://github.com/elastic/go-elasticsearch                 | v8.4.0      | v8.15.0     |
 | eino                | https://github.com/cloudwego/eino                           | v0.3.51     | -           |
 | fasthttp            | https://github.com/valyala/fasthttp                         | v1.45.0     | v1.65.0     |
-| fiber               | https://github.com/gofiber/fiber                            | v2.43.0     | v2.52.9     |
+| fiber               | https://github.com/gofiber/fiber                            | v2.43.0     | v2.52.12    |
 | gin                 | https://github.com/gin-gonic/gin                            | v1.7.0      | v1.10.1     |
 | go-kit/log          | https://github.com/go-kit/log                               | v0.1.0      | v0.2.1      |
 | go-micro            | https://github.com/micro/go-micro                           | v5.0.0      | v5.3.0      |

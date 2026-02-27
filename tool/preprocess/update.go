@@ -43,7 +43,19 @@ var otelDeps = map[string]string{
 	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp": "v1.39.0",
 	"go.opentelemetry.io/otel/exporters/prometheus":                     "v0.61.0",
 	"go.opentelemetry.io/contrib/instrumentation/runtime":               "v0.63.0",
-	"google.golang.org/protobuf":                                        "v1.35.2",
+	"google.golang.org/protobuf":                                        "v1.36.10",
+	// Fix "ambiguous import" between legacy monolithic genproto and split genproto modules:
+	//
+	// Old versions of the monolithic module `google.golang.org/genproto` included packages
+	// under `googleapis/rpc` and `googleapis/api`. Newer releases split these into dedicated
+	// submodules (`google.golang.org/genproto/googleapis/rpc` and `/api`) by adding nested
+	// go.mod files. If a user project pulls an old monolithic genproto (e.g. 2023-04-10)
+	// and we pull split modules transitively (via gRPC / grpc-gateway / OTLP), Go sees the
+	// same import path in two modules and fails with "ambiguous import".
+	//
+	// By forcing the monolithic module to a post-split version, it no longer "owns" those
+	// packages, and the ambiguity is resolved without pinning the user's gRPC version.
+	"google.golang.org/genproto": "v0.0.0-20251202230838-ff82c1b0f217",
 	"go.opentelemetry.io/otel/exporters/stdout/stdoutmetric":            "v1.39.0",
 	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace":             "v1.39.0",
 	"go.opentelemetry.io/otel/exporters/zipkin":                         "v1.39.0",

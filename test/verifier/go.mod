@@ -3,7 +3,7 @@ module github.com/alibaba/loongsuite-go-agent/test/verifier
 go 1.24.0
 
 require (
-	github.com/alibaba/loongsuite-go-agent/pkg v0.0.0-20251031085506-d38edbf99f97
+	github.com/alibaba/loongsuite-go-agent/pkg v0.0.0-00010101000000-000000000000
 	go.opentelemetry.io/otel v1.39.0
 	go.opentelemetry.io/otel/sdk v1.39.0
 	go.opentelemetry.io/otel/sdk/metric v1.39.0

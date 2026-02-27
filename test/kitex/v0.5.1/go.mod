@@ -8,6 +8,11 @@ replace github.com/alibaba/loongsuite-go-agent => ../../../
 
 replace github.com/alibaba/loongsuite-go-agent/test/verifier => ../../../test/verifier
 
+// Keep thrift pinned for latestdepth runs. Newer thrift releases changed TProtocol
+// APIs to require context.Context, but kitex's bthrift implementation in some
+// versions still targets the older signatures (see TestLatest3/kitex-latestdepth-test).
+replace github.com/apache/thrift => github.com/apache/thrift v0.13.0
+
 require (
 	github.com/alibaba/loongsuite-go-agent/test/verifier v0.0.0-00010101000000-000000000000
 	github.com/apache/thrift v0.13.0
@@ -30,7 +35,7 @@ require (
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
-	github.com/google/pprof v0.0.0-20220608213341-c488b8fa1db3 // indirect
+	github.com/google/pprof v0.0.0-20240727154555-813a5fbdbec8 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/jhump/protoreflect v1.8.2 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
@@ -39,7 +44,7 @@ require (
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/stretchr/testify v1.11.1 // indirect
-	github.com/tidwall/gjson v1.9.3 // indirect
+	github.com/tidwall/gjson v1.17.3 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect

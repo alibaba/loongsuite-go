@@ -32,7 +32,7 @@ test/zap/test_zap
 test/gorm/v1.22.0/test_gorm_crud
 test/gorm/v1.23.1/test_gorm_crud
 test/golog/test_glog
-test/grpc/v1.44.0/test_grpc_basic
+test/grpc/v1.77.0/test_grpc_basic
 test/fasthttp/v1.45.0/test_basic_http
 test/hertz/v0.10.1/test_hertz_basic
 test/world/world

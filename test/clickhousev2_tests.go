@@ -27,9 +27,9 @@ const clickhousev2_dependency_name = "github.com/ClickHouse/clickhouse-go/v2"
 const clickhousev2_module_name = "clickhousev2"
 
 func init() {
-	TestCases = append(TestCases, NewGeneralTestCase("test_clickhousev2_crud", clickhousev2_module_name, "v2.13.0", "v2.42.0", "1.23", "1.24", TestClickhousev2CrudV2130),
-		NewLatestDepthTestCase("test_clickhousev2_latestdepth_crud", clickhousev2_dependency_name, clickhousev2_module_name, "v2.13.0", "v2.42.0", "1.23", "1.24", TestClickhousev2CrudV2420),
-		NewGeneralTestCase("test_clickhousev2_crud", clickhousev2_module_name, "v2.13.0", "v2.42.0", "1.23", "1.24", TestClickhousev2CrudV2130))
+	TestCases = append(TestCases, NewGeneralTestCase("test_clickhousev2_crud", clickhousev2_module_name, "v2.13.0", "v2.42.0", "1.23", "1.25", TestClickhousev2CrudV2130),
+		NewLatestDepthTestCase("test_clickhousev2_latestdepth_crud", clickhousev2_dependency_name, clickhousev2_module_name, "v2.13.0", "v2.42.0", "1.23", "1.25", TestClickhousev2CrudV2420),
+		NewGeneralTestCase("test_clickhousev2_crud", clickhousev2_module_name, "v2.13.0", "v2.42.0", "1.23", "1.25", TestClickhousev2CrudV2130))
 }
 
 func TestClickhousev2CrudV2130(t *testing.T, env ...string) {

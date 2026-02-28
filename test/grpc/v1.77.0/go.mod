@@ -4,18 +4,20 @@ go 1.24.0
 
 replace github.com/alibaba/loongsuite-go-agent/test/verifier => ../../../test/verifier
 
+replace github.com/alibaba/loongsuite-go-agent/pkg => ../../../pkg
+
 require (
 	github.com/alibaba/loongsuite-go-agent/test/verifier v0.0.0-00010101000000-000000000000
 	go.opentelemetry.io/otel v1.39.0
 	go.opentelemetry.io/otel/sdk v1.39.0
 	go.opentelemetry.io/otel/sdk/metric v1.39.0
 	go.opentelemetry.io/otel/trace v1.39.0
-	google.golang.org/grpc v1.71.0
-	google.golang.org/protobuf v1.36.5
+	google.golang.org/grpc v1.77.0
+	google.golang.org/protobuf v1.36.10
 )
 
 require (
-	github.com/alibaba/loongsuite-go-agent/pkg v0.0.0-20251031085506-d38edbf99f97 // indirect
+	github.com/alibaba/loongsuite-go-agent/pkg v0.0.0-00010101000000-000000000000 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
@@ -26,9 +28,9 @@ require (
 	github.com/stretchr/testify v1.11.1 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
 	go.opentelemetry.io/otel/metric v1.39.0 // indirect
-	golang.org/x/net v0.38.0 // indirect
+	golang.org/x/net v0.47.0 // indirect
 	golang.org/x/sys v0.39.0 // indirect
-	golang.org/x/text v0.23.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250218202821-56aae31c358a // indirect
+	golang.org/x/text v0.31.0 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20251202230838-ff82c1b0f217 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

@@ -45,7 +45,7 @@ func TestClickhousev2CrudV2420(t *testing.T, env ...string) {
 	UseApp("clickhousev2/v2.42.0")
 	RunGoBuild(t, "go", "build", "test_clickhousev2_crud.go")
 	env = append(env, "CLICKHOUSE_PORT="+clickhousePort.Port())
-	RunApp(t, "test_clickhousev2_latestdepth_crud", env...)
+	RunApp(t, "test_clickhousev2_crud", env...)
 }
 
 func initClickhouseContainer() (testcontainers.Container, nat.Port) {

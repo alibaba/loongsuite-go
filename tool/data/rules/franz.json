@@ -1,0 +1,9 @@
+[
+  {
+    "Version": "[1.18.0,)",
+    "ImportPath": "github.com/twmb/franz-go/pkg/kgo",
+    "Function": "NewClient",
+    "OnEnter": "franzNewClientOnEnter",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/franz-go"
+  }
+]

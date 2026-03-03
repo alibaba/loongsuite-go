@@ -18,7 +18,6 @@ import (
 	"log"
 	"net/url"
 	"regexp"
-	"strings"
 )
 
 type UrlFilter interface {
@@ -36,64 +35,25 @@ func (d DefaultUrlFilter) FilterUrl(url *url.URL) bool {
 	return false
 }
 
-type PathFilter struct {
-	paths map[string]bool
-}
-
-func NewPathFilter(excludePaths []string) *PathFilter {
-	p := &PathFilter{paths: make(map[string]bool)}
-	for _, path := range excludePaths {
-		p.paths[strings.TrimSpace(path)] = true
-	}
-	return p
-}
-
-func (p *PathFilter) FilterUrl(url *url.URL) bool {
-	return p.paths[url.Path]
-}
-
 type RegexPathFilter struct {
-	patterns []*regexp.Regexp
+	pattern *regexp.Regexp
 }
 
-func NewRegexPathFilter(regexPatterns []string) *RegexPathFilter {
-	var patterns []*regexp.Regexp
-	for _, pattern := range regexPatterns {
-		pattern = strings.TrimSpace(pattern)
-		if pattern == "" {
-			continue
-		}
+func NewRegexPathFilter(pattern string) *RegexPathFilter {
+	r := &RegexPathFilter{}
+	if pattern != "" {
 		if re, err := regexp.Compile(pattern); err == nil {
-			patterns = append(patterns, re)
+			r.pattern = re
 		} else {
 			log.Printf("Warning: invalid regex pattern %q in URL filter: %v", pattern, err)
 		}
 	}
-	return &RegexPathFilter{patterns: patterns}
+	return r
 }
 
 func (r *RegexPathFilter) FilterUrl(url *url.URL) bool {
-	for _, re := range r.patterns {
-		if re.MatchString(url.Path) {
-			return true
-		}
+	if r.pattern == nil {
+		return false
 	}
-	return false
-}
-
-type CompositeFilter struct {
-	filters []UrlFilter
-}
-
-func NewCompositeFilter(filters ...UrlFilter) *CompositeFilter {
-	return &CompositeFilter{filters: filters}
-}
-
-func (c *CompositeFilter) FilterUrl(url *url.URL) bool {
-	for _, f := range c.filters {
-		if f.FilterUrl(url) {
-			return true
-		}
-	}
-	return false
+	return r.pattern.MatchString(url.Path)
 }

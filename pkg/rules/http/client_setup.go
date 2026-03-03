@@ -17,6 +17,7 @@ package http
 import (
 	"context"
 	"net/http"
+	"os"
 	"strings"
 	_ "unsafe"
 
@@ -24,8 +25,14 @@ import (
 	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/utils"
 )
 
-// TODO: use a interface to filter
-var netHttpFilter = utils.DefaultUrlFilter{}
+var netHttpFilter = initUrlFilter()
+
+func initUrlFilter() utils.UrlFilter {
+	if paths := os.Getenv("OTEL_INSTRUMENTATION_HTTP_EXCLUDE_PATHS"); paths != "" {
+		return utils.NewPathFilter(strings.Split(paths, ","))
+	}
+	return utils.DefaultUrlFilter{}
+}
 
 var netHttpClientInstrumenter = BuildNetHttpClientOtelInstrumenter()
 

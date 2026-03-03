@@ -14,7 +14,10 @@
 
 package utils
 
-import "net/url"
+import (
+	"net/url"
+	"strings"
+)
 
 type UrlFilter interface {
 	FilterUrl(url *url.URL) bool
@@ -29,4 +32,20 @@ type DefaultUrlFilter struct {
 
 func (d DefaultUrlFilter) FilterUrl(url *url.URL) bool {
 	return false
+}
+
+type PathFilter struct {
+	paths map[string]bool
+}
+
+func NewPathFilter(excludePaths []string) *PathFilter {
+	p := &PathFilter{paths: make(map[string]bool)}
+	for _, path := range excludePaths {
+		p.paths[strings.TrimSpace(path)] = true
+	}
+	return p
+}
+
+func (p *PathFilter) FilterUrl(url *url.URL) bool {
+	return p.paths[url.Path]
 }

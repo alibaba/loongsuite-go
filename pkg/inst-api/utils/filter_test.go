@@ -39,3 +39,54 @@ func TestDefaultUrlFilter(t *testing.T) {
 		})
 	}
 }
+
+func TestPathFilter(t *testing.T) {
+	filter := NewPathFilter([]string{"/ping", "/health", " /metrics "})
+	testCases := []struct {
+		name     string
+		input    *url.URL
+		expected bool
+	}{
+		{
+			name:     "excluded path /ping",
+			input:    &url.URL{Scheme: "http", Host: "example.com", Path: "/ping"},
+			expected: true,
+		},
+		{
+			name:     "excluded path /health",
+			input:    &url.URL{Scheme: "http", Host: "example.com", Path: "/health"},
+			expected: true,
+		},
+		{
+			name:     "excluded path /metrics with trimmed spaces",
+			input:    &url.URL{Scheme: "http", Host: "example.com", Path: "/metrics"},
+			expected: true,
+		},
+		{
+			name:     "non-excluded path /api/users",
+			input:    &url.URL{Scheme: "http", Host: "example.com", Path: "/api/users"},
+			expected: false,
+		},
+		{
+			name:     "non-excluded root path",
+			input:    &url.URL{Scheme: "http", Host: "example.com", Path: "/"},
+			expected: false,
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			result := filter.FilterUrl(tc.input)
+			if result != tc.expected {
+				t.Errorf("FilterUrl(%v) = %v; expected %v", tc.input, result, tc.expected)
+			}
+		})
+	}
+}
+
+func TestPathFilterEmpty(t *testing.T) {
+	filter := NewPathFilter([]string{})
+	u := &url.URL{Scheme: "http", Host: "example.com", Path: "/ping"}
+	if filter.FilterUrl(u) {
+		t.Errorf("FilterUrl(%v) = true; expected false for empty filter", u)
+	}
+}

@@ -28,8 +28,19 @@ import (
 var netHttpFilter = initUrlFilter()
 
 func initUrlFilter() utils.UrlFilter {
-	if paths := os.Getenv("OTEL_INSTRUMENTATION_HTTP_EXCLUDE_PATHS"); paths != "" {
-		return utils.NewPathFilter(strings.Split(paths, ","))
+	paths := os.Getenv("OTEL_INSTRUMENTATION_HTTP_EXCLUDE_PATHS")
+	regexPatterns := os.Getenv("OTEL_INSTRUMENTATION_HTTP_EXCLUDE_PATH_REGEX")
+
+	var filters []utils.UrlFilter
+	if paths != "" {
+		filters = append(filters, utils.NewPathFilter(strings.Split(paths, ",")))
+	}
+	if regexPatterns != "" {
+		filters = append(filters, utils.NewRegexPathFilter(strings.Split(regexPatterns, ",")))
+	}
+
+	if len(filters) > 0 {
+		return utils.NewCompositeFilter(filters...)
 	}
 	return utils.DefaultUrlFilter{}
 }

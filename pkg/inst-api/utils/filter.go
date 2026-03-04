@@ -14,7 +14,11 @@
 
 package utils
 
-import "net/url"
+import (
+	"log"
+	"net/url"
+	"regexp"
+)
 
 type UrlFilter interface {
 	FilterUrl(url *url.URL) bool
@@ -29,4 +33,27 @@ type DefaultUrlFilter struct {
 
 func (d DefaultUrlFilter) FilterUrl(url *url.URL) bool {
 	return false
+}
+
+type RegexPathFilter struct {
+	pattern *regexp.Regexp
+}
+
+func NewRegexPathFilter(pattern string) *RegexPathFilter {
+	r := &RegexPathFilter{}
+	if pattern != "" {
+		if re, err := regexp.Compile(pattern); err == nil {
+			r.pattern = re
+		} else {
+			log.Printf("Warning: invalid regex pattern %q in URL filter: %v", pattern, err)
+		}
+	}
+	return r
+}
+
+func (r *RegexPathFilter) FilterUrl(url *url.URL) bool {
+	if r.pattern == nil {
+		return false
+	}
+	return r.pattern.MatchString(url.Path)
 }

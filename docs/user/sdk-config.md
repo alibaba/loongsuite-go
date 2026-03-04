@@ -17,3 +17,4 @@ In addition to automatic instrumentation, the `otel` tool injects configuration 
   - `delta`: Counter, Asynchronous Counter, and Histogram use Delta temporality; UpDownCounter and Asynchronous UpDownCounter use Cumulative temporality
   - `lowmemory`: Synchronous Counter and Histogram use Delta temporality; other types use Cumulative temporality (low memory mode)
 - `OTEL_TRACE_SAMPLER`: Specifies the trace sampler. A floating-point number between 0.0 and 1.0 sets a ratio-based sampler. Values <= 0 will never sample, and values >= 1 will always sample. The default is a parent-based sampler that always samples.
+- `OTEL_INSTRUMENTATION_HTTP_EXCLUDE_PATHS`: Specifies a regular expression pattern to exclude URL paths from HTTP auto-instrumentation (e.g., `^/(ping|health|metrics)$`). Requests whose paths match the pattern will not generate spans. By default, no paths are excluded.

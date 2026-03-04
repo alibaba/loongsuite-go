@@ -39,3 +39,100 @@ func TestDefaultUrlFilter(t *testing.T) {
 		})
 	}
 }
+
+func TestRegexPathFilter(t *testing.T) {
+	filter := NewRegexPathFilter(`^/(ping|health|metrics)$`)
+	testCases := []struct {
+		name     string
+		input    *url.URL
+		expected bool
+	}{
+		{
+			name:     "excluded path /ping",
+			input:    &url.URL{Scheme: "http", Host: "example.com", Path: "/ping"},
+			expected: true,
+		},
+		{
+			name:     "excluded path /health",
+			input:    &url.URL{Scheme: "http", Host: "example.com", Path: "/health"},
+			expected: true,
+		},
+		{
+			name:     "excluded path /metrics",
+			input:    &url.URL{Scheme: "http", Host: "example.com", Path: "/metrics"},
+			expected: true,
+		},
+		{
+			name:     "non-excluded path /api/users",
+			input:    &url.URL{Scheme: "http", Host: "example.com", Path: "/api/users"},
+			expected: false,
+		},
+		{
+			name:     "non-excluded root path",
+			input:    &url.URL{Scheme: "http", Host: "example.com", Path: "/"},
+			expected: false,
+		},
+		{
+			name:     "no match /healthcheck",
+			input:    &url.URL{Scheme: "http", Host: "example.com", Path: "/healthcheck"},
+			expected: false,
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			result := filter.FilterUrl(tc.input)
+			if result != tc.expected {
+				t.Errorf("FilterUrl(%v) = %v; expected %v", tc.input, result, tc.expected)
+			}
+		})
+	}
+}
+
+func TestRegexPathFilterComplex(t *testing.T) {
+	filter := NewRegexPathFilter(`^/api/v[0-9]+/internal/`)
+	testCases := []struct {
+		name     string
+		input    *url.URL
+		expected bool
+	}{
+		{
+			name:     "regex match /api/v1/internal/status",
+			input:    &url.URL{Scheme: "http", Host: "example.com", Path: "/api/v1/internal/status"},
+			expected: true,
+		},
+		{
+			name:     "regex match /api/v2/internal/config",
+			input:    &url.URL{Scheme: "http", Host: "example.com", Path: "/api/v2/internal/config"},
+			expected: true,
+		},
+		{
+			name:     "no match /api/v1/public/status",
+			input:    &url.URL{Scheme: "http", Host: "example.com", Path: "/api/v1/public/status"},
+			expected: false,
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			result := filter.FilterUrl(tc.input)
+			if result != tc.expected {
+				t.Errorf("FilterUrl(%v) = %v; expected %v", tc.input, result, tc.expected)
+			}
+		})
+	}
+}
+
+func TestRegexPathFilterEmpty(t *testing.T) {
+	filter := NewRegexPathFilter("")
+	u := &url.URL{Scheme: "http", Host: "example.com", Path: "/ping"}
+	if filter.FilterUrl(u) {
+		t.Errorf("FilterUrl(%v) = true; expected false for empty regex filter", u)
+	}
+}
+
+func TestRegexPathFilterInvalidPattern(t *testing.T) {
+	filter := NewRegexPathFilter(`[invalid`)
+	u := &url.URL{Scheme: "http", Host: "example.com", Path: "/anything"}
+	if filter.FilterUrl(u) {
+		t.Errorf("FilterUrl(%v) = true; expected false for invalid regex pattern", u)
+	}
+}

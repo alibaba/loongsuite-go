@@ -1,6 +1,6 @@
 //go:build ignore
 
-// Copyright (c) 2024 Alibaba Group Holding Ltd.
+// Copyright (c) 2026 Alibaba Group Holding Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,11 +21,12 @@ package trace_context // import "go.opentelemetry.io/otel/sdk/trace"
 
 import (
 	"context"
+	"time"
+
 	"go.opentelemetry.io/otel/sdk/instrumentation"
 	"go.opentelemetry.io/otel/sdk/trace/internal/observ"
 	"go.opentelemetry.io/otel/trace"
 	"go.opentelemetry.io/otel/trace/embedded"
-	"time"
 )
 
 type tracer struct {

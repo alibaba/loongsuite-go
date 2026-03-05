@@ -17,3 +17,4 @@
   - `delta`: Counter、Asynchronous Counter 和 Histogram 使用增量时间性；UpDownCounter 和 Asynchronous UpDownCounter 使用累积时间性
   - `lowmemory`: Synchronous Counter 和 Histogram 使用增量时间性；其他类型使用累积时间性（低内存模式）
 - `OTEL_TRACE_SAMPLER`: 指定链路采样器。0.0 到 1.0 之间的浮点数会设置一个基于比率的采样器。小于等于 0 的值将永不采样，大于等于 1 的值将始终采样。默认是基于父级的采样器，并且始终采样。
+- `OTEL_INSTRUMENTATION_HTTP_EXCLUDE_PATHS`: 指定要从 HTTP 自动埋点中排除的 URL 路径正则表达式（例如 `^/(ping|health|metrics)$`）。路径匹配该正则表达式的请求将不会生成 span。默认不排除任何路径。

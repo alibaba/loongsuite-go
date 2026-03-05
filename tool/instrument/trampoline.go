@@ -58,6 +58,8 @@ const (
 	trampolineOnExitName             = "OtelOnExitTrampoline"
 	trampolineOnEnterNamePlaceholder = "\"OtelOnEnterNamePlaceholder\""
 	trampolineOnExitNamePlaceholder  = "\"OtelOnExitNamePlaceholder\""
+	trampolineBefore                 = true
+	trampolineAfter                  = false
 )
 
 // @@ Modification on this trampoline template should be cautious, as it imposes
@@ -88,10 +90,10 @@ func (rp *RuleProcessor) materializeTemplate() error {
 		// Materialize function declarations
 		if decl, ok := node.(*dst.FuncDecl); ok {
 			if decl.Name.Name == trampolineOnEnterName {
-				rp.onEnterHookFunc = decl
+				rp.enterTrampFunc = decl
 				rp.addDecl(decl)
 			} else if decl.Name.Name == trampolineOnExitName {
-				rp.onExitHookFunc = decl
+				rp.exitTrampFunc = decl
 				rp.addDecl(decl)
 			} else if ast.HasReceiver(decl) {
 				// We know exactly this is CallContextImpl method
@@ -115,8 +117,8 @@ func (rp *RuleProcessor) materializeTemplate() error {
 	}
 	util.Assert(rp.callCtxDecl != nil, "sanity check")
 	util.Assert(len(rp.varDecls) > 0, "sanity check")
-	util.Assert(rp.onEnterHookFunc != nil, "sanity check")
-	util.Assert(rp.onExitHookFunc != nil, "sanity check")
+	util.Assert(rp.enterTrampFunc != nil, "sanity check")
+	util.Assert(rp.exitTrampFunc != nil, "sanity check")
 	return nil
 }
 
@@ -240,14 +242,14 @@ func (rp *RuleProcessor) callOnEnterHook(t *rules.InstFuncRule, traits []ParamTr
 	// The actual parameter list of hook function should be the same as the
 	// target function
 	if rp.exact {
-		util.Assert(len(traits) == (len(rp.onEnterHookFunc.Type.Params.List)+1),
+		util.Assert(len(traits) == (len(rp.enterTrampFunc.Type.Params.List)+1),
 			"hook func signature can not match with target function")
 	}
-	// Hook: 	   func onEnterFoo(callContext* CallContext, p*[]int)
-	// Trampoline: func OtelOnEnterTrampoline_foo(p *[]int)
+	// Hook: 	   func A(callContext* CallContext, p*[]int)
+	// Trampoline: func B(p *[]int)
 	args := []dst.Expr{dst.NewIdent(trampolineCallContextName)}
 	if rp.exact {
-		for idx, field := range rp.onEnterHookFunc.Type.Params.List {
+		for idx, field := range rp.enterTrampFunc.Type.Params.List {
 			trait := traits[idx+1 /*CallContext*/]
 			for _, name := range field.Names { // syntax of n1,n2 type
 				if trait.IsVaradic {
@@ -265,7 +267,7 @@ func (rp *RuleProcessor) callOnEnterHook(t *rules.InstFuncRule, traits []ParamTr
 		ast.Block(call),
 		nil,
 	)
-	insertAt(rp.onEnterHookFunc, iff, len(rp.onEnterHookFunc.Body.List)-1)
+	insertAt(rp.enterTrampFunc, iff, len(rp.enterTrampFunc.Body.List)-1)
 	return nil
 }
 
@@ -273,13 +275,13 @@ func (rp *RuleProcessor) callOnExitHook(t *rules.InstFuncRule, traits []ParamTra
 	// The actual parameter list of hook function should be the same as the
 	// target function
 	if rp.exact {
-		util.Assert(len(traits) == len(rp.onExitHookFunc.Type.Params.List),
+		util.Assert(len(traits) == len(rp.exitTrampFunc.Type.Params.List),
 			"hook func signature can not match with target function")
 	}
-	// Hook: 	   func onExitFoo(ctx* CallContext, p*[]int)
-	// Trampoline: func OtelOnExitTrampoline_foo(ctx* CallContext, p *[]int)
+	// Hook: 	   func A(ctx* CallContext, p*[]int)
+	// Trampoline: func B(ctx* CallContext, p *[]int)
 	var args []dst.Expr
-	for idx, field := range rp.onExitHookFunc.Type.Params.List {
+	for idx, field := range rp.exitTrampFunc.Type.Params.List {
 		if idx == 0 {
 			args = append(args, dst.NewIdent(trampolineCallContextName))
 			if !rp.exact {
@@ -306,70 +308,22 @@ func (rp *RuleProcessor) callOnExitHook(t *rules.InstFuncRule, traits []ParamTra
 		ast.Block(call),
 		nil,
 	)
-	insertAtEnd(rp.onExitHookFunc, iff)
+	insertAtEnd(rp.exitTrampFunc, iff)
 	return nil
 }
 
-// replaceTypeWithAny replaces parameter types with interface{} based on generic type parameters.
-func replaceTypeWithAny(traits []ParamTrait, paramTypes, genericTypes *dst.FieldList) error {
-	if len(paramTypes.List) != len(traits) {
-		return ex.Newf("hook func signature can not match with target function")
-	}
-
-	for i, field := range paramTypes.List {
-		trait := traits[i]
-		if trait.IsInterfaceAny {
-			// Hook explicitly uses interface{} for this parameter
-			field.Type = ast.InterfaceType()
-		} else {
-			// Replace type parameters with interface{} (for linkname compatibility)
-			field.Type = replaceTypeParamsWithAny(field.Type, genericTypes)
-		}
-	}
-	return nil
-}
-
-func (rp *RuleProcessor) addHookFuncVar(t *rules.InstFuncRule,
-	traits []ParamTrait, onEnter bool) error {
-	paramTypes := &dst.FieldList{List: []*dst.Field{}}
-	genericTypes := &dst.FieldList{List: []*dst.Field{}}
-	if rp.exact {
-		paramTypes, genericTypes = rp.buildTrampolineType(onEnter)
-	}
-	addCallContext(paramTypes)
-	if rp.exact {
-		// Hook functions may uses interface{} as parameter type, as some types of
-		// raw function is not exposed
-		err := replaceTypeWithAny(traits, paramTypes, genericTypes)
-		if err != nil {
-			return err
-		}
-	}
-
-	// Generate var decl and append it to the target file, note that many target
-	// functions may match the same hook function, it's a fatal error to append
-	// multiple hook function declarations to the same file, so we need to check
-	// if the hook function variable is already declared in the target file
-	exist := false
-	fnName := makeOnXName(t, onEnter)
+func (rp *RuleProcessor) addHookDecl(t *rules.InstFuncRule, paramTypes *dst.FieldList, before bool) error {
+	fnName := makeOnXName(t, before)
 	funcDecl := &dst.FuncDecl{
-		Name: &dst.Ident{
-			Name: fnName,
-		},
+		Name: ast.Ident(fnName),
 		Type: &dst.FuncType{
 			Func:   false,
 			Params: paramTypes,
 		},
 	}
-	for _, decl := range rp.target.Decls {
-		if fDecl, ok := decl.(*dst.FuncDecl); ok {
-			if fDecl.Name.Name == fnName {
-				exist = true
-				break
-			}
-		}
-	}
-	if !exist {
+
+	exist := ast.FindFuncDeclWithoutRecv(rp.target, fnName)
+	if exist == nil {
 		rp.addDecl(funcDecl)
 	}
 	return nil
@@ -388,8 +342,8 @@ func insertAtEnd(funcDecl *dst.FuncDecl, stmt dst.Stmt) {
 
 func (rp *RuleProcessor) renameTrampolineFunc(t *rules.InstFuncRule) {
 	// Randomize trampoline function names
-	rp.onEnterHookFunc.Name.Name = makeName(t, rp.targetFunc, true)
-	dst.Inspect(rp.onEnterHookFunc, func(node dst.Node) bool {
+	rp.enterTrampFunc.Name.Name = makeName(t, rp.targetFunc, true)
+	dst.Inspect(rp.enterTrampFunc, func(node dst.Node) bool {
 		if basicLit, ok := node.(*dst.BasicLit); ok {
 			// Replace OtelOnEnterTrampolinePlaceHolder to real hook func name
 			if basicLit.Value == trampolineOnEnterNamePlaceholder {
@@ -398,8 +352,8 @@ func (rp *RuleProcessor) renameTrampolineFunc(t *rules.InstFuncRule) {
 		}
 		return true
 	})
-	rp.onExitHookFunc.Name.Name = makeName(t, rp.targetFunc, false)
-	dst.Inspect(rp.onExitHookFunc, func(node dst.Node) bool {
+	rp.exitTrampFunc.Name.Name = makeName(t, rp.targetFunc, false)
+	dst.Inspect(rp.exitTrampFunc, func(node dst.Node) bool {
 		if basicLit, ok := node.(*dst.BasicLit); ok {
 			if basicLit.Value == trampolineOnExitNamePlaceholder {
 				basicLit.Value = strconv.Quote(t.OnExit)
@@ -417,67 +371,140 @@ func addCallContext(list *dst.FieldList) {
 	list.List = append([]*dst.Field{callCtx}, list.List...)
 }
 
-func (rp *RuleProcessor) buildTrampolineType(onEnter bool) (*dst.FieldList, *dst.FieldList) {
-	// Since target function parameter names might be "_", we may use the target
-	// function parameters in the trampoline function, which would cause a syntax
-	// error, so we assign them a specific name and use them.
+// findTargetParamType finds the parameter list of the target function
+//
+// func (recv *Type1) Target(arg1 Type2, arg2 Type3, ...) (ret1 Type4, ret2 Type5, ...)
+// ->
+// [recv *Type1, arg1 Type2, arg2 Type3, ...]
+func findTargetParamType(targetFunc *dst.FuncDecl) *dst.FieldList {
+	paramTypes := &dst.FieldList{}
 	idx := 0
-	renameField := func(field *dst.Field, prefix string) {
-		for _, names := range field.Names {
-			names.Name = fmt.Sprintf("%s%d", prefix, idx)
+	if ast.HasReceiver(targetFunc) {
+		splitRecv := ast.SplitMultiNameFields(targetFunc.Recv)
+		recvField := util.AssertType[*dst.Field](dst.Clone(splitRecv.List[0]))
+		for _, names := range recvField.Names {
+			names.Name = fmt.Sprintf("%s%d", "recv", idx)
 			idx++
 		}
+		paramTypes.List = append(paramTypes.List, recvField)
 	}
-	// Build parameter list of trampoline function.
-	// For before trampoline, it's signature is:
-	// func S(h* HookContext, recv type, arg1 type, arg2 type, ...)
-	// For after trampoline, it's signature is:
-	// func S(h* HookContext, arg1 type, arg2 type, ...)
-	// All grouped parameters (like a, b int) are expanded into separate parameters (a int, b int)
-	paramTypes := &dst.FieldList{List: []*dst.Field{}}
-	if onEnter {
-		if ast.HasReceiver(rp.targetFunc) {
-			splitRecv := ast.SplitMultiNameFields(rp.targetFunc.Recv)
-			recvField := util.AssertType[*dst.Field](dst.Clone(splitRecv.List[0]))
-			renameField(recvField, "recv")
-			paramTypes.List = append(paramTypes.List, recvField)
+	idx = 0
+	splitParams := ast.SplitMultiNameFields(targetFunc.Type.Params)
+	for _, field := range splitParams.List {
+		paramField := util.AssertType[*dst.Field](dst.Clone(field))
+		for _, names := range paramField.Names {
+			names.Name = fmt.Sprintf("%s%d", "param", idx)
+			idx++
 		}
-		splitParams := ast.SplitMultiNameFields(rp.targetFunc.Type.Params)
-		for _, field := range splitParams.List {
-			paramField := util.AssertType[*dst.Field](dst.Clone(field))
-			renameField(paramField, "param")
-			paramTypes.List = append(paramTypes.List, paramField)
-		}
-	} else if rp.targetFunc.Type.Results != nil {
-		splitResults := ast.SplitMultiNameFields(rp.targetFunc.Type.Results)
+		paramTypes.List = append(paramTypes.List, paramField)
+	}
+	return paramTypes
+}
+
+// findTargetResultType finds the result list of the target function
+//
+// func (recv *Type1) Target(arg1 Type2, arg2 Type3, ...) (ret1 Type4, ret2 Type5, ...)
+// ->
+// [ret1 Type4, ret2 Type5, ...]
+func findTargetResultType(targetFunc *dst.FuncDecl) *dst.FieldList {
+	paramTypes := &dst.FieldList{}
+	if targetFunc.Type.Results != nil {
+		splitResults := ast.SplitMultiNameFields(targetFunc.Type.Results)
+		idx := 0
 		for _, field := range splitResults.List {
 			retField := util.AssertType[*dst.Field](dst.Clone(field))
-			renameField(retField, "arg")
+			for _, names := range retField.Names {
+				names.Name = fmt.Sprintf("%s%d", "arg", idx)
+				idx++
+			}
 			paramTypes.List = append(paramTypes.List, retField)
 		}
 	}
-	// Build type parameter list of trampoline function according to the target
-	// function's type parameters and receiver type parameters
-	genericTypes := combineTypeParams(rp.targetFunc)
-	return paramTypes, ast.CloneTypeParams(genericTypes)
+	return paramTypes
 }
 
-func (rp *RuleProcessor) buildTrampolineTypes() {
-	onEnterHookFunc, onExitHookFunc := rp.onEnterHookFunc, rp.onExitHookFunc
-	onEnterHookFunc.Type.Params, onEnterHookFunc.Type.TypeParams = rp.buildTrampolineType(true)
-	onExitHookFunc.Type.Params, onExitHookFunc.Type.TypeParams = rp.buildTrampolineType(false)
-	candidate := []*dst.FieldList{
-		onEnterHookFunc.Type.Params,
-		onExitHookFunc.Type.Params,
-	}
-	for _, list := range candidate {
-		for i := 0; i < len(list.List); i++ {
-			paramField := list.List[i]
-			paramFieldType := desugarType(paramField)
-			paramField.Type = ast.DereferenceOf(paramFieldType)
+// findTargetGenericType finds the type parameter list of the target function
+//
+// func (c *Type1[K]) Target[V any]() V
+// ->
+// [K, V]
+func findTargetGenericType(targetFunc *dst.FuncDecl) *dst.FieldList {
+	var trampolineTypeParams *dst.FieldList
+	if ast.HasReceiver(targetFunc) {
+		receiverTypeParams := extractReceiverTypeParams(targetFunc.Recv.List[0].Type)
+		if receiverTypeParams != nil {
+			trampolineTypeParams = receiverTypeParams
 		}
 	}
-	addCallContext(onExitHookFunc.Type.Params)
+	if targetFunc.Type.TypeParams != nil {
+		if trampolineTypeParams == nil {
+			trampolineTypeParams = targetFunc.Type.TypeParams
+		} else {
+			combined := &dst.FieldList{List: make([]*dst.Field, 0)}
+			combined.List = append(combined.List, trampolineTypeParams.List...)
+			combined.List = append(combined.List, targetFunc.Type.TypeParams.List...)
+			trampolineTypeParams = combined
+		}
+	}
+
+	if trampolineTypeParams != nil {
+		clone := dst.Clone(trampolineTypeParams)
+		trampolineTypeParams = util.AssertType[*dst.FieldList](clone)
+	}
+	return trampolineTypeParams
+}
+
+func (rp *RuleProcessor) buildTrampSignature(before bool) {
+	var fields *dst.FieldList
+	if before {
+		beforeTramp := rp.enterTrampFunc
+		beforeTramp.Type.Params = findTargetParamType(rp.targetFunc)
+		beforeTramp.Type.TypeParams = findTargetGenericType(rp.targetFunc)
+		fields = beforeTramp.Type.Params
+	} else {
+		afterTramp := rp.exitTrampFunc
+		afterTramp.Type.Params = findTargetResultType(rp.targetFunc)
+		afterTramp.Type.TypeParams = findTargetGenericType(rp.targetFunc)
+		fields = afterTramp.Type.Params
+	}
+	// All types should be replaced with dereferenced types, so that the trampoline
+	// function can modify the target function's parameters.
+	for i := range len(fields.List) {
+		paramField := fields.List[i]
+		paramFieldType := desugarType(paramField)
+		paramField.Type = ast.DereferenceOf(paramFieldType)
+	}
+
+	// If it's after trampoline, add hook context as the first parameter
+	if !before {
+		addCallContext(fields)
+	}
+}
+
+func (rp *RuleProcessor) buildHookSignature(traits []ParamTrait, before bool) (*dst.FieldList, error) {
+	var paramTypes, genericTypes *dst.FieldList
+	if before {
+		paramTypes = findTargetParamType(rp.targetFunc)
+	} else {
+		paramTypes = findTargetResultType(rp.targetFunc)
+	}
+	addCallContext(paramTypes)
+
+	if len(paramTypes.List) != len(traits) {
+		return nil, ex.New("hook func signature can not match with target function")
+	}
+
+	genericTypes = findTargetGenericType(rp.targetFunc)
+	for i, field := range paramTypes.List {
+		trait := traits[i]
+		if trait.IsInterfaceAny {
+			// Hook explicitly uses interface{} for this parameter
+			field.Type = ast.InterfaceType()
+		} else {
+			field.Type = replaceTypeParamsWithAny(field.Type, genericTypes)
+		}
+	}
+	return paramTypes, nil
 }
 
 func assignString(assignStmt *dst.AssignStmt, val string) bool {
@@ -510,9 +537,9 @@ func assignSliceLiteral(assignStmt *dst.AssignStmt, vals []dst.Expr) bool {
 
 // populateCallContext replenishes the call context before hook invocation
 func (rp *RuleProcessor) populateCallContext(onEnter bool) bool {
-	funcDecl := rp.onEnterHookFunc
+	funcDecl := rp.enterTrampFunc
 	if !onEnter {
-		funcDecl = rp.onExitHookFunc
+		funcDecl = rp.exitTrampFunc
 	}
 	for _, stmt := range funcDecl.Body.List {
 		if assignStmt, ok := stmt.(*dst.AssignStmt); ok {
@@ -574,7 +601,7 @@ func (rp *RuleProcessor) implementCallContext(t *rules.InstFuncRule) {
 	for _, method := range rp.callCtxMethods { // method declaration
 		method.Recv.List[0].Type.(*dst.StarExpr).X.(*dst.Ident).Name += suffix
 	}
-	for _, node := range []dst.Node{rp.onEnterHookFunc, rp.onExitHookFunc} {
+	for _, node := range []dst.Node{rp.enterTrampFunc, rp.exitTrampFunc} {
 		dst.Inspect(node, func(node dst.Node) bool {
 			if ident, ok := node.(*dst.Ident); ok {
 				if ident.Name == trampolineCallContextImplType {
@@ -908,13 +935,16 @@ func replaceTypeParamsWithAny(t dst.Expr, typeParams *dst.FieldList) dst.Expr {
 	}
 }
 
-func (rp *RuleProcessor) callHookFunc(t *rules.InstFuncRule,
-	onEnter bool) error {
+func (rp *RuleProcessor) callHookFunc(t *rules.InstFuncRule, onEnter bool) error {
 	traits, err := getHookParamTraits(t, onEnter)
 	if err != nil {
 		return err
 	}
-	err = rp.addHookFuncVar(t, traits, onEnter)
+	paramTypes, err := rp.buildHookSignature(traits, onEnter)
+	if err != nil {
+		return err
+	}
+	err = rp.addHookDecl(t, paramTypes, onEnter)
 	if err != nil {
 		return err
 	}
@@ -941,24 +971,21 @@ func (rp *RuleProcessor) createTrampoline(t *rules.InstFuncRule) error {
 	}
 	// Implement HookContext interface methods dynamically
 	rp.implementCallContext(t)
-	// Rewrite type-aware HookContext APIs
 	// Make all HookContext methods type-aware according to the target function
 	// signature.
 	rp.rewriteCallContext()
 	// Rename template function to trampoline function
 	rp.renameTrampolineFunc(t)
-	// Build types of trampoline functions. The parameters of the Before trampoline
-	// function are the same as the target function, the parameters of the After
-	// trampoline function are the same as the target function.
-	rp.buildTrampolineTypes()
 	// Generate calls to hook functions
 	if t.OnEnter != "" {
+		rp.buildTrampSignature(trampolineBefore)
 		err = rp.callHookFunc(t, true)
 		if err != nil {
 			return err
 		}
 	}
 	if t.OnExit != "" {
+		rp.buildTrampSignature(trampolineAfter)
 		err = rp.callHookFunc(t, false)
 		if err != nil {
 			return err

@@ -296,12 +296,3 @@ func SplitMultiNameFields(fieldList *dst.FieldList) *dst.FieldList {
 	}
 	return result
 }
-
-// CloneTypeParams safely clones a type parameter field list for generic functions.
-// Returns nil if the input is nil.
-func CloneTypeParams(typeParams *dst.FieldList) *dst.FieldList {
-	if typeParams == nil {
-		return nil
-	}
-	return util.AssertType[*dst.FieldList](dst.Clone(typeParams))
-}

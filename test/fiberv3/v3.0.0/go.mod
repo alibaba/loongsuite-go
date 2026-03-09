@@ -1,4 +1,4 @@
-module fiberTest/v2.43.0
+module fiberTest/v3.0.0
 
 go 1.25.0
 

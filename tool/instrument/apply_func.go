@@ -30,8 +30,10 @@ import (
 )
 
 const (
-	TJumpLabel      = "/* TRAMPOLINE_JUMP_IF */"
-	OtelGlobalsFile = "otel.globals.go"
+	TJumpLabel        = "/* TRAMPOLINE_JUMP_IF */"
+	OtelGlobalsFile   = "otel.globals.go"
+	unnamedRetValName = "retVal"
+	ignoredParam      = "ignoredParam"
 )
 
 func (rp *RuleProcessor) parseAst(filePath string) (*dst.File, error) {
@@ -99,55 +101,66 @@ func findJumpPoint(jumpIf *dst.IfStmt) *dst.BlockStmt {
 }
 
 func collectReturnValues(funcDecl *dst.FuncDecl) []string {
+	// Add explicit names for return values, they can be further referenced if
+	// we're willing
 	var retVals []string // nil by default
 	if retList := funcDecl.Type.Results; retList != nil {
-		retVals = make([]string, 0)
-		// If return values are named, collect their names, otherwise we try to
-		// name them manually for further use
-		for i, field := range retList.List {
-			if field.Names != nil {
+		idx := 0
+		for _, field := range retList.List {
+			if field.Names == nil {
+				// Rename (for referenceability)
+				name := fmt.Sprintf("%s%d", unnamedRetValName, idx)
+				field.Names = []*dst.Ident{ast.Ident(name)}
+				idx++
+				// Collect (for further use)
+				retVals = append(retVals, name)
+			} else {
+				// Collect only (for further use)
 				for _, name := range field.Names {
+					if name.Name == ast.IdentIgnore {
+						name.Name = fmt.Sprintf("%s%d", ignoredParam, idx)
+						idx++
+					}
 					retVals = append(retVals, name.Name)
 				}
-			} else {
-				retValIdent := dst.NewIdent(fmt.Sprintf("retVal%d", i))
-				field.Names = []*dst.Ident{retValIdent}
-				retVals = append(retVals, retValIdent.Name)
 			}
 		}
 	}
+
 	return retVals
 }
 
 func collectArguments(funcDecl *dst.FuncDecl) []string {
-	// Arguments for onEnter trampoline
 	args := make([]string, 0)
-	argIdx := 0
-	// Receiver as argument for trampoline func, if any
+	idx := 0
 	if ast.HasReceiver(funcDecl) {
-		if recv := funcDecl.Recv.List; recv != nil {
-			receiver := recv[0].Names[0].Name
-			// Rename "_" receiver to a valid identifier so we can take its address
-			if receiver == ast.IdentIgnore {
-				receiver = fmt.Sprintf("_otel_recv_%d", argIdx)
-				recv[0].Names[0].Name = receiver
-			}
+		if recv := funcDecl.Recv.List[0]; recv.Names != nil {
+			// Named receiver
+			receiver := funcDecl.Recv.List[0].Names[0].Name
 			args = append(args, receiver)
-			argIdx++
 		} else {
-			util.Unimplemented("collectArguments: no receiver")
+			// Unnamed receiver, i.e. func (R) F() {}
+			receiver := fmt.Sprintf("%s%d", ignoredParam, idx)
+			idx++
+			funcDecl.Recv.List[0].Names = []*dst.Ident{ast.Ident(receiver)}
+			args = append(args, receiver)
 		}
 	}
-	// Original function arguments as arguments for trampoline func
+
 	for _, field := range funcDecl.Type.Params.List {
+		if field.Names == nil {
+			name := fmt.Sprintf("%s%d", ignoredParam, idx)
+			field.Names = []*dst.Ident{ast.Ident(name)}
+			idx++
+			args = append(args, name)
+			continue
+		}
 		for _, name := range field.Names {
-			argName := name.Name
-			if argName == ast.IdentIgnore {
-				argName = fmt.Sprintf("_otel_arg_%d", argIdx)
-				name.Name = argName
+			if name.Name == ast.IdentIgnore {
+				name.Name = fmt.Sprintf("%s%d", ignoredParam, idx)
+				idx++
 			}
-			args = append(args, argName)
-			argIdx++
+			args = append(args, name.Name)
 		}
 	}
 	return args
@@ -156,13 +169,8 @@ func collectArguments(funcDecl *dst.FuncDecl) []string {
 func createHookArgs(names []string) []dst.Expr {
 	exprs := make([]dst.Expr, 0)
 	for _, name := range names {
-		// Pass nil to trampoline func if the argument of target func is "_"
-		// Otherwise, pass the pointer of the argument
-		if name == ast.IdentIgnore {
-			exprs = append(exprs, ast.Nil())
-		} else {
-			exprs = append(exprs, ast.AddressOf(name))
-		}
+		util.Assert(name != ast.IdentIgnore, "must be processed before")
+		exprs = append(exprs, ast.AddressOf(name))
 	}
 	return exprs
 }

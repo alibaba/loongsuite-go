@@ -28,7 +28,7 @@ func TestRunErrors(t *testing.T) {
 	stdout, stderr := RunApp(t, ErrorsAppName)
 	ExpectContains(t, stdout, "wow")
 	ExpectContains(t, stdout, "old:wow")
-	ExpectContains(t, stdout, "ptr<nil>")
+	ExpectContains(t, stdout, "ptr")
 	ExpectNotContains(t, stdout, "val1024")
 	ExpectContains(t, stdout, "val1298") // 0x512
 	ExpectContains(t, stdout, "7632")

@@ -121,6 +121,14 @@ func SetGLocalData(key string, value interface{}) {
 	setTraceContext(t)
 }
 
+func GetTraceContext() trace.SpanContext {
+	t := getOrInitTraceContext()
+	if t.size() != 0 {
+		return t.tail().SpanContext()
+	}
+	return trace.SpanContext{}
+}
+
 func getOrInitTraceContext() *traceContext {
 	tc := GetTraceContextFromGLS()
 	if tc == nil {
@@ -143,6 +151,13 @@ func traceContextAddSpan(span trace.Span) {
 	}
 }
 
+func TraceContextAddSpan(span trace.Span) {
+	tc := getOrInitTraceContext()
+	if !tc.add(span) {
+		fmt.Println("Failed to add span to TraceContext")
+	}
+}
+
 func GetTraceAndSpanId() (string, string) {
 	tc := GetTraceContextFromGLS()
 	if tc == nil || tc.(*traceContext).tail() == nil {
@@ -153,6 +168,11 @@ func GetTraceAndSpanId() (string, string) {
 }
 
 func traceContextDelSpan(span trace.Span) {
+	ctx := getOrInitTraceContext()
+	ctx.del(span)
+}
+
+func TraceContextDelSpan(span trace.Span) {
 	ctx := getOrInitTraceContext()
 	ctx.del(span)
 }

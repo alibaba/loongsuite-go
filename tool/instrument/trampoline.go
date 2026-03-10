@@ -423,6 +423,12 @@ func (rp *RuleProcessor) buildTrampolineType(onEnter bool) (*dst.FieldList, *dst
 	// error, so we assign them a specific name and use them.
 	idx := 0
 	renameField := func(field *dst.Field, prefix string) {
+		if field.Names == nil {
+			name := fmt.Sprintf("%s%d", prefix, idx)
+			field.Names = []*dst.Ident{ast.Ident(name)}
+			idx++
+			return
+		}
 		for _, names := range field.Names {
 			names.Name = fmt.Sprintf("%s%d", prefix, idx)
 			idx++

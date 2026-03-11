@@ -1,4 +1,4 @@
-// Copyright (c) 2024 Alibaba Group Holding Ltd.
+// Copyright (c) 2026 Alibaba Group Holding Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
 package main
 
 import (
+	"crypto/tls"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/alibaba/loongsuite-go-agent/test/verifier"
@@ -26,10 +26,14 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func requestServer() {
-	client := &fasthttp.Client{}
+func requestHttpsServer() {
+	client := &fasthttp.Client{
+		TLSConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
+	}
 
-	reqURL := "http://localhost:3000/fiber"
+	reqURL := "https://localhost:3000/fiber"
 
 	req := fasthttp.AcquireRequest()
 	resp := fasthttp.AcquireResponse()
@@ -50,7 +54,7 @@ func requestServer() {
 	fmt.Printf("Response body is:\n%s", resp.Body())
 }
 
-func setupHttp() {
+func setupHttps() {
 	// Initialize a new Fiber app
 	app := fiber.New()
 
@@ -61,18 +65,22 @@ func setupHttp() {
 	})
 
 	// Start the server on port 3000
-	log.Fatal(app.Listen(":3000"))
+	app.Listen(":3000", fiber.ListenConfig{
+		CertFile:    "server.crt",
+		CertKeyFile: "server.key",
+	})
+
 }
 
 func main() {
 	// starter server
-	go setupHttp()
+	go setupHttps()
 	time.Sleep(3 * time.Second)
 	// use a http client to request to the server
-	requestServer()
+	requestHttpsServer()
 	// verify trace
 	verifier.WaitAndAssertTraces(func(stubs []tracetest.SpanStubs) {
-		verifier.VerifyHttpClientAttributes(stubs[0][0], "GET", "GET", "http://localhost:3000/fiber", "http", "", "tcp", "ipv4", "", "localhost:3000", 200, 0, 3000)
-		verifier.VerifyHttpServerAttributes(stubs[0][1], "GET /fiber", "GET", "http", "tcp", "ipv4", "", "localhost:3000", "fasthttp", "http", "/fiber", "", "/fiber", 200)
+		verifier.VerifyHttpClientAttributes(stubs[0][0], "GET", "GET", "https://localhost:3000/fiber", "https", "", "tcp", "ipv4", "", "localhost:3000", 200, 0, 3000)
+		verifier.VerifyHttpServerAttributes(stubs[0][1], "GET /fiber", "GET", "https", "tcp", "ipv4", "", "localhost:3000", "fasthttp", "https", "/fiber", "", "/fiber", 200)
 	}, 1)
 }

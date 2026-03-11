@@ -1,4 +1,4 @@
-// Copyright (c) 2024 Alibaba Group Holding Ltd.
+// Copyright (c) 2026 Alibaba Group Holding Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,11 +14,12 @@
 package fiberv3
 
 import (
+	"os"
+	"strconv"
+
 	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/utils"
 	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/version"
 	"go.opentelemetry.io/otel/sdk/instrumentation"
-	"os"
-	"strconv"
 
 	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api-semconv/instrumenter/http"
 	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api-semconv/instrumenter/net"
@@ -139,7 +140,7 @@ func BuildFiberV3ServerOtelInstrumenter() *instrumenter.PropagatingFromUpstreamI
 		AddOperationListeners(http.HttpServerMetrics("fiberv3.server")).
 		SetSpanKindExtractor(&instrumenter.AlwaysServerExtractor[*fiberv3Request]{}).
 		SetInstrumentationScope(instrumentation.Scope{
-			Name:    utils.FIBER_V2_SERVER_SCOPE_NAME,
+			Name:    utils.FIBER_V3_SERVER_SCOPE_NAME,
 			Version: version.Tag,
 		}).
 		AddAttributesExtractor(&http.HttpServerAttrsExtractor[*fiberv3Request, *fiberv3Response, fiberv3ServerAttrsGetter, fiberv3ServerAttrsGetter, fiberv3ServerAttrsGetter]{Base: commonExtractor, NetworkExtractor: networkExtractor, UrlExtractor: urlExtractor}).BuildPropagatingFromUpstreamInstrumenter(func(n *fiberv3Request) propagation.TextMapCarrier {

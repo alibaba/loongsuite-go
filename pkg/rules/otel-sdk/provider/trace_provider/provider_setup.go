@@ -13,4 +13,5 @@ func setTracerProviderOnEnter(call api.CallContext, tp trace.TracerProvider) {
 		call.SetSkipCall(true)
 		return
 	}
+	trace.SetGlobalProviderEnable = true
 }

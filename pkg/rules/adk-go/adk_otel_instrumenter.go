@@ -178,7 +178,8 @@ type ADKAgentAttrsExtractor struct {
 
 func (e ADKAgentAttrsExtractor) OnStart(attributes []attribute.KeyValue, parentContext context.Context, request adkAgentRequest) ([]attribute.KeyValue, context.Context) {
 	attributes, parentContext = e.Base.OnStart(attributes, parentContext, request)
-	attributes = append(attributes, request.spanKind.Attribute())
+	spanKind := adkAgentCommonRequest{}.GetGenAISpanKind(request)
+	attributes = append(attributes, spanKind.Attribute())
 
 	if request.input != nil {
 		for k, v := range request.input {

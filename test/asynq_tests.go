@@ -43,7 +43,12 @@ func init() {
 }
 
 func TestAsynqEnqueueProcessV023(t *testing.T, env ...string) {
-	_, redisPort := initAsynqRedisContainer()
+	redisC, redisPort := initAsynqRedisContainer()
+	t.Cleanup(func() {
+		if err := redisC.Terminate(context.Background()); err != nil {
+			t.Errorf("failed to terminate redis container: %v", err)
+		}
+	})
 	UseApp("asynq/v0.23.0")
 	RunGoBuild(t, "go", "build", "test_enqueue_process.go")
 	env = append(env, "REDIS_PORT="+redisPort.Port())
@@ -51,7 +56,12 @@ func TestAsynqEnqueueProcessV023(t *testing.T, env ...string) {
 }
 
 func TestAsynqEnqueueProcessV026(t *testing.T, env ...string) {
-	_, redisPort := initAsynqRedisContainer()
+	redisC, redisPort := initAsynqRedisContainer()
+	t.Cleanup(func() {
+		if err := redisC.Terminate(context.Background()); err != nil {
+			t.Errorf("failed to terminate redis container: %v", err)
+		}
+	})
 	UseApp("asynq/v0.26.0")
 	RunGoBuild(t, "go", "build", "test_enqueue_process.go")
 	env = append(env, "REDIS_PORT="+redisPort.Port())
@@ -60,8 +70,7 @@ func TestAsynqEnqueueProcessV026(t *testing.T, env ...string) {
 
 func initAsynqRedisContainer() (testcontainers.Container, nat.Port) {
 	req := testcontainers.ContainerRequest{
-		Image:        "registry.cn-hangzhou.aliyuncs.com/private-mesh/hellob:redis",
-		ReaperImage:  "registry.cn-hangzhou.aliyuncs.com/private-mesh/hellob:redis",
+		Image:        "redis:7-alpine",
 		ExposedPorts: []string{"6379/tcp"},
 		WaitingFor:   wait.ForLog("Ready to accept connections"),
 	}

@@ -1,0 +1,9 @@
+[
+  {
+    "Version": "[1.25.0,)",
+    "ImportPath": "github.com/anthropics/anthropic-sdk-go",
+    "Function": "NewClient",
+    "OnEnter": "newClientOnEnter",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/anthropic-sdk-go"
+  }
+]

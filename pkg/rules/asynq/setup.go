@@ -19,12 +19,11 @@ import (
 	_ "unsafe"
 
 	"github.com/alibaba/loongsuite-go-agent/pkg/api"
-	"github.com/alibaba/loongsuite-go-agent/pkg/arms_config"
-	"github.com/alibaba/loongsuite-go-agent/pkg/go-sdk/otel"
-	"github.com/alibaba/loongsuite-go-agent/pkg/go-sdk/otel/attribute"
-	"github.com/alibaba/loongsuite-go-agent/pkg/go-sdk/otel/codes"
-	"github.com/alibaba/loongsuite-go-agent/pkg/go-sdk/otel/trace"
 	"github.com/hibiken/asynq"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/codes"
+	oteltrace "go.opentelemetry.io/otel/trace"
 )
 
 func extractQueueFromOpts(opts []asynq.Option) string {
@@ -42,15 +41,12 @@ func extractQueueFromOpts(opts []asynq.Option) string {
 
 //go:linkname asynqEnqueueContextOnEnter github.com/hibiken/asynq.asynqEnqueueContextOnEnter
 func asynqEnqueueContextOnEnter(call api.CallContext, c *asynq.Client, ctx context.Context, task *asynq.Task, opts ...asynq.Option) {
-	if !arms_config.ArmsEnable {
-		return
-	}
 	if task == nil {
 		return
 	}
 
-	optsSpan := []trace.SpanStartOption{trace.WithSpanKind(trace.SpanKindProducer)}
-	ctx, span := otel.ArmsTracer.Start(ctx, task.Type()+" enqueue", optsSpan...)
+	optsSpan := []oteltrace.SpanStartOption{oteltrace.WithSpanKind(oteltrace.SpanKindProducer)}
+	ctx, span := otel.Tracer("github.com/hibiken/asynq").Start(ctx, task.Type()+" enqueue", optsSpan...)
 
 	queue := extractQueueFromOpts(opts)
 	span.SetAttributes(
@@ -80,7 +76,7 @@ func asynqEnqueueContextOnExit(call api.CallContext, info *asynq.TaskInfo, err e
 		return
 	}
 
-	span, _ := data["span"].(trace.Span)
+	span, _ := data["span"].(oteltrace.Span)
 	if span == nil {
 		return
 	}
@@ -99,15 +95,12 @@ func asynqEnqueueContextOnExit(call api.CallContext, info *asynq.TaskInfo, err e
 
 //go:linkname asynqProcessTaskOnEnter github.com/hibiken/asynq.asynqProcessTaskOnEnter
 func asynqProcessTaskOnEnter(call api.CallContext, mux *asynq.ServeMux, ctx context.Context, task *asynq.Task) {
-	if !arms_config.ArmsEnable {
-		return
-	}
 	if task == nil {
 		return
 	}
 
-	opts := []trace.SpanStartOption{trace.WithSpanKind(trace.SpanKindConsumer)}
-	ctx, span := otel.ArmsTracer.Start(ctx, task.Type()+" process", opts...)
+	opts := []oteltrace.SpanStartOption{oteltrace.WithSpanKind(oteltrace.SpanKindConsumer)}
+	ctx, span := otel.Tracer("github.com/hibiken/asynq").Start(ctx, task.Type()+" process", opts...)
 
 	span.SetAttributes(
 		attribute.String("messaging.system", "asynq"),
@@ -147,7 +140,7 @@ func asynqProcessTaskOnExit(call api.CallContext, err error) {
 		return
 	}
 
-	span, _ := data["span"].(trace.Span)
+	span, _ := data["span"].(oteltrace.Span)
 	if span == nil {
 		return
 	}

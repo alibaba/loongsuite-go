@@ -61,7 +61,7 @@ func main() {
 
 	wg.Wait()
 
-	verifier.WaitAndAssertTracesWithNum(func(stubs []tracetest.SpanStubs) {
+	verifier.WaitAndAssertTraces(func(stubs []tracetest.SpanStubs) {
 		var enqueueSpan, processSpan tracetest.SpanStub
 		for _, traceStubs := range stubs {
 			for _, s := range traceStubs {

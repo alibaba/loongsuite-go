@@ -67,7 +67,7 @@ func main() {
 	ctx := context.Background()
 	stream := client.Messages.NewStreaming(ctx, anthropic.MessageNewParams{
 		MaxTokens: 128,
-		Model:     anthropic.ModelClaude3_7SonnetLatest,
+		Model:     anthropic.Model("claude-3-7-sonnet-latest"),
 		Messages: []anthropic.MessageParam{
 			anthropic.NewUserMessage(anthropic.ContentBlockParamUnion{
 				OfText: &anthropic.TextBlockParam{Text: "Hello, Claude"},

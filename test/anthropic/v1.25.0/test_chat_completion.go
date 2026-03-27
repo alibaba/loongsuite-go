@@ -64,7 +64,7 @@ func main() {
 	ctx := context.Background()
 	_, err := client.Messages.New(ctx, anthropic.MessageNewParams{
 		MaxTokens: 128,
-		Model:     anthropic.ModelClaude3_7SonnetLatest,
+		Model:     anthropic.Model("claude-3-7-sonnet-latest"),
 		Messages: []anthropic.MessageParam{
 			anthropic.NewUserMessage(anthropic.ContentBlockParamUnion{
 				OfText: &anthropic.TextBlockParam{Text: "Hello, Claude"},

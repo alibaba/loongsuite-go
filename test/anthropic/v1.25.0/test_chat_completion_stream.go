@@ -84,8 +84,8 @@ func main() {
 	}
 	time.Sleep(1 * time.Second)
 	verifier.WaitAndAssertTraces(func(stubs []tracetest.SpanStubs) {
-		xx, _ := json.Marshal(stubs)
-		fmt.Println(string(xx))
+		spanStr, _ := json.Marshal(stubs)
+		fmt.Println(string(spanStr))
 		span := stubs[0][0]
 
 		verifier.Assert(span.Name == "chat stream", "Expected span name to be chat stream, got %s", span.Name)

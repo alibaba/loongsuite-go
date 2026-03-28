@@ -23,7 +23,7 @@ func init() {
 	TestCases = append(TestCases,
 		NewGeneralTestCase("adk-go-agent-test", adk_go_module_name, "v0.6.0", "", "1.24", "", TestADKGoAgent),
 		NewMuzzleTestCase("adk-go-muzzle-test", adk_go_dependency_name, adk_go_module_name, "v0.6.0", "", "1.24", "", []string{"go", "build", "test_adk_agent.go"}),
-		NewLatestDepthTestCase("adk-go-latest-depth-test", adk_go_dependency_name, adk_go_module_name, "v0.6.0", "", "1.24", "", TestADKGoAgent),
+		NewLatestDepthTestCase("adk-go-latest-depth-test", adk_go_dependency_name, adk_go_module_name, "v0.6.0", "v0.6.0", "1.24", "", TestADKGoAgent),
 	)
 }
 

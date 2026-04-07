@@ -16,6 +16,7 @@ package test
 
 import (
 	"bufio"
+	"encoding/json"
 	"strings"
 	"testing"
 )
@@ -37,7 +38,29 @@ func TestGoLog(t *testing.T, env ...string) {
 		if strings.Contains(line, "[test debugging]") {
 			continue
 		}
+		// Check that trace_id and span_id appear in the log line
 		ExpectContains(t, line, "trace_id")
 		ExpectContains(t, line, "span_id")
+		// For JSON lines (slog JSON handler), verify trace_id and span_id are
+		// top-level structured fields, not embedded in the msg string.
+		if strings.HasPrefix(strings.TrimSpace(line), "{") {
+			var fields map[string]interface{}
+			if err := json.Unmarshal([]byte(line), &fields); err == nil {
+				if _, ok := fields["trace_id"]; !ok {
+					t.Errorf("expected trace_id to be a structured JSON field in: %s", line)
+				}
+				if _, ok := fields["span_id"]; !ok {
+					t.Errorf("expected span_id to be a structured JSON field in: %s", line)
+				}
+				if msg, ok := fields["msg"].(string); ok {
+					if strings.Contains(msg, "trace_id") {
+						t.Errorf("trace_id should not be embedded in msg, got msg: %s", msg)
+					}
+					if strings.Contains(msg, "span_id") {
+						t.Errorf("span_id should not be embedded in msg, got msg: %s", msg)
+					}
+				}
+			}
+		}
 	}
 }

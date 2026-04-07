@@ -41,11 +41,11 @@ func goSlogWriteOnEnter(call api.CallContext, ce *slog.Logger, ctx context.Conte
 	}
 	traceId, spanId := trace.GetTraceAndSpanId()
 	if traceId != "" {
-		msg = msg + " trace_id=" + traceId
+		args = append(args, "trace_id", traceId)
 	}
 	if spanId != "" {
-		msg = msg + " span_id=" + spanId
+		args = append(args, "span_id", spanId)
 	}
-	call.SetParam(3, msg)
+	call.SetParam(4, args)
 	return
 }

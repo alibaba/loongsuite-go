@@ -78,6 +78,56 @@ func runnerRunOnExit(call api.CallContext, result any) {
 	ADKAgentInstrumenter.End(ctx, request, nil, nil)
 }
 
+// --- Runner.Run hooks for v1.0.0+ (added opts ...RunOption variadic parameter) ---
+
+//go:linkname runnerRunOnEnterV1 google.golang.org/adk/runner.runnerRunOnEnterV1
+func runnerRunOnEnterV1(call api.CallContext, r interface{}, ctx context.Context, userID string, sessionID string, msg *genai.Content, cfg interface{}, opts ...interface{}) {
+	if !adkGoEnabler.Enable() {
+		return
+	}
+
+	request := adkAgentRequest{
+		operationName: OperationInvokeAgent,
+		spanKind:      ai.GenAISpanKindWorkflow,
+		input: map[string]any{
+			"session_id": sessionID,
+			"user_id":    userID,
+		},
+	}
+
+	if msg != nil && msg.Parts != nil {
+		for _, p := range msg.Parts {
+			if p.Text != "" {
+				request.input["user_message"] = p.Text
+				break
+			}
+		}
+	}
+
+	instrumentedCtx := ADKAgentInstrumenter.Start(ctx, request)
+	data := make(map[string]any)
+	data["ctx"] = instrumentedCtx
+	data["request"] = request
+	call.SetData(data)
+	call.SetParam(1, instrumentedCtx)
+}
+
+//go:linkname runnerRunOnExitV1 google.golang.org/adk/runner.runnerRunOnExitV1
+func runnerRunOnExitV1(call api.CallContext, result any) {
+	data, ok := call.GetData().(map[string]any)
+	if !ok || data == nil {
+		return
+	}
+
+	ctx, _ := data["ctx"].(context.Context)
+	request, _ := data["request"].(adkAgentRequest)
+	if ctx == nil {
+		return
+	}
+
+	ADKAgentInstrumenter.End(ctx, request, nil, nil)
+}
+
 // --- geminiModel.generate hooks: non-streaming LLM span with full response ---
 
 //go:linkname geminiGenerateOnEnter google.golang.org/adk/model/gemini.geminiGenerateOnEnter

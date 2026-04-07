@@ -1,11 +1,20 @@
 [
   {
-    "Version": "[0.2.0,)",
+    "Version": "[0.2.0,1.0.0)",
     "ImportPath": "google.golang.org/adk/runner",
     "ReceiverType": "\\*Runner",
     "Function": "Run",
     "OnEnter": "runnerRunOnEnter",
     "OnExit": "runnerRunOnExit",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/adk-go"
+  },
+  {
+    "Version": "[1.0.0,)",
+    "ImportPath": "google.golang.org/adk/runner",
+    "ReceiverType": "\\*Runner",
+    "Function": "Run",
+    "OnEnter": "runnerRunOnEnterV1",
+    "OnExit": "runnerRunOnExitV1",
     "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/adk-go"
   },
   {

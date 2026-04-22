@@ -32,7 +32,7 @@ func publishChannelOnEnter(call api.CallContext, ch *amqp.Channel, exchange, key
 	// only propagate when caller provided message headers.
 	if msg.Headers != nil {
 		otel.GetTextMapPropagator().Inject(ctx, amqpProducerTextMapCarrier{headers: msg.Headers})
-		call.SetParam(6, msg)
+		call.SetParam(5, msg)
 	}
 
 	call.SetData(map[string]interface{}{

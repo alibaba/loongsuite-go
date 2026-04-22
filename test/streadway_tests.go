@@ -74,7 +74,7 @@ func initStreadwayAMQPContainer() (testcontainers.Container, nat.Port) {
 	req := testcontainers.ContainerRequest{
 		Image:        "rabbitmq:4.0.7-alpine",
 		ExposedPorts: []string{"5672/tcp"},
-		WaitingFor:   wait.ForLog("Server startup complete"),
+		WaitingFor:   wait.ForListeningPort("5672/tcp"),
 	}
 	rabbitC, err := testcontainers.GenericContainer(context.Background(), testcontainers.GenericContainerRequest{
 		ContainerRequest: req,

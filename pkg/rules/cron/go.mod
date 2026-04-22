@@ -1,6 +1,6 @@
 module github.com/alibaba/loongsuite-go-agent/pkg/rules/cron
 
-go 1.24.0
+go 1.24
 
 replace github.com/alibaba/loongsuite-go-agent/pkg => ../../../pkg
 

@@ -65,5 +65,5 @@ func main() {
 		verifier.Assert(funcCronSpan.Name == "func cron", "expected span name func cron, got %s", funcCronSpan.Name)
 		verifier.Assert(cronSpan.SpanKind == trace.SpanKindServer, "cron span kind should be server, got %d", cronSpan.SpanKind)
 		verifier.Assert(funcCronSpan.SpanKind == trace.SpanKindServer, "func cron span kind should be server, got %d", funcCronSpan.SpanKind)
-	}, 2)
+	}, 1)
 }

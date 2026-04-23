@@ -16,7 +16,6 @@ package main
 
 import (
 	"sync"
-	"time"
 
 	"github.com/alibaba/loongsuite-go-agent/test/verifier"
 	"github.com/panjf2000/ants"
@@ -35,13 +34,11 @@ func main() {
 	wg.Add(1)
 	err = p.Submit(func() {
 		defer wg.Done()
-		time.Sleep(10 * time.Millisecond)
 	})
 	if err != nil {
 		panic(err)
 	}
 	wg.Wait()
-	time.Sleep(200 * time.Millisecond)
 
 	verifier.WaitAndAssertTraces(func(stubs []tracetest.SpanStubs) {
 		span := stubs[0][0]

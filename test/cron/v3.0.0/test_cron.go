@@ -46,7 +46,6 @@ func main() {
 
 	stopCtx := c.Stop()
 	<-stopCtx.Done()
-	time.Sleep(500 * time.Millisecond)
 
 	verifier.WaitAndAssertTraces(func(stubs []tracetest.SpanStubs) {
 		var cronSpan, funcCronSpan tracetest.SpanStub

@@ -77,9 +77,11 @@ The detailed usage of `otel` tool can be found in [**Usage**](./docs/user/config
 |--------------------|-------------------------------------------------|-------------|-------------|
 | adk-go             | https://pkg.go.dev/google.golang.org/adk        | v0.2.0      | -           |
 | amqp091            | https://github.com/rabbitmq/amqp091-go          | v1.10.0     | -           |
+| ants               | https://github.com/panjf2000/ants               | v1.1.0      | -           |
 | anthropic-sdk-go   | https://github.com/anthropics/anthropic-sdk-go  | v1.25.0     | -           |
 | asynq              | https://github.com/hibiken/asynq                | v0.23.0     | v0.26.0     |
 | clickhouse/v2      | https://github.com/ClickHouse/clickhouse-go/v2  | v2.13.0     | -           |
+| cron               | https://github.com/robfig/cron/v3               | v3.0.0      | -           |
 | database/sql       | https://pkg.go.dev/database/sql                 | -           | -           |
 | dubbo-go           | https://github.com/apache/dubbo-go              | v3.3.0      | -           |
 | echo               | https://github.com/labstack/echo                | v4.0.0      | -           |
@@ -124,6 +126,7 @@ The detailed usage of `otel` tool can be found in [**Usage**](./docs/user/config
 | sentinel           | https://github.com/alibaba/sentinel-golang      | v1.0.4      | -           |
 | slog               | https://pkg.go.dev/log/slog                     | -           | -           |
 | sqlx               | https://github.com/jmoiron/sqlx                 | v1.3.0      | v1.4.1      |
+| streadway-amqp     | https://github.com/streadway/amqp               | v1.0.0      | -           |
 | trpc-go            | https://github.com/trpc-group/trpc-go           | v1.0.0      | -           |
 | zap                | https://github.com/uber-go/zap                  | v1.20.0     | v1.27.1     |
 | zerolog            | https://github.com/rs/zerolog                   | v1.10.0     | v1.34.1     |

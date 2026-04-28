@@ -1,0 +1,19 @@
+[
+  {
+    "Version": "[1.11.0,1.14.2)",
+    "ImportPath": "github.com/go-mysql-org/go-mysql/client",
+    "Function": "ConnectWithDialer",
+    "OnEnter": "onBeforeDialContext",
+    "OnExit": "onExitDialContext",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/go-mysql"
+  },
+  {
+    "Version": "[1.11.0, 1.14.2)",
+    "ImportPath": "github.com/go-mysql-org/go-mysql/client",
+    "Function": "Execute",
+    "ReceiverType": "\\*Conn",
+    "OnEnter": "onBeforeExecute",
+    "OnExit": "onExitExecute",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/go-mysql"
+  }
+]

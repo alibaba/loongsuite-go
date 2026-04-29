@@ -1,0 +1,20 @@
+[
+  {
+    "Version": "[3.0.0,)",
+    "ImportPath": "github.com/robfig/cron/v3",
+    "Function": "Run",
+    "ReceiverType": "\\*Cron",
+    "OnEnter": "cronRunOnEnter",
+    "OnExit": "cronRunOnExit",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/cron"
+  },
+  {
+    "Version": "[3.0.0,)",
+    "ImportPath": "github.com/robfig/cron/v3",
+    "Function": "Run",
+    "ReceiverType": "FuncJob",
+    "OnEnter": "funcJobRunOnEnter",
+    "OnExit": "funcJobRunOnExit",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/cron"
+  }
+]

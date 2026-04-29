@@ -21,6 +21,7 @@ import (
 	"github.com/go-mysql-org/go-mysql/client"
 	"github.com/go-mysql-org/go-mysql/mysql"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 	_ "unsafe"
@@ -66,6 +67,7 @@ func (g *gomysqlContext) setDatabase(database string) {
 type hookedContext struct {
 	ctx            context.Context
 	gomysqlcontext *gomysqlContext
+	connectionId   string
 	cmd            string
 	opType         string
 	database       string
@@ -118,10 +120,12 @@ func onExitDialContext(call api.CallContext, conn *client.Conn, err error) {
 	}
 	endpoint := data.gomysqlcontext.endpoint
 	database := data.gomysqlcontext.database
+	connection_id := conn.GetConnectionID()
 	GoMySQLInstrumentation.End(ctx, &gomysqlRequest{
-		endpoint: endpoint,
-		database: database,
-		ctx:      ctx,
+		endpoint:     endpoint,
+		database:     database,
+		ctx:          ctx,
+		connectionId: strconv.FormatInt(int64(connection_id), 10),
 	}, conn, err)
 }
 
@@ -134,13 +138,15 @@ func onBeforeExecute(call api.CallContext, conn *client.Conn, command string, ar
 		gomysqlCTX.setContext(context.Background())
 	}
 	newCTX := GoMySQLInstrumentation.Start(gomysqlCTX.GetContext(), &gomysqlRequest{
-		args:     args,
-		endpoint: gomysqlCTX.GetEndpoint(),
-		cmd:      command,
-		opType:   calOp(command),
+		args:         args,
+		endpoint:     gomysqlCTX.GetEndpoint(),
+		connectionId: strconv.FormatInt(int64(conn.GetConnectionID()), 10),
+		cmd:          command,
+		opType:       calOp(command),
 	})
 	call.SetData(&hookedContext{
 		gomysqlcontext: gomysqlCTX,
+		connectionId:   strconv.FormatInt(int64(conn.GetConnectionID()), 10),
 		ctx:            newCTX,
 		args:           args,
 		cmd:            command,
@@ -171,12 +177,13 @@ func onExitExecute(call api.CallContext, result *mysql.Result, err error) {
 		return
 	}
 	GoMySQLInstrumentation.End(ctx, &gomysqlRequest{
-		ctx:      ctx,
-		args:     data.args,
-		endpoint: gomysqlCTX.GetEndpoint(),
-		cmd:      data.cmd,
-		opType:   data.opType,
-		database: data.database,
+		ctx:          ctx,
+		args:         data.args,
+		endpoint:     gomysqlCTX.GetEndpoint(),
+		connectionId: data.connectionId,
+		cmd:          data.cmd,
+		opType:       data.opType,
+		database:     data.database,
 	}, result, err)
 }
 

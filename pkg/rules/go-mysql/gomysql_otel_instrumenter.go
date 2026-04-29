@@ -29,13 +29,14 @@ import (
 )
 
 type gomysqlRequest struct {
-	opType    string
-	args      []interface{}
-	endpoint  string
-	cmd       string
-	database  string
-	ctx       context.Context
-	startTime time.Time
+	opType       string
+	args         []interface{}
+	endpoint     string
+	connectionId string
+	cmd          string
+	database     string
+	ctx          context.Context
+	startTime    time.Time
 }
 
 type gomysqlAttrsGetter struct {
@@ -102,6 +103,10 @@ func (m gomysqlAttrsGetter) GetDbNamespace(request *gomysqlRequest) string {
 func (m gomysqlAttrsGetter) GetBatchSize(request *gomysqlRequest) int {
 	return 0
 }
+func (m gomysqlAttrsGetter) GetConnectionId(request *gomysqlRequest) string {
+	// Connection ID to help identify the connection in connection pool
+	return request.connectionId
+}
 
 func BuildGoMySQLInstrumenter() instrumenter.Instrumenter[*gomysqlRequest, interface{}] {
 	builder := instrumenter.Builder[*gomysqlRequest, any]{}
@@ -112,7 +117,7 @@ func BuildGoMySQLInstrumenter() instrumenter.Instrumenter[*gomysqlRequest, inter
 			Version: version.Tag,
 		}).
 		AddOperationListeners(db.DbClientMetrics("sql.gomysql")).
-		AddAttributesExtractor(&db.DbClientAttrsExtractor[*gomysqlRequest, any, db.DbClientAttrsGetter[*gomysqlRequest]]{Base: db.DbClientCommonAttrsExtractor[*gomysqlRequest, any, db.DbClientAttrsGetter[*gomysqlRequest]]{Getter: getter, AttributesFilter: func(attrs []attribute.KeyValue) []attribute.KeyValue {
+		AddAttributesExtractor(&db.DbClientAttrsExtractor[*gomysqlRequest, any, db.SqlClientAttributesGetter[*gomysqlRequest]]{Base: db.DbClientCommonAttrsExtractor[*gomysqlRequest, any, db.SqlClientAttributesGetter[*gomysqlRequest]]{Getter: getter, AttributesFilter: func(attrs []attribute.KeyValue) []attribute.KeyValue {
 			// We need to filter out the attributes with empty values to avoid high-cardinality issue
 			for i := 0; i < len(attrs); i++ {
 				if attrs[i].Value.AsString() == "" {

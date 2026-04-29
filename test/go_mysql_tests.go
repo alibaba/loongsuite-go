@@ -30,20 +30,20 @@ const go_mysql_module_name = "gomysql"
 
 func init() {
 	TestCases = append(TestCases,
-		NewGeneralTestCase("gomysql-1.11.0-conn-test", go_mysql_module_name, "1.11.0", "1.14.0", "1.18", "", TestGoMySQLconn),
-		NewGeneralTestCase("gomysql-1.11.0-execute-commands-test", go_mysql_module_name, "1.11.0", "1.14.0", "1.18", "", TestGoMySQLexecuteCommands))
+		NewGeneralTestCase("gomysql-conn-test", go_mysql_module_name, "1.11.0", "1.14.0", "1.18", "", TestGoMySQLconn),
+		NewGeneralTestCase("gomysql-execute-commands-test", go_mysql_module_name, "1.11.0", "1.14.0", "1.18", "", TestGoMySQLexecuteCommands))
 }
 
 func TestGoMySQLconn(t *testing.T, env ...string) {
 	_, gomysqlPort := initgoMySQLContainer()
-	UseApp("gomysql/1.11.0")
+	UseApp("gomysql")
 	RunGoBuild(t, "go", "build", "test_conn.go")
 	env = append(env, "GOMYSQL_ADDR=127.0.0.1:"+gomysqlPort.Port(), "GOMYSQL_USER=root", "GOMYSQL_PASSWORD=secret", "GOMYSQL_DBNAME=test")
 	RunApp(t, "test_conn", env...)
 }
 func TestGoMySQLexecuteCommands(t *testing.T, env ...string) {
 	_, gomysqlPort := initgoMySQLContainer()
-	UseApp("gomysql/1.11.0")
+	UseApp("gomysql")
 	RunGoBuild(t, "go", "build", "test_executing_commands.go")
 	env = append(env, "GOMYSQL_ADDR=127.0.0.1:"+gomysqlPort.Port(), "GOMYSQL_USER=root", "GOMYSQL_PASSWORD=secret", "GOMYSQL_DBNAME=test")
 	RunApp(t, "test_executing_commands", env...)
@@ -63,11 +63,9 @@ func initgoMySQLContainer() (testcontainers.Container, nat.Port) {
 		},
 		WaitingFor: wait.ForLog("ready for connections"),
 		HostConfigModifier: func(hostConfig *container.HostConfig) {
-			// Example: Bind to specific host port
 			hostConfig.PortBindings = nat.PortMap{
 				"3306/tcp": []nat.PortBinding{{HostIP: "127.0.0.1", HostPort: strconv.Itoa(randport)}},
 			}
-			// Example: Set network mode
 			hostConfig.NetworkMode = "bridge"
 		},
 	}

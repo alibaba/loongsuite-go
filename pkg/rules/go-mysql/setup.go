@@ -186,7 +186,6 @@ func onExitExecute(call api.CallContext, result *mysql.Result, err error) {
 		database:     data.database,
 	}, result, err)
 }
-
 func calOp(sql string) string {
 	sqls := strings.Split(sql, " ")
 	var op string

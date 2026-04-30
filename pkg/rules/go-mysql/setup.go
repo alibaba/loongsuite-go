@@ -1,4 +1,4 @@
-// Copyright (c) 2024 Alibaba Group Holding Ltd.
+// Copyright (c) 2026 Alibaba Group Holding Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -76,8 +76,8 @@ type hookedContext struct {
 
 var gomysqlCTX = &gomysqlContext{}
 
-//go:linkname onBeforeDialContext github.com/go-mysql-org/go-mysql/client.onBeforeDialContext
-func onBeforeDialContext(call api.CallContext, ctx context.Context, network, addr, user, password, dbName string, dialer client.Dialer, options ...client.Option) {
+//go:linkname onEnterDialContext github.com/go-mysql-org/go-mysql/client.onEnterDialContext
+func onEnterDialContext(call api.CallContext, ctx context.Context, network, addr, user, password, dbName string, dialer client.Dialer, options ...client.Option) {
 	if !gomysqlEnabler.Enable() {
 		return
 	}
@@ -129,8 +129,8 @@ func onExitDialContext(call api.CallContext, conn *client.Conn, err error) {
 	}, conn, err)
 }
 
-//go:linkname onBeforeExecute github.com/go-mysql-org/go-mysql/client.onBeforeExecute
-func onBeforeExecute(call api.CallContext, conn *client.Conn, command string, args ...interface{}) {
+//go:linkname onEnterExecute github.com/go-mysql-org/go-mysql/client.onEnterExecute
+func onEnterExecute(call api.CallContext, conn *client.Conn, command string, args ...interface{}) {
 	if !gomysqlEnabler.Enable() {
 		return
 	}

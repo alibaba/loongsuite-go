@@ -90,6 +90,10 @@ func communityCreateChatCompletionOnExit(call api.CallContext, resp openai.Compl
 			response.finishReasons = append(response.finishReasons, choice.FinishReason)
 			msgs = append(msgs, choice.Text)
 		}
+		output, err1 := json.Marshal(msgs)
+		if err1 == nil {
+			response.outputMessages = string(output)
+		}
 	}
 
 	recorder.End(ctx, request, response, err)

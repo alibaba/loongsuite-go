@@ -2,8 +2,6 @@ module github.com/alibaba/loongsuite-go-agent/pkg/rules/mqtt
 
 go 1.24.0
 
-toolchain go1.24.13
-
 replace github.com/alibaba/loongsuite-go-agent/pkg => ../../../pkg
 
 require (

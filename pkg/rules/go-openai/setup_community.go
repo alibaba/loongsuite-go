@@ -26,7 +26,7 @@ import (
 // Note: This also covers forks like github.com/meguminnnnnnnnn/go-openai
 
 //go:linkname communityCreateChatCompletionOnEnter github.com/sashabaranov/go-openai.communityCreateChatCompletionOnEnter
-func communityCreateChatCompletionOnEnter(call api.CallContext, client *openai.Client, ctx context.Context, request openai.CompletionRequest) {
+func communityCreateChatCompletionOnEnter(call api.CallContext, client *openai.Client, ctx context.Context, request openai.ChatCompletionRequest) {
 	if !openaiEnabler.Enable() {
 		return
 	}
@@ -44,7 +44,7 @@ func communityCreateChatCompletionOnEnter(call api.CallContext, client *openai.C
 	if request.Seed != nil {
 		req.seed = int64(*request.Seed)
 	}
-	input, err := json.Marshal(request.Prompt)
+	input, err := json.Marshal(request.Messages)
 	if err == nil {
 		req.inputMessages = string(input)
 	}
@@ -61,7 +61,7 @@ func communityCreateChatCompletionOnEnter(call api.CallContext, client *openai.C
 }
 
 //go:linkname communityCreateChatCompletionOnExit github.com/sashabaranov/go-openai.communityCreateChatCompletionOnExit
-func communityCreateChatCompletionOnExit(call api.CallContext, resp openai.CompletionResponse, err error) {
+func communityCreateChatCompletionOnExit(call api.CallContext, resp openai.ChatCompletionResponse, err error) {
 	data := call.GetData().(map[string]interface{})
 	if data == nil {
 		return
@@ -87,8 +87,12 @@ func communityCreateChatCompletionOnExit(call api.CallContext, resp openai.Compl
 		response.choiceCount = len(resp.Choices)
 		var msgs []string
 		for _, choice := range resp.Choices {
-			response.finishReasons = append(response.finishReasons, choice.FinishReason)
-			msgs = append(msgs, choice.Text)
+			response.finishReasons = append(response.finishReasons, string(choice.FinishReason))
+			msgs = append(msgs, choice.Message.Content)
+		}
+		output, err1 := json.Marshal(msgs)
+		if err1 == nil {
+			response.outputMessages = string(output)
 		}
 	}
 

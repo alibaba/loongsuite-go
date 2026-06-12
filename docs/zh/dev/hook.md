@@ -5,7 +5,7 @@
 package mux
 
 import _ "unsafe"
-import "github.com/alibaba/loongsuite-go-agent/pkg/api"
+import "github.com/alibaba/loongsuite-go/pkg/api"
 import mux "github.com/gorilla/mux"
 
 //go:linkname muxRoute130OnEnter github.com/gorilla/mux.muxRoute130OnEnter

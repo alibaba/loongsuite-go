@@ -2,7 +2,7 @@
 
 ## Overview
 
-This is a demonstration project showcasing the use of loongsuite-go-agent with the Eino framework.
+This is a demonstration project showcasing the use of LoongSuite Go with the Eino framework.
 
 ## Architecture
 

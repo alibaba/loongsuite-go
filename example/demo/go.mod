@@ -7,6 +7,7 @@ toolchain go1.24.11
 replace github.com/alibaba/loongsuite-go => ../../
 
 replace github.com/alibaba/loongsuite-go/test/verifier => ../../test/verifier
+replace github.com/alibaba/loongsuite-go/pkg => ../../pkg
 
 require (
 	github.com/go-sql-driver/mysql v1.8.1

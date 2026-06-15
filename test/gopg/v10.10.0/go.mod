@@ -4,6 +4,7 @@ go 1.24.0
 
 replace (
 replace github.com/alibaba/loongsuite-go/pkg => ../../../pkg
+replace github.com/alibaba/loongsuite-go/test/verifier => ../../verifier
 	github.com/alibaba/loongsuite-go/test/verifier => ../../../../loongsuite-go/test/verifier
 	google.golang.org/genproto => google.golang.org/genproto v0.0.0-20250218202821-56aae31c358a
 )

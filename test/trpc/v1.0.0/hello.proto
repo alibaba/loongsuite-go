@@ -1,0 +1,19 @@
+syntax = "proto3";
+package hello;
+option go_package = "demo/stub/hello";
+
+// Define the service
+service Greeter {
+  // Define the method
+  rpc SayHello (HelloRequest) returns (HelloResponse) {}
+}
+
+// Request message
+message HelloRequest {
+  string name = 1;
+}
+
+// Response message
+message HelloResponse {
+  string message = 1;
+}

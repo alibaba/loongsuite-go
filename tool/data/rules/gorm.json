@@ -1,0 +1,21 @@
+[
+  {
+    "ImportPath": "gorm.io/driver/mysql",
+    "StructType": "Config",
+    "FieldName": "DbInfo",
+    "FieldType": "interface{}"
+  },
+  {
+    "ImportPath": "gorm.io/driver/postgres",
+    "StructType": "Config",
+    "FieldName": "DbInfo",
+    "FieldType": "interface{}"
+  },
+  {
+    "Version": "[1.22.0,1.25.10)",
+    "ImportPath": "gorm.io/gorm",
+    "Function": "Open",
+    "OnExit": "afterGormOpen",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/gorm"
+  }
+]

@@ -1,3 +1,5 @@
+//go:build ignore
+
 // Copyright (c) 2024 Alibaba Group Holding Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,6 +19,10 @@ package runtime
 import (
 	_ "unsafe"
 )
+
+// When the program exit, we should call the exit hook to shutdown gracefully.
+// See https://github.com/alibaba/loongsuite-go-agent/blob/main/pkg/otel_setup.go
+var ExitHook func()
 
 //go:linkname otel_get_trace_context_from_gls otel_get_trace_context_from_gls
 var otel_get_trace_context_from_gls = _otel_gls_get_trace_context_impl

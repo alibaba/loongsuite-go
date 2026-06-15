@@ -18,10 +18,23 @@ type DBSpanNameExtractor[REQUEST any] struct {
 	Getter DbClientAttrsGetter[REQUEST]
 }
 
+// ref: https://opentelemetry.io/docs/specs/semconv/database/database-spans/#name
 func (d *DBSpanNameExtractor[REQUEST]) Extract(request REQUEST) string {
 	operation := d.Getter.GetOperation(request)
-	if operation == "" {
-		return "DB Query"
+	target := d.Getter.GetCollection(request)
+	system := d.Getter.GetSystem(request)
+
+	if operation != "" && target != "" {
+		return operation + " " + target
 	}
-	return operation
+
+	if operation != "" {
+		return operation
+	}
+	// If neither {db.operation.name} nor {target} are available, span name SHOULD be {db.system}.
+	if system != "" {
+		return system
+	}
+	
+	return "DB"
 }

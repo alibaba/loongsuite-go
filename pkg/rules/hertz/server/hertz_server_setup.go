@@ -16,16 +16,26 @@ package server
 
 import (
 	"context"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api/instrumenter"
+	"os"
+	_ "unsafe"
 
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/api"
+	"github.com/alibaba/loongsuite-go-agent/pkg/api"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/cloudwego/hertz/pkg/common/config"
 	"github.com/cloudwego/hertz/pkg/common/tracer/stats"
+	"go.opentelemetry.io/otel/sdk/trace"
 )
 
-var hertzServerEnabler = instrumenter.NewDefaultInstrumentEnabler()
+type hertzServerInnerEnabler struct {
+	enabled bool
+}
+
+func (h hertzServerInnerEnabler) Enable() bool {
+	return h.enabled
+}
+
+var hertzServerEnabler = hertzServerInnerEnabler{os.Getenv("OTEL_INSTRUMENTATION_HERTZ_ENABLED") != "false"}
 
 var hertzInstrumenter = BuildHertzServerInstrumenter()
 
@@ -45,10 +55,16 @@ func (m *hertzOpentelemetryTracer) Finish(ctx context.Context, c *app.RequestCon
 		s := start.Time()
 		e := end.Time()
 		req, resp := &c.Request, &c.Response
-		hertzInstrumenter.StartAndEnd(ctx, req, resp, c.GetTraceInfo().Stats().Error(), s, e)
+		insctx := hertzInstrumenter.StartWithTime(ctx, req, s)
+		lcs := trace.LocalRootSpanFromGLS()
+		if lcs != nil && c.FullPath() != "" {
+			lcs.SetName(c.FullPath())
+		}
+		hertzInstrumenter.EndWithTime(insctx, req, resp, c.GetTraceInfo().Stats().Error(), e)
 	}
 }
 
+//go:linkname beforeHertzServerBuild github.com/cloudwego/hertz/pkg/app/server.beforeHertzServerBuild
 func beforeHertzServerBuild(call api.CallContext, opts ...config.Option) {
 	if !hertzServerEnabler.Enable() {
 		return

@@ -16,21 +16,32 @@ package goredis
 
 import (
 	"context"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/api"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api/instrumenter"
-	"go.opentelemetry.io/otel/trace"
 	"net"
+	"os"
 	"strings"
+	_ "unsafe"
+
+	"github.com/alibaba/loongsuite-go-agent/pkg/api"
+	"go.opentelemetry.io/otel/trace"
 
 	redis "github.com/redis/go-redis/v9"
 )
 
 var goRedisInstrumenter = BuildGoRedisOtelInstrumenter()
 
-var rv9Enabler = instrumenter.NewDefaultInstrumentEnabler()
+type redisV9InnerEnabler struct {
+	enabled bool
+}
+
+func (r redisV9InnerEnabler) Enable() bool {
+	return r.enabled
+}
+
+var rv9Enabler = redisV9InnerEnabler{os.Getenv("OTEL_INSTRUMENTATION_REDISV9_ENABLED") != "false"}
 
 var redisV9StartOptions = []trace.SpanStartOption{}
 
+//go:linkname afterNewRedisClient github.com/redis/go-redis/v9.afterNewRedisClient
 func afterNewRedisClient(call api.CallContext, client *redis.Client) {
 	if !rv9Enabler.Enable() {
 		return
@@ -38,6 +49,7 @@ func afterNewRedisClient(call api.CallContext, client *redis.Client) {
 	client.AddHook(newOtRedisHook(client.Options().Addr))
 }
 
+//go:linkname afterNewFailOverRedisClient github.com/redis/go-redis/v9.afterNewFailOverRedisClient
 func afterNewFailOverRedisClient(call api.CallContext, client *redis.Client) {
 	if !rv9Enabler.Enable() {
 		return
@@ -45,6 +57,7 @@ func afterNewFailOverRedisClient(call api.CallContext, client *redis.Client) {
 	client.AddHook(newOtRedisHook(client.Options().Addr))
 }
 
+//go:linkname afterNewClusterClient github.com/redis/go-redis/v9.afterNewClusterClient
 func afterNewClusterClient(call api.CallContext, client *redis.ClusterClient) {
 	if !rv9Enabler.Enable() {
 		return
@@ -54,6 +67,7 @@ func afterNewClusterClient(call api.CallContext, client *redis.ClusterClient) {
 	})
 }
 
+//go:linkname afterNewRingClient github.com/redis/go-redis/v9.afterNewRingClient
 func afterNewRingClient(call api.CallContext, client *redis.Ring) {
 	if !rv9Enabler.Enable() {
 		return
@@ -63,6 +77,7 @@ func afterNewRingClient(call api.CallContext, client *redis.Ring) {
 	})
 }
 
+//go:linkname afterNewSentinelClient github.com/redis/go-redis/v9.afterNewSentinelClient
 func afterNewSentinelClient(call api.CallContext, client *redis.SentinelClient) {
 	if !rv9Enabler.Enable() {
 		return
@@ -70,6 +85,7 @@ func afterNewSentinelClient(call api.CallContext, client *redis.SentinelClient) 
 	client.AddHook(newOtRedisHook(client.String()))
 }
 
+//go:linkname afterClientConn github.com/redis/go-redis/v9.afterClientConn
 func afterClientConn(call api.CallContext, client *redis.Conn) {
 	if !rv9Enabler.Enable() {
 		return

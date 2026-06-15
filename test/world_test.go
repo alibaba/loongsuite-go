@@ -18,18 +18,18 @@ import (
 	"fmt"
 	"regexp"
 	"testing"
-
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/tool/util"
 )
 
 const WorldAppName = "world"
+
+const expectedImportCounts = 38
 
 func TestCompileTheWorld(t *testing.T) {
 	UseApp(WorldAppName)
 
 	RunGoBuild(t, "go", "build")
 	RunApp(t, WorldAppName)
-	text := ReadPreprocessLog(t, util.DebugLogFile)
+	text := ReadLog(t)
 
 	regex := `\"ImportPath\":\"([^"]+)\"`
 	r := regexp.MustCompile(regex)
@@ -41,8 +41,11 @@ func TestCompileTheWorld(t *testing.T) {
 		importPath := match[1]
 		importPaths[importPath] = struct{}{}
 	}
-	if len(importPaths) != 23 {
+	if len(importPaths) != expectedImportCounts {
+		t.Logf("Expected %d import paths, but found %d", expectedImportCounts, len(importPaths))
 		t.Log("Matched import paths:")
+		// sort import paths for better readability
+		// (not strictly necessary, but helps in debugging)
 		for path := range importPaths {
 			fmt.Println(path)
 		}

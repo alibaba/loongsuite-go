@@ -17,11 +17,14 @@ package nethttp3
 import (
 	"context"
 	"io"
+	_ "unsafe"
 
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/api"
+	"github.com/alibaba/loongsuite-go-agent/pkg/api"
 )
 
 // arg type has package prefix
+//
+//go:linkname onEnterNewRequestWithContext net/http.onEnterNewRequestWithContext
 func onEnterNewRequestWithContext(call api.CallContext, ctx context.Context, method, url string, body io.Reader) {
 	println("NewRequestWithContext()")
 }

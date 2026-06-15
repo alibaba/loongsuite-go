@@ -17,7 +17,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/test/verifier"
+	"github.com/alibaba/loongsuite-go-agent/test/verifier"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -46,6 +46,6 @@ func main() {
 	_, err = coll.BulkWrite(context.TODO(), models, opts)
 
 	verifier.WaitAndAssertTraces(func(stubs []tracetest.SpanStubs) {
-		verifier.VerifyDbAttributes(stubs[0][0], "update", "mongodb", "127.0.0.1", "update", "update")
+		verifier.VerifyDbAttributes(stubs[0][0], "update", "mongodb", "127.0.0.1", "update", "update", "", nil)
 	}, 1)
 }

@@ -16,16 +16,25 @@ package kitex
 
 import (
 	"fmt"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api/utils"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api/version"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/utils"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/version"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"go.opentelemetry.io/otel/sdk/instrumentation"
+	"os"
 
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api-semconv/instrumenter/rpc"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api/instrumenter"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api-semconv/instrumenter/rpc"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/instrumenter"
 )
 
-var kitexEnabler = instrumenter.NewDefaultInstrumentEnabler()
+type kitexInnerEnabler struct {
+	enabled bool
+}
+
+func (k kitexInnerEnabler) Enable() bool {
+	return k.enabled
+}
+
+var kitexEnabler = kitexInnerEnabler{os.Getenv("OTEL_INSTRUMENTATION_KITEX_ENABLED") != "false"}
 
 type kitexAttrsGetter struct{}
 

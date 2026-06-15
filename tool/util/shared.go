@@ -15,16 +15,12 @@
 package util
 
 import (
-	"encoding/json"
 	"fmt"
-	"hash/fnv"
 	"path/filepath"
 	"regexp"
 	"strings"
 
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/tool/errc"
 	"golang.org/x/mod/module"
-	"golang.org/x/mod/semver"
 )
 
 const (
@@ -34,12 +30,11 @@ const (
 	GoWorkSumFile        = "go.work.sum"
 	DebugLogFile         = "debug.log"
 	TempBuildDir         = ".otel-build"
-	VendorDir            = "vendor"
-	BuildConfFile        = "build_conf.json"
 )
 
 const (
 	BuildPattern    = "-p"
+	BuildImportPath = "-importpath"
 	BuildGoVer      = "-goversion"
 	BuildPgoProfile = "-pgoprofile"
 	BuildModeVendor = "-mod=vendor"
@@ -52,19 +47,18 @@ func AssertGoBuild(args []string) {
 		Assert(false, "empty go build command")
 	}
 	if !strings.Contains(args[0], "go") {
-		Assert(false, "invalid go build command %v", args)
+		Assert(false, fmt.Sprintf("invalid go build command %v", args))
 	}
-	if args[1] != "build" {
-		Assert(false, "invalid go build command %v", args)
+	if args[1] != "build" && args[1] != "install" {
+		Assert(false, fmt.Sprintf("invalid go build command %v", args))
 	}
 }
 
-func IsCompileCommand(line string) bool {
-	check := []string{"-o", "-p", "-buildid"}
+func isToolCommand(tool string, line string, check []string) bool {
 	if IsWindows() {
-		check = append(check, "compile.exe")
+		check = append(check, tool+".exe")
 	} else if IsUnix() {
-		check = append(check, "compile")
+		check = append(check, tool)
 	} else {
 		ShouldNotReachHere()
 	}
@@ -75,15 +69,19 @@ func IsCompileCommand(line string) bool {
 			return false
 		}
 	}
-
-	// @@PGO compile command is different from normal compile command, we
-	// should skip it, otherwise the same package will be compiled twice
-	// (one for PGO and one for normal), which finally leads to the same
-	// rule being applied twice.
-	if strings.Contains(line, BuildPgoProfile) {
-		return false
-	}
 	return true
+}
+
+func IsCompileCommand(line string) bool {
+	return isToolCommand("compile", line, []string{"-o", "-p", "-buildid"})
+}
+
+func IsCgoCommand(line string) bool {
+	return isToolCommand("cgo", line, []string{"-importpath"})
+}
+func GetMatchedRuleFile() string {
+	const matchedRuleFile = "matched.json"
+	return GetTempBuildDirWith(matchedRuleFile)
 }
 
 func GetTempBuildDir() string {
@@ -106,13 +104,12 @@ func GetPreprocessLogPath(name string) string {
 	return filepath.Join(TempBuildDir, PPreprocess, name)
 }
 
-func GetConfigureLogPath(name string) string {
-	return filepath.Join(TempBuildDir, PConfigure, name)
-}
-
 func GetVarNameOfFunc(fn string) string {
 	const varDeclSuffix = "Impl"
-	fn = strings.Title(fn)
+	// Use strings.ToUpper for the first character to avoid deprecated strings.Title
+	if len(fn) > 0 {
+		fn = strings.ToUpper(fn[:1]) + fn[1:]
+	}
 	return fn + varDeclSuffix
 }
 
@@ -133,43 +130,6 @@ func HasGoBuildComment(text string) bool {
 	return strings.Contains(text, GoBuildIgnoreComment)
 }
 
-// GetGoModPath returns the absolute path of go.mod file, if any.
-func GetGoModPath() (string, error) {
-	// @@ As said in the comment https://github.com/golang/go/issues/26500, the
-	// expected way to get go.mod should be go list -m -f {{.GoMod}}, but it does
-	// not work well when go.work presents, we use go env GOMOD instead.
-	//
-	// go env GOMOD
-	// The absolute path to the go.mod of the main module.
-	// If module-aware mode is enabled, but there is no go.mod, GOMOD will be
-	// os.DevNull ("/dev/null" on Unix-like systems, "NUL" on Windows).
-	// If module-aware mode is disabled, GOMOD will be the empty string.
-	// The rationale on why using Output instead of CombinedOutput variant is
-	// that we only care about the output of the command, and we can handle the
-	// error when the command fails.
-	out, err := RunCmdOutput("go", "env", "GOMOD")
-	if err != nil {
-		return "", err
-	}
-	return strings.TrimSpace(out), nil
-}
-
-// GetGoModDir returns the directory of go.mod file.
-func GetGoModDir() (string, error) {
-	gomod, err := GetGoModPath()
-	if err != nil {
-		return "", err
-	}
-	projectDir := filepath.Dir(gomod)
-	return projectDir, nil
-}
-
-// GetProjRootDir returns the root directory of the project. It's an alias of
-// GetGoModDir in the current implementation.
-func GetProjRootDir() (string, error) {
-	return GetGoModDir()
-}
-
 // IsModPath checks if the provided module path is valid.
 func IsModPath(path string) bool {
 	if strings.Contains(path, "@") {
@@ -181,6 +141,10 @@ func IsModPath(path string) bool {
 
 func IsGoFile(path string) bool {
 	return strings.HasSuffix(path, ".go")
+}
+
+func IsCgo1GoFile(path string) bool {
+	return strings.HasSuffix(path, ".cgo1.go")
 }
 
 func IsGoModFile(path string) bool {
@@ -195,114 +159,9 @@ func IsGoTestFile(path string) bool {
 	return strings.HasSuffix(path, "_test.go")
 }
 
-func IsExistGoMod() (bool, error) {
-	gomod, err := GetGoModPath()
-	if err != nil {
-		return false, err
-	}
-	if gomod == "" {
-		return false, errc.New(errc.ErrNotExist, "cannot find go.mod")
-	}
-	return strings.HasSuffix(gomod, GoModFile), nil
-}
-
-func HashStruct(st interface{}) (uint64, error) {
-	bs, err := json.Marshal(st)
-	if err != nil {
-		return 0, errc.New(errc.ErrInvalidJSON, err.Error())
-	}
-	hasher := fnv.New64a()
-	_, err = hasher.Write(bs)
-	if err != nil {
-		return 0, errc.New(errc.ErrInternal, err.Error())
-	}
-	return hasher.Sum64(), nil
-}
-
-func MakePublic(name string) string {
-	return strings.Title(name)
-}
-
-// splitVersionRange splits the version range into two parts, start and end.
-func splitVersionRange(vr string) (string, string) {
-	Assert(strings.Contains(vr, ","), "invalid version range format")
-	Assert(strings.Contains(vr, "["), "invalid version range format")
-	Assert(strings.Contains(vr, ")"), "invalid version range format")
-
-	start := vr[1:strings.Index(vr, ",")]
-	end := vr[strings.Index(vr, ",")+1 : len(vr)-1]
-	return "v" + start, "v" + end
-}
-
-var versionRegexp = regexp.MustCompile(`@v\d+\.\d+\.\d+(-.*?)?/`)
-
-func ExtractVersion(path string) string {
-	// Unify the path to Unix style
-	path = filepath.ToSlash(path)
-	version := versionRegexp.FindString(path)
-	if version == "" {
-		return ""
-	}
-	// Extract version number from the string
-	return version[1 : len(version)-1]
-}
-
-// MatchVersion checks if the version string matches the version range in the
-// rule. The version range is in format [start, end), where start is inclusive
-// and end is exclusive. If the rule version string is empty, it always matches.
-func MatchVersion(version string, ruleVersion string) (bool, error) {
-	// Fast path, always match if the rule version is not specified
-	if ruleVersion == "" {
-		return true, nil
-	}
-	// Check if both rule version and package version are in sane
-	if !strings.Contains(version, "v") {
-		return false, errc.New(errc.ErrMatchRule,
-			fmt.Sprintf("invalid version %v", version))
-	}
-	if !strings.Contains(ruleVersion, "[") ||
-		!strings.Contains(ruleVersion, ")") ||
-		!strings.Contains(ruleVersion, ",") ||
-		strings.Contains(ruleVersion, "v") {
-		return false, errc.New(errc.ErrMatchRule,
-			fmt.Sprintf("invalid rule version %v", ruleVersion))
-	}
-	// Remove extra whitespace from the rule version string
-	ruleVersion = strings.ReplaceAll(ruleVersion, " ", "")
-
-	// Compare the version with the rule version, the rule version is in the
-	// format [start, end), where start is inclusive and end is exclusive
-	// and start or end can be omitted, which means the range is open-ended.
-	ruleVersionStart, ruleVersionEnd := splitVersionRange(ruleVersion)
-	switch {
-	case ruleVersionStart != "v" && ruleVersionEnd != "v":
-		// Full version range
-		if semver.Compare(version, ruleVersionStart) >= 0 &&
-			semver.Compare(version, ruleVersionEnd) < 0 {
-			return true, nil
-		}
-	case ruleVersionStart == "v":
-		// Only end is specified
-		Assert(ruleVersionEnd != "v", "sanity check")
-		if semver.Compare(version, ruleVersionEnd) < 0 {
-			return true, nil
-		}
-	case ruleVersionEnd == "v":
-		// Only start is specified
-		Assert(ruleVersionStart != "v", "sanity check")
-		if semver.Compare(version, ruleVersionStart) >= 0 {
-			return true, nil
-		}
-	default:
-		return false, errc.New(errc.ErrMatchRule,
-			fmt.Sprintf("invalid rule version range %v", ruleVersion))
-	}
-	return false, nil
-}
-
-// SplitCmds splits the command line by space, but keep the quoted part as a
+// SplitCompileCmds splits the command line by space, but keep the quoted part as a
 // whole. For example, "a b" c will be split into ["a b", "c"].
-func SplitCmds(input string) []string {
+func SplitCompileCmds(input string) []string {
 	var args []string
 	var inQuotes bool
 	var arg strings.Builder
@@ -339,11 +198,11 @@ func SplitCmds(input string) []string {
 	return args
 }
 
-func IsVendorBuild() bool {
-	projRoot, err := GetGoModDir()
-	if err != nil {
-		return false
+func FindFlagValue(cmd []string, flag string) string {
+	for i, v := range cmd {
+		if v == flag {
+			return strings.Trim(cmd[i+1], `"`)
+		}
 	}
-	vendor := filepath.Join(projRoot, VendorDir)
-	return PathExists(vendor)
+	return ""
 }

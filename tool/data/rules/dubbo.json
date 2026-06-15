@@ -1,0 +1,20 @@
+[
+  {
+    "Version": "[3.3.0,)",
+    "ImportPath": "dubbo.apache.org/dubbo-go/v3/filter/graceful_shutdown",
+    "Function": "Invoke",
+    "ReceiverType": "\\*consumerGracefulShutdownFilter",
+    "OnEnter": "dubboConsumerGracefulShutdownFilterInvokeOnEnter",
+    "OnExit": "dubboConsumerGracefulShutdownFilterInvokeOnExit",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/dubbo"
+  },
+  {
+    "Version": "[3.3.0,)",
+    "ImportPath": "dubbo.apache.org/dubbo-go/v3/filter/graceful_shutdown",
+    "Function": "Invoke",
+    "ReceiverType": "\\*providerGracefulShutdownFilter",
+    "OnEnter": "dubboProviderGracefulShutdownFilterInvokeOnEnter",
+    "OnExit": "dubboProviderGracefulShutdownFilterInvokeOnExit",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/dubbo"
+  }
+]

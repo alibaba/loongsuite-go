@@ -15,11 +15,12 @@
 package main
 
 import (
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/test/verifier"
-	"go.opentelemetry.io/otel/sdk/metric/metricdata"
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/alibaba/loongsuite-go-agent/test/verifier"
+	"go.opentelemetry.io/otel/sdk/metric/metricdata"
 )
 
 func setupMetricHttp() {
@@ -42,7 +43,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	time.Sleep(3 * time.Second)
 	verifier.WaitAndAssertMetrics(map[string]func(metricdata.ResourceMetrics){
 		"http.server.request.duration": func(mrs metricdata.ResourceMetrics) {
 			if len(mrs.ScopeMetrics) <= 0 {

@@ -16,10 +16,12 @@ package error13
 
 import (
 	"reflect"
+	_ "unsafe"
 
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/api"
+	"github.com/alibaba/loongsuite-go-agent/pkg/api"
 )
 
+//go:linkname onEnterTestGetSetRecv errorstest/auxiliary.onEnterTestGetSetRecv
 func onEnterTestGetSetRecv(call api.CallContext, arg1 interface{}, arg2 int, arg3 float64) {
 	recv := call.GetParam(0)
 	v := reflect.ValueOf(recv)
@@ -31,6 +33,7 @@ func onEnterTestGetSetRecv(call api.CallContext, arg1 interface{}, arg2 int, arg
 	call.SetParam(2, 0.001)
 }
 
+//go:linkname onExitTestGetSetRecv errorstest/auxiliary.onExitTestGetSetRecv
 func onExitTestGetSetRecv(call api.CallContext, arg1 int, arg2 float64) {
 	call.SetReturnVal(0, arg1)
 	call.SetReturnVal(1, arg2)

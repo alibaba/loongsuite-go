@@ -16,10 +16,13 @@ package grpc
 
 import (
 	"context"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/api"
+	_ "unsafe"
+
+	"github.com/alibaba/loongsuite-go-agent/pkg/api"
 	"google.golang.org/grpc"
 )
 
+//go:linkname grpcClientNewStreamOnEnter google.golang.org/grpc.grpcClientNewStreamOnEnter
 func grpcClientNewStreamOnEnter(call api.CallContext, cc *grpc.ClientConn, ctx context.Context, desc *grpc.StreamDesc, method string, opts ...grpc.CallOption) {
 	var stream_filter bool
 	stream_filter = true
@@ -27,6 +30,7 @@ func grpcClientNewStreamOnEnter(call api.CallContext, cc *grpc.ClientConn, ctx c
 	call.SetParam(1, ctx)
 }
 
+//go:linkname grpcClientNewStreamOnExit google.golang.org/grpc.grpcClientNewStreamOnExit
 func grpcClientNewStreamOnExit(call api.CallContext, cs grpc.ClientStream, err error) {
 	return
 }

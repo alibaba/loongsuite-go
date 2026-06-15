@@ -16,10 +16,10 @@ package goredis
 
 import (
 	"fmt"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api-semconv/instrumenter/db"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api/instrumenter"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api/utils"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api/version"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api-semconv/instrumenter/db"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/instrumenter"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/utils"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/version"
 	redis "github.com/redis/go-redis/v9"
 	"go.opentelemetry.io/otel/sdk/instrumentation"
 	"strconv"
@@ -66,8 +66,21 @@ func (d goRedisAttrsGetter) GetOperation(request goRedisRequest) string {
 	return request.cmd.FullName()
 }
 
+func (d goRedisAttrsGetter) GetCollection(request goRedisRequest) string {
+	// TBD: We need to implement retrieving the collection later.
+	return ""
+}
+
 func (d goRedisAttrsGetter) GetParameters(request goRedisRequest) []any {
 	return nil
+}
+
+func (d goRedisAttrsGetter) GetDbNamespace(request goRedisRequest) string {
+	return ""
+}
+
+func (d goRedisAttrsGetter) GetBatchSize(request goRedisRequest) int {
+	return 0
 }
 
 func BuildGoRedisOtelInstrumenter() instrumenter.Instrumenter[goRedisRequest, any] {

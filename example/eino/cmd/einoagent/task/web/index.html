@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">Task Manager</h1>
+            <button id="addTaskBtn" 
+                class="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                添加任务
+            </button>
+        </div>
+
+        <!-- 添加任务对话框 -->
+        <div id="addDialog" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center">
+            <div class="bg-white rounded-lg p-6 w-full max-w-lg mx-4">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold">添加新任务</h2>
+                    <button onclick="closeAddDialog()" class="text-gray-500 hover:text-gray-700">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <form id="addForm">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">标题</label>
+                        <input type="text" name="title" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">内容</label>
+                        <textarea name="content" rows="3"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">截止日期</label>
+                        <input type="datetime-local" name="deadline"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="flex justify-end space-x-4">
+                        <button type="button" onclick="closeAddDialog()"
+                            class="px-4 py-2 text-gray-600 hover:text-gray-800 focus:outline-none">
+                            取消
+                        </button>
+                        <button type="submit"
+                            class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            添加
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- 搜索和筛选 -->
+        <div class="mb-6 bg-white p-6 rounded-lg shadow-md">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">搜索</label>
+                    <input type="text" id="searchInput"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">状态</label>
+                    <select id="statusFilter"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">全部</option>
+                        <option value="false">未完成</option>
+                        <option value="true">已完成</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">排序</label>
+                    <select id="sortFilter"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="urgency">按紧急度</option>
+                        <option value="deadline">按截止时间</option>
+                        <option value="created">按创建时间</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">每页显示</label>
+                    <select id="limitFilter"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Task 列表 -->
+        <div id="taskList" class="space-y-4"></div>
+    </div>
+
+    <!-- Task 项模板 -->
+    <template id="taskTemplate">
+        <div class="task-item bg-white p-6 rounded-lg shadow-md transition-all hover:shadow-lg">
+            <div class="flex items-start gap-4">
+                <input type="checkbox" class="mt-1.5 task-checkbox flex-none">
+                <div class="min-w-0 flex-1">
+                    <div class="flex items-center justify-between gap-4">
+                        <h3 class="text-lg font-semibold task-title truncate"></h3>
+                        <div class="flex gap-2 flex-none">
+                            <button class="edit-btn text-blue-500 hover:text-blue-700">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                                    </path>
+                                </svg>
+                            </button>
+                            <button class="delete-btn text-red-500 hover:text-red-700">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                    </path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mt-2 task-content line-clamp-3 break-words"></p>
+                    <div class="mt-2 flex flex-wrap gap-4 text-sm">
+                        <span class="text-gray-500 task-created"></span>
+                        <span class="task-deadline font-medium"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- 编辑对话框 -->
+    <div id="editDialog" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center">
+        <div class="bg-white rounded-lg p-6 w-full max-w-lg mx-4">
+            <h2 class="text-xl font-bold mb-4">编辑任务</h2>
+            <form id="editForm">
+                <input type="hidden" name="id">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">标题</label>
+                    <input type="text" name="title" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">内容</label>
+                    <textarea name="content" rows="3"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">截止日期</label>
+                    <input type="datetime-local" name="deadline"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="flex justify-end space-x-4">
+                    <button type="button" onclick="closeEditDialog()"
+                        class="px-4 py-2 text-gray-600 hover:text-gray-800 focus:outline-none">
+                        取消
+                    </button>
+                    <button type="submit"
+                        class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        保存
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 在底部引入外部 JavaScript 文件 -->
+    <script src="script.js"></script>
+</body>
+</html> 

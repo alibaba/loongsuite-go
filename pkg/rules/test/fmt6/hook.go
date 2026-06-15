@@ -16,15 +16,18 @@ package fmt6
 
 import (
 	_ "fmt"
+	_ "unsafe"
 
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/api"
+	"github.com/alibaba/loongsuite-go-agent/pkg/api"
 )
 
+//go:linkname onEnterSprintf2 fmt.onEnterSprintf2
 func onEnterSprintf2(call api.CallContext, format string, arg ...any) {
 	print("a2")
 	_ = call.IsSkipCall()
 }
 
+//go:linkname onExitSprintf2 fmt.onExitSprintf2
 func onExitSprintf2(call api.CallContext, s string) {
 	println("b2")
 }

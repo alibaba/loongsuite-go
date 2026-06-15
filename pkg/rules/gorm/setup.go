@@ -16,8 +16,10 @@ package gorm
 
 import (
 	"context"
+	"os"
+	_ "unsafe"
 
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/api"
+	"github.com/alibaba/loongsuite-go-agent/pkg/api"
 	driver "github.com/go-sql-driver/mysql"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -26,9 +28,23 @@ import (
 var contextKey = "otel-context"
 var requestKey = "otel-request"
 
+type gormInnerEnabler struct {
+	enabled bool
+}
+
+func (g gormInnerEnabler) Enable() bool {
+	return g.enabled
+}
+
+var gormEnabler = gormInnerEnabler{os.Getenv("OTEL_INSTRUMENTATION_GORM_ENABLED") != "false"}
+
 var gormInstrumenter = BuildGormInstrumenter()
 
+//go:linkname afterGormOpen gorm.io/gorm.afterGormOpen
 func afterGormOpen(call api.CallContext, db *gorm.DB, err error) {
+	if !gormEnabler.Enable() {
+		return
+	}
 	if err != nil || db == nil {
 		return
 	}
@@ -93,13 +109,13 @@ func getDbInfo(dial gorm.Dialector) (string, string, string, string) {
 	if !ok {
 		return "", "", "", ""
 	}
-	if cfg, ok := res.DbInfo.(*driver.Config); ok {
+	if cfg, ok := res.Config.DbInfo.(*driver.Config); ok {
 		return cfg.DBName, cfg.Addr, "mysql", cfg.User
 	}
 	cfg, err := driver.ParseDSN(res.Config.DSN)
 	if err != nil {
 		return "", "", "", ""
 	}
-	res.DbInfo = cfg
+	res.Config.DbInfo = cfg
 	return cfg.DBName, cfg.Addr, "mysql", cfg.User
 }

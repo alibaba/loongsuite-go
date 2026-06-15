@@ -1,0 +1,9 @@
+[
+  {
+    "Version": "[1.0.4,)",
+    "ImportPath": "github.com/alibaba/sentinel-golang/api",
+    "Function": "initSentinel",
+    "OnExit": "onExitInitSentinel",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/sentinel"
+  }
+]

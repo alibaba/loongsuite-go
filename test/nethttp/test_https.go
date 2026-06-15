@@ -17,12 +17,13 @@ package main
 import (
 	"bytes"
 	"crypto/tls"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/test/verifier"
-	"go.opentelemetry.io/otel/sdk/trace/tracetest"
 	"log"
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/alibaba/loongsuite-go-agent/test/verifier"
+	"go.opentelemetry.io/otel/sdk/trace/tracetest"
 )
 
 func setupHttps() {
@@ -63,7 +64,6 @@ func main() {
 	}
 	defer resp.Body.Close()
 	println(port)
-	time.Sleep(1 * time.Second)
 	verifier.WaitAndAssertTraces(func(stubs []tracetest.SpanStubs) {
 		verifier.VerifyHttpClientAttributes(stubs[0][0], "POST", "POST", "https://127.0.0.1:"+strconv.Itoa(port)+"/a", "http", "1.1", "tcp", "ipv4", "", "127.0.0.1:"+strconv.Itoa(port), 200, 0, int64(port))
 		verifier.VerifyHttpServerAttributes(stubs[0][1], "POST /a", "POST", "https", "tcp", "ipv4", "", "127.0.0.1:"+strconv.Itoa(port), "Go-http-client/1.1", "https", "/a", "", "/a", 200)

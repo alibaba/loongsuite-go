@@ -1,0 +1,41 @@
+[
+  {
+    "ImportPath": "net/http",
+    "Function": "Serve",
+    "ReceiverType": "\\*Server",
+    "Dependencies": [
+    ],
+    "OnEnter": "fmt.Println(\"[DEP-TEST] nethttp Serve() called with dependency check\")",
+    "UseRaw": true
+  },
+  {
+    "ImportPath": "net/http",
+    "Function": "serve",
+    "ReceiverType": "\\*conn",
+    "Dependencies": [
+      "github.com/gin-gonic/gin"
+    ],
+    "OnEnter": "fmt.Println(\"[DEP-TEST] nethttp serve() called with dependency check\")",
+    "UseRaw": true
+  },
+  {
+    "ImportPath": "net/http",
+    "Function": "readRequest",
+    "Dependencies": [
+      "github.com/missing/dependency"
+    ],
+    "OnEnter": "fmt.Println(\"[DEP-TEST] nethttp readRequest() This should NOT be instrumented due to missing dependency\")",
+    "UseRaw": true
+  },
+  {
+    "ImportPath": "net/http",
+    "Function": "Write",
+    "ReceiverType": "checkConnErrorWriter",
+    "Dependencies": [
+      "github.com/gin-gonic/gin",
+      "github.com/missing/dependency"
+    ],
+    "OnEnter": "fmt.Println(\"[DEP-TEST] nethttp Write() This should NOT be instrumented due to missing dependency\")",
+    "UseRaw": true
+  }
+]

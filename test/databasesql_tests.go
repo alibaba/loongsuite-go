@@ -17,7 +17,6 @@ package test
 import (
 	"context"
 	"testing"
-	"time"
 
 	"github.com/docker/go-connections/nat"
 	"github.com/testcontainers/testcontainers-go"
@@ -26,128 +25,29 @@ import (
 
 func init() {
 	TestCases = append(TestCases,
-		NewGeneralTestCase("databasesql-mysql-8-access-database-test", "databasesql", "", "", "1.18", "", TestMySql8xAccessDatabase),
-		NewGeneralTestCase("databasesql-mysql-8-fetching-database-test", "databasesql", "", "", "1.18", "", TestMySql8xFetchingDatabase),
-		NewGeneralTestCase("databasesql-mysql-8-modify-data-test", "databasesql", "", "", "1.18", "", TestMySql8xModifyData),
-		NewGeneralTestCase("databasesql-mysql-8-prepared-statement-test", "databasesql", "", "", "1.18", "", TestPreparedStatement),
-		NewGeneralTestCase("databasesql-mysql-8-single-row-query-test", "databasesql", "", "", "1.18", "", TestSingleRowQuery),
-		NewGeneralTestCase("databasesql-mysql-8-single-transaction-test", "databasesql", "", "", "1.18", "", TestTransaction),
-
-		NewGeneralTestCase("databasesql-mysql-5-access-database-test", "databasesql", "", "", "1.18", "", TestMySql5xAccessDatabase),
-		NewGeneralTestCase("databasesql-mysql-5-fetching-database-test", "databasesql", "", "", "1.18", "", TestMySql5xFetchingDatabase),
-		NewGeneralTestCase("databasesql-mysql-5-modify-data-test", "databasesql", "", "", "1.18", "", TestMySql5xModifyData),
-		NewGeneralTestCase("databasesql-mysql-5-prepared-statement-test", "databasesql", "", "", "1.18", "", TestMySql5xPreparedStatement),
-		NewGeneralTestCase("databasesql-mysql-5-single-row-query-test", "databasesql", "", "", "1.18", "", TestMySql5xSingleRowQuery),
-		NewGeneralTestCase("databasesql-mysql-5-single-transaction-test", "databasesql", "", "", "1.18", "", TestMySql5xTransaction),
+		NewGeneralTestCase("databasesql-mysql-8x", "databasesql", "", "", "1.18", "", TestMySql8x),
+		NewGeneralTestCase("databasesql-mysql-5x", "databasesql", "", "", "1.18", "", TestMySql5x),
 	)
 }
 
-func TestMySql5xAccessDatabase(t *testing.T, env ...string) {
-	mysqlC, mysqlPort := init5xMySqlContainer()
-	defer testcontainers.CleanupContainer(t, mysqlC)
+func TestMySql5x(t *testing.T, env ...string) {
+	_, mysqlPort := init5xMySqlContainer()
+
 	UseApp("databasesql/mysql")
-	RunGoBuild(t, "go", "build", "test_access_database.go")
+	RunGoBuild(t, "go", "build")
 	env = append(env, "MYSQL_PORT="+mysqlPort.Port())
-	RunApp(t, "test_access_database", env...)
+	env = append(env, "OTEL_INSTRUMENTATION_DB_EXPERIMENTAL_ENABLE=true")
+	RunApp(t, "mysql", env...)
 }
 
-func TestMySql5xFetchingDatabase(t *testing.T, env ...string) {
-	mysqlC, mysqlPort := init5xMySqlContainer()
-	defer testcontainers.CleanupContainer(t, mysqlC)
-	UseApp("databasesql/mysql")
-	RunGoBuild(t, "go", "build", "test_fetching_database.go")
-	env = append(env, "MYSQL_PORT="+mysqlPort.Port())
-	RunApp(t, "test_fetching_database", env...)
-}
+func TestMySql8x(t *testing.T, env ...string) {
+	_, mysqlPort := init8xMySqlContainer()
 
-func TestMySql5xModifyData(t *testing.T, env ...string) {
-	mysqlC, mysqlPort := init5xMySqlContainer()
-	defer testcontainers.CleanupContainer(t, mysqlC)
 	UseApp("databasesql/mysql")
-	RunGoBuild(t, "go", "build", "test_modify_data.go")
+	RunGoBuild(t, "go", "build")
 	env = append(env, "MYSQL_PORT="+mysqlPort.Port())
-	RunApp(t, "test_modify_data", env...)
-}
-
-func TestMySql5xSingleRowQuery(t *testing.T, env ...string) {
-	mysqlC, mysqlPort := init5xMySqlContainer()
-	defer testcontainers.CleanupContainer(t, mysqlC)
-	UseApp("databasesql/mysql")
-	RunGoBuild(t, "go", "build", "test_single_row_query.go")
-	env = append(env, "MYSQL_PORT="+mysqlPort.Port())
-	RunApp(t, "test_single_row_query", env...)
-}
-
-func TestMySql5xTransaction(t *testing.T, env ...string) {
-	mysqlC, mysqlPort := init5xMySqlContainer()
-	defer testcontainers.CleanupContainer(t, mysqlC)
-	UseApp("databasesql/mysql")
-	RunGoBuild(t, "go", "build", "test_transaction.go")
-	env = append(env, "MYSQL_PORT="+mysqlPort.Port())
-	RunApp(t, "test_transaction", env...)
-}
-
-func TestMySql5xPreparedStatement(t *testing.T, env ...string) {
-	mysqlC, mysqlPort := init5xMySqlContainer()
-	defer testcontainers.CleanupContainer(t, mysqlC)
-	UseApp("databasesql/mysql")
-	RunGoBuild(t, "go", "build", "test_prepared_statement.go")
-	env = append(env, "MYSQL_PORT="+mysqlPort.Port())
-	RunApp(t, "test_prepared_statement", env...)
-}
-
-func TestMySql8xAccessDatabase(t *testing.T, env ...string) {
-	mysqlC, mysqlPort := init8xMySqlContainer()
-	defer testcontainers.CleanupContainer(t, mysqlC)
-	UseApp("databasesql/mysql")
-	RunGoBuild(t, "go", "build", "test_access_database.go")
-	env = append(env, "MYSQL_PORT="+mysqlPort.Port())
-	RunApp(t, "test_access_database", env...)
-}
-
-func TestMySql8xFetchingDatabase(t *testing.T, env ...string) {
-	mysqlC, mysqlPort := init8xMySqlContainer()
-	defer testcontainers.CleanupContainer(t, mysqlC)
-	UseApp("databasesql/mysql")
-	RunGoBuild(t, "go", "build", "test_fetching_database.go")
-	env = append(env, "MYSQL_PORT="+mysqlPort.Port())
-	RunApp(t, "test_fetching_database", env...)
-}
-
-func TestMySql8xModifyData(t *testing.T, env ...string) {
-	mysqlC, mysqlPort := init8xMySqlContainer()
-	defer testcontainers.CleanupContainer(t, mysqlC)
-	UseApp("databasesql/mysql")
-	RunGoBuild(t, "go", "build", "test_modify_data.go")
-	env = append(env, "MYSQL_PORT="+mysqlPort.Port())
-	RunApp(t, "test_modify_data", env...)
-}
-
-func TestSingleRowQuery(t *testing.T, env ...string) {
-	mysqlC, mysqlPort := init8xMySqlContainer()
-	defer testcontainers.CleanupContainer(t, mysqlC)
-	UseApp("databasesql/mysql")
-	RunGoBuild(t, "go", "build", "test_single_row_query.go")
-	env = append(env, "MYSQL_PORT="+mysqlPort.Port())
-	RunApp(t, "test_single_row_query", env...)
-}
-
-func TestTransaction(t *testing.T, env ...string) {
-	mysqlC, mysqlPort := init8xMySqlContainer()
-	defer testcontainers.CleanupContainer(t, mysqlC)
-	UseApp("databasesql/mysql")
-	RunGoBuild(t, "go", "build", "test_transaction.go")
-	env = append(env, "MYSQL_PORT="+mysqlPort.Port())
-	RunApp(t, "test_transaction", env...)
-}
-
-func TestPreparedStatement(t *testing.T, env ...string) {
-	mysqlC, mysqlPort := init8xMySqlContainer()
-	defer testcontainers.CleanupContainer(t, mysqlC)
-	UseApp("databasesql/mysql")
-	RunGoBuild(t, "go", "build", "test_prepared_statement.go")
-	env = append(env, "MYSQL_PORT="+mysqlPort.Port())
-	RunApp(t, "test_prepared_statement", env...)
+	env = append(env, "OTEL_INSTRUMENTATION_DB_EXPERIMENTAL_ENABLE=true")
+	RunApp(t, "mysql", env...)
 }
 
 func init5xMySqlContainer() (testcontainers.Container, nat.Port) {
@@ -175,7 +75,6 @@ func init8xMySqlContainer() (testcontainers.Container, nat.Port) {
 	if err := mysqlContainer.Start(ctx); err != nil {
 		panic(err)
 	}
-	time.Sleep(5 * time.Second)
 	port, err := mysqlContainer.MappedPort(ctx, "3306")
 	if err != nil {
 		panic(err)

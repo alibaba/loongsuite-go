@@ -16,10 +16,12 @@ package nethttp9
 
 import (
 	"net/http"
+	_ "unsafe"
 
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/api"
+	"github.com/alibaba/loongsuite-go-agent/pkg/api"
 )
 
+//go:linkname onEnterClientDo2 net/http.onEnterClientDo2
 func onEnterClientDo2(call api.CallContext, recv *http.Client, req *http.Request) {
 	println("Client.Do2()")
 }

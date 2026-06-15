@@ -15,9 +15,12 @@
 package error12
 
 import (
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/api"
+	_ "unsafe"
+
+	"github.com/alibaba/loongsuite-go-agent/pkg/api"
 )
 
+//go:linkname onEnterTestGetSet errorstest/auxiliary.onEnterTestGetSet
 func onEnterTestGetSet(call api.CallContext, arg1 int, arg2, arg3 bool, arg4 float64, arg5 string, arg6 interface{}, arg7, arg8 map[int]bool, arg9 chan int, arg10 []int) {
 	call.SetParam(0, 7632)
 	call.SetParam(1, arg2)
@@ -31,6 +34,7 @@ func onEnterTestGetSet(call api.CallContext, arg1 int, arg2, arg3 bool, arg4 flo
 	call.SetParam(9, arg10)
 }
 
+//go:linkname onExitTestGetSet errorstest/auxiliary.onExitTestGetSet
 func onExitTestGetSet(call api.CallContext, arg1 int, arg2 bool, arg3 bool, arg4 float64, arg5 string, arg6 interface{}, arg7 map[int]bool, arg8 map[int]bool, arg9 chan int, arg10 []int) {
 	call.SetReturnVal(0, arg1)
 	call.SetReturnVal(1, arg2)

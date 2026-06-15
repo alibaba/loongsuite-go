@@ -1,0 +1,9 @@
+[
+  {
+    "Version": "[1.11.1,1.15.2)",
+    "ImportPath": "go.mongodb.org/mongo-driver/mongo",
+    "Function": "NewClient",
+    "OnEnter": "mongoOnEnter",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/mongo"
+  }
+]

@@ -1,0 +1,232 @@
+[{
+  "ImportPath": "database/sql",
+  "StructType": "DB",
+  "FieldName": "Endpoint",
+  "FieldType": "string"
+},
+  {
+    "ImportPath": "database/sql",
+    "StructType": "DB",
+    "FieldName": "DriverName",
+    "FieldType": "string"
+  },
+  {
+    "ImportPath": "database/sql",
+    "StructType": "DB",
+    "FieldName": "DSN",
+    "FieldType": "string"
+  },
+  {
+    "ImportPath": "database/sql",
+    "StructType": "Stmt",
+    "FieldName": "Data",
+    "FieldType": "map[string]string"
+  },
+  {
+    "ImportPath": "database/sql",
+    "StructType": "Stmt",
+    "FieldName": "DriverName",
+    "FieldType": "string"
+  },
+  {
+    "ImportPath": "database/sql",
+    "StructType": "Stmt",
+    "FieldName": "DSN",
+    "FieldType": "string"
+  },
+  {
+    "ImportPath": "database/sql",
+    "StructType": "Tx",
+    "FieldName": "Endpoint",
+    "FieldType": "string"
+  },
+  {
+    "ImportPath": "database/sql",
+    "StructType": "Tx",
+    "FieldName": "DriverName",
+    "FieldType": "string"
+  },
+  {
+    "ImportPath": "database/sql",
+    "StructType": "Tx",
+    "FieldName": "DSN",
+    "FieldType": "string"
+  },
+  {
+    "ImportPath": "database/sql",
+    "StructType": "Conn",
+    "FieldName": "Endpoint",
+    "FieldType": "string"
+  },
+  {
+    "ImportPath": "database/sql",
+    "StructType": "Conn",
+    "FieldName": "DriverName",
+    "FieldType": "string"
+  },
+  {
+    "ImportPath": "database/sql",
+    "StructType": "Conn",
+    "FieldName": "DSN",
+    "FieldType": "string"
+  },
+  {
+    "ImportPath": "database/sql",
+    "Function": "Open",
+    "OnEnter": "beforeOpenInstrumentation",
+    "OnExit": "afterOpenInstrumentation",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/databasesql"
+  },
+  {
+    "ImportPath": "database/sql",
+    "Function": "PingContext",
+    "ReceiverType": "\\*DB",
+    "OnEnter": "beforePingContextInstrumentation",
+    "OnExit": "afterPingContextInstrumentation",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/databasesql"
+  },
+  {
+    "ImportPath": "database/sql",
+    "Function": "PrepareContext",
+    "ReceiverType": "\\*DB",
+    "OnEnter": "beforePrepareContextInstrumentation",
+    "OnExit": "afterPrepareContextInstrumentation",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/databasesql"
+  },
+  {
+    "ImportPath": "database/sql",
+    "Function": "ExecContext",
+    "ReceiverType": "\\*DB",
+    "OnEnter": "beforeExecContextInstrumentation",
+    "OnExit": "afterExecContextInstrumentation",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/databasesql"
+  },
+  {
+    "ImportPath": "database/sql",
+    "Function": "QueryContext",
+    "ReceiverType": "\\*DB",
+    "OnEnter": "beforeQueryContextInstrumentation",
+    "OnExit": "afterQueryContextInstrumentation",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/databasesql"
+  },
+  {
+    "ImportPath": "database/sql",
+    "Function": "BeginTx",
+    "ReceiverType": "\\*DB",
+    "OnEnter": "beforeTxInstrumentation",
+    "OnExit": "afterTxInstrumentation",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/databasesql"
+  },
+  {
+    "ImportPath": "database/sql",
+    "Function": "Conn",
+    "ReceiverType": "\\*DB",
+    "OnEnter": "beforeConnInstrumentation",
+    "OnExit": "afterConnInstrumentation",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/databasesql"
+  },
+  {
+    "ImportPath": "database/sql",
+    "Function": "PingContext",
+    "ReceiverType": "\\*Conn",
+    "OnEnter": "beforeConnPingContextInstrumentation",
+    "OnExit": "afterConnPingContextInstrumentation",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/databasesql"
+  },
+  {
+    "ImportPath": "database/sql",
+    "Function": "PrepareContext",
+    "ReceiverType": "\\*Conn",
+    "OnEnter": "beforeConnPrepareContextInstrumentation",
+    "OnExit": "afterConnPrepareContextInstrumentation",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/databasesql"
+  },
+  {
+    "ImportPath": "database/sql",
+    "Function": "ExecContext",
+    "ReceiverType": "\\*Conn",
+    "OnEnter": "beforeConnExecContextInstrumentation",
+    "OnExit": "afterConnExecContextInstrumentation",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/databasesql"
+  },
+  {
+    "ImportPath": "database/sql",
+    "Function": "QueryContext",
+    "ReceiverType": "\\*Conn",
+    "OnEnter": "beforeConnQueryContextInstrumentation",
+    "OnExit": "afterConnQueryContextInstrumentation",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/databasesql"
+  },
+  {
+    "ImportPath": "database/sql",
+    "Function": "BeginTx",
+    "ReceiverType": "\\*Conn",
+    "OnEnter": "beforeConnTxInstrumentation",
+    "OnExit": "afterConnTxInstrumentation",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/databasesql"
+  },
+  {
+    "ImportPath": "database/sql",
+    "Function": "StmtContext",
+    "ReceiverType": "\\*Tx",
+    "OnEnter": "beforeTxStmtContextInstrumentation",
+    "OnExit": "afterTxStmtContextInstrumentation",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/databasesql"
+  },
+  {
+    "ImportPath": "database/sql",
+    "Function": "PrepareContext",
+    "ReceiverType": "\\*Tx",
+    "OnEnter": "beforeTxPrepareContextInstrumentation",
+    "OnExit": "afterTxPrepareContextInstrumentation",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/databasesql"
+  },
+  {
+    "ImportPath": "database/sql",
+    "Function": "ExecContext",
+    "ReceiverType": "\\*Tx",
+    "OnEnter": "beforeTxExecContextInstrumentation",
+    "OnExit": "afterTxExecContextInstrumentation",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/databasesql"
+  },
+  {
+    "ImportPath": "database/sql",
+    "Function": "QueryContext",
+    "ReceiverType": "\\*Tx",
+    "OnEnter": "beforeTxQueryContextInstrumentation",
+    "OnExit": "afterTxQueryContextInstrumentation",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/databasesql"
+  },
+  {
+    "ImportPath": "database/sql",
+    "Function": "Commit",
+    "ReceiverType": "\\*Tx",
+    "OnEnter": "beforeTxCommitInstrumentation",
+    "OnExit": "afterTxCommitInstrumentation",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/databasesql"
+  },
+  {
+    "ImportPath": "database/sql",
+    "Function": "Rollback",
+    "ReceiverType": "\\*Tx",
+    "OnEnter": "beforeTxRollbackInstrumentation",
+    "OnExit": "afterTxRollbackInstrumentation",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/databasesql"
+  },
+  {
+    "ImportPath": "database/sql",
+    "Function": "ExecContext",
+    "ReceiverType": "\\*Stmt",
+    "OnEnter": "beforeStmtExecContextInstrumentation",
+    "OnExit": "afterStmtExecContextInstrumentation",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/databasesql"
+  },
+  {
+    "ImportPath": "database/sql",
+    "Function": "QueryContext",
+    "ReceiverType": "\\*Stmt",
+    "OnEnter": "beforeStmtQueryContextInstrumentation",
+    "OnExit": "afterStmtQueryContextInstrumentation",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/databasesql"
+  }
+]

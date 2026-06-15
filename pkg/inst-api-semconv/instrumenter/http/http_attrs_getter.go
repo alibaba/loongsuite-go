@@ -14,7 +14,7 @@
 
 package http
 
-import "github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api-semconv/instrumenter/net"
+import "github.com/alibaba/loongsuite-go-agent/pkg/inst-api-semconv/instrumenter/net"
 
 type HttpCommonAttrsGetter[REQUEST any, RESPONSE any] interface {
 	GetRequestMethod(request REQUEST) string

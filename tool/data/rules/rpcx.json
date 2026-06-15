@@ -1,0 +1,37 @@
+[{
+  "Version": "[1.6.2,)",
+  "ImportPath": "github.com/smallnest/rpcx/client",
+  "Function": "call",
+  "ReceiverType": "\\*Client",
+  "OnEnter": "clientRpcxCallOnEnter",
+  "OnExit": "clientRpcxCallOnExit",
+  "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/rpcx"
+},
+  {
+    "Version": "[1.6.2,)",
+    "ImportPath": "github.com/smallnest/rpcx/client",
+    "Function": "SendRaw",
+    "ReceiverType": "\\*Client",
+    "OnEnter": "clientRpcxSendRawOnEnter",
+    "OnExit": "clientRpcxSendRawOnExit",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/rpcx"
+  },
+  {
+    "Version": "[1.6.2,)",
+    "ImportPath": "github.com/smallnest/rpcx/client",
+    "Function": "Go",
+    "ReceiverType": "\\*Client",
+    "OnEnter": "clientRpcxGoOnEnter",
+    "OnExit": "clientRpcxGoOnExit",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/rpcx"
+  },
+  {
+    "Version": "[1.6.2,)",
+    "ImportPath": "github.com/smallnest/rpcx/server",
+    "Function": "handleRequest",
+    "ReceiverType": "\\*Server",
+    "OnEnter": "serverHandleRequestOnEnter",
+    "OnExit": "serverHandleRequestOnExit",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/rpcx"
+  }
+]

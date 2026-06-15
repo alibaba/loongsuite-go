@@ -15,7 +15,15 @@
 package iris
 
 import (
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api/instrumenter"
+	"os"
 )
 
-var irisEnabler = instrumenter.NewDefaultInstrumentEnabler()
+type irisInnerEnabler struct {
+	enabled bool
+}
+
+func (k irisInnerEnabler) Enable() bool {
+	return k.enabled
+}
+
+var irisEnabler = irisInnerEnabler{os.Getenv("OTEL_INSTRUMENTATION_IRIS_ENABLED") != "false"}

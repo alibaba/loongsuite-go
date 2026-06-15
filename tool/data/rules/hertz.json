@@ -1,0 +1,14 @@
+[
+  {
+    "ImportPath": "github.com/cloudwego/hertz/pkg/app/server",
+    "Function": "New",
+    "OnEnter": "beforeHertzServerBuild",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/hertz/server"
+  },
+  {
+    "ImportPath": "github.com/cloudwego/hertz/pkg/app/client",
+    "Function": "NewClient",
+    "OnExit": "afterHertzClientBuild",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/hertz/client"
+  }
+]

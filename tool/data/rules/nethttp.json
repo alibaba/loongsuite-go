@@ -1,0 +1,18 @@
+[
+  {
+    "ImportPath": "net/http",
+    "Function": "RoundTrip",
+    "ReceiverType": "\\*Transport",
+    "OnEnter": "clientOnEnter",
+    "OnExit": "clientOnExit",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/http"
+  },
+  {
+    "ImportPath": "net/http",
+    "Function": "ServeHTTP",
+    "ReceiverType": "serverHandler",
+    "OnEnter": "serverOnEnter",
+    "OnExit": "serverOnExit",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/http"
+  }
+]

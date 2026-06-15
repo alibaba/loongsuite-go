@@ -23,7 +23,7 @@ import (
 )
 
 func hello(w http.ResponseWriter, r *http.Request) {
-	logger := slog.New(slog.NewTextHandler(os.Stderr, nil))
+	logger := slog.New(slog.NewJSONHandler(os.Stderr, nil))
 	logger.Info("slog logger")
 	log.Printf("go log")
 	w.Write([]byte("hello world"))

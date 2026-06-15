@@ -17,7 +17,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/test/verifier"
+	"github.com/alibaba/loongsuite-go-agent/test/verifier"
 	"github.com/go-redis/redis/v8"
 	"go.opentelemetry.io/otel/sdk/trace/tracetest"
 	"os"
@@ -39,7 +39,7 @@ func main() {
 	val := rdb.HVals(ctx, "a").Val()
 	fmt.Printf("%v\n", val)
 	verifier.WaitAndAssertTraces(func(stubs []tracetest.SpanStubs) {
-		verifier.VerifyDbAttributes(stubs[0][0], "hset", "redis", "shard1", "hset a a b", "hset")
-		verifier.VerifyDbAttributes(stubs[1][0], "hvals", "redis", "shard1", "hvals a", "hvals")
+		verifier.VerifyDbAttributes(stubs[0][0], "hset", "redis", "shard1", "hset a a b", "hset", "", nil)
+		verifier.VerifyDbAttributes(stubs[1][0], "hvals", "redis", "shard1", "hvals a", "hvals", "", nil)
 	}, 3)
 }

@@ -16,12 +16,14 @@ package grpc
 
 import (
 	"context"
+	_ "unsafe"
 
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/api"
+	"github.com/alibaba/loongsuite-go-agent/pkg/api"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/stats"
 )
 
+//go:linkname grpcNewClientOnEnter google.golang.org/grpc.grpcNewClientOnEnter
 func grpcNewClientOnEnter(call api.CallContext, target string, opts ...grpc.DialOption) {
 	h := grpc.WithStatsHandler(NewClientNewHandler())
 	var opt []grpc.DialOption
@@ -30,6 +32,7 @@ func grpcNewClientOnEnter(call api.CallContext, target string, opts ...grpc.Dial
 	call.SetParam(1, opt)
 }
 
+//go:linkname grpcNewClientOnExit google.golang.org/grpc.grpcNewClientOnExit
 func grpcNewClientOnExit(call api.CallContext, cc *grpc.ClientConn, err error) {
 	return
 }
@@ -49,6 +52,9 @@ func NewClientNewHandler(opts ...Option) stats.Handler {
 
 // TagRPC can attach some information to the given context.
 func (h *clientNewHandler) TagRPC(ctx context.Context, info *stats.RPCTagInfo) context.Context {
+	if info.FullMethodName == grpcTraceExporterPath || info.FullMethodName == grpcMetricExporterPath {
+		return ctx
+	}
 	filter, _ := ctx.Value("stream_filter").(*bool)
 	if filter != nil && *filter {
 		return ctx
@@ -57,10 +63,10 @@ func (h *clientNewHandler) TagRPC(ctx context.Context, info *stats.RPCTagInfo) c
 		methodName:    info.FullMethodName,
 		serverAddress: h.serverAddr,
 	})
-	gctx := gRPCContext{
+	gCtx := gRPCContext{
 		methodName: info.FullMethodName,
 	}
-	return inject(context.WithValue(nCtx, gRPCContextKey{}, &gctx), h.grpcOtelConfig.Propagators, info.FullMethodName)
+	return inject(context.WithValue(nCtx, gRPCContextKey{}, &gCtx), h.grpcOtelConfig.Propagators, info.FullMethodName)
 }
 
 // HandleRPC processes the RPC stats.

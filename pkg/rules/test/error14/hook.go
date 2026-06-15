@@ -15,9 +15,12 @@
 package error14
 
 import (
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/api"
+	_ "unsafe"
+
+	"github.com/alibaba/loongsuite-go-agent/pkg/api"
 )
 
+//go:linkname onExitOnlyRet errorstest/auxiliary.onExitOnlyRet
 func onExitOnlyRet(call api.CallContext, _ int, _ string) {
 	call.SetReturnVal(0, 2033)
 	call.SetReturnVal(1, "hangzhou")

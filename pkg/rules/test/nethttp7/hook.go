@@ -16,11 +16,14 @@ package nethttp7
 
 import (
 	"net/http"
+	_ "unsafe"
 
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/api"
+	"github.com/alibaba/loongsuite-go-agent/pkg/api"
 )
 
 // use field added by struct rule
+//
+//go:linkname onExitNewRequest net/http.onExitNewRequest
 func onExitNewRequest(call api.CallContext, req *http.Request, _ interface{}) {
 	println(req.Should)
 }

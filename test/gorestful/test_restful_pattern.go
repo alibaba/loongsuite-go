@@ -20,7 +20,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/test/verifier"
+	"github.com/alibaba/loongsuite-go-agent/test/verifier"
 	restful "github.com/emicklei/go-restful/v3"
 )
 

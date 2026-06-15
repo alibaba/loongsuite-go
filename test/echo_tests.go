@@ -22,6 +22,7 @@ const echo_module_name = "echo"
 func init() {
 	TestCases = append(TestCases,
 		NewGeneralTestCase("echo-basic-test", echo_module_name, "v4.0.0", "", "1.18", "", TestBasicEcho),
+		NewGeneralTestCase("echo-metrics-test", echo_module_name, "v4.0.0", "", "1.18", "", TestMetricsEcho),
 		NewGeneralTestCase("echo-middleware-test", echo_module_name, "v4.0.0", "", "1.18", "", TestEchoMiddleware),
 		NewGeneralTestCase("echo-pattern-test", echo_module_name, "v4.0.0", "", "1.18", "", TestEchoPattern),
 		NewMuzzleTestCase("echo-muzzle-test", echo_dependency_name, echo_module_name, "v4.0.0", "v4.9.1", "1.18", "", []string{"go", "build", "test_echo_basic.go"}),
@@ -46,4 +47,10 @@ func TestEchoMiddleware(t *testing.T, env ...string) {
 	UseApp("echo/v4.10.0")
 	RunGoBuild(t, "go", "build", "test_echo_middleware.go")
 	RunApp(t, "test_echo_middleware", env...)
+}
+
+func TestMetricsEcho(t *testing.T, env ...string) {
+	UseApp("echo/v4.0.0")
+	RunGoBuild(t, "go", "build", "test_echo_metrics.go")
+	RunApp(t, "test_echo_metrics", env...)
 }

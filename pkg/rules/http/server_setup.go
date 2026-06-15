@@ -20,13 +20,18 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	_ "unsafe"
 
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/api"
+	"github.com/alibaba/loongsuite-go-agent/pkg/api"
 )
 
 var netHttpServerInstrumenter = BuildNetHttpServerOtelInstrumenter()
 
+//go:linkname serverOnEnter net/http.serverOnEnter
 func serverOnEnter(call api.CallContext, _ interface{}, w http.ResponseWriter, r *http.Request) {
+	if !netHttpEnabler.Enable() {
+		return
+	}
 	if netHttpFilter.FilterUrl(r.URL) {
 		return
 	}
@@ -43,7 +48,6 @@ func serverOnEnter(call api.CallContext, _ interface{}, w http.ResponseWriter, r
 		x1 := &writerWrapper{ResponseWriter: x, statusCode: http.StatusOK}
 		call.SetParam(1, x1)
 	}
-	call.SetParam(2, r.WithContext(ctx))
 	data := make(map[string]interface{}, 2)
 	data["ctx"] = ctx
 	data["request"] = request
@@ -51,7 +55,11 @@ func serverOnEnter(call api.CallContext, _ interface{}, w http.ResponseWriter, r
 	return
 }
 
+//go:linkname serverOnExit net/http.serverOnExit
 func serverOnExit(call api.CallContext) {
+	if !netHttpEnabler.Enable() {
+		return
+	}
 	data, ok := call.GetData().(map[string]interface{})
 	if !ok || data == nil || data["ctx"] == nil {
 		return
@@ -80,7 +88,7 @@ type writerWrapper struct {
 func (w *writerWrapper) WriteHeader(statusCode int) {
 	// cache the status code
 	if w.statusCode == statusCode {
-		return // 防止多次写入 Header
+		return // Prevent multiple header writes
 	}
 	w.statusCode = statusCode
 

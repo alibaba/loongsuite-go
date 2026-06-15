@@ -15,11 +15,14 @@
 package kitex
 
 import (
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/api"
+	_ "unsafe"
+
+	"github.com/alibaba/loongsuite-go-agent/pkg/api"
 	client "github.com/cloudwego/kitex/client"
 	"github.com/cloudwego/kitex/pkg/transmeta"
 )
 
+//go:linkname beforeNewKitexClientInstrument github.com/cloudwego/kitex/client.beforeNewKitexClientInstrument
 func beforeNewKitexClientInstrument(call api.CallContext, svcInfo interface{}, opts ...client.Option) {
 	if !kitexEnabler.Enable() {
 		return

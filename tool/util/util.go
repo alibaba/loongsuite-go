@@ -15,18 +15,18 @@
 package util
 
 import (
-	"fmt"
+	"encoding/json"
+	"hash/crc32"
 	"io"
-	"io/ioutil"
-	"math/rand"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strconv"
 	"strings"
 	"time"
 
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/tool/errc"
+	"github.com/alibaba/loongsuite-go-agent/tool/ex"
 )
 
 type RunPhase string
@@ -35,10 +35,9 @@ const (
 	PInvalid    = "invalid"
 	PPreprocess = "preprocess"
 	PInstrument = "instrument"
-	PConfigure  = "configure"
 )
 
-var rp RunPhase = "bad"
+var rp RunPhase = "conf"
 
 func SetRunPhase(phase RunPhase) {
 	rp = phase
@@ -60,63 +59,6 @@ func InInstrument() bool {
 	return rp == PInstrument
 }
 
-func InConfigure() bool {
-	return rp == PConfigure
-}
-
-func GuaranteeInPreprocess() {
-	Assert(rp == PPreprocess, "not in preprocess stage")
-}
-
-func GuaranteeInInstrument() {
-	Assert(rp == PInstrument, "not in instrument stage")
-}
-
-func GuaranteeInConfigure() {
-	Assert(rp == PConfigure, "not in configure stage")
-}
-
-func Assert(cond bool, format string, args ...interface{}) {
-	if !cond {
-		panic(fmt.Sprintf(format, args...))
-	}
-}
-
-func Unimplemented() {
-	panic("unimplemented")
-}
-
-func UnimplementedT(msg string) {
-	panic("unimplemented: " + msg)
-}
-
-func ShouldNotReachHere() {
-	panic("should not reach here")
-}
-
-func ShouldNotReachHereT(msg string) {
-	panic("should not reach here: " + msg)
-}
-
-var recordedRand = make(map[string]bool)
-
-// RandomString generates a globally unique random string of length n
-func RandomString(n int) string {
-	for {
-		var letters = []rune("0123456789")
-		b := make([]rune, n)
-		for i := range b {
-			b[i] = letters[rand.Intn(len(letters))]
-		}
-		s := string(b)
-		// Random suffix collision? Reroll until we get a unique one
-		if _, ok := recordedRand[s]; !ok {
-			recordedRand[s] = true
-			return s
-		}
-	}
-}
-
 func RunCmd(args ...string) error {
 	path := args[0]
 	args = args[1:]
@@ -126,62 +68,45 @@ func RunCmd(args ...string) error {
 	cmd.Stderr = os.Stderr
 	err := cmd.Run()
 	if err != nil {
-		return errc.New(errc.ErrRunCmd, err.Error()).
-			With("command", fmt.Sprintf("%v", args))
+		return ex.Wrapf(err, "command %v", args)
 	}
 	return nil
 }
 
-func RunCmdOutput(args ...string) (string, error) {
-	path := args[0]
-	args = args[1:]
-	cmd := exec.Command(path, args...)
-	out, err := cmd.Output()
-	if err != nil {
-		return "", errc.New(errc.ErrRunCmd, string(out)).
-			With("command", fmt.Sprintf("%v", args))
-	}
-	return string(out), nil
-}
-
-func RunCmdCombinedOutput(args ...string) (string, error) {
-	path := args[0]
-	args = args[1:]
-	cmd := exec.Command(path, args...)
-	out, err := cmd.CombinedOutput()
-	if err != nil {
-		return "", errc.New(errc.ErrRunCmd, string(out)).
-			With("command", fmt.Sprintf("%v", args))
-	}
-	return string(out), nil
-}
-
 func CopyFile(src, dst string) error {
+	_, err := os.Stat(filepath.Dir(dst))
+	if os.IsNotExist(err) {
+		err = os.MkdirAll(filepath.Dir(dst), 0o755)
+		if err != nil {
+			return ex.Wrap(err)
+		}
+	}
+
 	sourceFile, err := os.Open(src)
 	if err != nil {
-		return errc.New(errc.ErrOpenFile, err.Error())
+		return ex.Wrap(err)
 	}
 	defer func(sourceFile *os.File) {
 		err := sourceFile.Close()
 		if err != nil {
-			LogFatal("failed to close file %s: %v", sourceFile.Name(), err)
+			ex.Fatal(err)
 		}
 	}(sourceFile)
 
 	destFile, err := os.Create(dst)
 	if err != nil {
-		return errc.New(errc.ErrCreateFile, err.Error())
+		return ex.Wrap(err)
 	}
 	defer func(destFile *os.File) {
 		err := destFile.Close()
 		if err != nil {
-			LogFatal("failed to close file %s: %v", destFile.Name(), err)
+			ex.Fatal(err)
 		}
 	}(destFile)
 
 	_, err = io.Copy(destFile, sourceFile)
 	if err != nil {
-		return errc.New(errc.ErrCopyFile, err.Error())
+		return ex.Wrap(err)
 	}
 	return nil
 }
@@ -189,19 +114,19 @@ func CopyFile(src, dst string) error {
 func ReadFile(filePath string) (string, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
-		return "", errc.New(errc.ErrOpenFile, err.Error())
+		return "", ex.Wrap(err)
 	}
 	defer func(file *os.File) {
 		err := file.Close()
 		if err != nil {
-			LogFatal("failed to close file %s: %v", file.Name(), err)
+			ex.Fatal(err)
 		}
 	}(file)
 
 	buf := new(strings.Builder)
 	_, err = io.Copy(buf, file)
 	if err != nil {
-		return "", errc.New(errc.ErrCopyFile, err.Error())
+		return "", ex.Wrap(err)
 	}
 	return buf.String(), nil
 
@@ -210,18 +135,18 @@ func ReadFile(filePath string) (string, error) {
 func WriteFile(filePath string, content string) (string, error) {
 	file, err := os.Create(filePath)
 	if err != nil {
-		return "", errc.New(errc.ErrOpenFile, err.Error())
+		return "", ex.Wrap(err)
 	}
 	defer func(file *os.File) {
 		err := file.Close()
 		if err != nil {
-			LogFatal("failed to close file %s: %v", file.Name(), err)
+			ex.Fatal(err)
 		}
 	}(file)
 
 	_, err = file.WriteString(content)
 	if err != nil {
-		return "", errc.New(errc.ErrWriteFile, err.Error())
+		return "", ex.Wrap(err)
 	}
 	return file.Name(), nil
 }
@@ -230,9 +155,9 @@ func ListFiles(dir string) ([]string, error) {
 	var files []string
 	walkFn := func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			return errc.New(errc.ErrWalkDir, err.Error())
+			return ex.Wrap(err)
 		}
-		// Dont list files under hidden directories
+		// Don't list files under hidden directories
 		if strings.HasPrefix(info.Name(), ".") {
 			return filepath.SkipDir
 		}
@@ -243,40 +168,31 @@ func ListFiles(dir string) ([]string, error) {
 	}
 	err := filepath.Walk(dir, walkFn)
 	if err != nil {
-		return nil, errc.New(errc.ErrWalkDir, err.Error())
+		return nil, ex.Wrap(err)
 	}
 	return files, nil
 }
 
-func ListFilesFlat(dir string) ([]string, error) {
-	// no recursive
-	files, err := os.ReadDir(dir)
-	if err != nil {
-		return nil, errc.New(errc.ErrReadDir, err.Error())
-	}
-	var paths []string
-	for _, file := range files {
-		paths = append(paths, filepath.Join(dir, file.Name()))
-	}
-	return paths, nil
+func CopyDir(src string, dst string) error {
+	return CopyDirExclude(src, dst, []string{})
 }
 
-func CopyDir(src string, dst string) error {
+func CopyDirExclude(src string, dst string, exclude []string) error {
 	// Get the properties of the source directory
 	sourceInfo, err := os.Stat(src)
 	if err != nil {
-		return errc.New(errc.ErrStat, err.Error())
+		return ex.Wrap(err)
 	}
 
 	// Create the destination directory
 	if err := os.MkdirAll(dst, sourceInfo.Mode()); err != nil {
-		return errc.New(errc.ErrMkdirAll, err.Error())
+		return ex.Wrap(err)
 	}
 
 	// Read the contents of the source directory
-	entries, err := ioutil.ReadDir(src)
+	entries, err := os.ReadDir(src)
 	if err != nil {
-		return errc.New(errc.ErrReadDir, err.Error())
+		return ex.Wrap(err)
 	}
 
 	// Iterate through each entry in the source directory
@@ -285,14 +201,21 @@ func CopyDir(src string, dst string) error {
 		dstPath := filepath.Join(dst, entry.Name())
 
 		if entry.IsDir() {
-			// Recursively copy subdirectories
-			if err := CopyDir(srcPath, dstPath); err != nil {
+			if err := CopyDirExclude(srcPath, dstPath, exclude); err != nil {
 				return err
 			}
 		} else {
-			// Copy files
-			if err := CopyFile(srcPath, dstPath); err != nil {
-				return err
+			ignore := false
+			for _, e := range exclude {
+				if strings.HasSuffix(entry.Name(), e) {
+					ignore = true
+					break
+				}
+			}
+			if !ignore {
+				if err := CopyFile(srcPath, dstPath); err != nil {
+					return err
+				}
 			}
 		}
 	}
@@ -326,9 +249,19 @@ func PhaseTimer(name string) func() {
 
 func GetToolName() (string, error) {
 	// Get the path of the current executable
-	ex, err := os.Executable()
+	e, err := os.Executable()
 	if err != nil {
-		return "", errc.New(errc.ErrGetExecutable, err.Error())
+		return "", ex.Wrap(err)
 	}
-	return filepath.Base(ex), nil
+	return filepath.Base(e), nil
+}
+
+func Jsonify(v interface{}) string {
+	b, _ := json.Marshal(v)
+	return string(b)
+}
+
+func Crc32(s string) string {
+	crc32Hash := crc32.ChecksumIEEE([]byte(s))
+	return strconv.FormatUint(uint64(crc32Hash), 10)
 }

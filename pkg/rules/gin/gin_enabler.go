@@ -15,7 +15,15 @@
 package gin
 
 import (
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api/instrumenter"
+	"os"
 )
 
-var ginEnabler = instrumenter.NewDefaultInstrumentEnabler()
+type ginInnerEnabler struct {
+	enabled bool
+}
+
+func (g ginInnerEnabler) Enable() bool {
+	return g.enabled
+}
+
+var ginEnabler = ginInnerEnabler{os.Getenv("OTEL_INSTRUMENTATION_GIN_ENABLED") != "false"}

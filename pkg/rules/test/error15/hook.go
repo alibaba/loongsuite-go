@@ -15,9 +15,12 @@
 package error15
 
 import (
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/api"
+	_ "unsafe"
+
+	"github.com/alibaba/loongsuite-go-agent/pkg/api"
 )
 
+//go:linkname onEnterOnlyArgs errorstest/auxiliary.onEnterOnlyArgs
 func onEnterOnlyArgs(call api.CallContext, _ int, _ string) {
 	call.SetParam(0, 2024)
 	call.SetParam(1, "shanghai")

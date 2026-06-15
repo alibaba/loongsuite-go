@@ -1,0 +1,235 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+}
+
+.container {
+    display: flex;
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.chat-container {
+    flex: 2;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    height: 80vh;
+}
+
+.log-container {
+    flex: 1;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    height: 80vh;
+    overflow-y: auto;
+}
+
+#chat-messages {
+    flex-grow: 1;
+    overflow-y: auto;
+    margin-bottom: 20px;
+    padding: 10px;
+}
+
+.message {
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 8px;
+    max-width: 80%;
+}
+
+.user-message {
+    background-color: #007bff;
+    color: white;
+    margin-left: auto;
+}
+
+.agent-message {
+    background-color: #e9ecef;
+    color: #212529;
+}
+
+.input-container {
+    display: flex;
+    gap: 10px;
+}
+
+#message-input {
+    flex-grow: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+#send-button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+#send-button:hover {
+    background-color: #0056b3;
+}
+
+#log-messages {
+    font-family: monospace;
+    white-space: pre-wrap;
+    font-size: 14px;
+    color: #666;
+}
+
+.markdown-body {
+    color: inherit;
+    background-color: transparent;
+}
+
+.markdown-body pre {
+    background-color: #2d3748;
+    border-radius: 6px;
+    padding: 16px;
+    overflow: auto;
+    color: #f7fafc;
+    position: relative;
+}
+
+.copy-button {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    padding: 4px 8px;
+    background-color: #4a5568;
+    color: #e2e8f0;
+    border: none;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+}
+
+.copy-button:hover {
+    background-color: #718096;
+}
+
+.markdown-body pre:hover .copy-button {
+    opacity: 1;
+}
+
+.copy-button.copied {
+    background-color: #48bb78;
+}
+
+.markdown-body code {
+    background-color: rgba(175,184,193,0.2);
+    padding: 0.2em 0.4em;
+    border-radius: 6px;
+    font-size: 85%;
+    font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
+    -webkit-font-smoothing: antialiased;
+    font-weight: normal;
+}
+
+.markdown-body pre code {
+    background-color: transparent;
+    padding: 0;
+    font-size: inherit;
+    color: inherit;
+    font-family: inherit;
+    line-height: 1.5;
+    text-shadow: none;
+}
+
+.markdown-body h1 { font-size: 2em; margin-bottom: 0.5em; font-weight: 600; }
+.markdown-body h2 { font-size: 1.5em; margin-bottom: 0.5em; font-weight: 600; }
+.markdown-body h3 { font-size: 1.25em; margin-bottom: 0.5em; font-weight: 600; }
+.markdown-body h4 { font-size: 1em; margin-bottom: 0.5em; font-weight: 600; }
+.markdown-body h5 { font-size: 0.875em; margin-bottom: 0.5em; font-weight: 600; }
+.markdown-body h6 { font-size: 0.85em; margin-bottom: 0.5em; font-weight: 600; }
+
+.markdown-body ul, .markdown-body ol {
+    padding-left: 2em;
+    margin-bottom: 1em;
+    list-style-position: outside;
+}
+
+.markdown-body ul {
+    list-style-type: disc;
+}
+
+.markdown-body ul ul {
+    list-style-type: circle;
+}
+
+.markdown-body ul ul ul {
+    list-style-type: square;
+}
+
+.markdown-body ol {
+    list-style-type: decimal;
+}
+
+.markdown-body li {
+    margin-bottom: 0.25em;
+}
+
+.markdown-body li > p {
+    margin-top: 1em;
+}
+
+.markdown-body blockquote {
+    padding: 0 1em;
+    color: #656d76;
+    border-left: 0.25em solid #d0d7de;
+    margin-bottom: 1em;
+}
+
+.markdown-body p {
+    margin-bottom: 1em;
+    line-height: 1.6;
+}
+
+.markdown-body table {
+    border-collapse: collapse;
+    margin-bottom: 1em;
+    width: 100%;
+}
+
+.markdown-body table th,
+.markdown-body table td {
+    padding: 6px 13px;
+    border: 1px solid #d0d7de;
+}
+
+.markdown-body table tr {
+    background-color: #ffffff;
+    border-top: 1px solid #d0d7de;
+}
+
+.markdown-body table tr:nth-child(2n) {
+    background-color: #f6f8fa;
+}
+
+.markdown-body hr {
+    height: 0.25em;
+    padding: 0;
+    margin: 24px 0;
+    background-color: #d0d7de;
+    border: 0;
+}
+
+.panel {
+    transition: all 0.3s ease-in-out;
+}

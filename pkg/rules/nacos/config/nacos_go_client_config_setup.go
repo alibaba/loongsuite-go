@@ -17,8 +17,15 @@ package config
 import (
 	"context"
 	"errors"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/api"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api-semconv/instrumenter/experimental"
+	"log"
+	"reflect"
+	"strconv"
+	"time"
+	"unsafe"
+	_ "unsafe"
+
+	"github.com/alibaba/loongsuite-go-agent/pkg/api"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api-semconv/instrumenter/experimental"
 	"github.com/nacos-group/nacos-sdk-go/v2/clients/cache"
 	"github.com/nacos-group/nacos-sdk-go/v2/clients/config_client"
 	"github.com/nacos-group/nacos-sdk-go/v2/clients/nacos_client"
@@ -29,13 +36,9 @@ import (
 	"github.com/nacos-group/nacos-sdk-go/v2/common/remote/rpc/rpc_response"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
-	"log"
-	"reflect"
-	"strconv"
-	"time"
-	"unsafe"
 )
 
+//go:linkname beforeNewConfigClient github.com/nacos-group/nacos-sdk-go/v2/clients/config_client.beforeNewConfigClient
 func beforeNewConfigClient(call api.CallContext, nc nacos_client.INacosClient) {
 	if !experimental.NacosEnabler.Enable() {
 		return
@@ -51,6 +54,7 @@ func beforeNewConfigClient(call api.CallContext, nc nacos_client.INacosClient) {
 	call.SetKeyData("userName", param.Username)
 }
 
+//go:linkname afterNewConfigClient github.com/nacos-group/nacos-sdk-go/v2/clients/config_client.afterNewConfigClient
 func afterNewConfigClient(call api.CallContext, client *config_client.ConfigClient, err error) {
 	if !experimental.NacosEnabler.Enable() {
 		return
@@ -100,6 +104,7 @@ func afterNewConfigClient(call api.CallContext, client *config_client.ConfigClie
 	}
 }
 
+//go:linkname beforeConfigClientClose github.com/nacos-group/nacos-sdk-go/v2/clients/config_client.beforeConfigClientClose
 func beforeConfigClientClose(call api.CallContext, sc *config_client.ConfigClient) {
 	if !experimental.NacosEnabler.Enable() {
 		return
@@ -115,6 +120,7 @@ func beforeConfigClientClose(call api.CallContext, sc *config_client.ConfigClien
 	}
 }
 
+//go:linkname beforeCallConfigServer github.com/nacos-group/nacos-sdk-go/v2/common/nacos_server.beforeCallConfigServer
 func beforeCallConfigServer(call api.CallContext, server *nacos_server.NacosServer, api string, params map[string]string, newHeaders map[string]string,
 	method string, curServer string, contextPath string, timeoutMS uint64) {
 	if !experimental.NacosEnabler.Enable() {
@@ -125,6 +131,7 @@ func beforeCallConfigServer(call api.CallContext, server *nacos_server.NacosServ
 	call.SetKeyData("type", contextPath+api)
 }
 
+//go:linkname afterCallConfigServer github.com/nacos-group/nacos-sdk-go/v2/common/nacos_server.afterCallConfigServer
 func afterCallConfigServer(call api.CallContext, result string, err error) {
 	if !experimental.NacosEnabler.Enable() {
 		return
@@ -151,6 +158,7 @@ func afterCallConfigServer(call api.CallContext, result string, err error) {
 	experimental.ClientConfigRequestDuration.Record(context.Background(), float64(time.Now().UnixMilli()-t), metric.WithAttributeSet(set))
 }
 
+//go:linkname beforeRequestProxy github.com/nacos-group/nacos-sdk-go/v2/clients/config_client.beforeRequestProxy
 func beforeRequestProxy(call api.CallContext, cp *config_client.ConfigProxy, rpcClient *rpc.RpcClient, request rpc_request.IRequest, timeoutMills uint64) {
 	if !experimental.NacosEnabler.Enable() {
 		return
@@ -159,6 +167,7 @@ func beforeRequestProxy(call api.CallContext, cp *config_client.ConfigProxy, rpc
 	call.SetKeyData("request", request)
 }
 
+//go:linkname afterRequestProxy github.com/nacos-group/nacos-sdk-go/v2/clients/config_client.afterRequestProxy
 func afterRequestProxy(call api.CallContext, resp rpc_response.IResponse, err error) {
 	if !experimental.NacosEnabler.Enable() {
 		return

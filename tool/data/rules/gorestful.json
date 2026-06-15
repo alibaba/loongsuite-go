@@ -1,0 +1,29 @@
+[
+  {
+  "Version": "[3.7.0,3.12.2)",
+  "ImportPath": "github.com/emicklei/go-restful/v3",
+  "Function": "Add",
+  "ReceiverType": "\\*Container",
+  "OnEnter": "restContainerAddOnEnter",
+  "OnExit": "restContainerAddOnExit",
+  "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/gorestful"
+},
+  {
+    "Version": "[3.7.0,3.12.2)",
+    "ImportPath": "github.com/emicklei/go-restful/v3",
+    "Function": "Dispatch",
+    "ReceiverType": "\\*Container",
+    "OnEnter": "restContainerDispatchOnEnter",
+    "OnExit": "restContainerDispatchOnExit",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/gorestful"
+  },
+  {
+    "Version": "[3.7.0,3.12.2)",
+    "ImportPath": "github.com/emicklei/go-restful/v3",
+    "Function": "HandleWithFilter",
+    "ReceiverType": "\\*Container",
+    "OnEnter": "restContainerHandleOnEnter",
+    "OnExit": "restContainerHandleOnExit",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/gorestful"
+  }
+]

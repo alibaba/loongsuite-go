@@ -17,8 +17,9 @@ package fasthttp
 import (
 	"net/url"
 	"time"
+	_ "unsafe"
 
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/api"
+	"github.com/alibaba/loongsuite-go-agent/pkg/api"
 	"github.com/valyala/fasthttp"
 )
 
@@ -45,6 +46,7 @@ func newFastHttpServerDelegateHandler(handler fasthttp.RequestHandler) fasthttp.
 	}
 }
 
+//go:linkname listenAndServeFastHttpOnEnter github.com/valyala/fasthttp.listenAndServeFastHttpOnEnter
 func listenAndServeFastHttpOnEnter(call api.CallContext, s *fasthttp.Server, addr string) {
 	if !fastHttpEnabler.Enable() {
 		return

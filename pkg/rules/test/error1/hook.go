@@ -17,15 +17,18 @@ package error1
 import (
 	_ "errors"
 	"fmt"
+	_ "unsafe"
 
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/api"
+	"github.com/alibaba/loongsuite-go-agent/pkg/api"
 )
 
+//go:linkname onEnterUnwrap errors.onEnterUnwrap
 func onEnterUnwrap(call api.CallContext, err error) {
 	newErr := fmt.Errorf("wrapped: %w", err)
 	call.SetParam(0, newErr)
 }
 
+//go:linkname onExitUnwrap errors.onExitUnwrap
 func onExitUnwrap(call api.CallContext, err error) {
 	e := call.GetParam(0).(interface {
 		Unwrap() error

@@ -16,16 +16,19 @@ package fiberv2
 
 import (
 	"context"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/api"
+	"net/url"
+	_ "unsafe"
+
+	"github.com/alibaba/loongsuite-go-agent/pkg/api"
 	fiber "github.com/gofiber/fiber/v2"
 	"github.com/valyala/fasthttp"
-	"net/url"
 )
 
 var fiberv2ServerInstrumenter = BuildFiberV2ServerOtelInstrumenter()
 
+//go:linkname fiberHttpOnEnterv2 github.com/gofiber/fiber/v2.fiberHttpOnEnterv2
 func fiberHttpOnEnterv2(call api.CallContext, app *fiber.App, ctx *fasthttp.RequestCtx) {
-	if !fiberv2Enabler.Enable() {
+	if !fiberV2Enabler.Enable() {
 		return
 	}
 	u, err := url.Parse(ctx.URI().String())
@@ -47,6 +50,7 @@ func fiberHttpOnEnterv2(call api.CallContext, app *fiber.App, ctx *fasthttp.Requ
 	return
 }
 
+//go:linkname fiberHttpOnExitv2 github.com/gofiber/fiber/v2.fiberHttpOnExitv2
 func fiberHttpOnExitv2(call api.CallContext) {
 	if call.GetData() == nil {
 		return

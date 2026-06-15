@@ -16,18 +16,27 @@ package grpc
 
 import (
 	"fmt"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api/utils"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api/version"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/utils"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/version"
 	"go.opentelemetry.io/otel/sdk/instrumentation"
+	"os"
 	"strings"
 
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api-semconv/instrumenter/rpc"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api/instrumenter"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api-semconv/instrumenter/rpc"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/instrumenter"
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"
 )
 
-var grpcEnabler = instrumenter.NewDefaultInstrumentEnabler()
+type grpcInnerEnabler struct {
+	enabled bool
+}
+
+func (g grpcInnerEnabler) Enable() bool {
+	return g.enabled
+}
+
+var grpcEnabler = grpcInnerEnabler{os.Getenv("OTEL_INSTRUMENTATION_GRPC_ENABLED") != "false"}
 
 type grpcAttrsGetter struct {
 }
@@ -63,7 +72,7 @@ type grpcStatusCodeExtractor[REQUEST grpcRequest, RESPONSE grpcResponse] struct 
 
 func (g grpcStatusCodeExtractor[REQUEST, RESPONSE]) Extract(span trace.Span, request grpcRequest, response grpcResponse, err error) {
 	statusCode := response.statusCode
-	if statusCode != 0 {
+	if statusCode != 200 {
 		if err != nil {
 			span.RecordError(err)
 			span.SetStatus(codes.Error, err.Error())

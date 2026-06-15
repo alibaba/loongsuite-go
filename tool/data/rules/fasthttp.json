@@ -1,0 +1,19 @@
+[
+  {
+    "Version": "[1.45.0,1.70.0)",
+    "ImportPath": "github.com/valyala/fasthttp",
+    "Function": "Do",
+    "ReceiverType": "\\*HostClient",
+    "OnEnter": "clientFastHttpOnEnter",
+    "OnExit": "clientFastHttpOnExit",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/fasthttp"
+  },
+  {
+    "Version": "[1.45.0,1.70.0)",
+    "ImportPath": "github.com/valyala/fasthttp",
+    "Function": "ListenAndServe",
+    "ReceiverType": "\\*Server",
+    "OnEnter": "listenAndServeFastHttpOnEnter",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/fasthttp"
+  }
+]

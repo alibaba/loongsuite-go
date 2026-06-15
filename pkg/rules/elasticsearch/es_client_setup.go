@@ -16,18 +16,29 @@ package elasticsearch
 
 import (
 	"context"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/api"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api/instrumenter"
+	"net/http"
+	"os"
+	"strings"
+	_ "unsafe"
+
+	"github.com/alibaba/loongsuite-go-agent/pkg/api"
 	"github.com/elastic/elastic-transport-go/v8/elastictransport"
 	elasticsearch "github.com/elastic/go-elasticsearch/v8"
-	"net/http"
-	"strings"
 )
 
 var esInstrumenter = BuildElasticSearchInstrumenter()
 
-var esEnabler = instrumenter.NewDefaultInstrumentEnabler()
+type esInnerEnabler struct {
+	enabled bool
+}
 
+func (g esInnerEnabler) Enable() bool {
+	return g.enabled
+}
+
+var esEnabler = esInnerEnabler{os.Getenv("OTEL_INSTRUMENTATION_ELASTICSEARCH_ENABLED") != "false"}
+
+//go:linkname beforeElasticSearchPerform github.com/elastic/go-elasticsearch/v8.beforeElasticSearchPerform
 func beforeElasticSearchPerform(call api.CallContext, client *elasticsearch.BaseClient, request *http.Request) {
 	if !esEnabler.Enable() {
 		return
@@ -48,6 +59,7 @@ func beforeElasticSearchPerform(call api.CallContext, client *elasticsearch.Base
 	call.SetKeyData("request", er)
 }
 
+//go:linkname afterElasticSearchPerform github.com/elastic/go-elasticsearch/v8.afterElasticSearchPerform
 func afterElasticSearchPerform(call api.CallContext, response *http.Response, err error) {
 	if !esEnabler.Enable() {
 		return

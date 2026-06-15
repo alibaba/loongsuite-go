@@ -15,7 +15,7 @@
 package main
 
 import (
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/test/verifier"
+	"github.com/alibaba/loongsuite-go-agent/test/verifier"
 	"go.opentelemetry.io/otel/sdk/trace/tracetest"
 	"log"
 	"os"
@@ -85,16 +85,16 @@ func main() {
 	TestUpdate()
 	TestDelete()
 	verifier.WaitAndAssertTraces(func(stubs []tracetest.SpanStubs) {
-		verifier.VerifyDbAttributes(stubs[0][0], "SELECT", "mysql", "127.0.0.1", "SELECT VERSION()", "SELECT")
-		verifier.VerifyDbAttributes(stubs[1][0], "ping", "mysql", "127.0.0.1", "ping", "ping")
-		verifier.VerifyDbAttributes(stubs[2][0], "raw", "mysql", "127.0.0.1", "", "raw")
-		verifier.VerifyDbAttributes(stubs[3][0], "START", "mysql", "127.0.0.1", "START TRANSACTION", "START")
-		verifier.VerifyDbAttributes(stubs[4][0], "create", "mysql", "127.0.0.1", "", "create")
-		verifier.VerifyDbAttributes(stubs[5][0], "query", "mysql", "127.0.0.1", "", "query")
-		verifier.VerifyDbAttributes(stubs[6][0], "row", "mysql", "127.0.0.1", "", "row")
-		verifier.VerifyDbAttributes(stubs[7][0], "START", "mysql", "127.0.0.1", "START TRANSACTION", "START")
-		verifier.VerifyDbAttributes(stubs[8][0], "update", "mysql", "127.0.0.1", "", "update")
-		verifier.VerifyDbAttributes(stubs[9][0], "START", "mysql", "127.0.0.1", "START TRANSACTION", "START")
-		verifier.VerifyDbAttributes(stubs[10][0], "delete", "mysql", "127.0.0.1", "", "delete")
+		verifier.VerifyDbAttributes(stubs[0][0], "SELECT dual", "mysql", "127.0.0.1", "SELECT VERSION()", "SELECT", "dual", nil)
+		verifier.VerifyDbAttributes(stubs[1][0], "ping", "mysql", "127.0.0.1", "ping", "ping", "", nil)
+		verifier.VerifyDbAttributes(stubs[2][0], "raw", "mysql", "127.0.0.1", "", "raw", "", nil)
+		verifier.VerifyDbAttributes(stubs[3][0], "START", "mysql", "127.0.0.1", "START TRANSACTION", "START", "", nil)
+		verifier.VerifyDbAttributes(stubs[4][0], "create", "mysql", "127.0.0.1", "", "create", "", nil)
+		verifier.VerifyDbAttributes(stubs[5][0], "query", "mysql", "127.0.0.1", "", "query", "", nil)
+		verifier.VerifyDbAttributes(stubs[6][0], "row", "mysql", "127.0.0.1", "", "row", "", nil)
+		verifier.VerifyDbAttributes(stubs[7][0], "START", "mysql", "127.0.0.1", "START TRANSACTION", "START", "", nil)
+		verifier.VerifyDbAttributes(stubs[8][0], "update", "mysql", "127.0.0.1", "", "update", "", nil)
+		verifier.VerifyDbAttributes(stubs[9][0], "START", "mysql", "127.0.0.1", "START TRANSACTION", "START", "", nil)
+		verifier.VerifyDbAttributes(stubs[10][0], "delete", "mysql", "127.0.0.1", "", "delete", "", nil)
 	}, 1)
 }

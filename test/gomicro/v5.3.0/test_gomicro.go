@@ -17,9 +17,10 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/test/verifier"
-	"go.opentelemetry.io/otel/sdk/trace/tracetest"
 	"time"
+
+	"github.com/alibaba/loongsuite-go-agent/test/verifier"
+	"go.opentelemetry.io/otel/sdk/trace/tracetest"
 
 	example "github.com/go-micro/examples/server/proto/example"
 	micro "go-micro.dev/v5"
@@ -65,7 +66,6 @@ func main() {
 	time.Sleep(3 * time.Second)
 	// use a http client to request to the server
 	requestServer()
-	time.Sleep(3 * time.Second)
 	verifier.WaitAndAssertTraces(func(stubs []tracetest.SpanStubs) {
 		verifier.VerifyHttpClientAttributes(stubs[0][0], "Example.Call", "Example.Call", "Example.Call", "http", "", "tcp", "ipv4", "", "go.micro.srv.example", 200, 0, 0)
 		verifier.VerifyHttpServerAttributes(stubs[0][1], "Example.Call Example.Call", "Example.Call", "http", "tcp", "ipv4", "", "go.micro.srv.example", "Go-http-client/1.1", "http", "Example.Call", "", "Example.Call", 200)

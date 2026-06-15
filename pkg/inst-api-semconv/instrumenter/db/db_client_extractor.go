@@ -17,25 +17,37 @@ package db
 import (
 	"context"
 	"fmt"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api/instrumenter"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api/utils"
-	"go.opentelemetry.io/otel/attribute"
-	semconv "go.opentelemetry.io/otel/semconv/v1.26.0"
+	"os"
 	"strconv"
+
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/instrumenter"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/utils"
+	"go.opentelemetry.io/otel/attribute"
+	semconv "go.opentelemetry.io/otel/semconv/v1.30.0"
 )
 
-type DbExperimentalAttributesEnabler interface {
-	Enable() bool
+// TODO: remove server.address and put it into NetworkAttributesExtractor
+
+const EnvDBExperimentalEnabled = "OTEL_INSTRUMENTATION_DB_EXPERIMENTAL_ENABLE"
+
+type dbExperimentalEnabler struct {
+	enabled bool
 }
 
-type defaultDbExperimentalAttributesEnabler struct {
+func (d dbExperimentalEnabler) Enable() bool {
+	return d.enabled
 }
 
-func (d defaultDbExperimentalAttributesEnabler) Enable() bool {
-	return false
+var experimentalAttributesEnabler instrumenter.InstrumentEnabler = &dbExperimentalEnabler{
+	// SQL params parsing is not enabled by default.
+	enabled: func() bool {
+		val, err := strconv.ParseBool(os.Getenv(EnvDBExperimentalEnabled))
+		if err != nil {
+			return false
+		}
+		return val
+	}(),
 }
-
-var experimentalAttributesEnabler = instrumenter.NewDefaultInstrumentEnabler()
 
 type DbClientCommonAttrsExtractor[REQUEST any, RESPONSE any, GETTER DbClientCommonAttrsGetter[REQUEST]] struct {
 	Getter           GETTER
@@ -52,7 +64,7 @@ func (d *DbClientCommonAttrsExtractor[REQUEST, RESPONSE, GETTER]) OnStart(attrib
 
 func (d *DbClientCommonAttrsExtractor[REQUEST, RESPONSE, GETTER]) OnEnd(attrs []attribute.KeyValue, context context.Context, request REQUEST, response RESPONSE, err error) ([]attribute.KeyValue, context.Context) {
 	attrs = append(attrs, attribute.KeyValue{
-		Key:   semconv.DBSystemKey,
+		Key:   semconv.DBSystemNameKey,
 		Value: attribute.StringValue(d.Getter.GetSystem(request)),
 	})
 	if d.AttributesFilter != nil {
@@ -84,13 +96,24 @@ func (d *DbClientAttrsExtractor[REQUEST, RESPONSE, GETTER]) OnEnd(attrs []attrib
 	}, attribute.KeyValue{
 		Key:   semconv.ServerAddressKey,
 		Value: attribute.StringValue(d.Base.Getter.GetServerAddress(request)),
+	}, attribute.KeyValue{
+		Key:   semconv.DBCollectionNameKey,
+		Value: attribute.StringValue(d.Base.Getter.GetCollection(request)),
 	})
+	batchSize := d.Base.Getter.GetBatchSize(request)
+	if batchSize > 0 {
+		attrs = append(attrs, attribute.KeyValue{Key: semconv.DBOperationBatchSizeKey, Value: attribute.IntValue(batchSize)})
+	}
+	dbNameSpace := d.Base.Getter.GetDbNamespace(request)
+	if dbNameSpace != "" {
+		attrs = append(attrs, attribute.KeyValue{Key: semconv.DBNamespaceKey, Value: attribute.StringValue(dbNameSpace)})
+	}
 	if d.Base.AttributesFilter != nil {
 		attrs = d.Base.AttributesFilter(attrs)
 	}
 	if experimentalAttributesEnabler.Enable() {
 		params := d.Base.Getter.GetParameters(request)
-		if params != nil && len(params) > 0 {
+		if len(params) > 0 {
 			for i, param := range params {
 				attrs = append(attrs, attribute.String("db.query.parameter."+strconv.Itoa(i), fmt.Sprintf("%v", param)))
 			}
@@ -104,4 +127,4 @@ func (d *DbClientAttrsExtractor[REQUEST, RESPONSE, GETTER]) GetSpanKey() attribu
 }
 
 // TODO: sanitize sql
-// TODO: request size & response size
+// TODO: batch sql

@@ -18,20 +18,91 @@ import (
 	"os"
 	"testing"
 
-	_ "github.com/alibaba/opentelemetry-go-auto-instrumentation/test/version"
+	_ "github.com/alibaba/loongsuite-go-agent/test/version"
 )
 
 const test_plugin_name_key = "TEST_PLUGIN_NAME"
 
-func TestPlugins(t *testing.T) {
+func findPlugin() []*TestCase {
 	testPluginName := os.Getenv(test_plugin_name_key)
+	cases := make([]*TestCase, 0)
 	for _, c := range TestCases {
 		if c == nil {
 			continue
 		}
-		if c.IsMuzzleCheck || c.IsLatestDepthCheck || (testPluginName != "" && c.TestName != testPluginName) {
+		if c.IsMuzzleCheck || c.IsLatestDepthCheck ||
+			(testPluginName != "" && c.TestName != testPluginName) {
 			continue
 		}
+		cases = append(cases, c)
+	}
+	return cases
+}
+
+func findMuzzle() []*TestCase {
+	testPluginName := os.Getenv(test_plugin_name_key)
+	cases := make([]*TestCase, 0)
+	for _, c := range TestCases {
+		if c == nil {
+			continue
+		}
+		if !c.IsMuzzleCheck ||
+			(testPluginName != "" && c.TestName != testPluginName) {
+			continue
+		}
+		cases = append(cases, c)
+	}
+	return cases
+}
+
+func findLatest() []*TestCase {
+	testPluginName := os.Getenv(test_plugin_name_key)
+	cases := make([]*TestCase, 0)
+	for _, c := range TestCases {
+		if c == nil {
+			continue
+		}
+		if !c.IsLatestDepthCheck ||
+			(testPluginName != "" && c.TestName != testPluginName) {
+			continue
+		}
+		cases = append(cases, c)
+	}
+	return cases
+}
+
+// Split the plugin tests into 4 parts to avoid too many tests in one run
+// This is useful for CI to avoid timeout issues.
+func TestPlugins1(t *testing.T) {
+	cases := findPlugin()
+	for _, c := range cases[:len(cases)/4] {
+		t.Run(c.TestName, func(t *testing.T) {
+			c.TestFunc(t)
+		})
+	}
+}
+
+func TestPlugins2(t *testing.T) {
+	cases := findPlugin()
+	for _, c := range cases[len(cases)/4 : len(cases)/2] {
+		t.Run(c.TestName, func(t *testing.T) {
+			c.TestFunc(t)
+		})
+	}
+}
+
+func TestPlugins3(t *testing.T) {
+	cases := findPlugin()
+	for _, c := range cases[len(cases)/2 : (len(cases)/2 + len(cases)/4)] {
+		t.Run(c.TestName, func(t *testing.T) {
+			c.TestFunc(t)
+		})
+	}
+}
+
+func TestPlugins4(t *testing.T) {
+	cases := findPlugin()
+	for _, c := range cases[(len(cases)/2 + len(cases)/4):] {
 		t.Run(c.TestName, func(t *testing.T) {
 			c.TestFunc(t)
 		})
@@ -39,31 +110,51 @@ func TestPlugins(t *testing.T) {
 }
 
 func TestMuzzle(t *testing.T) {
-	testPluginName := os.Getenv(test_plugin_name_key)
-	for _, c := range TestCases {
-		if c == nil {
-			continue
-		}
-		if !c.IsMuzzleCheck || (testPluginName != "" && c.TestName != testPluginName) {
-			continue
-		}
+	cases := findMuzzle()
+	for _, c := range cases {
 		t.Run(c.TestName, func(t *testing.T) {
-			ExecMuzzle(t, c.DependencyName, c.ModuleName, c.MinVersion, c.MaxVersion, c.MuzzleClasses)
+			ExecMuzzle(t, c.DependencyName, c.ModuleName, c.MinVersion,
+				c.MaxVersion, c.MuzzleClasses)
 		})
 	}
 }
 
-func TestLatest(t *testing.T) {
-	for _, c := range TestCases {
-		testPluginName := os.Getenv(test_plugin_name_key)
-		if c == nil {
-			continue
-		}
-		if !c.IsLatestDepthCheck || (testPluginName != "" && c.TestName != testPluginName) {
-			continue
-		}
+func TestLatest1(t *testing.T) {
+	cases := findLatest()
+	for _, c := range cases[:len(cases)/4] {
 		t.Run(c.TestName, func(t *testing.T) {
-			ExecLatestTest(t, c.DependencyName, c.ModuleName, c.MinVersion, c.MaxVersion, c.LatestDepthFunc)
+			ExecLatestTest(t, c.DependencyName, c.ModuleName, c.MinVersion,
+				c.MaxVersion, c.LatestDepthFunc)
+		})
+	}
+}
+
+func TestLatest2(t *testing.T) {
+	cases := findLatest()
+	for _, c := range cases[len(cases)/4 : len(cases)/2] {
+		t.Run(c.TestName, func(t *testing.T) {
+			ExecLatestTest(t, c.DependencyName, c.ModuleName, c.MinVersion,
+				c.MaxVersion, c.LatestDepthFunc)
+		})
+	}
+}
+
+func TestLatest3(t *testing.T) {
+	cases := findLatest()
+	for _, c := range cases[len(cases)/2 : (len(cases)/2 + len(cases)/4)] {
+		t.Run(c.TestName, func(t *testing.T) {
+			ExecLatestTest(t, c.DependencyName, c.ModuleName, c.MinVersion,
+				c.MaxVersion, c.LatestDepthFunc)
+		})
+	}
+}
+
+func TestLatest4(t *testing.T) {
+	cases := findLatest()
+	for _, c := range cases[(len(cases)/2 + len(cases)/4):] {
+		t.Run(c.TestName, func(t *testing.T) {
+			ExecLatestTest(t, c.DependencyName, c.ModuleName, c.MinVersion,
+				c.MaxVersion, c.LatestDepthFunc)
 		})
 	}
 }

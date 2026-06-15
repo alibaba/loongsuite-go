@@ -17,7 +17,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/test/verifier"
+	"github.com/alibaba/loongsuite-go-agent/test/verifier"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -62,12 +62,12 @@ func main() {
 
 	verifier.WaitAndAssertTraces(func(stubs []tracetest.SpanStubs) {
 		// TODO: add http server as root span
-		verifier.VerifyDbAttributes(stubs[0][0], "create", "mongodb", "127.0.0.1", "create", "create")
-		verifier.VerifyDbAttributes(stubs[1][0], "insert", "mongodb", "127.0.0.1", "insert", "insert")
-		verifier.VerifyDbAttributes(stubs[2][0], "find", "mongodb", "127.0.0.1", "find", "find")
-		verifier.VerifyDbAttributes(stubs[3][0], "find", "mongodb", "127.0.0.1", "find", "find")
-		verifier.VerifyDbAttributes(stubs[4][0], "update", "mongodb", "127.0.0.1", "update", "update")
-		verifier.VerifyDbAttributes(stubs[5][0], "delete", "mongodb", "127.0.0.1", "delete", "delete")
+		verifier.VerifyDbAttributes(stubs[0][0], "create", "mongodb", "127.0.0.1", "create", "create", "", nil)
+		verifier.VerifyDbAttributes(stubs[1][0], "insert", "mongodb", "127.0.0.1", "insert", "insert", "", nil)
+		verifier.VerifyDbAttributes(stubs[2][0], "find", "mongodb", "127.0.0.1", "find", "find", "", nil)
+		verifier.VerifyDbAttributes(stubs[3][0], "find", "mongodb", "127.0.0.1", "find", "find", "", nil)
+		verifier.VerifyDbAttributes(stubs[4][0], "update", "mongodb", "127.0.0.1", "update", "update", "", nil)
+		verifier.VerifyDbAttributes(stubs[5][0], "delete", "mongodb", "127.0.0.1", "delete", "delete", "", nil)
 	}, 6)
 }
 

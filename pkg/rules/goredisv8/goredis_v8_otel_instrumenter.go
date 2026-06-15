@@ -15,10 +15,10 @@
 package goredisv8
 
 import (
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api-semconv/instrumenter/db"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api/instrumenter"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api/utils"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api/version"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api-semconv/instrumenter/db"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/instrumenter"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/utils"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/version"
 	"github.com/go-redis/redis/v8"
 	"go.opentelemetry.io/otel/sdk/instrumentation"
 )
@@ -32,6 +32,14 @@ func (d goRedisV8AttrsGetter) GetSystem(request redisv8Data) string {
 
 func (d goRedisV8AttrsGetter) GetServerAddress(request redisv8Data) string {
 	return request.Host
+}
+
+func (d goRedisV8AttrsGetter) GetDbNamespace(request redisv8Data) string {
+	return ""
+}
+
+func (d goRedisV8AttrsGetter) GetBatchSize(request redisv8Data) int {
+	return 0
 }
 
 func (d goRedisV8AttrsGetter) GetStatement(request redisv8Data) string {
@@ -54,6 +62,11 @@ func (d goRedisV8AttrsGetter) GetStatement(request redisv8Data) string {
 		b = redisV8AppendArg(b, cmd)
 	}
 	return redisV8String(b)
+}
+
+func (d goRedisV8AttrsGetter) GetCollection(request redisv8Data) string {
+	// TBD: We need to implement retrieving the collection later.
+	return ""
 }
 
 func (d goRedisV8AttrsGetter) GetOperation(request redisv8Data) string {

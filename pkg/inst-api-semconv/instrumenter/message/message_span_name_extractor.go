@@ -17,22 +17,22 @@ package message
 const temp_destination_name = "(temporary)"
 
 type MessageSpanNameExtractor[REQUEST any, RESPONSE any] struct {
-	getter        MessageAttrsGetter[REQUEST, RESPONSE]
-	operationName MessageOperation
+	Getter        MessageAttrsGetter[REQUEST, RESPONSE]
+	OperationName MessageOperation
 }
 
 func (m *MessageSpanNameExtractor[REQUEST, RESPONSE]) Extract(request REQUEST) string {
 	destinationName := ""
-	if m.getter.IsTemporaryDestination(request) {
+	if m.Getter.IsTemporaryDestination(request) {
 		destinationName = temp_destination_name
 	} else {
-		destinationName = m.getter.GetDestination(request)
+		destinationName = m.Getter.GetDestination(request)
 	}
 	if destinationName == "" {
 		destinationName = "unknown"
 	}
-	if m.operationName != "" {
-		destinationName = destinationName + " " + string(m.operationName)
+	if m.OperationName != "" {
+		destinationName = destinationName + " " + string(m.OperationName)
 	}
 	return destinationName
 }

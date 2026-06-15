@@ -18,10 +18,10 @@ import (
 	"context"
 	"fmt"
 	"testing"
-	"time"
 
 	"github.com/docker/go-connections/nat"
 	"github.com/testcontainers/testcontainers-go"
+	"github.com/testcontainers/testcontainers-go/wait"
 )
 
 const es_v8_dependency_name = "github.com/elastic/go-elasticsearch/v8"
@@ -43,8 +43,7 @@ func init() {
 }
 
 func TestESCrud(t *testing.T, env ...string) {
-	esC, esPort := initElasticSearchContainer()
-	defer testcontainers.CleanupContainer(t, esC)
+	_, esPort := initElasticSearchContainer()
 	UseApp("elasticsearch/v8.4.0")
 	RunGoBuild(t, "go", "build", "test_es_crud.go")
 	env = append(env, "OTEL_ES_PORT="+esPort.Port())
@@ -52,8 +51,7 @@ func TestESCrud(t *testing.T, env ...string) {
 }
 
 func TestESMetrics(t *testing.T, env ...string) {
-	esC, esPort := initElasticSearchContainer()
-	defer testcontainers.CleanupContainer(t, esC)
+	_, esPort := initElasticSearchContainer()
 	UseApp("elasticsearch/v8.4.0")
 	RunGoBuild(t, "go", "build", "test_es_metrics.go")
 	env = append(env, "OTEL_ES_PORT="+esPort.Port())
@@ -61,8 +59,7 @@ func TestESMetrics(t *testing.T, env ...string) {
 }
 
 func TestESTypedClient(t *testing.T, env ...string) {
-	esC, esPort := initElasticSearchContainer()
-	defer testcontainers.CleanupContainer(t, esC)
+	_, esPort := initElasticSearchContainer()
 	UseApp("elasticsearch/v8.5.0")
 	RunGoBuild(t, "go", "build", "test_es_typedclient.go")
 	env = append(env, "OTEL_ES_PORT="+esPort.Port())
@@ -70,8 +67,7 @@ func TestESTypedClient(t *testing.T, env ...string) {
 }
 
 func TestEsTypedClientMetrics(t *testing.T, env ...string) {
-	esC, esPort := initElasticSearchContainer()
-	defer testcontainers.CleanupContainer(t, esC)
+	_, esPort := initElasticSearchContainer()
 	UseApp("elasticsearch/v8.5.0")
 	RunGoBuild(t, "go", "build", "test_es_typedclient_metrics.go")
 	env = append(env, "OTEL_ES_PORT="+esPort.Port())
@@ -84,7 +80,6 @@ func initElasticSearchContainer() (testcontainers.Container, nat.Port) {
 	if err != nil {
 		panic(err)
 	}
-	time.Sleep(5 * time.Second)
 	port, err := elasticsearchContainer.MappedPort(context.Background(), "9200")
 	if err != nil {
 		panic(err)
@@ -98,12 +93,14 @@ func runElasticSearchContainer(ctx context.Context) (testcontainers.Container, e
 			Image: "docker.elastic.co/elasticsearch/elasticsearch:7.17.25",
 			Env: map[string]string{
 				"discovery.type": "single-node",
+				"ES_JAVA_OPTS":   "-Xms512m -Xmx512m",
 				"cluster.routing.allocation.disk.threshold_enabled": "false",
 			},
 			ExposedPorts: []string{
 				defaultHTTPPort + "/tcp",
 				defaultTCPPort + "/tcp",
 			},
+			WaitingFor: wait.ForLog("Cluster health status changed from [YELLOW] to [GREEN]"),
 		},
 		Started: true,
 	}

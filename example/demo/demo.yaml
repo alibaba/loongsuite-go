@@ -26,6 +26,8 @@ spec:
               value: "0.1"
             - name: OTEL_EXPORTER_OTLP_ENDPOINT
               value: 'http://opentelemetry-demo-jaeger-collector:4318'
+            - name: OTEL_METRICS_EXPORTER
+              value: prometheus
           image: registry.cn-hangzhou.aliyuncs.com/private-mesh/hellob:demo
           imagePullPolicy: Always
           name: demo

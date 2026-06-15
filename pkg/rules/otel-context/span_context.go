@@ -15,11 +15,14 @@
 package otel_context
 
 import (
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/api"
+	_ "unsafe"
+
+	"github.com/alibaba/loongsuite-go-agent/pkg/api"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	spectrace "go.opentelemetry.io/otel/trace"
 )
 
+//go:linkname spanFromContextOnExit go.opentelemetry.io/otel/trace.spanFromContextOnExit
 func spanFromContextOnExit(call api.CallContext, span spectrace.Span) {
 	if !span.SpanContext().IsValid() {
 		call.SetReturnVal(0, sdktrace.SpanFromGLS())

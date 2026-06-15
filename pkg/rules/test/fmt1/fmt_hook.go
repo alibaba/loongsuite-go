@@ -16,10 +16,12 @@ package fmt1
 
 import (
 	_ "fmt"
+	_ "unsafe"
 
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/api"
+	"github.com/alibaba/loongsuite-go-agent/pkg/api"
 )
 
+//go:linkname OnExitPrintf1 fmt.OnExitPrintf1
 func OnExitPrintf1(call api.CallContext, n int, err error) {
 	println("Exiting hook1....")
 	call.SetReturnVal(0, 1024)
@@ -27,6 +29,7 @@ func OnExitPrintf1(call api.CallContext, n int, err error) {
 	println(v)
 }
 
+//go:linkname OnEnterPrintf1 fmt.OnEnterPrintf1
 func OnEnterPrintf1(call api.CallContext, format string, arg ...any) {
 	println("Entering hook1....")
 	call.SetData(555)

@@ -1,0 +1,9 @@
+[
+  {
+    "ImportPath": "log",
+    "Function": "output",
+    "ReceiverType": "\\*Logger",
+    "OnEnter": "goLogWriteOnEnter",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/golog"
+  }
+]

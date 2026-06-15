@@ -23,6 +23,7 @@ import (
 func init() {
 	TestCases = append(TestCases,
 		NewGeneralTestCase("zap-test", "zap", "", "", "1.21", "", TestZap),
+		NewGeneralTestCase("zap-test-with-field", "zap", "", "", "1.21", "", TestZapWithField),
 	)
 }
 
@@ -30,6 +31,21 @@ func TestZap(t *testing.T, env ...string) {
 	UseApp("zap")
 	RunGoBuild(t, "go", "build", "test_zap.go", "http_server.go")
 	_, stderr := RunApp(t, "test_zap", env...)
+	reader := strings.NewReader(stderr)
+	scanner := bufio.NewScanner(reader)
+	for scanner.Scan() {
+		line := scanner.Text()
+		if strings.Contains(line, "[test debugging]") {
+			continue
+		}
+		ExpectContains(t, line, "trace_id")
+		ExpectContains(t, line, "span_id")
+	}
+}
+func TestZapWithField(t *testing.T, env ...string) {
+	UseApp("zap")
+	RunGoBuild(t, "go", "build", "test_zap_with_field.go")
+	_, stderr := RunApp(t, "test_zap_with_field", env...)
 	reader := strings.NewReader(stderr)
 	scanner := bufio.NewScanner(reader)
 	for scanner.Scan() {

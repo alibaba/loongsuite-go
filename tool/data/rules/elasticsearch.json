@@ -1,0 +1,11 @@
+[
+  {
+    "Version": "[8.4.0,8.15.1)",
+    "ImportPath": "github.com/elastic/go-elasticsearch/v8",
+    "Function": "Perform",
+    "ReceiverType": "\\*BaseClient",
+    "OnEnter": "beforeElasticSearchPerform",
+    "OnExit": "afterElasticSearchPerform",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/elasticsearch"
+  }
+]

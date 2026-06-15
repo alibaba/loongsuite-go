@@ -16,11 +16,14 @@ package nethttp2
 
 import (
 	"io"
+	_ "unsafe"
 
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/api"
+	"github.com/alibaba/loongsuite-go-agent/pkg/api"
 )
 
 // many args have one type
+//
+//go:linkname onEnterNewRequest net/http.onEnterNewRequest
 func onEnterNewRequest(call api.CallContext, method, url string, body io.Reader) {
 	println("NewRequest()")
 }

@@ -1,0 +1,10 @@
+[
+  {
+    "ImportPath":"kafka-demo/consumer",
+    "Function":"ConsumerMsg",
+    "OnEnter":"consumerMessageOnEnter",
+    "ReceiverType": "\\*KafkaConsumer",
+    "OnExit": "consumerMessageOnExit",
+    "Path": "./rules"
+  }
+]

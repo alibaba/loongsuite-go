@@ -16,14 +16,15 @@ package main
 
 import (
 	"database/sql"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/test/verifier"
-	_ "github.com/go-sql-driver/mysql"
-	"go.opentelemetry.io/otel/sdk/trace/tracetest"
 	"log"
 	"os"
+
+	"github.com/alibaba/loongsuite-go-agent/test/verifier"
+	_ "github.com/go-sql-driver/mysql"
+	"go.opentelemetry.io/otel/sdk/trace/tracetest"
 )
 
-func main() {
+func dbAccess() {
 	db, err := sql.Open("mysql",
 		"test:test@tcp(127.0.0.1:"+os.Getenv("MYSQL_PORT")+")/test")
 	if err != nil {
@@ -35,6 +36,6 @@ func main() {
 		log.Fatal(err)
 	}
 	verifier.WaitAndAssertTraces(func(stubs []tracetest.SpanStubs) {
-		verifier.VerifyDbAttributes(stubs[0][0], "ping", "mysql", "127.0.0.1", "ping", "ping")
+		verifier.VerifyDbAttributes(stubs[0][0], "ping", "mysql", "127.0.0.1", "ping", "ping", "", nil)
 	}, 1)
 }

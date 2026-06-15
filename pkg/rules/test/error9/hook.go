@@ -15,7 +15,10 @@
 package error9
 
 import (
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/api"
+	_ "unsafe"
+
+	"github.com/alibaba/loongsuite-go-agent/pkg/api"
 )
 
+//go:linkname onExitP22 errorstest/auxiliary.onExitP22
 func onExitP22(call api.CallContext) {}

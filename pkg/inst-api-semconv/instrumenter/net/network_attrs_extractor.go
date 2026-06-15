@@ -17,9 +17,11 @@ package net
 import (
 	"context"
 	"go.opentelemetry.io/otel/attribute"
-	semconv "go.opentelemetry.io/otel/semconv/v1.26.0"
+	semconv "go.opentelemetry.io/otel/semconv/v1.30.0"
 	"strings"
 )
+
+// TODO: remove server.address and put it into NetworkAttributesExtractor
 
 type NetworkAttrsExtractor[REQUEST any, RESPONSE any, GETTER NetworkAttrsGetter[REQUEST, RESPONSE]] struct {
 	Getter GETTER

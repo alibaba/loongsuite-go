@@ -16,14 +16,15 @@ package main
 
 import (
 	"fmt"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/test/verifier"
+	"os"
+	"strconv"
+	"time"
+
+	"github.com/alibaba/loongsuite-go-agent/test/verifier"
 	"github.com/nacos-group/nacos-sdk-go/v2/clients"
 	"github.com/nacos-group/nacos-sdk-go/v2/common/constant"
 	"github.com/nacos-group/nacos-sdk-go/v2/vo"
 	"go.opentelemetry.io/otel/sdk/metric/metricdata"
-	"os"
-	"strconv"
-	"time"
 )
 
 func main() {
@@ -112,8 +113,6 @@ func main() {
 		Group:   "test-group",
 		Content: "test-listen",
 	})
-
-	time.Sleep(10 * time.Second)
 
 	verifier.WaitAndAssertMetrics(map[string]func(metricdata.ResourceMetrics){
 		"nacos.client.configinfo.size": func(metrics metricdata.ResourceMetrics) {

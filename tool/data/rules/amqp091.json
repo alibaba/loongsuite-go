@@ -1,0 +1,19 @@
+[{
+  "Version": "[1.10.0,)",
+  "ImportPath": "github.com/rabbitmq/amqp091-go",
+  "ReceiverType": "\\*consumers",
+  "Function": "send",
+  "OnEnter": "consumeOnEnter",
+  "OnExit":"consumeOnExit",
+  "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/amqp091"
+},
+  {
+    "Version": "[1.10.0,)",
+    "ImportPath": "github.com/rabbitmq/amqp091-go",
+    "ReceiverType": "\\*Channel",
+    "Function": "PublishWithDeferredConfirm",
+    "OnEnter": "publishWithDeferredConfirmOnEnter",
+    "OnExit":"publishWithDeferredConfirmOnExit",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/amqp091"
+  }
+]

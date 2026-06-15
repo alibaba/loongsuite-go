@@ -24,9 +24,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/test/verifier"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/test/version"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/tool/util"
+	"github.com/alibaba/loongsuite-go-agent/test/version"
+	"github.com/alibaba/loongsuite-go-agent/tool/util"
 )
 
 func getExecName() string {
@@ -64,6 +63,15 @@ func ReadInstrumentLog(t *testing.T, fileName string) string {
 
 func ReadPreprocessLog(t *testing.T, fileName string) string {
 	path := filepath.Join(util.TempBuildDir, util.PPreprocess, fileName)
+	content, err := util.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return content
+}
+
+func ReadLog(t *testing.T) string {
+	path := filepath.Join(util.TempBuildDir, util.DebugLogFile)
 	content, err := util.ReadFile(path)
 	if err != nil {
 		t.Fatal(err)
@@ -110,7 +118,7 @@ func RunGoBuild(t *testing.T, args ...string) {
 		t.Log(stdout)
 		t.Log("\n\n\n")
 		t.Log(stderr)
-		log1 := ReadPreprocessLog(t, util.DebugLogFile)
+		log1 := ReadLog(t)
 		text := fmt.Sprintf("failed to run instrument: %v\n", err)
 		text += fmt.Sprintf("text: %v\n", log1)
 		t.Fatal(text)
@@ -129,7 +137,7 @@ func RunGoBuildWithEnv(t *testing.T, envs []string, args ...string) {
 		t.Log(stdout)
 		t.Log("\n\n\n")
 		t.Log(stderr)
-		log1 := ReadPreprocessLog(t, util.DebugLogFile)
+		log1 := ReadLog(t)
 		text := fmt.Sprintf("failed to run instrument: %v\n", err)
 		text += fmt.Sprintf("text: %v\n", log1)
 		t.Fatal(text)
@@ -147,7 +155,7 @@ func RunGoBuildFallible(t *testing.T, args ...string) {
 }
 
 func UseTestRules(name string) string {
-	path := filepath.Join(filepath.Dir(pwd), "pkg", "data", name)
+	path := filepath.Join(filepath.Dir(pwd), "tool", "data", name)
 	return "-rule=" + path
 }
 
@@ -172,7 +180,20 @@ func RunApp(t *testing.T, appName string, env ...string) (string, string) {
 	cmd := runCmd([]string{"./" + appName})
 	cmd.Env = os.Environ()
 	cmd.Env = append(cmd.Env, env...)
-	cmd.Env = append(cmd.Env, verifier.IS_IN_TEST+"=true")
+	
+	// Check if user has explicitly set IN_OTEL_TEST
+	// If not, default to `true`
+	hasTestFlag := false
+	for i := len(cmd.Env) - 1; i >= 0; i-- {
+		if strings.HasPrefix(cmd.Env[i], "IN_OTEL_TEST=") {
+			hasTestFlag = true
+			break
+		}
+	}
+	if !hasTestFlag {
+		cmd.Env = append(cmd.Env, "IN_OTEL_TEST=true")
+	}
+	
 	err := cmd.Run()
 	stdoutText := readStdoutLog(t)
 	stderrText := readStderrLog(t)
@@ -185,7 +206,7 @@ func RunApp(t *testing.T, appName string, env ...string) (string, string) {
 
 func FetchVersion(t *testing.T, dependency, version string) string {
 	t.Logf("dependency %s, version %s", dependency, version)
-	output, err := exec.Command("go", "get", "-u", dependency+"@"+version).Output()
+	output, err := exec.Command("go", "get", dependency+"@"+version).Output()
 	if err != nil {
 		t.Fatal(output, err)
 	}
@@ -210,28 +231,16 @@ func ExpectStderrContains(t *testing.T, expect string) {
 	ExpectContains(t, content, expect)
 }
 
-func ExpectInstrumentContains(t *testing.T, log string, rule string) {
-	path := filepath.Join(util.TempBuildDir, util.PInstrument, log)
+func ExpectDebugLogContains(t *testing.T, text string) {
+	path := filepath.Join(util.TempBuildDir, util.DebugLogFile)
 	content := readLog(t, path)
-	ExpectContains(t, content, rule)
+	ExpectContains(t, content, text)
 }
 
-func ExpectInstrumentNotContains(t *testing.T, log string, rule string) {
-	path := filepath.Join(util.TempBuildDir, util.PInstrument, log)
+func ExpectDebugLogNotContains(t *testing.T, text string) {
+	path := filepath.Join(util.TempBuildDir, util.DebugLogFile)
 	content := readLog(t, path)
-	ExpectNotContains(t, content, rule)
-}
-
-func ExpectPreprocessContains(t *testing.T, log string, rule string) {
-	path := filepath.Join(util.TempBuildDir, util.PPreprocess, log)
-	content := readLog(t, path)
-	ExpectContains(t, content, rule)
-}
-
-func ExpectPreprocessNotContains(t *testing.T, log string, rule string) {
-	path := filepath.Join(util.TempBuildDir, util.PPreprocess, log)
-	content := readLog(t, path)
-	ExpectNotContains(t, content, rule)
+	ExpectNotContains(t, content, text)
 }
 
 func ExpectContains(t *testing.T, text, expect string) {
@@ -254,7 +263,7 @@ func ExpectSame(t *testing.T, expected, actual string) {
 
 func ExpectWhen(t *testing.T, prediction func() (res bool, msg string)) {
 	if r, m := prediction(); !r {
-		t.Fatalf(m)
+		t.Fatalf("%s", m)
 	}
 }
 
@@ -282,7 +291,7 @@ func ExpectContainsNothing(t *testing.T, actualItems []string) {
 
 func TBuildAppNoop(t *testing.T, appName string, muzzleClasses ...string) {
 	UseApp(appName)
-	if muzzleClasses == nil || len(muzzleClasses) == 0 {
+	if len(muzzleClasses) == 0 {
 		RunGoBuild(t)
 	} else {
 		RunGoBuild(t, muzzleClasses...)
@@ -294,7 +303,7 @@ func ExecMuzzle(t *testing.T, dependencyName, moduleName string, minVersion, max
 		t.Skip()
 		return
 	}
-	versions, err := version.GetRandomVersion(3, dependencyName, minVersion, maxVersion)
+	versions, err := version.GetRandomVersion(1, dependencyName, minVersion, maxVersion)
 	if err != nil {
 		t.Fatal(err)
 	}

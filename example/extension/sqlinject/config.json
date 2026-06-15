@@ -1,7 +1,0 @@
-[{
-  "ImportPath": "database/sql",
-  "Function": "Query",
-  "ReceiverType": "*DB",
-  "OnEnter": "sqlQueryOnEnter",
-  "Path": "/path/to/sqlinject/rules"
-}]

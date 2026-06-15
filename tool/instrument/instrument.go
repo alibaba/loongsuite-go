@@ -20,10 +20,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/tool/config"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/tool/errc"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/tool/resource"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/tool/util"
+	"github.com/alibaba/loongsuite-go-agent/tool/ast"
+	"github.com/alibaba/loongsuite-go-agent/tool/ex"
+	"github.com/alibaba/loongsuite-go-agent/tool/rules"
+	"github.com/alibaba/loongsuite-go-agent/tool/util"
 	"github.com/dave/dst"
 )
 
@@ -35,41 +35,32 @@ import (
 // applies the rules to the dependencies one by one.
 
 type RuleProcessor struct {
-	packageName     string
-	workDir         string
-	target          *dst.File // The target file to be instrumented
-	compileArgs     []string
-	rule2Suffix     map[*resource.InstFuncRule]string
-	rawFunc         *dst.FuncDecl
+	// The working directory during compilation
+	workDir string
+	// The target file to be instrumented
+	target *dst.File
+	// The parser for the target file
+	parser *ast.AstParser
+	// The compiling arguments for the target file
+	compileArgs []string
+	// The target function to be instrumented
+	targetFunc *dst.FuncDecl
+	// Whether the rule is exact match with target function, or it's a regexp match
+	exact bool
+	// The enter hook function, it should be inserted into the target source file
 	onEnterHookFunc *dst.FuncDecl
-	onExitHookFunc  *dst.FuncDecl
-	varDecls        []dst.Decl
-	relocated       map[string]string
-	trampolineJumps []*TJump // Optimization candidates
-	callCtxDecl     *dst.GenDecl
-	callCtxMethods  []*dst.FuncDecl
-}
-
-func newRuleProcessor(args []string, pkgName string) *RuleProcessor {
-	// Read compilation output directory
-	var outputDir string
-	for i, v := range args {
-		if v == "-o" {
-			outputDir = filepath.Dir(args[i+1])
-			break
-		}
-	}
-	util.Assert(outputDir != "", "sanity check")
-	// Create a new rule processor
-	rp := &RuleProcessor{
-		packageName: pkgName,
-		workDir:     outputDir,
-		target:      nil,
-		compileArgs: args,
-		rule2Suffix: make(map[*resource.InstFuncRule]string),
-		relocated:   make(map[string]string),
-	}
-	return rp
+	// The exit hook function, it should be inserted into the target source file
+	onExitHookFunc *dst.FuncDecl
+	// Variable declarations waiting to be inserted into target source file
+	varDecls []dst.Decl
+	// Relocated files
+	relocated map[string]string
+	// Optimization candidates for the trampoline function
+	trampolineJumps []*TJump
+	// The declaration of the call context, it should be replenished later
+	callCtxDecl *dst.GenDecl
+	// The methods of the call context
+	callCtxMethods []*dst.FuncDecl
 }
 
 func (rp *RuleProcessor) addDecl(decl dst.Decl) {
@@ -101,13 +92,27 @@ func (rp *RuleProcessor) addCompileArg(newArg string) {
 	rp.compileArgs = append(rp.compileArgs, newArg)
 }
 
+func haveSameSuffix(s1, s2 string) bool {
+	minLength := len(s1)
+	if len(s2) < minLength {
+		minLength = len(s2)
+	}
+	for i := 1; i <= minLength; i++ {
+		if s1[len(s1)-i] != s2[len(s2)-i] {
+			return false
+		}
+	}
+	return true
+}
+
 func (rp *RuleProcessor) replaceCompileArg(newArg string, pred func(string) bool) error {
+	variant := ""
 	for i, arg := range rp.compileArgs {
 		// Use absolute file path of the compile argument to compare with the
 		// instrumented file(path), which is also an absolute path
 		arg, err := filepath.Abs(arg)
 		if err != nil {
-			return errc.New(errc.ErrAbsPath, err.Error())
+			return ex.Wrap(err)
 		}
 		if pred(arg) {
 			rp.compileArgs[i] = newArg
@@ -116,154 +121,176 @@ func (rp *RuleProcessor) replaceCompileArg(newArg string, pred func(string) bool
 			rp.setRelocated(arg, newArg)
 			return nil
 		}
+		if haveSameSuffix(arg, newArg) {
+			variant = arg
+		}
 	}
-	return errc.New(errc.ErrInstrument, "can not innstrument the file "+newArg)
+	if variant == "" {
+		variant = fmt.Sprintf("%v", rp.compileArgs)
+	}
+	return ex.Newf("instrumentation failed, expect %s, actual %s",
+		newArg, variant)
 }
 
-func (rp *RuleProcessor) saveDebugFile(path string) {
+func (rp *RuleProcessor) keepForDebug(name string) {
 	escape := func(s string) string {
 		dirName := strings.ReplaceAll(s, "/", "_")
 		dirName = strings.ReplaceAll(dirName, ".", "_")
 		return dirName
 	}
-	dest := filepath.Base(path)
-	util.Assert(rp.packageName != "", "sanity check")
-	dest = filepath.Join(escape(rp.packageName), dest)
-	dest = util.GetInstrumentLogPath(dest)
-	err := os.MkdirAll(filepath.Dir(dest), os.ModePerm)
-	if err != nil { // error is tolerable here
-		util.Log("failed to create debug file directory %s: %v", dest, err)
-		return
-	}
-	err = util.CopyFile(path, dest)
-	if err != nil { // error is tolerable here
+	modPath := util.FindFlagValue(rp.compileArgs, "-p")
+	dest := filepath.Join("debug", escape(modPath), filepath.Base(name))
+	err := util.CopyFile(name, util.GetInstrumentLogPath(dest))
+	if err != nil { // error is tolerable here as this is only for debugging
 		util.Log("failed to save debug file %s: %v", dest, err)
+
 	}
 }
 
-func (rp *RuleProcessor) applyRules(bundle *resource.RuleBundle) (err error) {
-	// Apply file instrument rules first
-	err = rp.applyFileRules(bundle)
-	if err != nil {
-		err = errc.Adhere(err, "package", bundle.ImportPath)
-		return err
+func groupRules(rset *rules.InstRuleSet) map[string][]rules.InstRule {
+	file2rules := make(map[string][]rules.InstRule)
+	for file, rules := range rset.FuncRules {
+		for _, rule := range rules {
+			file2rules[file] = append(file2rules[file], rule)
+		}
 	}
-
-	err = rp.applyStructRules(bundle)
-	if err != nil {
-		err = errc.Adhere(err, "package", bundle.ImportPath)
-		return err
+	for file, rules := range rset.StructRules {
+		for _, rule := range rules {
+			file2rules[file] = append(file2rules[file], rule)
+		}
 	}
+	return file2rules
+}
 
-	err = rp.applyFuncRules(bundle)
-	if err != nil {
-		err = errc.Adhere(err, "package", bundle.ImportPath)
-		return err
+func (rp *RuleProcessor) findSourceFile(rset *rules.InstRuleSet, file string) string {
+	if !rset.HasCgo {
+		return file
 	}
+	base := filepath.Base(file)
+	file = strings.TrimSuffix(base, ".go")
+	file = file + ".cgo1.go"
+	for _, arg := range rp.compileArgs {
+		if strings.HasSuffix(arg, file) {
+			return arg
+		}
+	}
+	return file
+}
 
+func (rp *RuleProcessor) instrument(rset *rules.InstRuleSet) (err error) {
+	hasFuncRule := false
+	// Apply file rules first because they can introduce new files that used
+	// by other rules such as raw rules
+	for _, rule := range rset.FileRules {
+		err := rp.applyFileRule(rule, rset.PackageName)
+		if err != nil {
+			return err
+		}
+	}
+	for file, rs := range groupRules(rset) {
+		// Group rules by file, then parse the target file once
+		util.Assert(filepath.IsAbs(file), "file path must be absolute")
+		file = rp.findSourceFile(rset, file)
+		root, err := rp.parseAst(file)
+		if err != nil {
+			return err
+		}
+		// Apply the rules to the target file
+		rp.trampolineJumps = make([]*TJump, 0)
+		for _, r := range rs {
+			switch rt := r.(type) {
+			case *rules.InstFuncRule:
+				err1 := rp.applyFuncRule(rt, root)
+				if err1 != nil {
+					return err1
+				}
+				hasFuncRule = true
+			case *rules.InstStructRule:
+				err1 := rp.applyStructRule(rt, root)
+				if err1 != nil {
+					return err1
+				}
+			default:
+				util.ShouldNotReachHere()
+			}
+		}
+		// Optimize generated trampoline-jump-ifs
+		err = rp.optimizeTJumps()
+		if err != nil {
+			return err
+		}
+
+		// Once all func rules targeting this file are applied, write instrumented
+		// AST to new file and replace the original file in the compile command
+		err = rp.writeInstrumented(root, file)
+		if err != nil {
+			return err
+		}
+	}
+	// Write globals file if any function is instrumented because injected code
+	// always requires some global variables and auxiliary declarations
+	if hasFuncRule {
+		return rp.writeGlobals(rset.PackageName)
+	}
 	return nil
 }
 
-func matchImportPath(importPath string, args []string) bool {
-	for _, arg := range args {
-		if arg == importPath {
-			return true
+func stripCompleteFlag(args []string) []string {
+	for i, arg := range args {
+		if arg == "-complete" {
+			return append(args[:i], args[i+1:]...)
 		}
 	}
-	return false
+	return args
 }
 
-// guaranteeVersion makes sure the rule bundle is still valid
-func guaranteeVersion(bundle *resource.RuleBundle, candidates []string) error {
-	for _, candidate := range candidates {
-		// It's not a go file, ignore silently
-		if !util.IsGoFile(candidate) {
-			continue
-		}
-		version := util.ExtractVersion(candidate)
-		for _, funcRules := range bundle.File2FuncRules {
-			for _, rules := range funcRules {
-				for _, rule := range rules {
-					matched, err := util.MatchVersion(version, rule.GetVersion())
-					if err != nil || !matched {
-						err = errc.Adhere(err, "rule", rule.String())
-						err = errc.Adhere(err, "candidate", candidate)
-						err = errc.Adhere(err, "version", version)
-						return err
-					}
-				}
-			}
-		}
-		for _, fileRule := range bundle.FileRules {
-			matched, err := util.MatchVersion(version, fileRule.GetVersion())
-			if err != nil || !matched {
-				err = errc.Adhere(err, "rule", fileRule.String())
-				err = errc.Adhere(err, "candidate", candidate)
-				err = errc.Adhere(err, "version", version)
-				return err
-			}
-		}
-		for _, structRules := range bundle.File2StructRules {
-			for _, rules := range structRules {
-				for _, rule := range rules {
-					matched, err := util.MatchVersion(version, rule.GetVersion())
-					if err != nil || !matched {
-						err = errc.Adhere(err, "rule", rule.String())
-						err = errc.Adhere(err, "candidate", candidate)
-						err = errc.Adhere(err, "version", version)
-						return err
-					}
-				}
-			}
-		}
-		// Good, the bundle is still valid, we not need to check all files
-		// in the package as they are mostly the same version
-		break
+func interceptCompile(args []string) ([]string, error) {
+	util.Assert(util.IsCompileCommand(strings.Join(args, " ")), "sanity check")
+	target := util.FindFlagValue(args, "-o")
+	util.Assert(target != "", "missing -o flag value")
+	// Read compilation output directory
+	rp := &RuleProcessor{
+		workDir:     filepath.Dir(target),
+		target:      nil,
+		compileArgs: args,
+		relocated:   make(map[string]string),
 	}
-	return nil
-}
 
-func compileRemix(bundle *resource.RuleBundle, args []string) error {
-	guaranteeVersion(bundle, args)
-	rp := newRuleProcessor(args, bundle.PackageName)
-	err := rp.applyRules(bundle)
+	// Load matched hook rules from setup phase
+	bundles, err := rp.load()
 	if err != nil {
-		return err
+		return nil, err
 	}
-	// Good, run final compilation after instrumentation
-	err = util.RunCmd(rp.compileArgs...)
-	util.Log("RunCmd: %v (%v)", bundle.ImportPath, rp.compileArgs)
-	return err
+
+	// Check if the current compile command matches the rules.
+	matched := rp.match(bundles, args)
+	if matched.IsValid() {
+		util.Log("Instrument package %v with %v", matched, args)
+		err := rp.instrument(matched)
+		if err != nil {
+			return nil, err
+		}
+
+		// Strip -complete flag as we may insert some hook points that are
+		// not ready yet, i.e. they don't have function body
+		rp.compileArgs = stripCompleteFlag(rp.compileArgs)
+		util.Log("Run instrumented command %s", rp.compileArgs)
+	}
+
+	return rp.compileArgs, nil
 }
 
-func Instrument() error {
+func Toolexec() error {
 	// Remove the tool itself from the command line arguments
 	args := os.Args[2:]
 	// Is compile command?
 	if util.IsCompileCommand(strings.Join(args, " ")) {
-		if config.GetConf().Verbose {
-			util.Log("RunCmd: %v", args)
-		}
-		bundles, err := resource.LoadRuleBundles()
+		var err error
+		args, err = interceptCompile(args)
 		if err != nil {
-			err = errc.Adhere(err, "cmd", fmt.Sprintf("%v", args))
 			return err
 		}
-		for _, bundle := range bundles {
-			util.Assert(bundle.IsValid(), "sanity check")
-			// Is compiling the target package?
-			if matchImportPath(bundle.ImportPath, args) {
-				util.Log("Apply bundle %v", bundle)
-				err = compileRemix(bundle, args)
-				if err != nil {
-					err = errc.Adhere(err, "cmd", fmt.Sprintf("%v", args))
-					err = errc.Adhere(err, "bundle", bundle.String())
-					return err
-				}
-				return nil
-			}
-		}
 	}
-	// Not a compile command, just run it as is
+	// Just run the command as is
 	return util.RunCmd(args...)
 }

@@ -16,12 +16,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/test/verifier"
-	"github.com/nacos-group/nacos-sdk-go/v2/clients/naming_client"
-	"go.opentelemetry.io/otel/sdk/metric/metricdata"
 	"os"
 	"strconv"
 	"time"
+
+	"github.com/alibaba/loongsuite-go-agent/test/verifier"
+	"github.com/nacos-group/nacos-sdk-go/v2/clients/naming_client"
+	"go.opentelemetry.io/otel/sdk/metric/metricdata"
 
 	"github.com/nacos-group/nacos-sdk-go/v2/clients"
 	"github.com/nacos-group/nacos-sdk-go/v2/common/constant"
@@ -173,7 +174,6 @@ func main() {
 		Metadata:    map[string]string{"idc": "beijing1"}, //update metadata
 	})
 
-	time.Sleep(10 * time.Second)
 	verifier.WaitAndAssertMetrics(map[string]func(metricdata.ResourceMetrics){
 		"nacos.client.serviceinfo.size": func(metrics metricdata.ResourceMetrics) {
 			if len(metrics.ScopeMetrics) == 0 {

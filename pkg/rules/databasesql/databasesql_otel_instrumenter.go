@@ -15,10 +15,10 @@
 package databasesql
 
 import (
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api-semconv/instrumenter/db"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api/instrumenter"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api/utils"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api/version"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api-semconv/instrumenter/db"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/instrumenter"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/utils"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/version"
 	"go.opentelemetry.io/otel/sdk/instrumentation"
 )
 
@@ -42,6 +42,9 @@ func (d databaseSqlAttrsGetter) GetServerAddress(request databaseSqlRequest) str
 }
 
 func (d databaseSqlAttrsGetter) GetStatement(request databaseSqlRequest) string {
+	// Fetch metadata along with the SQL
+	// Retrieve db collection only, not the params which is an experimental feature that will introduce some overhead.
+	extractSQLMetadata(request)
 	return request.sql
 }
 
@@ -49,8 +52,26 @@ func (d databaseSqlAttrsGetter) GetOperation(request databaseSqlRequest) string 
 	return request.opType
 }
 
+func (d databaseSqlAttrsGetter) GetCollection(request databaseSqlRequest) string {
+	return getCollection(request.sql)
+}
+
 func (d databaseSqlAttrsGetter) GetParameters(request databaseSqlRequest) []any {
-	return request.params
+	if len(request.params) > 0 {
+		// Prepared statement with parameter binding
+		return request.params
+	}
+
+	// If it's not a prepared stmt with parameter binding, parse the raw sql
+	return getParams(request.sql)
+}
+
+func (d databaseSqlAttrsGetter) GetDbNamespace(request databaseSqlRequest) string {
+	return ""
+}
+
+func (d databaseSqlAttrsGetter) GetBatchSize(request databaseSqlRequest) int {
+	return 0
 }
 
 func BuildDatabaseSqlOtelInstrumenter() instrumenter.Instrumenter[databaseSqlRequest, any] {

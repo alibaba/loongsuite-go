@@ -16,16 +16,19 @@ package gomicro
 
 import (
 	"context"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/api"
+	"strings"
+	_ "unsafe"
+
+	"github.com/alibaba/loongsuite-go-agent/pkg/api"
 	"go-micro.dev/v5/metadata"
 	"go-micro.dev/v5/server"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/propagation"
-	"strings"
 )
 
 var goMicroServerInstrument = BuildGoMicroServerOtelInstrumenter()
 
+//go:linkname ServeRequestOnEnter go-micro.dev/v5/server.ServeRequestOnEnter
 func ServeRequestOnEnter(call api.CallContext, _ interface{}, ctx context.Context, request server.Request, response server.Response) {
 	if !goMicroEnabler.Enable() {
 		return
@@ -49,6 +52,7 @@ func ServeRequestOnEnter(call api.CallContext, _ interface{}, ctx context.Contex
 	return
 }
 
+//go:linkname ServeRequestOnExit go-micro.dev/v5/server.ServeRequestOnExit
 func ServeRequestOnExit(call api.CallContext, r error) {
 	if !goMicroEnabler.Enable() {
 		return

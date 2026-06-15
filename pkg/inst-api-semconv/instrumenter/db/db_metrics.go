@@ -18,10 +18,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api-semconv/instrumenter/utils"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api-semconv/instrumenter/utils"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
-	semconv "go.opentelemetry.io/otel/semconv/v1.26.0"
+	semconv "go.opentelemetry.io/otel/semconv/v1.30.0"
 	"log"
 	"sync"
 	"time"
@@ -37,15 +37,16 @@ type DbClientMetric struct {
 var mu sync.Mutex
 
 var dbMetricsConv = map[attribute.Key]bool{
-	semconv.DBSystemKey:        true,
+	semconv.DBSystemNameKey:    true,
 	semconv.DBOperationNameKey: true,
 	semconv.ServerAddressKey:   true,
+	semconv.DBNamespaceKey:     true,
 }
 
 var globalMeter metric.Meter
 
 // InitDbMetrics so we need to make sure the otel_setup is executed before all the init() function
-// related to issue Dbs://github.com/alibaba/opentelemetry-go-auto-instrumentation/issues/48
+// related to issue Dbs://github.com/alibaba/loongsuite-go-agent/issues/48
 func InitDbMetrics(m metric.Meter) {
 	mu.Lock()
 	defer mu.Unlock()
@@ -83,7 +84,7 @@ func newDbClientRequestDurationMeasures(meter metric.Meter) (metric.Float64Histo
 	if err == nil {
 		return d, nil
 	} else {
-		return d, errors.New(fmt.Sprintf("failed to create Db.client.request.duratio histogram, %v", err))
+		return d, errors.New(fmt.Sprintf("failed to create Db.client.request.duration histogram, %v", err))
 	}
 }
 
@@ -122,6 +123,6 @@ func (h DbClientMetric) OnAfterEnd(context context.Context, endAttributes []attr
 	endAttributes = append(endAttributes, startAttributes...)
 	n, metricsAttrs := utils.Shadow(endAttributes, dbMetricsConv)
 	if h.clientRequestDuration != nil {
-		h.clientRequestDuration.Record(context, float64(endTime.Sub(startTime)), metric.WithAttributeSet(attribute.NewSet(metricsAttrs[0:n]...)))
+		h.clientRequestDuration.Record(context, float64(endTime.Sub(startTime).Milliseconds()), metric.WithAttributeSet(attribute.NewSet(metricsAttrs[0:n]...)))
 	}
 }

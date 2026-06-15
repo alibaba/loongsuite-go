@@ -18,7 +18,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/test/verifier"
+	"github.com/alibaba/loongsuite-go-agent/test/verifier"
 	fiber "github.com/gofiber/fiber/v2"
 	"github.com/valyala/fasthttp"
 	"go.opentelemetry.io/otel/sdk/metric/metricdata"
@@ -68,7 +68,6 @@ func main() {
 	go setupFiberServer()
 	time.Sleep(2 * time.Second)
 	requestHttpServer()
-	time.Sleep(3 * time.Second)
 	verifier.WaitAndAssertMetrics(map[string]func(metricdata.ResourceMetrics){
 		"http.server.request.duration": func(mrs metricdata.ResourceMetrics) {
 			if len(mrs.ScopeMetrics) <= 0 {

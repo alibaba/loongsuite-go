@@ -16,14 +16,17 @@ package nethttp1
 
 import (
 	"net/http"
+	_ "unsafe"
 
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/api"
+	"github.com/alibaba/loongsuite-go-agent/pkg/api"
 )
 
+//go:linkname onEnterClientDo net/http.onEnterClientDo
 func onEnterClientDo(call api.CallContext, recv *http.Client, req *http.Request) {
 	println("Before Client.Do()")
 }
 
+//go:linkname onExitClientDo net/http.onExitClientDo
 func onExitClientDo(call api.CallContext, resp *http.Response, err error) {
 	panic("deliberately")
 }

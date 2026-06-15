@@ -28,7 +28,7 @@ func init() {
 		NewGeneralTestCase("nacos-2.1.0-config-test", nacos_module_name, "v2.1.0", "", "1.18", "", TestNacos210Config),
 		NewGeneralTestCase("nacos-2.1.0-service-test", nacos_module_name, "v2.1.0", "", "1.18", "", TestNacos210Service),
 		NewMuzzleTestCase("nacos-2.1.0-muzzle", nacos_dependency_name, nacos_module_name, "v2.1.0", "", "1.18", "", []string{"test_nacos_config.go"}),
-		NewLatestDepthTestCase("nacos-2.1.0-latestdepth-test", nacos_dependency_name, nacos_module_name, "", "", "1.18", "", TestNacos210Config))
+		NewLatestDepthTestCase("nacos-2.1.0-latestdepth-test", nacos_dependency_name, nacos_module_name, "", "v2.2.9", "1.18", "", TestNacos210Config))
 }
 
 func TestNacos200Config(t *testing.T, env ...string) {

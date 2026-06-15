@@ -15,9 +15,12 @@
 package error16
 
 import (
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/api"
+	_ "unsafe"
+
+	"github.com/alibaba/loongsuite-go-agent/pkg/api"
 )
 
+//go:linkname onEnterNilArg errorstest/auxiliary.onEnterNilArg
 func onEnterNilArg(call api.CallContext, _ *int) {
 	// GetParam(0) is nil
 	arg0 := call.GetParam(0)

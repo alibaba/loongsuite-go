@@ -19,6 +19,7 @@ import (
 	"time"
 
 	_ "go.opentelemetry.io/otel"
+	_ "golang.org/x/text"
 	"golang.org/x/time/rate"
 )
 

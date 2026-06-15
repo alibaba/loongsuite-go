@@ -4,7 +4,7 @@
 
 ### 1. build agent
 
-Go to the root directory of `opentelemetry-go-auto-instrumentation` and execute the following command:
+Go to the root directory of `loongsuite-go` and execute the following command:
 
 ```shell
 make clean && make build
@@ -61,7 +61,7 @@ If you run on k8s
 kubectl apply -f jaeger.yaml
 ```
 
-If you run on loacal machine:
+If you run on local machine:
 
 ```shell
 docker run --rm --name jaeger \
@@ -81,10 +81,10 @@ docker run --rm --name jaeger \
 
 ### 6. run application
 
-Set your opentelemetry endpoint according
+Set your OpenTelemetry endpoint according
 to https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables
 
-if run on loacal machine:
+if run on local machine:
 
 ```shell
 OTEL_EXPORTER_OTLP_ENDPOINT="http://127.0.0.1:4318" OTEL_EXPORTER_OTLP_INSECURE=true OTEL_SERVICE_NAME=demo ./demo
@@ -113,7 +113,7 @@ curl localhost:9000/http-service
 
 ### 7. check trace data
 
-if run on loacal machine:
+if run on local machine:
 
 access Jaeger UI: http://localhost:16686
 
@@ -124,10 +124,16 @@ kubectl get svc opentelemetry-demo-jaeger-collector
 ```
 
 Wait a little while, you can see the corresponding trace data！All the spans are aggregated in one trace.
-![jaeger.png](jaeger.png)
+![jaeger.png](images/jaeger.png)
+
+### 8. check prometheus data
+
+if run on local machine:
+
+access prometheus page: http://localhost:9464/metrics
+
+![metrics.png](images/metrics.png)
 
 ## Related
 
-You can report your span
-to [xTrace](https://help.aliyun.com/zh/opentelemetry/?spm=a2c4g.750001.J_XmGx2FZCDAeIy2ZCWL7sW.10.15152842aYbIq9&scm=20140722.S_help@@%E6%96%87%E6%A1%A3@@90275.S_BB2@bl+RQW@ag0+BB1@ag0+hot+os0.ID_90275-RL_xtrace-LOC_suggest~UND~product~UND~doc-OR_ser-V_3-P0_0)
-in Alibaba Cloud. xTrace provides out-of-the-box trace explorer for you!
+You can report your span to [xTrace](https://help.aliyun.com/zh/opentelemetry/) in Alibaba Cloud. xTrace provides out-of-the-box trace explorer for you!

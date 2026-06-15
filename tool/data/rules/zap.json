@@ -1,0 +1,10 @@
+[
+  {
+    "Version": "[1.20.0,1.27.1)",
+    "ImportPath": "go.uber.org/zap/zapcore",
+    "Function": "Write",
+    "ReceiverType": "\\*CheckedEntry",
+    "OnEnter": "zapLogWriteOnEnter",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/zap"
+  }
+]

@@ -1,0 +1,123 @@
+[
+  {
+    "Version": "[2.0.0,2.3.0)",
+    "ImportPath": "github.com/nacos-group/nacos-sdk-go/v2/clients/naming_client",
+    "Function": "CloseClient",
+    "ReceiverType": "\\*NamingClient",
+    "OnEnter": "beforeNamingClientClose",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/nacos/service"
+  },
+  {
+    "Version": "[2.0.0,2.1.0)",
+    "ImportPath": "github.com/nacos-group/nacos-sdk-go/v2/clients/naming_client/naming_cache",
+    "Function": "NewServiceInfoHolder",
+    "OnEnter": "beforeNewServiceInfoHolder",
+    "OnExit": "afterNewServiceInfoHolder",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/nacos/service_holder"
+  },
+  {
+    "Version": "[2.1.0,)",
+    "ImportPath": "github.com/nacos-group/nacos-sdk-go/v2/clients/naming_client/naming_cache",
+    "Function": "NewServiceInfoHolder",
+    "OnEnter": "beforeNewServiceInfoHolder210",
+    "OnExit": "afterNewServiceInfoHolder210",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/nacos2_1_0/service_holder"
+  },
+  {
+    "Version": "[2.0.0,2.3.0)",
+    "ImportPath": "github.com/nacos-group/nacos-sdk-go/v2/clients/naming_client/naming_cache",
+    "StructType": "ServiceInfoHolder",
+    "FieldName": "OtelReg",
+    "FieldType": "interface{}"
+  },
+  {
+    "Version": "[2.0.0,2.3.0)",
+    "ImportPath": "github.com/nacos-group/nacos-sdk-go/v2/clients/config_client",
+    "Function": "CloseClient",
+    "ReceiverType": "\\*ConfigClient",
+    "OnEnter": "beforeConfigClientClose",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/nacos/config"
+  },
+  {
+    "Version": "[2.0.0,2.3.0)",
+    "ImportPath": "github.com/nacos-group/nacos-sdk-go/v2/clients/config_client",
+    "Function": "NewConfigClient",
+    "OnEnter": "beforeNewConfigClient",
+    "OnExit": "afterNewConfigClient",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/nacos/config"
+  },
+  {
+    "Version": "[2.0.0,2.3.0)",
+    "ImportPath": "github.com/nacos-group/nacos-sdk-go/v2/clients/config_client",
+    "StructType": "ConfigClient",
+    "FieldName": "OtelReg",
+    "FieldType": "interface{}"
+  },
+  {
+    "Version": "[2.0.0,2.3.0)",
+    "ImportPath": "github.com/nacos-group/nacos-sdk-go/v2/clients/naming_client/naming_http",
+    "Function": "CloseClient",
+    "ReceiverType": "\\*NamingHttpProxy",
+    "OnEnter": "beforeNamingHttpProxyCloseClient",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/nacos/service"
+  },
+  {
+    "Version": "[2.0.0,2.1.1)",
+    "ImportPath": "github.com/nacos-group/nacos-sdk-go/v2/clients/naming_client/naming_http",
+    "Function": "NewBeatReactor",
+    "OnEnter": "beforeNewBeatReactor",
+    "OnExit": "afterNewBeatReactor",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/nacos/dom"
+  },
+  {
+    "Version": "[2.1.1,)",
+    "ImportPath": "github.com/nacos-group/nacos-sdk-go/v2/clients/naming_client/naming_http",
+    "Function": "NewBeatReactor",
+    "OnEnter": "beforeNewBeatReactor211",
+    "OnExit": "afterNewBeatReactor211",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/nacos2_1_1/dom"
+  },
+  {
+    "Version": "[2.0.0,2.3.0)",
+    "ImportPath": "github.com/nacos-group/nacos-sdk-go/v2/clients/naming_client/naming_http",
+    "StructType": "BeatReactor",
+    "FieldName": "OtelReg",
+    "FieldType": "interface{}"
+  },
+  {
+    "Version": "[2.0.0,2.3.0)",
+    "ImportPath": "github.com/nacos-group/nacos-sdk-go/v2/clients/naming_client/naming_grpc",
+    "Function": "requestToServer",
+    "ReceiverType": "\\*NamingGrpcProxy",
+    "OnEnter": "beforeRequestToServer",
+    "onExit": "afterRequestToServer",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/nacos/service"
+  },
+  {
+    "Version": "[2.0.0,2.3.0)",
+    "ImportPath": "github.com/nacos-group/nacos-sdk-go/v2/clients/config_client",
+    "Function": "requestProxy",
+    "ReceiverType": "\\*ConfigProxy",
+    "OnEnter": "beforeRequestProxy",
+    "onExit": "afterRequestProxy",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/nacos/config"
+  },
+  {
+    "Version": "[2.0.0,2.3.0)",
+    "ImportPath": "github.com/nacos-group/nacos-sdk-go/v2/common/nacos_server",
+    "Function": "callServer",
+    "ReceiverType": "\\*NacosServer",
+    "OnEnter": "beforeCallServer",
+    "onExit": "afterCallServer",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/nacos/service"
+  },
+  {
+    "Version": "[2.0.0,2.3.0)",
+    "ImportPath": "github.com/nacos-group/nacos-sdk-go/v2/common/nacos_server",
+    "Function": "callConfigServer",
+    "ReceiverType": "\\*NacosServer",
+    "OnEnter": "beforeCallConfigServer",
+    "onExit": "afterCallConfigServer",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/nacos/config"
+  }
+]

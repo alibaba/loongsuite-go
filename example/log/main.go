@@ -26,7 +26,7 @@ func main() {
 		logger := zap.NewExample()
 		logger.Debug("this is debug message")
 		logger.Info("this is info message")
-		logger.Info("this is info message with fileds",
+		logger.Info("this is info message with fields",
 			zap.Int("age", 37),
 			zap.String("agender", "man"),
 		)
@@ -38,7 +38,7 @@ func main() {
 		logger := zap.NewExample()
 		// GetTraceAndSpanId will be added while using otel, users must use otel to build the module
 		traceId, spanId := trace.GetTraceAndSpanId()
-		logger.Info("this is info message with fileds",
+		logger.Info("this is info message with fields",
 			zap.String("traceId", traceId),
 			zap.String("spanId", spanId),
 		)

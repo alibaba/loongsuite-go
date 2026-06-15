@@ -1,0 +1,10 @@
+[
+  {
+    "Version": "[1.9.0,)",
+    "ImportPath": "github.com/gomodule/redigo/redis",
+    "Function": "DialContext",
+    "OnEnter": "onBeforeDialContext",
+    "OnExit": "onExitDialContext",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/redigo"
+  }
+]

@@ -14,14 +14,15 @@
 package fasthttp
 
 import (
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api/utils"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api/version"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/utils"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/version"
 	"go.opentelemetry.io/otel/sdk/instrumentation"
+	"os"
 	"strconv"
 
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api-semconv/instrumenter/http"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api-semconv/instrumenter/net"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api/instrumenter"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api-semconv/instrumenter/http"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api-semconv/instrumenter/net"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/instrumenter"
 	"github.com/valyala/fasthttp"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/propagation"
@@ -29,7 +30,15 @@ import (
 
 var emptyFastHttpResponse = fastHttpResponse{}
 
-var fastHttpEnabler = instrumenter.NewDefaultInstrumentEnabler()
+type fastHttpInnerEnabler struct {
+	enabled bool
+}
+
+func (g fastHttpInnerEnabler) Enable() bool {
+	return g.enabled
+}
+
+var fastHttpEnabler = fastHttpInnerEnabler{os.Getenv("OTEL_INSTRUMENTATION_FASTHTTP_ENABLED") != "false"}
 
 type fastHttpClientAttrsGetter struct {
 }

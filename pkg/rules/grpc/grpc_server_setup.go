@@ -16,8 +16,9 @@ package grpc
 
 import (
 	"context"
+	_ "unsafe"
 
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/api"
+	"github.com/alibaba/loongsuite-go-agent/pkg/api"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/stats"
@@ -25,6 +26,7 @@ import (
 
 var grpcServerInstrument = BuildGrpcServerInstrumenter()
 
+//go:linkname grpcServerOnEnter google.golang.org/grpc.grpcServerOnEnter
 func grpcServerOnEnter(call api.CallContext, opts ...grpc.ServerOption) {
 	if !grpcEnabler.Enable() {
 		return
@@ -36,6 +38,7 @@ func grpcServerOnEnter(call api.CallContext, opts ...grpc.ServerOption) {
 	call.SetParam(0, opt)
 }
 
+//go:linkname grpcServerOnExit google.golang.org/grpc.grpcServerOnExit
 func grpcServerOnExit(call api.CallContext, s *grpc.Server) {
 	if !grpcEnabler.Enable() {
 		return
@@ -82,11 +85,11 @@ func (h *serverHandler) TagRPC(ctx context.Context, info *stats.RPCTagInfo) cont
 		},
 	})
 
-	gctx := gRPCContext{
+	gCtx := gRPCContext{
 		methodName: info.FullMethodName,
 	}
 
-	return context.WithValue(nCtx, gRPCContextKey{}, &gctx)
+	return context.WithValue(nCtx, gRPCContextKey{}, &gCtx)
 }
 
 // HandleRPC processes the RPC stats.

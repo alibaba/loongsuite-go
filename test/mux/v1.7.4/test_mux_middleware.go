@@ -16,7 +16,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/test/verifier"
+	"github.com/alibaba/loongsuite-go-agent/test/verifier"
 	"github.com/gorilla/mux"
 	"go.opentelemetry.io/otel/sdk/trace/tracetest"
 	"io/ioutil"

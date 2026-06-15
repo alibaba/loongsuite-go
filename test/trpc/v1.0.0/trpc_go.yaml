@@ -1,0 +1,27 @@
+global:                             # global config
+  namespace: development            # environment
+  env_name: development            # environment name
+
+server:                            # server config
+  app: demo                        # application name
+  server: helloserver             # server name
+  bin_path: /usr/local/trpc/bin/  # binary path
+  conf_path: /usr/local/trpc/conf/# configuration path
+  service:                        # business service configuration
+    - name: trpc.demo.hello.Greeter # service name
+      ip: 127.0.0.1               # service ip
+      port: 8000                  # service port
+      network: tcp                # network protocol
+      protocol: trpc              # application layer protocol
+      timeout: 1000               # maximum request processing time in milliseconds
+
+client:                           # client config
+  timeout: 1000                   # maximum request processing time in milliseconds
+  namespace: development          # environment
+  client: hellclient             # client name
+  service:                       # upstream service configuration
+    - name: trpc.demo.hello.Greeter # service name
+      target: ip://127.0.0.1:8000   # service address
+      network: tcp                # network protocol
+      protocol: http              # application layer protocol
+      timeout: 1000               # maximum request processing time in milliseconds

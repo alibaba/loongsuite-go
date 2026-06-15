@@ -1,3 +1,5 @@
 module benchmark/producer
 
-replace github.com/alibaba/opentelemetry-go-auto-instrumentation => ../../../../opentelemetry-go-auto-instrumentation
+go 1.24.11
+
+replace github.com/alibaba/loongsuite-go-agent => ../../../

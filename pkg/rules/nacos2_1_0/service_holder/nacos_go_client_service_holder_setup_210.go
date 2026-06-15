@@ -16,16 +16,19 @@ package service
 
 import (
 	"context"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/api"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api-semconv/instrumenter/experimental"
+	"log"
+	"strconv"
+	_ "unsafe"
+
+	"github.com/alibaba/loongsuite-go-agent/pkg/api"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api-semconv/instrumenter/experimental"
 	"github.com/nacos-group/nacos-sdk-go/v2/clients/naming_client/naming_cache"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
-	"log"
-	"strconv"
 )
 
-func beforeNewServiceInfoHolder(call api.CallContext, namespace, cacheDir string, updateCacheWhenEmpty, notLoadCacheAtStart bool) {
+//go:linkname beforeNewServiceInfoHolder210 github.com/nacos-group/nacos-sdk-go/v2/clients/naming_client/naming_cache.beforeNewServiceInfoHolder210
+func beforeNewServiceInfoHolder210(call api.CallContext, namespace, cacheDir string, updateCacheWhenEmpty, notLoadCacheAtStart bool) {
 	if !experimental.NacosEnabler.Enable() {
 		return
 	}
@@ -35,7 +38,8 @@ func beforeNewServiceInfoHolder(call api.CallContext, namespace, cacheDir string
 	call.SetKeyData("notLoadCacheAtStart", strconv.FormatBool(notLoadCacheAtStart))
 }
 
-func afterNewServiceInfoHolder(call api.CallContext, holder *naming_cache.ServiceInfoHolder) {
+//go:linkname afterNewServiceInfoHolder210 github.com/nacos-group/nacos-sdk-go/v2/clients/naming_client/naming_cache.afterNewServiceInfoHolder210
+func afterNewServiceInfoHolder210(call api.CallContext, holder *naming_cache.ServiceInfoHolder) {
 	if !experimental.NacosEnabler.Enable() {
 		return
 	}

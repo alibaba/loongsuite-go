@@ -17,10 +17,10 @@ package test
 import (
 	"context"
 	"testing"
-	"time"
 
 	"github.com/docker/go-connections/nat"
 	"github.com/testcontainers/testcontainers-go"
+	"github.com/testcontainers/testcontainers-go/wait"
 )
 
 const redisv9_dependency_name = "github.com/redis/go-redis/v9"
@@ -29,13 +29,13 @@ const redis_module_name = "redis"
 
 func init() {
 	TestCases = append(TestCases, NewGeneralTestCase("redis-9.0.5-executing-commands-test", redis_module_name, "v9.0.5", "v9.5.1", "1.18", "", TestExecutingCommands),
-		NewGeneralTestCase("redis-9.0.5-executing-unsupported-commands-test", redis_module_name, "v9.0.5", "v9.5.1", "1.18", "", TestExecutingUnsupporetedCommands),
+		NewGeneralTestCase("redis-9.0.5-executing-unsupported-commands-test", redis_module_name, "v9.0.5", "v9.5.1", "1.18", "", TestExecutingUnsupportedCommands),
 		NewGeneralTestCase("redis-9.0.5-redis-conn-test", redis_module_name, "v9.0.5", "v9.5.1", "1.18", "", TestRedisConn),
 		NewGeneralTestCase("redis-9.0.5-ring-test", redis_module_name, "v9.0.5", "v9.5.1", "1.18", "", TestRedisRing),
 		NewGeneralTestCase("redis-9.0.5-transactions-test", redis_module_name, "v9.0.5", "v9.5.1", "1.18", "", TestRedisTransactions),
 		NewGeneralTestCase("redis-9.0.5-universal-test", redis_module_name, "v9.0.5", "v9.5.1", "1.18", "", TestRedisUniversal),
 		NewGeneralTestCase("redis-8.11.0-executing-commands-test", redis_module_name, "v8.11.0", "v8.11.5", "1.18", "", TestV8ExecutingCommands),
-		NewGeneralTestCase("redis-8.11.0-executing-unsupported-commands-test", redis_module_name, "v8.11.0", "v8.11.5", "1.18", "", TestV8ExecutingUnsupporetedCommands),
+		NewGeneralTestCase("redis-8.11.0-executing-unsupported-commands-test", redis_module_name, "v8.11.0", "v8.11.5", "1.18", "", TestV8ExecutingUnsupportedCommands),
 		NewGeneralTestCase("redis-8.11.0-redis-conn-test", redis_module_name, "v8.11.0", "v8.11.5", "1.18", "", TestV8RedisConn),
 		NewGeneralTestCase("redis-8.11.0-ring-test", redis_module_name, "v8.11.0", "v8.11.5", "1.18", "", TestV8RedisRing),
 		NewGeneralTestCase("redis-8.11.0-transactions-test", redis_module_name, "v8.11.0", "v8.11.5", "1.18", "", TestV8RedisTransactions),
@@ -46,17 +46,15 @@ func init() {
 }
 
 func TestExecutingCommands(t *testing.T, env ...string) {
-	redisC, redisPort := initRedisContainer()
-	defer testcontainers.CleanupContainer(t, redisC)
+	_, redisPort := initRedisContainer()
 	UseApp("redis/v9.0.5")
 	RunGoBuild(t, "go", "build", "test_executing_commands.go")
 	env = append(env, "REDIS_PORT="+redisPort.Port())
 	RunApp(t, "test_executing_commands", env...)
 }
 
-func TestExecutingUnsupporetedCommands(t *testing.T, env ...string) {
-	redisC, redisPort := initRedisContainer()
-	defer testcontainers.CleanupContainer(t, redisC)
+func TestExecutingUnsupportedCommands(t *testing.T, env ...string) {
+	_, redisPort := initRedisContainer()
 	UseApp("redis/v9.0.5")
 	RunGoBuild(t, "go", "build", "test_executing_unsupported_commands.go")
 	env = append(env, "REDIS_PORT="+redisPort.Port())
@@ -64,8 +62,7 @@ func TestExecutingUnsupporetedCommands(t *testing.T, env ...string) {
 }
 
 func TestRedisConn(t *testing.T, env ...string) {
-	redisC, redisPort := initRedisContainer()
-	defer testcontainers.CleanupContainer(t, redisC)
+	_, redisPort := initRedisContainer()
 	UseApp("redis/v9.0.5")
 	RunGoBuild(t, "go", "build", "test_redis_conn.go")
 	env = append(env, "REDIS_PORT="+redisPort.Port())
@@ -73,8 +70,7 @@ func TestRedisConn(t *testing.T, env ...string) {
 }
 
 func TestRedisRing(t *testing.T, env ...string) {
-	redisC, redisPort := initRedisContainer()
-	defer testcontainers.CleanupContainer(t, redisC)
+	_, redisPort := initRedisContainer()
 	UseApp("redis/v9.0.5")
 	RunGoBuild(t, "go", "build", "test_redis_ring.go")
 	env = append(env, "REDIS_PORT="+redisPort.Port())
@@ -82,8 +78,7 @@ func TestRedisRing(t *testing.T, env ...string) {
 }
 
 func TestRedisTransactions(t *testing.T, env ...string) {
-	redisC, redisPort := initRedisContainer()
-	defer testcontainers.CleanupContainer(t, redisC)
+	_, redisPort := initRedisContainer()
 	UseApp("redis/v9.0.5")
 	RunGoBuild(t, "go", "build", "test_redis_transactions.go")
 	env = append(env, "REDIS_PORT="+redisPort.Port())
@@ -91,8 +86,7 @@ func TestRedisTransactions(t *testing.T, env ...string) {
 }
 
 func TestRedisUniversal(t *testing.T, env ...string) {
-	redisC, redisPort := initRedisContainer()
-	defer testcontainers.CleanupContainer(t, redisC)
+	_, redisPort := initRedisContainer()
 	UseApp("redis/v9.0.5")
 	RunGoBuild(t, "go", "build", "test_universal_client.go")
 	env = append(env, "REDIS_PORT="+redisPort.Port())
@@ -100,17 +94,15 @@ func TestRedisUniversal(t *testing.T, env ...string) {
 }
 
 func TestV8ExecutingCommands(t *testing.T, env ...string) {
-	redisC, redisPort := initRedisContainer()
-	defer testcontainers.CleanupContainer(t, redisC)
+	_, redisPort := initRedisContainer()
 	UseApp("redis/v8.11.0")
 	RunGoBuild(t, "go", "build", "test_executing_commands.go")
 	env = append(env, "REDIS_PORT="+redisPort.Port())
 	RunApp(t, "test_executing_commands", env...)
 }
 
-func TestV8ExecutingUnsupporetedCommands(t *testing.T, env ...string) {
-	redisC, redisPort := initRedisContainer()
-	defer testcontainers.CleanupContainer(t, redisC)
+func TestV8ExecutingUnsupportedCommands(t *testing.T, env ...string) {
+	_, redisPort := initRedisContainer()
 	UseApp("redis/v8.11.0")
 	RunGoBuild(t, "go", "build", "test_executing_unsupported_commands.go")
 	env = append(env, "REDIS_PORT="+redisPort.Port())
@@ -118,8 +110,7 @@ func TestV8ExecutingUnsupporetedCommands(t *testing.T, env ...string) {
 }
 
 func TestV8RedisConn(t *testing.T, env ...string) {
-	redisC, redisPort := initRedisContainer()
-	defer testcontainers.CleanupContainer(t, redisC)
+	_, redisPort := initRedisContainer()
 	UseApp("redis/v8.11.0")
 	RunGoBuild(t, "go", "build", "test_redis_conn.go")
 	env = append(env, "REDIS_PORT="+redisPort.Port())
@@ -127,8 +118,7 @@ func TestV8RedisConn(t *testing.T, env ...string) {
 }
 
 func TestV8RedisRing(t *testing.T, env ...string) {
-	redisC, redisPort := initRedisContainer()
-	defer testcontainers.CleanupContainer(t, redisC)
+	_, redisPort := initRedisContainer()
 	UseApp("redis/v8.11.0")
 	RunGoBuild(t, "go", "build", "test_redis_ring.go")
 	env = append(env, "REDIS_PORT="+redisPort.Port())
@@ -136,8 +126,7 @@ func TestV8RedisRing(t *testing.T, env ...string) {
 }
 
 func TestV8RedisTransactions(t *testing.T, env ...string) {
-	redisC, redisPort := initRedisContainer()
-	defer testcontainers.CleanupContainer(t, redisC)
+	_, redisPort := initRedisContainer()
 	UseApp("redis/v8.11.0")
 	RunGoBuild(t, "go", "build", "test_redis_transactions.go")
 	env = append(env, "REDIS_PORT="+redisPort.Port())
@@ -145,8 +134,7 @@ func TestV8RedisTransactions(t *testing.T, env ...string) {
 }
 
 func TestV8RedisUniversal(t *testing.T, env ...string) {
-	redisC, redisPort := initRedisContainer()
-	defer testcontainers.CleanupContainer(t, redisC)
+	_, redisPort := initRedisContainer()
 	UseApp("redis/v8.11.0")
 	RunGoBuild(t, "go", "build", "test_universal_client.go")
 	env = append(env, "REDIS_PORT="+redisPort.Port())
@@ -155,8 +143,10 @@ func TestV8RedisUniversal(t *testing.T, env ...string) {
 
 func initRedisContainer() (testcontainers.Container, nat.Port) {
 	req := testcontainers.ContainerRequest{
-		Image:        "redis:latest",
+		Image:        "registry.cn-hangzhou.aliyuncs.com/private-mesh/hellob:redis",
+		ReaperImage:  "registry.cn-hangzhou.aliyuncs.com/private-mesh/hellob:redis",
 		ExposedPorts: []string{"6379/tcp"},
+		WaitingFor:   wait.ForLog("Ready to accept connections"),
 	}
 	redisC, err := testcontainers.GenericContainer(context.Background(), testcontainers.GenericContainerRequest{
 		ContainerRequest: req,
@@ -165,7 +155,6 @@ func initRedisContainer() (testcontainers.Container, nat.Port) {
 	if err != nil {
 		panic(err)
 	}
-	time.Sleep(5 * time.Second)
 	port, err := redisC.MappedPort(context.Background(), "6379")
 	if err != nil {
 		panic(err)

@@ -19,7 +19,7 @@ type MessageAttrsGetter[REQUEST any, RESPONSE any] interface {
 	GetDestination(request REQUEST) string
 	GetDestinationTemplate(request REQUEST) string
 	IsTemporaryDestination(request REQUEST) bool
-	isAnonymousDestination(request REQUEST) bool
+	IsAnonymousDestination(request REQUEST) bool
 	GetConversationId(request REQUEST) string
 	GetMessageBodySize(request REQUEST) int64
 	GetMessageEnvelopSize(request REQUEST) int64
@@ -27,4 +27,5 @@ type MessageAttrsGetter[REQUEST any, RESPONSE any] interface {
 	GetClientId(request REQUEST) string
 	GetBatchMessageCount(request REQUEST, response RESPONSE) int64
 	GetMessageHeader(request REQUEST, name string) []string
+	GetDestinationPartitionId(request REQUEST) string
 }

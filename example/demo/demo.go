@@ -16,7 +16,6 @@ package main
 
 import (
 	"example/demo/pkg"
-	"net/http"
 	_ "net/http/pprof"
 	"os"
 	"os/signal"
@@ -28,8 +27,6 @@ func main() {
 		pkg.InitDB()
 		pkg.SetupHttp()
 	}()
-
-	http.ListenAndServe("0.0.0.0:6060", nil)
 
 	signalCh := make(chan os.Signal, 1)
 

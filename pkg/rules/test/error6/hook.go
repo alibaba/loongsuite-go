@@ -15,7 +15,10 @@
 package error6
 
 import (
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/api"
+	_ "unsafe"
+
+	"github.com/alibaba/loongsuite-go-agent/pkg/api"
 )
 
+//go:linkname onEnterP11 errorstest/auxiliary.onEnterP11
 func onEnterP11(call api.CallContext) {}

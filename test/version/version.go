@@ -40,7 +40,7 @@ const (
 		`(\+([0-9A-Za-z\-~]+(\.[0-9A-Za-z\-~]+)*))?` +
 		`?`
 
-	// SemverRegexpRaw requires a separator between version and prerelease
+	// SemverRegexpRaw requires a separator between version and pre-release
 	SemverRegexpRaw string = `v?([0-9]+(\.[0-9]+)*?)` +
 		`(-([0-9]+[0-9A-Za-z\-~]*(\.[0-9A-Za-z\-~]+)*)|(-([A-Za-z\-~]+[0-9A-Za-z\-~]*(\.[0-9A-Za-z\-~]+)*)))?` +
 		`(\+([0-9A-Za-z\-~]+(\.[0-9A-Za-z\-~]+)*))?` +
@@ -69,7 +69,7 @@ func NewVersion(v string) (*Version, error) {
 
 func NewGoVersion(v string) (*Version, error) {
 	goStart := 0
-	for i, _ := range v {
+	for i := range v {
 		if i+1 < len(v) && v[i] == 'g' && v[i+1] == 'o' {
 			goStart = i + 2
 			break
@@ -135,10 +135,10 @@ func (v *Version) Compare(other *Version) int {
 		return 0
 	}
 
-	// If the segments are the same, we must compare on prerelease info
+	// If the segments are the same, we must compare on pre-release info
 	if v.equalSegments(other) {
-		preSelf := v.Prerelease()
-		preOther := other.Prerelease()
+		preSelf := v.PreRelease()
+		preOther := other.PreRelease()
 		if preSelf == "" && preOther == "" {
 			return 0
 		}
@@ -149,7 +149,7 @@ func (v *Version) Compare(other *Version) int {
 			return -1
 		}
 
-		return comparePrereleases(preSelf, preOther)
+		return comparePreReleases(preSelf, preOther)
 	}
 
 	segmentsSelf := v.Segments64()
@@ -189,7 +189,7 @@ func (v *Version) Compare(other *Version) int {
 		} else if lhs < rhs {
 			return -1
 		}
-		// Otherwis, rhs was > lhs, they're not equal
+		// Otherwise, rhs was > lhs, they're not equal
 		return 1
 	}
 
@@ -268,13 +268,13 @@ func comparePart(preSelf string, preOther string) int {
 	return -1
 }
 
-func comparePrereleases(v string, other string) int {
+func comparePreReleases(v string, other string) int {
 	// the same pre release!
 	if v == other {
 		return 0
 	}
 
-	// split both pre releases for analyse their parts
+	// split both pre releases for analyze their parts
 	selfPreReleaseMeta := strings.Split(v, ".")
 	otherPreReleaseMeta := strings.Split(other, ".")
 
@@ -346,13 +346,13 @@ func (v *Version) Metadata() string {
 	return v.metadata
 }
 
-// Prerelease returns any prerelease data that is part of the version,
-// or blank if there is no prerelease data.
+// PreRelease returns any pre-release data that is part of the version,
+// or blank if there is no pre-release data.
 //
-// Prerelease information is anything that comes after the "-" in the
+// PreRelease information is anything that comes after the "-" in the
 // version (but before any metadata). For example, with "1.2.3-beta",
-// the prerelease information is "beta".
-func (v *Version) Prerelease() string {
+// the pre-release information is "beta".
+func (v *Version) PreRelease() string {
 	return v.pre
 }
 
@@ -412,15 +412,18 @@ func GetRandomVersion(versionNum int, moduleName string, minVersion, maxVersion 
 	if err != nil {
 		return nil, err
 	}
-	versionArray := strings.Split(string(versions), " ")
-	if versionNum > len(versions) {
-		versionNum = len(versions)
-	}
-	shuffle := make([]*Version, 0, len(versions))
-	i := 0
-	for len(shuffle) < versionNum {
-		v, err := NewVersion(versionArray[rand.Int()%len(versionArray)])
-		i++
+
+	// trim the output and split by space to get individual versions
+	versionStr := strings.TrimSpace(string(versions))
+	versionArray := strings.Split(versionStr, " ")
+
+	// first filter out all versions that meet the criteria
+	validVersions := make([]*Version, 0, len(versionArray))
+	for _, vStr := range versionArray {
+		if vStr == "" {
+			continue
+		}
+		v, err := NewVersion(vStr)
 		if err != nil {
 			continue
 		}
@@ -430,9 +433,30 @@ func GetRandomVersion(versionNum int, moduleName string, minVersion, maxVersion 
 		if maxVersion != nil && v.GreaterThan(maxVersion) {
 			continue
 		}
-		shuffle = append(shuffle, v)
+		validVersions = append(validVersions, v)
 	}
-	return shuffle[:versionNum], nil
+
+	// if the number of versions that meet the criteria is less than the requested quantity, return all versions that meet the criteria
+	if len(validVersions) <= versionNum {
+		return validVersions, nil
+	}
+
+	// randomly select from eligible versions and ensure uniqueness
+	selected := make([]*Version, 0, versionNum)
+	seen := make(map[string]bool)
+
+	for len(selected) < versionNum {
+		randomIndex := rand.Int() % len(validVersions)
+		v := validVersions[randomIndex]
+		versionStr := v.Original()
+
+		if !seen[versionStr] {
+			seen[versionStr] = true
+			selected = append(selected, v)
+		}
+	}
+
+	return selected, nil
 }
 
 func GetLatestVersion(moduleName string, minVersion, maxVersion *Version) (*Version, error) {

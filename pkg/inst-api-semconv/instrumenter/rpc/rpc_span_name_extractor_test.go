@@ -16,47 +16,47 @@ package rpc
 
 import "testing"
 
-type testRequest struct {
+type spanTestRequest struct {
 	System  string
 	Service string
 	Method  string
 }
 
-type testGetter struct {
+type spanTestGetter struct {
 }
 
-func (t testGetter) GetSystem(request testRequest) string {
+func (t spanTestGetter) GetSystem(request spanTestRequest) string {
 	if request.System != "" {
 		return request.System
 	}
 	return ""
 }
 
-func (t testGetter) GetService(request testRequest) string {
+func (t spanTestGetter) GetService(request spanTestRequest) string {
 	if request.Service != "" {
 		return request.Service
 	}
 	return ""
 }
 
-func (t testGetter) GetMethod(request testRequest) string {
+func (t spanTestGetter) GetMethod(request spanTestRequest) string {
 	if request.Method != "" {
 		return request.Method
 	}
 	return ""
 }
 
-func (t testGetter) GetServerAddress(request testRequest) string {
+func (t spanTestGetter) GetServerAddress(request spanTestRequest) string {
 	return "test"
 }
 
 func TestExtractSpanName(t *testing.T) {
-	r := RpcSpanNameExtractor[testRequest]{Getter: testGetter{}}
-	spanName := r.Extract(testRequest{Method: "method", Service: "service"})
+	r := RpcSpanNameExtractor[spanTestRequest]{Getter: spanTestGetter{}}
+	spanName := r.Extract(spanTestRequest{Method: "method", Service: "service"})
 	if spanName != "service/method" {
 		t.Fatalf("extract span name extractor failed, expected 'service/method', got '%s'", spanName)
 	}
-	spanName = r.Extract(testRequest{})
+	spanName = r.Extract(spanTestRequest{})
 	if spanName != "RPC request" {
 		t.Fatalf("extract span name extractor failed, expected 'RPC request', got '%s'", spanName)
 	}

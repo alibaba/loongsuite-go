@@ -15,7 +15,10 @@
 package error4
 
 import (
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/api"
+	_ "unsafe"
+
+	"github.com/alibaba/loongsuite-go-agent/pkg/api"
 )
 
+//go:linkname onExitTestSkipOnly errorstest/auxiliary.onExitTestSkipOnly
 func onExitTestSkipOnly(call api.CallContext, _ *int) {}

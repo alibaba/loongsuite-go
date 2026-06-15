@@ -1,0 +1,25 @@
+[{
+  "Version": "[5.0.0,5.3.1)",
+  "ImportPath": "go-micro.dev/v5/client",
+  "Function": "next",
+  "ReceiverType": "\\*rpcClient",
+  "OnExit": "NextOnExit",
+  "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/gomicro"
+},
+  {
+    "Version": "[5.0.0,5.3.1)",
+    "ImportPath": "go-micro.dev/v5",
+    "Function": "NewService",
+    "OnEnter": "NewServiceOnEnter",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/gomicro"
+  },
+  {
+    "Version": "[5.0.0,5.3.1)",
+    "ImportPath": "go-micro.dev/v5/server",
+    "Function": "ServeRequest",
+    "ReceiverType": "\\*router",
+    "OnEnter": "ServeRequestOnEnter",
+    "OnExit": "ServeRequestOnExit",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/gomicro"
+  }
+]

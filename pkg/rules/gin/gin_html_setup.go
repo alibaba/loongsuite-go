@@ -15,12 +15,15 @@
 package gin
 
 import (
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/api"
+	_ "unsafe"
+
+	"github.com/alibaba/loongsuite-go-agent/pkg/api"
 	"go.opentelemetry.io/otel/sdk/trace"
 
 	"github.com/gin-gonic/gin"
 )
 
+//go:linkname htmlOnEnter github.com/gin-gonic/gin.htmlOnEnter
 func htmlOnEnter(call api.CallContext, c *gin.Context, code int, name string, obj any) {
 	if !ginEnabler.Enable() {
 		return

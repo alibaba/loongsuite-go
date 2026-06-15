@@ -17,12 +17,13 @@ package verifier
 import (
 	"errors"
 	"fmt"
-	"github.com/mohae/deepcopy"
-	"go.opentelemetry.io/otel/sdk/metric/metricdata"
 	"log"
 	"sort"
 	"time"
 
+	"github.com/alibaba/loongsuite-go-agent/pkg/testaccess"
+	"github.com/mohae/deepcopy"
+	"go.opentelemetry.io/otel/sdk/metric/metricdata"
 	"go.opentelemetry.io/otel/sdk/trace/tracetest"
 )
 
@@ -53,7 +54,7 @@ func WaitAndAssertMetrics(metricVerifiers map[string]func(metricdata.ResourceMet
 		log.Fatalf("Failed to wait for metric: %v", err)
 	}
 	for k, v := range metricVerifiers {
-		mrsCpy := deepCopyMetric(mrs)
+		mrsCpy := DeepCopyMetric(mrs)
 		d, err := filterMetricByName(mrsCpy, k)
 		if err != nil {
 			log.Fatalf("Failed to wait for metric: %v", err)
@@ -68,22 +69,20 @@ func waitForMetrics() (metricdata.ResourceMetrics, error) {
 		err error
 	)
 	finish := false
-	var i int
+	timeout := time.After(20 * time.Second)
 	for !finish {
 		select {
-		case <-time.After(20 * time.Second):
-			log.Printf("Timeout waiting for metrics!")
+		case <-timeout:
+			log.Fatalf("Timeout waiting for metrics!")
 			finish = true
 		default:
-			mrs, err = GetTestMetrics()
+			time.Sleep(500 * time.Millisecond)
+			mi, err := testaccess.GetTestMetrics()
+			mrs = mi.(metricdata.ResourceMetrics)
 			if err == nil {
 				finish = true
 				break
 			}
-			i++
-		}
-		if i == 10 {
-			break
 		}
 	}
 	return mrs, err
@@ -110,31 +109,33 @@ func filterMetricByName(data metricdata.ResourceMetrics, name string) (metricdat
 }
 
 func waitForTraces(numberOfTraces int) []tracetest.SpanStubs {
-	defer ResetTestSpans()
+	defer testaccess.ResetTestSpans()
 	finish := false
 	var traces []tracetest.SpanStubs
-	var i int
+	timeout := time.After(20 * time.Second)
 	for !finish {
 		select {
-		case <-time.After(20 * time.Second):
+		case <-timeout:
 			log.Printf("Timeout waiting for traces!")
 			finish = true
 		default:
+			time.Sleep(500 * time.Millisecond)
 			traces = groupAndSortTrace()
 			if len(traces) >= numberOfTraces {
 				finish = true
 			}
-			i++
 		}
-		if i == 10 {
-			break
-		}
+	}
+	if len(traces) < numberOfTraces {
+		log.Fatalf("Not enough traces, expected %d, got %d",
+			numberOfTraces, len(traces))
 	}
 	return traces
 }
 
 func groupAndSortTrace() []tracetest.SpanStubs {
-	spans := GetTestSpans()
+	spansi := testaccess.GetTestSpans()
+	spans := spansi.(*tracetest.SpanStubs)
 	traceMap := make(map[string][]tracetest.SpanStub)
 	for _, span := range *spans {
 		if span.SpanContext.HasTraceID() && span.SpanContext.TraceID().IsValid() {
@@ -226,7 +227,7 @@ func traversePreOrder(n *node, acc *[]tracetest.SpanStub) {
 	}
 }
 
-func deepCopyMetric(mrs metricdata.ResourceMetrics) metricdata.ResourceMetrics {
+func DeepCopyMetric(mrs metricdata.ResourceMetrics) metricdata.ResourceMetrics {
 	// do a deep copy in before each metric verifier executed
 	mrsCpy := deepcopy.Copy(mrs).(metricdata.ResourceMetrics)
 	// The deepcopy can not copy the attributes

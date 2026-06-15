@@ -16,16 +16,16 @@ package http
 
 import (
 	"context"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api-semconv/instrumenter/net"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api/utils"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api-semconv/instrumenter/net"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/utils"
 	"go.opentelemetry.io/otel/attribute"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
-	semconv "go.opentelemetry.io/otel/semconv/v1.26.0"
+	semconv "go.opentelemetry.io/otel/semconv/v1.30.0"
 	"go.opentelemetry.io/otel/trace"
 	"strings"
 )
 
-// TODO: http.route
+// TODO: remove server.address and put it into NetworkAttributesExtractor
 
 type HttpCommonAttrsExtractor[REQUEST any, RESPONSE any, GETTER1 HttpCommonAttrsGetter[REQUEST, RESPONSE], GETTER2 net.NetworkAttrsGetter[REQUEST, RESPONSE]] struct {
 	HttpGetter       GETTER1
@@ -55,6 +55,10 @@ func (h *HttpCommonAttrsExtractor[REQUEST, RESPONSE, GETTER, GETTER2]) OnEnd(att
 		Key:   semconv.NetworkProtocolVersionKey,
 		Value: attribute.StringValue(protocolVersion),
 	})
+	errorType := h.HttpGetter.GetErrorType(request, response, err)
+	if errorType != "" {
+		attributes = append(attributes, attribute.KeyValue{Key: semconv.ErrorTypeKey, Value: attribute.StringValue(errorType)})
+	}
 	return attributes, context
 }
 

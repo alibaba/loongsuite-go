@@ -15,28 +15,70 @@
 package logrus
 
 import (
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/api"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api/instrumenter"
+	_ "unsafe"
+
+	"github.com/alibaba/loongsuite-go-agent/pkg/api"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel/sdk/trace"
+	"os"
 )
 
-var logrusEnabler = instrumenter.NewDefaultInstrumentEnabler()
+type logrusInnerEnabler struct {
+	enabled bool
+}
 
+func (l logrusInnerEnabler) Enable() bool {
+	return l.enabled
+}
+
+var logrusEnabler = logrusInnerEnabler{os.Getenv("OTEL_INSTRUMENTATION_LOGRUS_ENABLED") != "false"}
+
+//go:linkname withFieldOnExit github.com/sirupsen/logrus.withFieldOnExit
+func withFieldOnExit(call api.CallContext, e *logrus.Entry) {
+	if !logrusEnabler.Enable() {
+		return
+	}
+	if e.Logger.Hooks == nil {
+		e.Logger.Hooks = make(logrus.LevelHooks)
+	}
+	e.Logger.AddHook(&logHook{})
+	return
+}
+
+//go:linkname logStandNewOnExit github.com/sirupsen/logrus.logStandNewOnExit
+func logStandNewOnExit(call api.CallContext) {
+	if !logrusEnabler.Enable() {
+		return
+	}
+	std := logrus.StandardLogger()
+	std.AddHook(&logHook{})
+	return
+}
+
+//go:linkname logNewOnExit github.com/sirupsen/logrus.logNewOnExit
+func logNewOnExit(call api.CallContext, log *logrus.Logger) {
+	if !logrusEnabler.Enable() {
+		return
+	}
+	log.AddHook(&logHook{})
+	return
+}
+
+//go:linkname standardLoggerOnExit github.com/sirupsen/logrus.standardLoggerOnExit
+func standardLoggerOnExit(call api.CallContext, log *logrus.Logger) {
+	if !logrusEnabler.Enable() {
+		return
+	}
+	log.AddHook(&logHook{})
+	return
+}
+
+//go:linkname logNewOnEnter github.com/sirupsen/logrus.logNewOnEnter
 func logNewOnEnter(call api.CallContext, log *logrus.Logger, formatter logrus.Formatter) {
 	if !logrusEnabler.Enable() {
 		return
 	}
 	call.SetData(log)
-}
-
-func logNewOnExit(call api.CallContext) {
-	if !logrusEnabler.Enable() {
-		return
-	}
-	logger := call.GetData().(*logrus.Logger)
-	logger.AddHook(&logHook{})
-	return
 }
 
 type logHook struct{}
@@ -49,7 +91,7 @@ func (hook *logHook) Fire(entry *logrus.Entry) error {
 	if !logrusEnabler.Enable() {
 		return nil
 	}
-	// 修改日志内容
+	// Modify log content
 	traceId, spanId := trace.GetTraceAndSpanId()
 	if traceId != "" {
 		entry.Data["trace_id"] = traceId

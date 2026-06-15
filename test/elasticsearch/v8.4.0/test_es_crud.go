@@ -17,7 +17,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/test/verifier"
+	"github.com/alibaba/loongsuite-go-agent/test/verifier"
 	"github.com/elastic/go-elasticsearch/v8"
 	"go.opentelemetry.io/otel/sdk/trace/tracetest"
 	"log"
@@ -86,12 +86,12 @@ func main() {
 		log.Printf("failed to delete index %v\n", err)
 	}
 	verifier.WaitAndAssertTraces(func(stubs []tracetest.SpanStubs) {
-		verifier.VerifyDbAttributes(stubs[0][0], "put", "elasticsearch", "127.0.0.1", "/my_index", "put")
-		verifier.VerifyDbAttributes(stubs[1][0], "_doc", "elasticsearch", "127.0.0.1", "/my_index/_doc", "_doc")
-		verifier.VerifyDbAttributes(stubs[2][0], "_doc", "elasticsearch", "127.0.0.1", "/my_index/_doc/id", "_doc")
-		verifier.VerifyDbAttributes(stubs[3][0], "_search", "elasticsearch", "127.0.0.1", "/my_index/_search", "_search")
-		verifier.VerifyDbAttributes(stubs[4][0], "_update", "elasticsearch", "127.0.0.1", "/my_index/_update/id", "_update")
-		verifier.VerifyDbAttributes(stubs[5][0], "_doc", "elasticsearch", "127.0.0.1", "/my_index/_doc/id", "_doc")
-		verifier.VerifyDbAttributes(stubs[6][0], "delete", "elasticsearch", "127.0.0.1", "/my_index", "delete")
+		verifier.VerifyDbAttributes(stubs[0][0], "put", "elasticsearch", "127.0.0.1", "/my_index", "put", "", nil)
+		verifier.VerifyDbAttributes(stubs[1][0], "_doc", "elasticsearch", "127.0.0.1", "/my_index/_doc", "_doc", "", nil)
+		verifier.VerifyDbAttributes(stubs[2][0], "_doc", "elasticsearch", "127.0.0.1", "/my_index/_doc/id", "_doc", "", nil)
+		verifier.VerifyDbAttributes(stubs[3][0], "_search", "elasticsearch", "127.0.0.1", "/my_index/_search", "_search", "", nil)
+		verifier.VerifyDbAttributes(stubs[4][0], "_update", "elasticsearch", "127.0.0.1", "/my_index/_update/id", "_update", "", nil)
+		verifier.VerifyDbAttributes(stubs[5][0], "_doc", "elasticsearch", "127.0.0.1", "/my_index/_doc/id", "_doc", "", nil)
+		verifier.VerifyDbAttributes(stubs[6][0], "delete", "elasticsearch", "127.0.0.1", "/my_index", "delete", "", nil)
 	}, 1)
 }

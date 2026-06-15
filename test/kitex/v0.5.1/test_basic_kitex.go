@@ -17,15 +17,17 @@ package main
 
 import (
 	"context"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/test/verifier"
-	"github.com/cloudwego/kitex/transport"
-	"go.opentelemetry.io/otel/sdk/trace/tracetest"
 	"log"
 	"time"
 
-	"github.com/cloudwego/kitex/client"
+	"github.com/alibaba/loongsuite-go-agent/test/verifier"
+	"github.com/cloudwego/kitex/transport"
+	"go.opentelemetry.io/otel/sdk/trace/tracetest"
+
 	"kitex/v0.5.1/kitex_gen/api"
 	"kitex/v0.5.1/kitex_gen/api/hello"
+
+	"github.com/cloudwego/kitex/client"
 )
 
 func main() {
@@ -48,7 +50,6 @@ func main() {
 		log.Fatal(err)
 	}
 	log.Println(resp)
-	time.Sleep(time.Second)
 	verifier.WaitAndAssertTraces(func(stubs []tracetest.SpanStubs) {
 		verifier.VerifyRpcClientAttributes(stubs[0][0], "api.Hello/api.Hello/echo", "kitex", "api.Hello", "api.Hello/echo")
 		verifier.VerifyRpcServerAttributes(stubs[0][1], "api.Hello/api.Hello/echo", "kitex", "api.Hello", "api.Hello/echo")

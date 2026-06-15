@@ -16,12 +16,11 @@ package main
 
 import (
 	"strconv"
-	"time"
 
 	"log"
 	"os"
 
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/test/verifier"
+	"github.com/alibaba/loongsuite-go-agent/test/verifier"
 	"github.com/elastic/go-elasticsearch/v8"
 	"go.opentelemetry.io/otel/sdk/metric/metricdata"
 )
@@ -52,7 +51,6 @@ func main() {
 		log.Printf("failed to create index %v\n", err)
 	}
 
-	time.Sleep(3 * time.Second)
 	verifier.WaitAndAssertMetrics(map[string]func(metricdata.ResourceMetrics){
 		"http.client.request.duration": func(mrs metricdata.ResourceMetrics) {
 			if len(mrs.ScopeMetrics) <= 0 {

@@ -1,0 +1,18 @@
+[
+  {
+    "Version": "[1.7.0,1.10.2)",
+    "ImportPath": "github.com/gin-gonic/gin",
+    "Function": "Next",
+    "ReceiverType": "\\*Context",
+    "OnEnter": "nextOnEnter",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/gin"
+  },
+  {
+    "Version": "[1.7.0,1.10.2)",
+    "ImportPath": "github.com/gin-gonic/gin",
+    "Function": "HTML",
+    "ReceiverType": "\\*Context",
+    "OnEnter": "htmlOnEnter",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/gin"
+  }
+]

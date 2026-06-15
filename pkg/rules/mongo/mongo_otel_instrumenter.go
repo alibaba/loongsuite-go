@@ -15,10 +15,10 @@
 package mongo
 
 import (
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api-semconv/instrumenter/db"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api/instrumenter"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api/utils"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api/version"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api-semconv/instrumenter/db"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/instrumenter"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/utils"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/version"
 	"go.opentelemetry.io/otel/sdk/instrumentation"
 	"go.opentelemetry.io/otel/trace"
 )
@@ -38,12 +38,25 @@ func (m mongoAttrsGetter) GetStatement(request mongoRequest) string {
 	return request.CommandName
 }
 
+func (m mongoAttrsGetter) GetCollection(request mongoRequest) string {
+	// TBD: We need to implement retrieving the collection later.
+	return ""
+}
+
 func (m mongoAttrsGetter) GetOperation(request mongoRequest) string {
 	return request.CommandName
 }
 
 func (m mongoAttrsGetter) GetParameters(request mongoRequest) []any {
 	return nil
+}
+
+func (m mongoAttrsGetter) GetBatchSize(request mongoRequest) int {
+	return 0
+}
+
+func (m mongoAttrsGetter) GetDbNamespace(request mongoRequest) string {
+	return ""
 }
 
 type mongoSpanNameExtractor struct {

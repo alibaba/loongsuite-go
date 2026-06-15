@@ -18,10 +18,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api-semconv/instrumenter/utils"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api-semconv/instrumenter/utils"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
-	semconv "go.opentelemetry.io/otel/semconv/v1.26.0"
+	semconv "go.opentelemetry.io/otel/semconv/v1.30.0"
 	"log"
 	"sync"
 	"time"
@@ -59,7 +59,7 @@ var globalMeter metric.Meter
 
 // InitHttpMetrics TODO: The init function may be executed after the HttpServerOperationListener() method
 // so we need to make sure the otel_setup is executed before all the init() function
-// related to issue https://github.com/alibaba/opentelemetry-go-auto-instrumentation/issues/48
+// related to issue https://github.com/alibaba/loongsuite-go-agent/issues/48
 func InitHttpMetrics(m metric.Meter) {
 	mu.Lock()
 	defer mu.Unlock()
@@ -103,7 +103,7 @@ func newHttpServerRequestDurationMeasures(meter metric.Meter) (metric.Float64His
 	if err == nil {
 		return d, nil
 	} else {
-		return d, errors.New(fmt.Sprintf("failed to create http.server.request.duratio histogram, %v", err))
+		return d, errors.New(fmt.Sprintf("failed to create http.server.request.duration histogram, %v", err))
 	}
 }
 
@@ -132,7 +132,7 @@ func newHttpClientRequestDurationMeasures(meter metric.Meter) (metric.Float64His
 	if err == nil {
 		return d, nil
 	} else {
-		return d, errors.New(fmt.Sprintf("failed to create http.client.request.duratio histogram, %v", err))
+		return d, errors.New(fmt.Sprintf("failed to create http.client.request.duration histogram, %v", err))
 	}
 }
 
@@ -170,7 +170,7 @@ func (h *HttpServerMetric) OnAfterEnd(context context.Context, endAttributes []a
 	endAttributes = append(endAttributes, startAttributes...)
 	n, metricsAttrs := utils.Shadow(endAttributes, httpMetricsConv)
 	if h.serverRequestDuration != nil {
-		h.serverRequestDuration.Record(context, float64(endTime.Sub(startTime)), metric.WithAttributeSet(attribute.NewSet(metricsAttrs[0:n]...)))
+		h.serverRequestDuration.Record(context, float64(endTime.Sub(startTime).Milliseconds()), metric.WithAttributeSet(attribute.NewSet(metricsAttrs[0:n]...)))
 	}
 }
 
@@ -204,6 +204,6 @@ func (h HttpClientMetric) OnAfterEnd(context context.Context, endAttributes []at
 	endAttributes = append(endAttributes, startAttributes...)
 	n, metricsAttrs := utils.Shadow(endAttributes, httpMetricsConv)
 	if h.clientRequestDuration != nil {
-		h.clientRequestDuration.Record(context, float64(endTime.Sub(startTime)), metric.WithAttributeSet(attribute.NewSet(metricsAttrs[0:n]...)))
+		h.clientRequestDuration.Record(context, float64(endTime.Sub(startTime).Milliseconds()), metric.WithAttributeSet(attribute.NewSet(metricsAttrs[0:n]...)))
 	}
 }

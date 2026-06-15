@@ -5,46 +5,12 @@ body:
   - type: textarea
     attributes:
       label: Describe the bug
-      description: A clear and concise description of what the bug is.
+      description: What the bug is and Steps to reproduce
     validations:
       required: true
   - type: textarea
     attributes:
-      label: Steps to reproduce
-      description: A recipe for reproducing the error. If possible, provide a link to a repository containing an executable repro scenario.
+      label: Debug Log
+      description: .otel-build/debug.log is required
     validations:
       required: true
-  - type: textarea
-    attributes:
-      label: Expected behavior
-      description: A clear and concise description of what you expected to see.
-    validations:
-      required: true
-  - type: textarea
-    attributes:
-      label: Actual behavior
-      description: A clear and concise description of what you saw instead.
-    validations:
-      required: true
-  - type: input
-    attributes:
-      label: opentelemetry-go-auto-instrumentation version
-      description: (e.g., `v0.9.0`, `393e4a2`, etc)
-    validations:
-      required: true
-  - type: textarea
-    attributes:
-      label: Environment
-      description: |
-        Runtime environment information, including the runtime Go version, OS, used library versions, etc.
-        Example:
-        > Go: go version go1.21.9 darwin/arm64
-        > OS: Ubuntu 20.04
-        > https://github.com/redis/go-redis v9.5.1
-      value: |
-        **Go**:
-        **OS**:
-  - type: textarea
-    attributes:
-      label: Additional context
-      description: Add any other context about the problem here.

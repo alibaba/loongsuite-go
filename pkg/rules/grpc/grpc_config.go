@@ -55,7 +55,7 @@ func (c *grpcOtelConfig) handleRPC(ctx context.Context, rs stats.RPCStats, isSer
 	var (
 		messageId int64
 	)
-	gctx, _ := ctx.Value(gRPCContextKey{}).(*gRPCContext)
+	gCtx, _ := ctx.Value(gRPCContextKey{}).(*gRPCContext)
 	switch rs := rs.(type) {
 	case *stats.Begin:
 	case *stats.InPayload:
@@ -95,8 +95,8 @@ func (c *grpcOtelConfig) handleRPC(ctx context.Context, rs stats.RPCStats, isSer
 
 		} else {
 			methodName := ""
-			if gctx != nil {
-				methodName = gctx.methodName
+			if gCtx != nil {
+				methodName = gCtx.methodName
 			}
 			if isServer {
 				grpcServerInstrument.End(ctx, grpcRequest{

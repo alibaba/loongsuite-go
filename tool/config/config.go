@@ -24,12 +24,13 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/tool/errc"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/tool/util"
+	"github.com/alibaba/loongsuite-go-agent/tool/ex"
+	"github.com/alibaba/loongsuite-go-agent/tool/util"
 )
 
 const (
-	EnvPrefix = "OTELTOOL_"
+	EnvPrefix     = "OTELTOOL_"
+	BuildConfFile = "conf.json"
 )
 
 type BuildConfig struct {
@@ -38,11 +39,8 @@ type BuildConfig struct {
 	// comma. e.g. -rule=rule1.json,rule2.json. By default, new rules are appended
 	// to default rules, i.e. -rule=rule1.json,rule2.json is exactly equivalent to
 	// -rule=default.json,rule1.json,rule2.json. But if you do want to disable
-	// default rules, you can configure -disabledefault flag in advance.
+	// default rules, you can configure -disable flag in advance.
 	RuleJsonFiles string
-
-	// Log specifies the log file path. If not set, log will be saved to file.
-	Log string
 
 	// Verbose true means print verbose log.
 	Verbose bool
@@ -50,36 +48,50 @@ type BuildConfig struct {
 	// Debug true means debug mode.
 	Debug bool
 
-	// Restore true means restore all instrumentations.
-	Restore bool
+	// DisableRules specifies which rules to disable. It can be:
+	// - "all" to disable all default rules
+	// - comma-separated list of rule file names to disable specific rules
+	//   e.g. "gorm.json,redis.json"
+	// - empty string to enable all default rules
+	// Note that base.json is inevitable to be enabled, even if it is explicitly
+	// disabled.
+	DisableRules string
 
-	// DisableDefault true means disable default rules.
-	DisableDefault bool
+	// PkgPath specifies the path of the package to be used across multiple
+	// instrumentations
+	PkgPath string
+
+	//go build cache path
+	GoCache string
 }
-
-// This is the version of the tool, which will be printed when the -version flag
-// is passed. This value is specified by the build system.
-var ToolVersion = "1.0.0"
 
 var conf *BuildConfig
 
 func GetConf() *BuildConfig {
-	util.Assert(!util.InConfigure(), "called in configure")
 	util.Assert(conf != nil, "build config is not initialized")
 	return conf
 }
 
-func (bc *BuildConfig) IsDisableDefault() bool {
-	return bc.DisableDefault
+func (bc *BuildConfig) IsDisableAll() bool {
+	return bc.DisableRules == "all"
+}
+
+// GetDisabledRules returns a set of rule file names that should be disabled
+func (bc *BuildConfig) GetDisabledRules() string {
+	return bc.DisableRules
+}
+
+func (bc *BuildConfig) GetGoCache() string {
+	return bc.GoCache
 }
 
 func (bc *BuildConfig) makeRuleAbs(file string) (string, error) {
 	if util.PathNotExists(file) {
-		return "", errc.New(errc.ErrNotExist, file)
+		return "", ex.Newf("file %s not exists", file)
 	}
 	file, err := filepath.Abs(file)
 	if err != nil {
-		return "", errc.New(errc.ErrAbsPath, err.Error())
+		return "", ex.Wrap(err)
 	}
 	return file, nil
 }
@@ -114,14 +126,17 @@ func (bc *BuildConfig) parseRuleFiles() error {
 	return nil
 }
 
+func getConfPath(name string) string {
+	return util.GetTempBuildDirWith(name)
+}
+
 func storeConfig(bc *BuildConfig) error {
 	util.Assert(bc != nil, "build config is not initialized")
-	util.Assert(util.InConfigure(), "sanity check")
 
-	file := util.GetConfigureLogPath(util.BuildConfFile)
+	file := getConfPath(BuildConfFile)
 	bs, err := json.Marshal(bc)
 	if err != nil {
-		return errc.New(errc.ErrInvalidJSON, err.Error())
+		return ex.Wrap(err)
 	}
 	_, err = util.WriteFile(file, string(bs))
 	if err != nil {
@@ -133,12 +148,12 @@ func storeConfig(bc *BuildConfig) error {
 func loadConfig() (*BuildConfig, error) {
 	util.Assert(conf == nil, "build config is already initialized")
 	// If the build config file does not exist, return a default build config
-	confFile := util.GetConfigureLogPath(util.BuildConfFile)
+	confFile := getConfPath(BuildConfFile)
 	if util.PathNotExists(confFile) {
 		return &BuildConfig{}, nil
 	}
 	// Load build config from json file
-	file := util.GetConfigureLogPath(util.BuildConfFile)
+	file := getConfPath(BuildConfFile)
 	data, err := util.ReadFile(file)
 	if err != nil {
 		return &BuildConfig{}, err
@@ -146,7 +161,7 @@ func loadConfig() (*BuildConfig, error) {
 	bc := &BuildConfig{}
 	err = json.Unmarshal([]byte(data), bc)
 	if err != nil {
-		return nil, errc.New(errc.ErrInvalidJSON, err.Error())
+		return nil, ex.Wrap(err)
 	}
 	return bc, nil
 }
@@ -215,56 +230,39 @@ func InitConfig() (err error) {
 		// instrument phase, we append log content to the existing file.
 		mode = os.O_WRONLY | os.O_CREATE | os.O_TRUNC
 	}
-	if conf.Log == "" {
-		// Redirect log to file if flag is not set
-		debugLogPath := util.GetPreprocessLogPath(util.DebugLogFile)
-		debugLog, _ := os.OpenFile(debugLogPath, mode, 0777)
-		if debugLog != nil {
-			util.SetLogger(debugLog)
-		}
-	} else {
-		// Otherwise, log to the specified file
-		logFile, err := os.OpenFile(conf.Log, mode, 0777)
-		if err != nil {
-			return errc.New(errc.ErrOpenFile, err.Error())
-		}
-		util.SetLogger(logFile)
+	// Always redirect log to debug log file
+	debugLogPath := util.GetTempBuildDirWith(util.DebugLogFile)
+	debugLog, _ := os.OpenFile(debugLogPath, mode, 0777)
+	if debugLog != nil {
+		util.SetLogger(debugLog)
 	}
-	return nil
-}
-
-func PrintVersion() error {
-	name, err := util.GetToolName()
-	if err != nil {
-		return err
-	}
-	fmt.Printf("%s version %s\n", name, ToolVersion)
 	return nil
 }
 
 func Configure() error {
-	util.GuaranteeInConfigure()
-
 	// Parse command line flags to get build config
 	bc, err := loadConfig()
 	if err != nil {
 		bc = &BuildConfig{}
 	}
-	flag.StringVar(&bc.Log, "log", bc.Log,
-		"Log file path. If not set, log will be saved to file.")
 	flag.BoolVar(&bc.Verbose, "verbose", bc.Verbose,
 		"Print verbose log")
 	flag.BoolVar(&bc.Debug, "debug", bc.Debug,
 		"Enable debug mode, leave temporary files for debugging")
-	flag.BoolVar(&bc.Restore, "restore", bc.Restore,
-		"Restore all instrumentations")
 	flag.StringVar(&bc.RuleJsonFiles, "rule", bc.RuleJsonFiles,
 		"Use custom.json rules. Multiple rules are separated by comma.")
-	flag.BoolVar(&bc.DisableDefault, "disabledefault", bc.DisableDefault,
-		"Disable default rules")
-	flag.CommandLine.Parse(os.Args[2:])
+	flag.StringVar(&bc.GoCache, "gocache", bc.GoCache,
+		"Use gocache config. Reduce compilation time.")
+	flag.StringVar(&bc.DisableRules, "disable", bc.DisableRules,
+		"Disable specific rules. Use 'all' to disable all default rules, or comma-separated list of rule file names to disable specific rules")
+	flag.StringVar(&bc.PkgPath, "pkg", bc.PkgPath,
+		"Specify the path of the package to be used across multiple instrumentations")
+	err = flag.CommandLine.Parse(os.Args[2:])
+	if err != nil {
+		return ex.Wrap(err)
+	}
 
-	util.Log("Configured in %s", util.GetConfigureLogPath(util.BuildConfFile))
+	util.Log("Configured in %s", getConfPath(BuildConfFile))
 
 	// Store build config for future phases
 	err = storeConfig(bc)

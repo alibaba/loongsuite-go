@@ -16,9 +16,9 @@ package message
 
 import (
 	"context"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api/utils"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/utils"
 	"go.opentelemetry.io/otel/attribute"
-	semconv "go.opentelemetry.io/otel/semconv/v1.26.0"
+	semconv "go.opentelemetry.io/otel/semconv/v1.30.0"
 )
 
 type MessageOperation string
@@ -28,12 +28,12 @@ const RECEIVE MessageOperation = "receive"
 const PROCESS MessageOperation = "process"
 
 type MessageAttrsExtractor[REQUEST any, RESPONSE any, GETTER MessageAttrsGetter[REQUEST, RESPONSE]] struct {
-	getter    GETTER
-	operation MessageOperation
+	Getter    GETTER
+	Operation MessageOperation
 }
 
 func (m *MessageAttrsExtractor[REQUEST, RESPONSE, GETTER]) GetSpanKey() attribute.Key {
-	switch m.operation {
+	switch m.Operation {
 	case PUBLISH:
 		return utils.PRODUCER_KEY
 	case RECEIVE:
@@ -41,12 +41,12 @@ func (m *MessageAttrsExtractor[REQUEST, RESPONSE, GETTER]) GetSpanKey() attribut
 	case PROCESS:
 		return utils.CONSUMER_PROCESS_KEY
 	}
-	panic("Operation" + m.operation + "not supported")
+	panic("Operation" + m.Operation + "not supported")
 }
 
 func (m *MessageAttrsExtractor[REQUEST, RESPONSE, GETTER]) OnStart(attributes []attribute.KeyValue, parentContext context.Context, request REQUEST) ([]attribute.KeyValue, context.Context) {
-	messageAttrSystem := m.getter.GetSystem(request)
-	isTemporaryDestination := m.getter.IsTemporaryDestination(request)
+	messageAttrSystem := m.Getter.GetSystem(request)
+	isTemporaryDestination := m.Getter.IsTemporaryDestination(request)
 	if isTemporaryDestination {
 		attributes = append(attributes, attribute.KeyValue{
 			Key:   semconv.MessagingDestinationTemporaryKey,
@@ -58,13 +58,20 @@ func (m *MessageAttrsExtractor[REQUEST, RESPONSE, GETTER]) OnStart(attributes []
 	} else {
 		attributes = append(attributes, attribute.KeyValue{
 			Key:   semconv.MessagingDestinationNameKey,
-			Value: attribute.StringValue(m.getter.GetDestination(request)),
+			Value: attribute.StringValue(m.Getter.GetDestination(request)),
 		}, attribute.KeyValue{
 			Key:   semconv.MessagingDestinationTemplateKey,
-			Value: attribute.StringValue(m.getter.GetDestinationTemplate(request)),
+			Value: attribute.StringValue(m.Getter.GetDestinationTemplate(request)),
 		})
 	}
-	isAnonymousDestination := m.getter.isAnonymousDestination(request)
+	partitionId := m.Getter.GetDestinationPartitionId(request)
+	if partitionId != "" {
+		attributes = append(attributes, attribute.KeyValue{
+			Key:   semconv.MessagingDestinationPartitionIDKey,
+			Value: attribute.StringValue(partitionId),
+		})
+	}
+	isAnonymousDestination := m.Getter.IsAnonymousDestination(request)
 	if isAnonymousDestination {
 		attributes = append(attributes, attribute.KeyValue{
 			Key:   semconv.MessagingDestinationAnonymousKey,
@@ -73,19 +80,19 @@ func (m *MessageAttrsExtractor[REQUEST, RESPONSE, GETTER]) OnStart(attributes []
 	}
 	attributes = append(attributes, attribute.KeyValue{
 		Key:   semconv.MessagingMessageConversationIDKey,
-		Value: attribute.StringValue(m.getter.GetConversationId(request)),
+		Value: attribute.StringValue(m.Getter.GetConversationId(request)),
 	}, attribute.KeyValue{
 		Key:   semconv.MessagingMessageBodySizeKey,
-		Value: attribute.Int64Value(m.getter.GetMessageBodySize(request)),
+		Value: attribute.Int64Value(m.Getter.GetMessageBodySize(request)),
 	}, attribute.KeyValue{
 		Key:   semconv.MessagingMessageEnvelopeSizeKey,
-		Value: attribute.Int64Value(m.getter.GetMessageEnvelopSize(request)),
+		Value: attribute.Int64Value(m.Getter.GetMessageEnvelopSize(request)),
 	}, attribute.KeyValue{
 		Key:   semconv.MessagingClientIDKey,
-		Value: attribute.StringValue(m.getter.GetClientId(request)),
+		Value: attribute.StringValue(m.Getter.GetClientId(request)),
 	}, attribute.KeyValue{
 		Key:   semconv.MessagingOperationNameKey,
-		Value: attribute.StringValue(string(m.operation)),
+		Value: attribute.StringValue(string(m.Operation)),
 	}, attribute.KeyValue{
 		Key:   semconv.MessagingSystemKey,
 		Value: attribute.StringValue(messageAttrSystem),
@@ -96,10 +103,10 @@ func (m *MessageAttrsExtractor[REQUEST, RESPONSE, GETTER]) OnStart(attributes []
 func (m *MessageAttrsExtractor[REQUEST, RESPONSE, GETTER]) OnEnd(attributes []attribute.KeyValue, context context.Context, request REQUEST, response RESPONSE, err error) ([]attribute.KeyValue, context.Context) {
 	attributes = append(attributes, attribute.KeyValue{
 		Key:   semconv.MessagingMessageIDKey,
-		Value: attribute.StringValue(m.getter.GetMessageId(request, response)),
+		Value: attribute.StringValue(m.Getter.GetMessageId(request, response)),
 	}, attribute.KeyValue{
 		Key:   semconv.MessagingBatchMessageCountKey,
-		Value: attribute.Int64Value(m.getter.GetBatchMessageCount(request, response)),
+		Value: attribute.Int64Value(m.Getter.GetBatchMessageCount(request, response)),
 	})
 	// TODO: add custom captured headers attributes
 	return attributes, context

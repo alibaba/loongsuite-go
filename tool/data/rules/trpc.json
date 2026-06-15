@@ -1,0 +1,19 @@
+[{
+  "Version": "[1.0.0,)",
+  "ImportPath": "trpc.group/trpc-go/trpc-go/client",
+  "Function": "Invoke",
+  "ReceiverType": "\\*client",
+  "OnEnter": "clientTrpcOnEnter",
+  "OnExit": "clientTrpcOnExit",
+  "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/trpc"
+},
+  {
+    "Version": "[1.0.0,)",
+    "ImportPath": "trpc.group/trpc-go/trpc-go/server",
+    "Function": "handle",
+    "ReceiverType": "\\*service",
+    "OnEnter": "serverTrpcOnEnter",
+    "OnExit": "serverTrpcOnExit",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/trpc"
+  }
+]

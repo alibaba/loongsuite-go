@@ -15,11 +15,11 @@
 package elasticsearch
 
 import (
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api-semconv/instrumenter/db"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api-semconv/instrumenter/http"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api/instrumenter"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api/utils"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api/version"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api-semconv/instrumenter/db"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api-semconv/instrumenter/http"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/instrumenter"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/utils"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/version"
 	"go.opentelemetry.io/otel/sdk/instrumentation"
 )
 
@@ -42,8 +42,21 @@ func (e elasticSearchGetter) GetOperation(request *esRequest) string {
 	return request.op
 }
 
+func (e elasticSearchGetter) GetCollection(request *esRequest) string {
+	// TBD: We need to implement retrieving the collection later.
+	return ""
+}
+
 func (e elasticSearchGetter) GetParameters(request *esRequest) []any {
 	return request.params
+}
+
+func (e elasticSearchGetter) GetDbNamespace(request *esRequest) string {
+	return ""
+}
+
+func (e elasticSearchGetter) GetBatchSize(request *esRequest) int {
+	return 0
 }
 
 func BuildElasticSearchInstrumenter() instrumenter.Instrumenter[*esRequest, interface{}] {

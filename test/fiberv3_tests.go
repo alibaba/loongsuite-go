@@ -1,0 +1,47 @@
+// Copyright (c) 2026 Alibaba Group Holding Ltd.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package test
+
+import "testing"
+
+const fiberv3_dependency_name = "github.com/gofiber/fiber/v3"
+const fiberv3_module_name = "fiberv3"
+
+func init() {
+	TestCases = append(TestCases,
+		NewGeneralTestCase("basic-fiberv3-test", fiberv3_module_name, "v3.0.0", "", "1.25", "", TestBasicFiberv3),
+		NewGeneralTestCase("basic-fiberv3s-test", fiberv3_module_name, "v3.0.0", "", "1.25", "", TestBasicFiberv3Https),
+		NewGeneralTestCase("basic-fiberv3-metrics-test", fiberv3_module_name, "v3.0.0", "", "1.25", "", TestBasicFiberv3Metrics),
+		NewLatestDepthTestCase("fiberv3-latestdepth", fiberv3_dependency_name, fiberv3_module_name, "v3.0.0", "", "1.25", "", TestBasicFiberv3),
+		NewMuzzleTestCase("fiberv3-muzzle", fiberv3_dependency_name, fiberv3_module_name, "v3.0.0", "", "1.25", "", []string{"go", "build", "fiber_http.go"}))
+}
+
+func TestBasicFiberv3(t *testing.T, env ...string) {
+	UseApp("fiberv3/v3.0.0")
+	RunGoBuild(t, "go", "build", "fiber_http.go")
+	RunApp(t, "fiber_http", env...)
+}
+
+func TestBasicFiberv3Https(t *testing.T, env ...string) {
+	UseApp("fiberv3/v3.0.0")
+	RunGoBuild(t, "go", "build", "fiber_https.go")
+	RunApp(t, "fiber_https", env...)
+}
+
+func TestBasicFiberv3Metrics(t *testing.T, env ...string) {
+	UseApp("fiberv3/v3.0.0")
+	RunGoBuild(t, "go", "build", "fiber_http_metrics.go")
+	RunApp(t, "fiber_http_metrics", env...)
+}

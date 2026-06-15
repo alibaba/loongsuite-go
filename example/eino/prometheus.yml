@@ -1,0 +1,18 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  # Prometheus
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  # Jaeger metrics
+  - job_name: "jaeger"
+    static_configs:
+      - targets: ["jaeger:14269"]
+
+  # Agent metrics
+  - job_name: "agent"
+    static_configs:
+      - targets: ["host.docker.internal:9464"]

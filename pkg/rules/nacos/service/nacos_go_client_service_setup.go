@@ -17,8 +17,15 @@ package service
 import (
 	"context"
 	"errors"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/api"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api-semconv/instrumenter/experimental"
+	"log"
+	"reflect"
+	"strconv"
+	"time"
+	"unsafe"
+	_ "unsafe"
+
+	"github.com/alibaba/loongsuite-go-agent/pkg/api"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api-semconv/instrumenter/experimental"
 	"github.com/nacos-group/nacos-sdk-go/v2/clients/naming_client"
 	"github.com/nacos-group/nacos-sdk-go/v2/clients/naming_client/naming_cache"
 	"github.com/nacos-group/nacos-sdk-go/v2/clients/naming_client/naming_grpc"
@@ -29,13 +36,9 @@ import (
 	"github.com/nacos-group/nacos-sdk-go/v2/common/remote/rpc/rpc_response"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
-	"log"
-	"reflect"
-	"strconv"
-	"time"
-	"unsafe"
 )
 
+//go:linkname beforeNamingHttpProxyCloseClient github.com/nacos-group/nacos-sdk-go/v2/clients/naming_client/naming_http.beforeNamingHttpProxyCloseClient
 func beforeNamingHttpProxyCloseClient(call api.CallContext, proxy *naming_http.NamingHttpProxy) {
 	if !experimental.NacosEnabler.Enable() {
 		return
@@ -61,6 +64,7 @@ func beforeNamingHttpProxyCloseClient(call api.CallContext, proxy *naming_http.N
 	}
 }
 
+//go:linkname beforeNamingClientClose github.com/nacos-group/nacos-sdk-go/v2/clients/naming_client.beforeNamingClientClose
 func beforeNamingClientClose(call api.CallContext, sc *naming_client.NamingClient) {
 	if !experimental.NacosEnabler.Enable() {
 		return
@@ -86,6 +90,7 @@ func beforeNamingClientClose(call api.CallContext, sc *naming_client.NamingClien
 	}
 }
 
+//go:linkname beforeRequestToServer github.com/nacos-group/nacos-sdk-go/v2/clients/naming_client/naming_grpc.beforeRequestToServer
 func beforeRequestToServer(call api.CallContext, proxy *naming_grpc.NamingGrpcProxy, request rpc_request.IRequest) {
 	if !experimental.NacosEnabler.Enable() {
 		return
@@ -94,6 +99,7 @@ func beforeRequestToServer(call api.CallContext, proxy *naming_grpc.NamingGrpcPr
 	call.SetKeyData("request", request)
 }
 
+//go:linkname afterRequestToServer github.com/nacos-group/nacos-sdk-go/v2/clients/naming_client/naming_grpc.afterRequestToServer
 func afterRequestToServer(call api.CallContext, resp rpc_response.IResponse, err error) {
 	if !experimental.NacosEnabler.Enable() {
 		return
@@ -117,6 +123,7 @@ func afterRequestToServer(call api.CallContext, resp rpc_response.IResponse, err
 	experimental.ClientNamingRequestDuration.Record(context.Background(), float64(time.Now().UnixMilli()-t), metric.WithAttributeSet(set))
 }
 
+//go:linkname beforeCallServer github.com/nacos-group/nacos-sdk-go/v2/common/nacos_server.beforeCallServer
 func beforeCallServer(call api.CallContext, server *nacos_server.NacosServer, api string, params map[string]string, method string, curServer string, contextPath string) {
 	if !experimental.NacosEnabler.Enable() {
 		return
@@ -126,6 +133,7 @@ func beforeCallServer(call api.CallContext, server *nacos_server.NacosServer, ap
 	call.SetKeyData("type", contextPath+api)
 }
 
+//go:linkname afterCallServer github.com/nacos-group/nacos-sdk-go/v2/common/nacos_server.afterCallServer
 func afterCallServer(call api.CallContext, result string, err error) {
 	if !experimental.NacosEnabler.Enable() {
 		return

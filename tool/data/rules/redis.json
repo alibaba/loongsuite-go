@@ -1,0 +1,80 @@
+[
+  {
+    "Version": "[9.0.5,)",
+    "ImportPath": "github.com/redis/go-redis/v9",
+    "Function": "NewClient",
+    "OnExit": "afterNewRedisClient",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/goredis"
+  },
+  {
+    "Version": "[9.0.5,)",
+    "ImportPath": "github.com/redis/go-redis/v9",
+    "Function": "NewFailoverClient",
+    "OnExit": "afterNewFailOverRedisClient",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/goredis"
+  },
+  {
+    "Version": "[9.0.5,)",
+    "ImportPath": "github.com/redis/go-redis/v9",
+    "Function": "NewSentinelClient",
+    "OnExit": "afterNewSentinelClient",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/goredis"
+  },
+  {
+    "Version": "[9.0.5,)",
+    "ImportPath": "github.com/redis/go-redis/v9",
+    "Function": "Conn",
+    "ReceiverType": "\\*Client",
+    "OnExit": "afterClientConn",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/goredis"
+  },
+  {
+    "Version": "[9.0.5,)",
+    "ImportPath": "github.com/redis/go-redis/v9",
+    "Function": "NewClusterClient",
+    "OnExit": "afterNewClusterClient",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/goredis"
+  },
+  {
+    "Version": "[9.0.5,)",
+    "ImportPath": "github.com/redis/go-redis/v9",
+    "Function": "NewRing",
+    "OnExit": "afterNewRingClient",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/goredis"
+  },
+  {
+    "Version": "[8.11.0,8.11.6)",
+    "ImportPath": "github.com/go-redis/redis/v8",
+    "Function": "NewClient",
+    "OnExit": "afterNewRedisV8Client",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/goredisv8"
+  },
+  {
+    "Version": "[8.11.0,8.11.6)",
+    "ImportPath": "github.com/go-redis/redis/v8",
+    "Function": "NewFailoverClient",
+    "OnExit": "afterNewFailOverRedisV8Client",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/goredisv8"
+  },
+  {
+    "Version": "[8.11.0,8.11.6)",
+    "ImportPath": "github.com/go-redis/redis/v8",
+    "Function": "newConn",
+    "OnExit": "afterNewConnRedisV8Client",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/goredisv8"
+  },
+  {
+    "Version": "[8.11.0,8.11.6)",
+    "ImportPath": "github.com/go-redis/redis/v8",
+    "Function": "NewClusterClient",
+    "OnExit": "afterNewClusterV8Client",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/goredisv8"
+  },
+  {
+    "Version": "[8.11.0,8.11.6)",
+    "ImportPath": "github.com/go-redis/redis/v8",
+    "Function": "NewRing",
+    "OnExit": "afterNewRingV8Client",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/goredisv8"
+  }
+]

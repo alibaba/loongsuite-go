@@ -17,13 +17,16 @@ package instrumenter
 import (
 	"context"
 	"errors"
+	"go.opentelemetry.io/otel/sdk/trace/tracetest"
+	"testing"
+	"time"
+
+	"github.com/stretchr/testify/assert"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/instrumentation"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	"go.opentelemetry.io/otel/trace"
-	"testing"
-	"time"
 
 	"go.opentelemetry.io/otel/attribute"
 )
@@ -265,10 +268,12 @@ func TestInstrumentationScope(t *testing.T) {
 			Version:   "test",
 			SchemaURL: "test",
 		})
-	instrumenter := builder.BuildInstrumenter()
 	ctx := context.Background()
+	originalTP := otel.GetTracerProvider()
 	traceProvider := sdktrace.NewTracerProvider()
 	otel.SetTracerProvider(traceProvider)
+	defer otel.SetTracerProvider(originalTP)
+	instrumenter := builder.BuildInstrumenter()
 	newCtx := instrumenter.Start(ctx, testRequest{})
 	span := trace.SpanFromContext(newCtx)
 	if readOnly, ok := span.(sdktrace.ReadOnlySpan); !ok {
@@ -284,4 +289,45 @@ func TestInstrumentationScope(t *testing.T) {
 			panic("scope schema url should be test")
 		}
 	}
+}
+
+func TestSpanTimestamps(t *testing.T) {
+	// The `startTime` and `endTime` of the generated span
+	// must exactly match those in the input params of inst-api entry func.
+
+	sr := tracetest.NewSpanRecorder()
+	tp := sdktrace.NewTracerProvider(
+		sdktrace.WithSpanProcessor(sr),
+	)
+	originalTP := otel.GetTracerProvider()
+	otel.SetTracerProvider(tp)
+	defer otel.SetTracerProvider(originalTP)
+
+	builder := Builder[testRequest, testResponse]{}
+	builder.Init().
+		SetSpanNameExtractor(testNameExtractor{}).
+		SetSpanKindExtractor(&AlwaysClientExtractor[testRequest]{}).
+		AddAttributesExtractor(testAttributesExtractor{}).
+		AddOperationListeners(&testOperationListener{}).
+		AddContextCustomizers(testContextCustomizer{})
+	tracer := tp.
+		Tracer("test-tracer")
+	instrumenter := builder.BuildInstrumenterWithTracer(tracer)
+	ctx := context.Background()
+	startTime := time.Now()
+	endTime := startTime.Add(2 * time.Second)
+	instrumenter.StartAndEnd(ctx, testRequest{}, testResponse{}, nil, startTime, endTime)
+	spans := sr.Ended()
+	if len(spans) == 0 {
+		t.Fatal("no spans captured")
+	}
+	recordedSpan := spans[0]
+	assert.Equal(t, startTime, recordedSpan.StartTime())
+	assert.Equal(t, endTime, recordedSpan.EndTime())
+}
+
+// SpanRecorder records started and ended spans.
+type SpanRecorder struct {
+	started []sdktrace.ReadWriteSpan
+	ended   []sdktrace.ReadOnlySpan
 }

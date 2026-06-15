@@ -16,10 +16,12 @@ package fmt5
 
 import (
 	_ "fmt"
+	_ "unsafe"
 
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/api"
+	"github.com/alibaba/loongsuite-go-agent/pkg/api"
 )
 
+//go:linkname OnEnterPrintf2 fmt.OnEnterPrintf2
 func OnEnterPrintf2(call api.CallContext, format interface{}, arg ...interface{}) {
 	println("hook2")
 	for i := 0; i < 10; i++ {

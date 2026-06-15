@@ -17,10 +17,10 @@ package redigo
 import (
 	"context"
 	"fmt"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api-semconv/instrumenter/db"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api/instrumenter"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api/utils"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api/version"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api-semconv/instrumenter/db"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/instrumenter"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/utils"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/version"
 	"go.opentelemetry.io/otel/sdk/instrumentation"
 	"strings"
 	"time"
@@ -58,8 +58,21 @@ func (m redigoAttrsGetter) GetOperation(request *redigoRequest) string {
 	return request.cmd
 }
 
+func (m redigoAttrsGetter) GetCollection(request *redigoRequest) string {
+	// TBD: We need to implement retrieving the collection later.
+	return ""
+}
+
 func (m redigoAttrsGetter) GetParameters(request *redigoRequest) []any {
 	return nil
+}
+
+func (m redigoAttrsGetter) GetDbNamespace(request *redigoRequest) string {
+	return ""
+}
+
+func (m redigoAttrsGetter) GetBatchSize(request *redigoRequest) int {
+	return 0
 }
 
 func BuildRedigoInstrumenter() instrumenter.Instrumenter[*redigoRequest, interface{}] {

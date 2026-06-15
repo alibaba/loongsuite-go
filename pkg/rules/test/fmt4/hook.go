@@ -16,16 +16,19 @@ package fmt4
 
 import (
 	_ "fmt"
+	_ "unsafe"
 
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/api"
+	"github.com/alibaba/loongsuite-go-agent/pkg/api"
 )
 
 type any = interface{}
 
+//go:linkname onEnterSprintf1 fmt.onEnterSprintf1
 func onEnterSprintf1(call api.CallContext, format string, arg ...any) {
 	print("a1")
 }
 
+//go:linkname onExitSprintf1 fmt.onExitSprintf1
 func onExitSprintf1(call api.CallContext, s string) {
 	print("b1")
 }

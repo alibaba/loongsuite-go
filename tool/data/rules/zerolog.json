@@ -1,0 +1,10 @@
+[
+  {
+    "Version": "[1.10.0,1.34.1)",
+    "ImportPath": "github.com/rs/zerolog",
+    "Function": "msg",
+    "ReceiverType": "\\*Event",
+    "OnEnter": "zeroLogWriteOnEnter",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/zerolog"
+  }
+]

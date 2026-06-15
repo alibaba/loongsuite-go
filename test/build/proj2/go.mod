@@ -1,6 +1,6 @@
 module proj2
 
-go 1.22
+go 1.24
 
 require github.com/zeromicro/go-zero v1.7.2
 
@@ -47,6 +47,6 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
 
-replace github.com/alibaba/opentelemetry-go-auto-instrumentation => ../../../../opentelemetry-go-auto-instrumentation
+replace github.com/alibaba/loongsuite-go-agent => ../../../
 
-replace github.com/alibaba/opentelemetry-go-auto-instrumentation/test/verifier => ../../../../opentelemetry-go-auto-instrumentation/test/verifier
+replace github.com/alibaba/loongsuite-go-agent/test/verifier => ../../../test/verifier

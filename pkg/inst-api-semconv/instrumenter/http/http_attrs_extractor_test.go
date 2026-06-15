@@ -16,9 +16,9 @@ package http
 
 import (
 	"context"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api-semconv/instrumenter/net"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api-semconv/instrumenter/net"
 	"go.opentelemetry.io/otel/attribute"
-	semconv "go.opentelemetry.io/otel/semconv/v1.26.0"
+	semconv "go.opentelemetry.io/otel/semconv/v1.30.0"
 	"go.opentelemetry.io/otel/trace"
 	"testing"
 )
@@ -315,31 +315,34 @@ func TestHttpServerExtractorEnd(t *testing.T) {
 	if attrs[2].Key != semconv.NetworkProtocolVersionKey || attrs[2].Value.AsString() != "network-protocol-version" {
 		t.Fatalf("wrong network protocol version")
 	}
-	if attrs[3].Key != semconv.NetworkTransportKey || attrs[3].Value.AsString() != "network-transport" {
+	if attrs[3].Key != semconv.ErrorTypeKey || attrs[3].Value.AsString() != "error-type" {
+		t.Fatalf("wrong error type")
+	}
+	if attrs[4].Key != semconv.NetworkTransportKey || attrs[4].Value.AsString() != "network-transport" {
 		t.Fatalf("wrong network transport")
 	}
-	if attrs[4].Key != semconv.NetworkTypeKey || attrs[4].Value.AsString() != "network-type" {
+	if attrs[5].Key != semconv.NetworkTypeKey || attrs[5].Value.AsString() != "network-type" {
 		t.Fatalf("wrong network type")
 	}
-	if attrs[5].Key != semconv.NetworkProtocolNameKey || attrs[5].Value.AsString() != "network-protocol-name" {
+	if attrs[6].Key != semconv.NetworkProtocolNameKey || attrs[6].Value.AsString() != "network-protocol-name" {
 		t.Fatalf("wrong network protocol name")
 	}
-	if attrs[6].Key != semconv.NetworkProtocolVersionKey || attrs[6].Value.AsString() != "network-protocol-version" {
+	if attrs[7].Key != semconv.NetworkProtocolVersionKey || attrs[7].Value.AsString() != "network-protocol-version" {
 		t.Fatalf("wrong network protocol version")
 	}
-	if attrs[7].Key != semconv.NetworkLocalAddressKey || attrs[7].Value.AsString() != "network-local-inet-address" {
+	if attrs[8].Key != semconv.NetworkLocalAddressKey || attrs[8].Value.AsString() != "network-local-inet-address" {
 		t.Fatalf("wrong network protocol inet address")
 	}
-	if attrs[8].Key != semconv.NetworkPeerAddressKey || attrs[8].Value.AsString() != "network-peer-inet-address" {
+	if attrs[9].Key != semconv.NetworkPeerAddressKey || attrs[9].Value.AsString() != "network-peer-inet-address" {
 		t.Fatalf("wrong network peer address")
 	}
-	if attrs[9].Key != semconv.NetworkLocalPortKey || attrs[9].Value.AsInt64() != 8080 {
+	if attrs[10].Key != semconv.NetworkLocalPortKey || attrs[10].Value.AsInt64() != 8080 {
 		t.Fatalf("wrong network local port")
 	}
-	if attrs[10].Key != semconv.NetworkPeerPortKey || attrs[10].Value.AsInt64() != 8080 {
+	if attrs[11].Key != semconv.NetworkPeerPortKey || attrs[11].Value.AsInt64() != 8080 {
 		t.Fatalf("wrong network peer port")
 	}
-	if attrs[11].Key != semconv.HTTPRouteKey || attrs[11].Value.AsString() != "http-route" {
+	if attrs[12].Key != semconv.HTTPRouteKey || attrs[12].Value.AsString() != "http-route" {
 		t.Fatalf("httproute should be http-route")
 	}
 }
@@ -412,28 +415,31 @@ func TestNonRecordingSpan(t *testing.T) {
 	if attrs[2].Key != semconv.NetworkProtocolVersionKey || attrs[2].Value.AsString() != "network-protocol-version" {
 		t.Fatalf("wrong network protocol version")
 	}
-	if attrs[3].Key != semconv.NetworkTransportKey || attrs[3].Value.AsString() != "network-transport" {
+	if attrs[3].Key != semconv.ErrorTypeKey || attrs[3].Value.AsString() != "error-type" {
+		t.Fatalf("wrong error type")
+	}
+	if attrs[4].Key != semconv.NetworkTransportKey || attrs[4].Value.AsString() != "network-transport" {
 		t.Fatalf("wrong network transport")
 	}
-	if attrs[4].Key != semconv.NetworkTypeKey || attrs[4].Value.AsString() != "network-type" {
+	if attrs[5].Key != semconv.NetworkTypeKey || attrs[5].Value.AsString() != "network-type" {
 		t.Fatalf("wrong network type")
 	}
-	if attrs[5].Key != semconv.NetworkProtocolNameKey || attrs[5].Value.AsString() != "network-protocol-name" {
+	if attrs[6].Key != semconv.NetworkProtocolNameKey || attrs[6].Value.AsString() != "network-protocol-name" {
 		t.Fatalf("wrong network protocol name")
 	}
-	if attrs[6].Key != semconv.NetworkProtocolVersionKey || attrs[6].Value.AsString() != "network-protocol-version" {
+	if attrs[7].Key != semconv.NetworkProtocolVersionKey || attrs[7].Value.AsString() != "network-protocol-version" {
 		t.Fatalf("wrong network protocol version")
 	}
-	if attrs[7].Key != semconv.NetworkLocalAddressKey || attrs[7].Value.AsString() != "network-local-inet-address" {
+	if attrs[8].Key != semconv.NetworkLocalAddressKey || attrs[8].Value.AsString() != "network-local-inet-address" {
 		t.Fatalf("wrong network protocol inet address")
 	}
-	if attrs[8].Key != semconv.NetworkPeerAddressKey || attrs[8].Value.AsString() != "network-peer-inet-address" {
+	if attrs[9].Key != semconv.NetworkPeerAddressKey || attrs[9].Value.AsString() != "network-peer-inet-address" {
 		t.Fatalf("wrong network peer address")
 	}
-	if attrs[9].Key != semconv.NetworkLocalPortKey || attrs[9].Value.AsInt64() != 8080 {
+	if attrs[10].Key != semconv.NetworkLocalPortKey || attrs[10].Value.AsInt64() != 8080 {
 		t.Fatalf("wrong network local port")
 	}
-	if attrs[10].Key != semconv.NetworkPeerPortKey || attrs[10].Value.AsInt64() != 8080 {
+	if attrs[11].Key != semconv.NetworkPeerPortKey || attrs[11].Value.AsInt64() != 8080 {
 		t.Fatalf("wrong network peer port")
 	}
 }

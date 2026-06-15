@@ -15,7 +15,15 @@
 package gomicro
 
 import (
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api/instrumenter"
+	"os"
 )
 
-var goMicroEnabler = instrumenter.NewDefaultInstrumentEnabler()
+type goMicroInnerEnabler struct {
+	enabled bool
+}
+
+func (g goMicroInnerEnabler) Enable() bool {
+	return g.enabled
+}
+
+var goMicroEnabler = goMicroInnerEnabler{os.Getenv("OTEL_INSTRUMENTATION_GOMICRO_ENABLED") != "false"}

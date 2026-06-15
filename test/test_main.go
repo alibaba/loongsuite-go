@@ -20,7 +20,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/test/version"
+	"github.com/alibaba/loongsuite-go-agent/test/version"
 )
 
 // TestCase represents the configuration and metadata for a test case,
@@ -86,7 +86,7 @@ func NewGeneralTestCase(testName, moduleName, minVersion, maxVersion, minGoVersi
 	}
 	goVersion, _ := version.NewGoVersion(strings.ReplaceAll(runtime.Version(), "go", ""))
 	if (minGoVer != nil && goVersion.LessThan(minGoVer)) || (maxGoVer != nil && goVersion.GreaterThan(maxGoVer)) {
-		log.Printf("This test does not suppport go %s", goVersion.String())
+		log.Printf("TestName is %s, This test does not support go %s, require go [%s, %s]", testName, goVersion.String(), minGoVersion, maxGoVersion)
 		return nil
 	}
 	return &TestCase{

@@ -12,14 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package error2
+package error3
 
 import (
 	erralias "errors"
+	_ "unsafe"
 
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/api"
+	"github.com/alibaba/loongsuite-go-agent/pkg/api"
 )
 
+//go:linkname onEnterErrorsNewAlias errors.onEnterErrorsNewAlias
 func onEnterErrorsNewAlias(call api.CallContext, text string) {
 	// Check if alias name confuses compilation
 	_ = erralias.ErrUnsupported

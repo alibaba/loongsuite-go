@@ -1,0 +1,48 @@
+# This workflow will build a golang project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
+
+name: Plugins3
+
+on:
+  push:
+    branches: [ "main", "dev" ]
+    paths:
+      - 'test/**'
+      - 'pkg/**'
+      - 'tool/**'
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - 'test/**'
+      - 'pkg/**'
+      - 'tool/**'
+  schedule:
+    # daily at 3:24 UTC
+    - cron: '24 3 * * *'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go_version:
+          - 1.24
+          - 1.25
+        os:
+          - ubuntu-latest
+    steps:
+    - name: Free Disk Space (Ubuntu)
+      uses: jlumbroso/free-disk-space@main
+      with:
+        # this might remove tools that are actually needed,
+        # when set to "true" but frees about 6 GB
+        tool-cache: true
+    - uses: actions/checkout@v4
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: ${{ matrix.go_version }}
+    - name: Build
+      run: make build
+    - name: Test
+      run: go test -timeout 90m -v github.com/alibaba/loongsuite-go-agent/test -run "TestPlugins3"

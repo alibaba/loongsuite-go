@@ -17,7 +17,7 @@ package fmt7
 import (
 	"testing"
 
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/api"
+	"github.com/alibaba/loongsuite-go-agent/pkg/api"
 )
 
 func TestOnEnterSprintf3(t *testing.T) {

@@ -17,7 +17,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/test/verifier"
+	"github.com/alibaba/loongsuite-go-agent/test/verifier"
 	"github.com/go-redis/redis/v8"
 	"go.opentelemetry.io/otel/sdk/trace/tracetest"
 
@@ -45,6 +45,6 @@ func main() {
 	// The value is available only after Exec is called.
 	fmt.Println(incr.Val())
 	verifier.WaitAndAssertTraces(func(stubs []tracetest.SpanStubs) {
-		verifier.VerifyDbAttributes(stubs[0][0], "pipeline", "redis", "localhost", "pipeline: pipeline", "pipeline")
+		verifier.VerifyDbAttributes(stubs[0][0], "pipeline", "redis", "localhost", "pipeline: pipeline", "pipeline", "", nil)
 	}, 1)
 }

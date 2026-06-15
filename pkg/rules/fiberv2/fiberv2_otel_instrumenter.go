@@ -14,15 +14,16 @@
 package fiberv2
 
 import (
+	"os"
 	"strconv"
 
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api/utils"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api/version"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/utils"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/version"
 	"go.opentelemetry.io/otel/sdk/instrumentation"
 
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api-semconv/instrumenter/http"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api-semconv/instrumenter/net"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api/instrumenter"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api-semconv/instrumenter/http"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api-semconv/instrumenter/net"
+	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/instrumenter"
 	"github.com/valyala/fasthttp"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/propagation"
@@ -30,7 +31,15 @@ import (
 
 var emptyFiberv2Response = fiberv2Response{}
 
-var fiberv2Enabler = instrumenter.NewDefaultInstrumentEnabler()
+type fiberV2InnerEnabler struct {
+	enabled bool
+}
+
+func (g fiberV2InnerEnabler) Enable() bool {
+	return g.enabled
+}
+
+var fiberV2Enabler = fiberV2InnerEnabler{os.Getenv("OTEL_INSTRUMENTATION_FIBERV2_ENABLED") != "false"}
 
 type fiberv2ServerAttrsGetter struct {
 }

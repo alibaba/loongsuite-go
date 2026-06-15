@@ -16,8 +16,6 @@ package test
 
 import (
 	"testing"
-
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/tool/util"
 )
 
 const AppName = "flags"
@@ -26,16 +24,16 @@ func TestFlags(t *testing.T) {
 	UseApp(AppName)
 
 	RunGoBuildFallible(t, "go", "build", "-thisisnotvalid")
-	ExpectPreprocessContains(t, util.DebugLogFile, "Fatal Error")
+	ExpectStderrContains(t, "Stack:")
 
 	RunVersion(t)
 	ExpectStdoutContains(t, "version")
 
 	RunGoBuildFallible(t, "go", "build", "notevenaflag")
-	ExpectPreprocessContains(t, util.DebugLogFile, "Fatal Error")
+	ExpectStderrContains(t, "Stack:")
 
 	RunSet(t, "-verbose")
-	RunGoBuild(t, "go", "build", `-ldflags=-X main.Placeholder=replaced`)
+	RunGoBuild(t, "go", "build", `-ldflags=-X main.Placeholder=replaced`, "-pgo=default.pgo")
 	_, stderr := RunApp(t, AppName)
 	ExpectContains(t, stderr, "placeholder:replaced")
 
@@ -50,10 +48,10 @@ func TestFlagEnvOverwrite(t *testing.T) {
 	RunSet(t, "-verbose=false")
 	RunGoBuildWithEnv(t, []string{"OTELTOOL_VERBOSE=true"},
 		"go", "build")
-	ExpectPreprocessContains(t, util.DebugLogFile, "Available")
+	ExpectDebugLogContains(t, "Available")
 
 	RunSet(t, "-verbose=true")
 	RunGoBuildWithEnv(t, []string{"OTELTOOL_VERBOSE=false"},
 		"go", "build")
-	ExpectPreprocessNotContains(t, util.DebugLogFile, "Available")
+	ExpectDebugLogNotContains(t, "Available")
 }

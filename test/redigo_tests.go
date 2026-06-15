@@ -16,12 +16,11 @@ package test
 
 import (
 	"context"
-	"log"
 	"testing"
-	"time"
 
 	"github.com/docker/go-connections/nat"
 	"github.com/testcontainers/testcontainers-go"
+	"github.com/testcontainers/testcontainers-go/wait"
 )
 
 const redigo_dependency_name = "github.com/gomodule/redigo"
@@ -38,8 +37,7 @@ func init() {
 }
 
 func TestRedigoExecutingCommands(t *testing.T, env ...string) {
-	redisC, redisPort := initRedigoContainer()
-	defer clearRedigoContainer(redisC)
+	_, redisPort := initRedigoContainer()
 	UseApp("redigo/v1.9.0")
 	RunGoBuild(t, "go", "build", "test_executing_commands.go")
 	env = append(env, "REDIS_PORT="+redisPort.Port())
@@ -47,8 +45,7 @@ func TestRedigoExecutingCommands(t *testing.T, env ...string) {
 }
 
 func TestRedigoDoCommands(t *testing.T, env ...string) {
-	redisC, redisPort := initRedigoContainer()
-	defer clearRedigoContainer(redisC)
+	_, redisPort := initRedigoContainer()
 	UseApp("redigo/v1.9.0")
 	RunGoBuild(t, "go", "build", "test_do_commands.go")
 	env = append(env, "REDIS_PORT="+redisPort.Port())
@@ -56,8 +53,7 @@ func TestRedigoDoCommands(t *testing.T, env ...string) {
 }
 
 func TestRedigoUnsupportedCommands(t *testing.T, env ...string) {
-	redisC, redisPort := initRedigoContainer()
-	defer clearRedigoContainer(redisC)
+	_, redisPort := initRedigoContainer()
 	UseApp("redigo/v1.9.0")
 	RunGoBuild(t, "go", "build", "test_unsupported_commands.go")
 	env = append(env, "REDIS_PORT="+redisPort.Port())
@@ -65,8 +61,7 @@ func TestRedigoUnsupportedCommands(t *testing.T, env ...string) {
 }
 
 func TestRedigoTransactions(t *testing.T, env ...string) {
-	redisC, redisPort := initRedigoContainer()
-	defer clearRedigoContainer(redisC)
+	_, redisPort := initRedigoContainer()
 	UseApp("redigo/v1.9.0")
 	RunGoBuild(t, "go", "build", "test_transaction.go")
 	env = append(env, "REDIS_PORT="+redisPort.Port())
@@ -77,6 +72,7 @@ func initRedigoContainer() (testcontainers.Container, nat.Port) {
 	req := testcontainers.ContainerRequest{
 		Image:        "redis:latest",
 		ExposedPorts: []string{"6379/tcp"},
+		WaitingFor:   wait.ForLog("Ready to accept connections"),
 	}
 	redisC, err := testcontainers.GenericContainer(context.Background(), testcontainers.GenericContainerRequest{
 		ContainerRequest: req,
@@ -85,17 +81,9 @@ func initRedigoContainer() (testcontainers.Container, nat.Port) {
 	if err != nil {
 		panic(err)
 	}
-	time.Sleep(10 * time.Second)
 	port, err := redisC.MappedPort(context.Background(), "6379")
 	if err != nil {
 		panic(err)
 	}
 	return redisC, port
-}
-
-func clearRedigoContainer(redisC testcontainers.Container) {
-	if err := redisC.Terminate(context.Background()); err != nil {
-		log.Fatal(err)
-	}
-	time.Sleep(5 * time.Second)
 }

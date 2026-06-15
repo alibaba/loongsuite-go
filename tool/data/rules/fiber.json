@@ -1,0 +1,11 @@
+[
+  {
+    "Version": "[2.43.0,2.53.0)",
+    "ImportPath": "github.com/gofiber/fiber/v2",
+    "Function": "handler",
+    "ReceiverType": "\\*App",
+    "OnEnter": "fiberHttpOnEnterv2",
+    "OnExit": "fiberHttpOnExitv2",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/fiberv2"
+  }
+]

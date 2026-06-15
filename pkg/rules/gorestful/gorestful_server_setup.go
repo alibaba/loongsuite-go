@@ -15,38 +15,54 @@
 package gorestful
 
 import (
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/api"
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/inst-api/instrumenter"
+	"net/http"
+	"os"
+	_ "unsafe"
+
+	"github.com/alibaba/loongsuite-go-agent/pkg/api"
 	restful "github.com/emicklei/go-restful/v3"
 	"go.opentelemetry.io/otel/sdk/trace"
-	"net/http"
 )
 
-var goRestfulEnabler = instrumenter.NewDefaultInstrumentEnabler()
+type goRestfulInnerEnabler struct {
+	enabled bool
+}
 
+func (g goRestfulInnerEnabler) Enable() bool {
+	return g.enabled
+}
+
+var goRestfulEnabler = goRestfulInnerEnabler{os.Getenv("OTEL_INSTRUMENTATION_GORESTFUL_ENABLED") != "false"}
+
+//go:linkname restContainerAddOnEnter github.com/emicklei/go-restful/v3.restContainerAddOnEnter
 func restContainerAddOnEnter(call api.CallContext, c *restful.Container, service *restful.WebService) {
 	c.Filter(filterRest)
 	call.SetParam(0, c)
 }
 
+//go:linkname restContainerAddOnExit github.com/emicklei/go-restful/v3.restContainerAddOnExit
 func restContainerAddOnExit(call api.CallContext, c *restful.Container) {
 	return
 }
 
+//go:linkname restContainerDispatchOnEnter github.com/emicklei/go-restful/v3.restContainerDispatchOnEnter
 func restContainerDispatchOnEnter(call api.CallContext, c *restful.Container, httpWriter http.ResponseWriter, httpRequest *http.Request) {
 	c.Filter(filterRest)
 	call.SetParam(0, c)
 }
 
+//go:linkname restContainerDispatchOnExit github.com/emicklei/go-restful/v3.restContainerDispatchOnExit
 func restContainerDispatchOnExit(call api.CallContext) {
 	return
 }
 
+//go:linkname restContainerHandleOnEnter github.com/emicklei/go-restful/v3.restContainerHandleOnEnter
 func restContainerHandleOnEnter(call api.CallContext, c *restful.Container, pattern string, handler http.Handler) {
 	c.Filter(filterRest)
 	call.SetParam(0, c)
 }
 
+//go:linkname restContainerHandleOnExit github.com/emicklei/go-restful/v3.restContainerHandleOnExit
 func restContainerHandleOnExit(call api.CallContext) {
 	return
 }

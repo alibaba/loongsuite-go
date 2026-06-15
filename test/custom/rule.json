@@ -1,0 +1,9 @@
+[
+    {
+        "ImportPath": "main",
+        "Function": "main",
+        "OnEnter": "mainOnEnter",
+        "OnExit": "mainOnExit",
+        "Path": "./hook"
+    }
+]

@@ -15,11 +15,14 @@
 package iris
 
 import (
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/api"
+	_ "unsafe"
+
+	"github.com/alibaba/loongsuite-go-agent/pkg/api"
 	iContext "github.com/kataras/iris/v12/context"
 	"go.opentelemetry.io/otel/sdk/trace"
 )
 
+//go:linkname irisHttpOnEnter github.com/kataras/iris/v12/core/router.irisHttpOnEnter
 func irisHttpOnEnter(call api.CallContext, _ interface{}, iCtx *iContext.Context) {
 	if !irisEnabler.Enable() {
 		return

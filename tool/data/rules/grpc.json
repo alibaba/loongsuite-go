@@ -1,0 +1,35 @@
+[
+  {
+    "Version": "[1.44.0,1.63.0)",
+    "ImportPath": "google.golang.org/grpc",
+    "Function": "DialContext",
+    "OnEnter": "grpcClientOnEnter",
+    "OnExit": "grpcClientOnExit",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/grpc"
+  },
+  {
+    "Version": "[1.63.0,)",
+    "ImportPath": "google.golang.org/grpc",
+    "Function": "NewClient",
+    "OnEnter": "grpcNewClientOnEnter",
+    "OnExit": "grpcNewClientOnExit",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/grpc"
+  },
+  {
+    "Version": "[1.44.0,)",
+    "ImportPath": "google.golang.org/grpc",
+    "Function": "NewServer",
+    "OnEnter": "grpcServerOnEnter",
+    "OnExit": "grpcServerOnExit",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/grpc"
+  },
+  {
+    "Version": "[1.44.0,)",
+    "ImportPath": "google.golang.org/grpc",
+    "ReceiverType": "\\*ClientConn",
+    "Function": "NewStream",
+    "OnEnter": "grpcClientNewStreamOnEnter",
+    "OnExit": "grpcClientNewStreamOnExit",
+    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/grpc"
+  }
+]

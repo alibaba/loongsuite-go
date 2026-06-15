@@ -16,16 +16,20 @@ package nethttp5
 
 import (
 	"net/http"
+	_ "unsafe"
 
-	"github.com/alibaba/opentelemetry-go-auto-instrumentation/pkg/api"
+	"github.com/alibaba/loongsuite-go-agent/pkg/api"
 )
 
 // only recv arg
+//
+//go:linkname onEnterMaxBytesError net/http.onEnterMaxBytesError
 func onEnterMaxBytesError(call api.CallContext, recv *http.MaxBytesError) {
 	println("MaxBytesError()")
 	recv.Limit = 4008208820
 }
 
+//go:linkname onExitMaxBytesError net/http.onExitMaxBytesError
 func onExitMaxBytesError(call api.CallContext, ret string) {
 	call.SetReturnVal(0, "Prince of Qin Smashing the Battle line")
 }

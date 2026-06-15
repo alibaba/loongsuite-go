@@ -26,6 +26,7 @@ test/build/foo
 otel_rules
 otel_pkgdep
 loongsuite-go-agent
+loongsuite-go
 *_cache
 example/demo/demo
 test/zap/test_zap

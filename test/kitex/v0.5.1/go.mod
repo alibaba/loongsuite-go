@@ -12,6 +12,7 @@ replace github.com/alibaba/loongsuite-go/test/verifier => ../../../test/verifier
 // APIs to require context.Context, but kitex's bthrift implementation in some
 // versions still targets the older signatures (see TestLatest3/kitex-latestdepth-test).
 replace github.com/apache/thrift => github.com/apache/thrift v0.13.0
+replace github.com/alibaba/loongsuite-go/pkg => ../../../pkg
 
 require (
 	github.com/alibaba/loongsuite-go/test/verifier v0.0.0-00010101000000-000000000000

@@ -25,3 +25,4 @@ require (
 )
 
 replace github.com/alibaba/loongsuite-go => ../../../
+replace github.com/alibaba/loongsuite-go/pkg => ../..

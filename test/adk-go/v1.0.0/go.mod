@@ -3,6 +3,7 @@ module test-adk-go
 go 1.24.4
 
 replace github.com/alibaba/loongsuite-go => ../../../
+replace github.com/alibaba/loongsuite-go/pkg => ../../../pkg
 
 require (
 	github.com/alibaba/loongsuite-go/test/verifier v0.0.0-20260107074919-08c36b668c42

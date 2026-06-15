@@ -34,3 +34,4 @@ require (
 )
 
 replace github.com/alibaba/loongsuite-go/test/verifier => ../../verifier
+replace github.com/alibaba/loongsuite-go/pkg => ../../../pkg

@@ -39,6 +39,7 @@ require (
 )
 
 replace (
+replace github.com/alibaba/loongsuite-go/pkg => ../..
 	github.com/alibaba/loongsuite-go => ../../../
 	github.com/alibaba/loongsuite-go/pkg => ../../../pkg
 )

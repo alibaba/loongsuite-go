@@ -44,3 +44,4 @@ replace google.golang.org/genproto => google.golang.org/genproto v0.0.0-20250218
 replace google.golang.org/genproto/googleapis/rpc => google.golang.org/genproto/googleapis/rpc v0.0.0-20250218202821-56aae31c358a
 
 replace google.golang.org/genproto/googleapis/api => google.golang.org/genproto/googleapis/api v0.0.0-20250218202821-56aae31c358a
+replace github.com/alibaba/loongsuite-go/pkg => ../../../pkg

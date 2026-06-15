@@ -20,3 +20,5 @@ require (
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
 	go.opentelemetry.io/otel/metric v1.40.0 // indirect
 )
+
+replace github.com/alibaba/loongsuite-go/pkg => ../../../pkg

@@ -5,6 +5,7 @@ go 1.24.0
 replace github.com/alibaba/loongsuite-go => ../../../
 
 replace github.com/alibaba/loongsuite-go/test/verifier => ../../../test/verifier
+replace github.com/alibaba/loongsuite-go/pkg => ../../../pkg
 
 require (
 	github.com/alibaba/loongsuite-go/test/verifier v0.0.0-20250423111209-a5689b116b5b

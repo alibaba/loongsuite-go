@@ -1,7 +1,7 @@
 # Test the Hook Code
 
 Once you've added a new instrumentation rule according
-to [how-to-add-a-new-rule.md](https://github.com/alibaba/loongsuite-go-agent/blob/main/docs/how-to-add-a-new-rule.md),
+to [how-to-add-a-new-rule.md](https://github.com/alibaba/loongsuite-go/blob/main/docs/how-to-add-a-new-rule.md),
 you need to add tests to verify your rules. `loongsuite-go-agent` provides a convenient way to verify
 your rules.
 
@@ -23,11 +23,11 @@ go 1.22
 
 replace github.com/alibaba/loongsuite-go-agent => ../../../
 
-replace github.com/alibaba/loongsuite-go-agent/test/verifier => ../../../test/verifier
+replace github.com/alibaba/loongsuite-go/test/verifier => ../../../test/verifier
 
 require (
 	// import this dependency to use verifier
-    github.com/alibaba/loongsuite-go-agent/test/verifier v0.0.0-00010101000000-000000000000
+    github.com/alibaba/loongsuite-go/test/verifier v0.0.0-00010101000000-000000000000
 	github.com/redis/go-redis/v9 v9.0.5
 	go.opentelemetry.io/otel v1.30.0
 	go.opentelemetry.io/otel/sdk v1.30.0
@@ -47,7 +47,7 @@ there should be two spans produced by `test_executing_commands.go`, one represen
 represents for the `get` redis operation. You should use the `verifier` to verify the correctness:
 
 ```go
-import "github.com/alibaba/loongsuite-go-agent/test/verifier"
+import "github.com/alibaba/loongsuite-go/test/verifier"
 
 verifier.WaitAndAssertTraces(func (stubs []tracetest.SpanStubs) {
 	verifier.VerifyDbAttributes(stubs[0][0], "set", "", "redis", "", "localhost", "set a b ex 5 ", "set", "")

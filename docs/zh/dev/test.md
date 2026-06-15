@@ -1,6 +1,6 @@
 # 测试Hook代码
 
-根据[如何添加新规则.md](https://github.com/alibaba/loongsuite-go-agent/blob/main/docs/how-to-add-a-new-rule.md)添加新的埋点规则后，您需要添加测试来验证您的规则。`loongsuite-go-agent`提供了一种方便的方式来验证您的规则。
+根据[如何添加新规则.md](https://github.com/alibaba/loongsuite-go/blob/main/docs/how-to-add-a-new-rule.md)添加新的埋点规则后，您需要添加测试来验证您的规则。`loongsuite-go-agent`提供了一种方便的方式来验证您的规则。
 
 ## 添加一个通用的插件测试用例
 
@@ -17,11 +17,11 @@ go 1.22
 
 replace github.com/alibaba/loongsuite-go-agent => ../../../
 
-replace github.com/alibaba/loongsuite-go-agent/test/verifier => ../../../test/verifier
+replace github.com/alibaba/loongsuite-go/test/verifier => ../../../test/verifier
 
 require (
 	// 导入此依赖以使用验证器
-    github.com/alibaba/loongsuite-go-agent/test/verifier v0.0.0-00010101000000-000000000000
+    github.com/alibaba/loongsuite-go/test/verifier v0.0.0-00010101000000-000000000000
 	github.com/redis/go-redis/v9 v9.0.5
 	go.opentelemetry.io/otel v1.30.0
 	go.opentelemetry.io/otel/sdk v1.30.0
@@ -37,7 +37,7 @@ require (
 如果您编写的业务代码与规则匹配，则会产生一些遥测数据（如span）。例如，`test_executing_commands.go`应该产生两个span，一个代表`set` redis操作，另一个代表`get` redis操作。您应该使用`verifier`来验证其正确性：
 
 ```go
-import "github.com/alibaba/loongsuite-go-agent/test/verifier"
+import "github.com/alibaba/loongsuite-go/test/verifier"
 
 verifier.WaitAndAssertTraces(func (stubs []tracetest.SpanStubs) {
 	verifier.VerifyDbAttributes(stubs[0][0], "set", "", "redis", "", "localhost", "set a b ex 5 ", "set", "")

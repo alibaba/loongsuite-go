@@ -2,7 +2,7 @@
 
 ## 项目简介 [English](./README.md)
 
-这是一个在 Kratos 框架环境下使用 loongsuite-go-agent 的演示项目。
+这是一个在 Kratos 框架环境下使用 LoongSuite Go 的演示项目。
 
 ## 架构说明
 
@@ -20,7 +20,7 @@
 
 ### 可观测性
 
-项目使用 loongsuite-go-agent 将链路追踪（Trace）和监控指标（Metric）导出到：
+项目使用 LoongSuite Go 将链路追踪（Trace）和监控指标（Metric）导出到：
 - **OpenTelemetry Collector**: 数据收集和处理
 - **Jaeger**: 分布式链路追踪
 - **Prometheus**: 监控指标存储

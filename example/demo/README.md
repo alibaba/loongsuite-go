@@ -4,7 +4,7 @@
 
 ### 1. build agent
 
-Go to the root directory of `loongsuite-go-agent` and execute the following command:
+Go to the root directory of `loongsuite-go` and execute the following command:
 
 ```shell
 make clean && make build

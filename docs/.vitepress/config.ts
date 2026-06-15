@@ -1,10 +1,10 @@
-const repoRoot = 'https://github.com/alibaba/loongsuite-go-agent';
+const repoRoot = 'https://github.com/alibaba/loongsuite-go';
 export default {
     lang: 'en-US',
     title: ' ',
     description: 'It provides an automatic solution for Golang applications that want to leverage OpenTelemetry to enable effective observability. No code changes are required in the target application, the instrumentation is done at compile time. Simply adding `otel` prefix to `go build` to get started ', 
     ignoreDeadLinks: true,
-    base: '/loongsuite-go-agent/',
+    base: '/loongsuite-go/',
     locales: {
         root: {
           label: 'English',
@@ -32,9 +32,9 @@ export default {
             {
                 text: 'Other Agents',
                 items: [
-                    { text: 'Go', link: 'https://github.com/alibaba/loongsuite-go-agent' },
+                    { text: 'Go', link: 'https://github.com/alibaba/loongsuite-go' },
                     { text: 'Java', link: 'https://github.com/alibaba/loongsuite-java-agent' },
-                    { text: 'Python', link: 'https://github.com/alibaba/loongsuite-python-agent' },
+                    { text: 'Python', link: 'https://github.com/alibaba/loongsuite-python' },
                 ]
             }
         ],
@@ -79,7 +79,7 @@ export default {
                       { text: 'Instrument Phase', link: '/hacking/instrument' },
                       { text: 'AST Optimization', link: '/hacking/optimize' },
                       { text: 'Debugging', link: '/hacking/debug' },
-                      { text: 'Tool Internal Slides', link: 'https://github.com/alibaba/loongsuite-go-agent/blob/main/docs/otel-alibaba.pdf' },
+                      { text: 'Tool Internal Slides', link: 'https://github.com/alibaba/loongsuite-go/blob/main/docs/otel-alibaba.pdf' },
                     ]
                 },
                 {
@@ -122,7 +122,7 @@ export default {
                       { text: '埋点阶段', link: '/zh/hacking/instrument' },
                       { text: 'AST优化', link: '/zh/hacking/optimize' },
                       { text: '调试', link: '/zh/hacking/debug' },
-                      { text: '工具内幕幻灯片', link: 'https://github.com/alibaba/loongsuite-go-agent/blob/main/docs/otel-alibaba.pdf' },
+                      { text: '工具内幕幻灯片', link: 'https://github.com/alibaba/loongsuite-go/blob/main/docs/otel-alibaba.pdf' },
                     ]
                 },
                 {

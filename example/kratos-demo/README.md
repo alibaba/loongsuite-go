@@ -2,7 +2,7 @@
 
 ## Overview [中文版](./README_CN.md)
 
-This is a demonstration project showcasing loongsuite-go-agent integration with the Kratos framework.
+This is a demonstration project showcasing LoongSuite Go integration with the Kratos framework.
 
 ## Architecture
 
@@ -20,7 +20,7 @@ The demo consists of two services:
 
 ### Observability
 
-The project uses loongsuite-go-agent to export traces and metrics to:
+The project uses LoongSuite Go to export traces and metrics to:
 - **OpenTelemetry Collector**: Data collection and processing
 - **Jaeger**: Distributed tracing
 - **Prometheus**: Metrics storage

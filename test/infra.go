@@ -24,8 +24,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/alibaba/loongsuite-go-agent/test/version"
-	"github.com/alibaba/loongsuite-go-agent/tool/util"
+	"github.com/alibaba/loongsuite-go/test/version"
+	"github.com/alibaba/loongsuite-go/tool/util"
 )
 
 func getExecName() string {

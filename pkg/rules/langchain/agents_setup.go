@@ -18,8 +18,8 @@ import (
 	"context"
 	_ "unsafe"
 
-	"github.com/alibaba/loongsuite-go-agent/pkg/api"
-	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api-semconv/instrumenter/ai"
+	"github.com/alibaba/loongsuite-go/pkg/api"
+	"github.com/alibaba/loongsuite-go/pkg/inst-api-semconv/instrumenter/ai"
 	"github.com/tmc/langchaingo/agents"
 	"github.com/tmc/langchaingo/schema"
 	"github.com/tmc/langchaingo/tools"

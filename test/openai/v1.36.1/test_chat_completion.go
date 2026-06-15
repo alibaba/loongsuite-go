@@ -19,7 +19,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 
-	"github.com/alibaba/loongsuite-go-agent/test/verifier"
+	"github.com/alibaba/loongsuite-go/test/verifier"
 	openai "github.com/sashabaranov/go-openai"
 	"go.opentelemetry.io/otel/sdk/trace/tracetest"
 )

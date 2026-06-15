@@ -21,8 +21,8 @@ import (
 	"strings"
 	_ "unsafe"
 
-	"github.com/alibaba/loongsuite-go-agent/pkg/api"
-	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/utils"
+	"github.com/alibaba/loongsuite-go/pkg/api"
+	"github.com/alibaba/loongsuite-go/pkg/inst-api/utils"
 )
 
 var netHttpFilter = initUrlFilter()

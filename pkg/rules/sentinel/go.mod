@@ -1,11 +1,11 @@
-module github.com/alibaba/loongsuite-go-agent/pkg/rules/sentinel
+module github.com/alibaba/loongsuite-go/pkg/rules/sentinel
 
 go 1.24.0
 
-replace github.com/alibaba/loongsuite-go-agent/pkg => ../../../pkg
+replace github.com/alibaba/loongsuite-go/pkg => ../../../pkg
 
 require (
-	github.com/alibaba/loongsuite-go-agent/pkg v0.0.0-20250801090345-8b36d196abe8
+	github.com/alibaba/loongsuite-go/pkg v0.0.0-20250801090345-8b36d196abe8
 	github.com/alibaba/sentinel-golang v1.0.4
 	go.opentelemetry.io/otel v1.40.0
 	go.opentelemetry.io/otel/metric v1.40.0

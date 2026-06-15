@@ -1,11 +1,11 @@
-module github.com/alibaba/loongsuite-go-agent/pkg/rules/elasticsearch
+module github.com/alibaba/loongsuite-go/pkg/rules/elasticsearch
 
 go 1.24.0
 
-replace github.com/alibaba/loongsuite-go-agent/pkg => ../../../pkg
+replace github.com/alibaba/loongsuite-go/pkg => ../../../pkg
 
 require (
-	github.com/alibaba/loongsuite-go-agent/pkg v0.0.0-00010101000000-000000000000
+	github.com/alibaba/loongsuite-go/pkg v0.0.0-00010101000000-000000000000
 	github.com/elastic/elastic-transport-go/v8 v8.6.1
 	github.com/elastic/go-elasticsearch/v8 v8.4.0
 	go.opentelemetry.io/otel/sdk v1.40.0

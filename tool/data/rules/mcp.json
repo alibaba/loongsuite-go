@@ -19,7 +19,7 @@
     "ReceiverType": "\\*Hooks",
     "Function": "beforeAny",
     "OnEnter": "hookBeforeAnyOnEnter",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/mcp0_20_0"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/mcp0_20_0"
   },
   {
     "Version": "[0.20.0,0.20.2)",
@@ -27,7 +27,7 @@
     "ReceiverType": "\\*Hooks",
     "Function": "onSuccess",
     "OnEnter": "hookOnSuccessOnEnter",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/mcp0_20_0"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/mcp0_20_0"
   },
   {
     "Version": "[0.20.0,0.20.2)",
@@ -35,7 +35,7 @@
     "ReceiverType": "\\*Hooks",
     "Function": "onError",
     "OnEnter": "hookOnErrorOnEnter",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/mcp0_20_0"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/mcp0_20_0"
   },
   {
     "Version": "[0.20.0,0.20.2)",
@@ -44,7 +44,7 @@
     "Function": "sendRequest",
     "OnEnter": "clientSseOnEnter",
     "OnExit": "clientSseOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/mcp0_20_0"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/mcp0_20_0"
   },
   {
     "Version": "[0.20.0,0.20.2)",
@@ -53,6 +53,6 @@
     "Function": "sendRequest",
     "OnEnter": "clientStdioOnEnter",
     "OnExit": "clientStdioOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/mcp0_20_0"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/mcp0_20_0"
   }
 ]

@@ -17,7 +17,7 @@ package main
 import (
 	"context"
 
-	"github.com/alibaba/loongsuite-go-agent/test/verifier"
+	"github.com/alibaba/loongsuite-go/test/verifier"
 
 	"github.com/cloudwego/eino/compose"
 	"github.com/cloudwego/eino/schema"

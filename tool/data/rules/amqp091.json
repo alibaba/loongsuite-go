@@ -5,7 +5,7 @@
   "Function": "send",
   "OnEnter": "consumeOnEnter",
   "OnExit":"consumeOnExit",
-  "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/amqp091"
+  "Path": "github.com/alibaba/loongsuite-go/pkg/rules/amqp091"
 },
   {
     "Version": "[1.10.0,)",
@@ -14,6 +14,6 @@
     "Function": "PublishWithDeferredConfirm",
     "OnEnter": "publishWithDeferredConfirmOnEnter",
     "OnExit":"publishWithDeferredConfirmOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/amqp091"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/amqp091"
   }
 ]

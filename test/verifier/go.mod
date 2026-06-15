@@ -1,9 +1,9 @@
-module github.com/alibaba/loongsuite-go-agent/test/verifier
+module github.com/alibaba/loongsuite-go/test/verifier
 
 go 1.24.0
 
 require (
-	github.com/alibaba/loongsuite-go-agent/pkg v0.0.0-00010101000000-000000000000
+	github.com/alibaba/loongsuite-go/pkg v0.0.0-00010101000000-000000000000
 	go.opentelemetry.io/otel v1.40.0
 	go.opentelemetry.io/otel/sdk v1.40.0
 	go.opentelemetry.io/otel/sdk/metric v1.40.0
@@ -28,6 +28,6 @@ require (
 	golang.org/x/sys v0.40.0 // indirect
 )
 
-replace github.com/alibaba/loongsuite-go-agent => ../..
+replace github.com/alibaba/loongsuite-go => ../..
 
-replace github.com/alibaba/loongsuite-go-agent/pkg => ../../pkg
+replace github.com/alibaba/loongsuite-go/pkg => ../../pkg

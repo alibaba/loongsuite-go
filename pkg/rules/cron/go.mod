@@ -1,13 +1,13 @@
-module github.com/alibaba/loongsuite-go-agent/pkg/rules/cron
+module github.com/alibaba/loongsuite-go/pkg/rules/cron
 
 go 1.24.0
 
 toolchain go1.24.13
 
-replace github.com/alibaba/loongsuite-go-agent/pkg => ../../../pkg
+replace github.com/alibaba/loongsuite-go/pkg => ../../../pkg
 
 require (
-	github.com/alibaba/loongsuite-go-agent/pkg v0.0.0-00010101000000-000000000000
+	github.com/alibaba/loongsuite-go/pkg v0.0.0-00010101000000-000000000000
 	github.com/robfig/cron/v3 v3.0.0
 	go.opentelemetry.io/otel v1.40.0
 	go.opentelemetry.io/otel/trace v1.40.0

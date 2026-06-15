@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"github.com/alibaba/loongsuite-go-agent/test/verifier"
+	"github.com/alibaba/loongsuite-go/test/verifier"
 	"github.com/tmc/langchaingo/chains"
 	"github.com/tmc/langchaingo/llms/fake"
 	"github.com/tmc/langchaingo/prompts"

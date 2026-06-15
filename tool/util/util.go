@@ -26,7 +26,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alibaba/loongsuite-go-agent/tool/ex"
+	"github.com/alibaba/loongsuite-go/tool/ex"
 )
 
 type RunPhase string

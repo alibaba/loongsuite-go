@@ -5,25 +5,25 @@
         "ReceiverType": "\\*Client",
         "OnEnter": "onEnterClientDo",
         "OnExit": "onExitClientDo",
-        "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/test/nethttp1"
+        "Path": "github.com/alibaba/loongsuite-go/pkg/rules/test/nethttp1"
     },
     {
         "ImportPath": "net/http",
         "Function": "NewRequest",
         "OnEnter": "onEnterNewRequest",
-        "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/test/nethttp2"
+        "Path": "github.com/alibaba/loongsuite-go/pkg/rules/test/nethttp2"
     },
     {
         "ImportPath": "net/http",
         "Function": "NewRequestWithContext",
         "OnEnter": "onEnterNewRequestWithContext",
-        "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/test/nethttp3"
+        "Path": "github.com/alibaba/loongsuite-go/pkg/rules/test/nethttp3"
     },
     {
         "ImportPath": "net/http",
         "Function": "NewRequest",
         "OnEnter": "onEnterNewRequest1",
-        "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/test/nethttp4"
+        "Path": "github.com/alibaba/loongsuite-go/pkg/rules/test/nethttp4"
     },
     {
         "ImportPath": "net/http",
@@ -31,31 +31,31 @@
         "ReceiverType": "\\*MaxBytesError",
         "OnEnter": "onEnterMaxBytesError",
         "OnExit": "onExitMaxBytesError",
-        "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/test/nethttp5"
+        "Path": "github.com/alibaba/loongsuite-go/pkg/rules/test/nethttp5"
     },
     {
         "ImportPath": "net/http",
         "Function": "NewRequest",
         "OnExit": "onExitNewRequest",
-        "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/test/nethttp7"
+        "Path": "github.com/alibaba/loongsuite-go/pkg/rules/test/nethttp7"
     },
     {
         "ImportPath": "net/http",
         "Function": "NewRequestWithContext",
         "OnEnter": "onEnterNewRequestWithContext2",
-        "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/test/nethttp8"
+        "Path": "github.com/alibaba/loongsuite-go/pkg/rules/test/nethttp8"
     },
     {
         "ImportPath": "net/http",
         "Function": "Do",
         "ReceiverType": "\\*Client",
         "OnEnter": "onEnterClientDo2",
-        "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/test/nethttp9"
+        "Path": "github.com/alibaba/loongsuite-go/pkg/rules/test/nethttp9"
     },
     {
         "ImportPath": "net/http",
         "FileName": "p3.go",
-        "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/test/nethttp6"
+        "Path": "github.com/alibaba/loongsuite-go/pkg/rules/test/nethttp6"
     },
     {
         "ImportPath": "net/http",
@@ -67,6 +67,6 @@
         "ImportPath":"net/http/internal/ascii",
         "Function":"IsPrint",
         "OnEnter":"onEnterIsPrint",
-        "Path":"github.com/alibaba/loongsuite-go-agent/pkg/rules/test/nethttp10"
+        "Path":"github.com/alibaba/loongsuite-go/pkg/rules/test/nethttp10"
     }
 ]

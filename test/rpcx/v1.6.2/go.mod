@@ -2,12 +2,12 @@ module rpcx-go-test
 
 go 1.24.0
 
-replace github.com/alibaba/loongsuite-go-agent => ../../../
+replace github.com/alibaba/loongsuite-go => ../../../
 
-replace github.com/alibaba/loongsuite-go-agent/test/verifier => ../../../test/verifier
+replace github.com/alibaba/loongsuite-go/test/verifier => ../../../test/verifier
 
 require (
-	github.com/alibaba/loongsuite-go-agent/test/verifier v0.0.0-00010101000000-000000000000
+	github.com/alibaba/loongsuite-go/test/verifier v0.0.0-00010101000000-000000000000
 	github.com/rpcx-ecosystem/rpcx-examples3 v1.1.6
 	github.com/smallnest/rpcx v1.9.1
 	go.opentelemetry.io/otel/sdk v1.40.0
@@ -16,7 +16,7 @@ require (
 
 require (
 	github.com/akutz/memconn v0.1.0 // indirect
-	github.com/alibaba/loongsuite-go-agent/pkg v0.0.0-20251031085506-d38edbf99f97 // indirect
+	github.com/alibaba/loongsuite-go/pkg v0.0.0-20251031085506-d38edbf99f97 // indirect
 	github.com/alitto/pond v1.9.2 // indirect
 	github.com/apache/thrift v0.21.0 // indirect
 	github.com/cenk/backoff v2.2.1+incompatible // indirect

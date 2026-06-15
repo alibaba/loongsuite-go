@@ -6,7 +6,7 @@
     "ReceiverType": "\\*defaultProducer",
     "OnEnter": "producerSendSyncOnEnter",
     "OnExit": "producerSendSyncOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/rocketmq"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/rocketmq"
   },
   {
     "Version": "[2.0.0,)",
@@ -14,7 +14,7 @@
     "Function": "sendAsync",
     "ReceiverType": "\\*defaultProducer",
     "OnEnter": "producerSendAsyncOnEnter",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/rocketmq"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/rocketmq"
   },
   {
     "Version": "[2.0.0,)",
@@ -23,7 +23,7 @@
     "ReceiverType": "\\*defaultProducer",
     "OnEnter": "producerSendOneWayOnEnter",
     "OnExit": "producerSendOneWayOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/rocketmq"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/rocketmq"
   },
   {
     "Version": "[2.0.0,)",
@@ -32,6 +32,6 @@
     "ReceiverType": "\\*pushConsumer",
     "OnEnter": "consumerConsumeInnerOnEnter",
     "OnExit": "consumerConsumeInnerOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/rocketmq"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/rocketmq"
   }
 ]

@@ -18,7 +18,7 @@ import (
 	"context"
 	"github.com/ClickHouse/clickhouse-go/v2"
 	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
-	"github.com/alibaba/loongsuite-go-agent/test/verifier"
+	"github.com/alibaba/loongsuite-go/test/verifier"
 	"go.opentelemetry.io/otel/sdk/trace/tracetest"
 	"log"
 	"os"

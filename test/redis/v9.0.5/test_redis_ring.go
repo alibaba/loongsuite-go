@@ -17,7 +17,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/alibaba/loongsuite-go-agent/test/verifier"
+	"github.com/alibaba/loongsuite-go/test/verifier"
 	"github.com/redis/go-redis/v9"
 	"go.opentelemetry.io/otel/sdk/trace/tracetest"
 	"os"

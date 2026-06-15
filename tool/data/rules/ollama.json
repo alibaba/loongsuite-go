@@ -6,7 +6,7 @@
     "ReceiverType": "\\*Client",
     "OnEnter": "clientGenerateOnEnter",
     "OnExit": "clientGenerateOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/ollama"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/ollama"
   },
   {
     "Version": "[0.3.14,)",
@@ -15,7 +15,7 @@
     "ReceiverType": "\\*Client",
     "OnEnter": "clientChatOnEnter",
     "OnExit": "clientChatOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/ollama"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/ollama"
   },
   {
     "Version": "[0.3.14,)",
@@ -24,7 +24,7 @@
     "ReceiverType": "\\*Client",
     "OnEnter": "clientEmbedOnEnter",
     "OnExit": "clientEmbedOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/ollama"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/ollama"
   },
   {
     "Version": "[0.3.14,)",
@@ -33,7 +33,7 @@
     "ReceiverType": "\\*Client",
     "OnEnter": "clientEmbeddingsOnEnter",
     "OnExit": "clientEmbeddingsOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/ollama"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/ollama"
   },
   {
     "Version": "[0.3.14,)",
@@ -42,7 +42,7 @@
     "ReceiverType": "\\*Client",
     "OnEnter": "clientPullOnEnter",
     "OnExit": "clientPullOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/ollama"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/ollama"
   },
   {
     "Version": "[0.3.14,)",
@@ -51,7 +51,7 @@
     "ReceiverType": "\\*Client",
     "OnEnter": "clientListOnEnter",
     "OnExit": "clientListOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/ollama"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/ollama"
   },
   {
     "Version": "[0.3.14,)",
@@ -60,7 +60,7 @@
     "ReceiverType": "\\*Client",
     "OnEnter": "clientShowOnEnter",
     "OnExit": "clientShowOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/ollama"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/ollama"
   },
   {
     "Version": "[0.3.14,)",
@@ -69,7 +69,7 @@
     "ReceiverType": "\\*Client",
     "OnEnter": "clientDeleteOnEnter",
     "OnExit": "clientDeleteOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/ollama"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/ollama"
   },
   {
     "Version": "[0.3.14,)",
@@ -78,6 +78,6 @@
     "ReceiverType": "\\*Client",
     "OnEnter": "clientCopyOnEnter",
     "OnExit": "clientCopyOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/ollama"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/ollama"
   }
 ]

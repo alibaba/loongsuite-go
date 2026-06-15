@@ -5,6 +5,6 @@
     "Function": "msg",
     "ReceiverType": "\\*Event",
     "OnEnter": "zeroLogWriteOnEnter",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/zerolog"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/zerolog"
   }
 ]

@@ -1,11 +1,11 @@
-module github.com/alibaba/loongsuite-go-agent/pkg/rules/databasesql
+module github.com/alibaba/loongsuite-go/pkg/rules/databasesql
 
 go 1.24.0
 
-replace github.com/alibaba/loongsuite-go-agent/pkg => ../../../pkg
+replace github.com/alibaba/loongsuite-go/pkg => ../../../pkg
 
 require (
-	github.com/alibaba/loongsuite-go-agent/pkg v0.0.0-00010101000000-000000000000
+	github.com/alibaba/loongsuite-go/pkg v0.0.0-00010101000000-000000000000
 	github.com/cespare/xxhash/v2 v2.3.0
 	github.com/hashicorp/golang-lru/v2 v2.0.7
 	github.com/xwb1989/sqlparser v0.0.0-20180606152119-120387863bf2

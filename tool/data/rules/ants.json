@@ -5,7 +5,7 @@
     "Function": "Submit",
     "ReceiverType": "\\*Pool",
     "OnEnter": "antsSubmitOnEnter",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/goants-v2"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/goants-v2"
   },
   {
     "Version": "[1.1.0,2.0.0)",
@@ -13,6 +13,6 @@
     "Function": "Submit",
     "ReceiverType": "\\*Pool",
     "OnEnter": "antsV1SubmitOnEnter",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/goants-v1"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/goants-v1"
   }
 ]

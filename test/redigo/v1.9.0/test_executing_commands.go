@@ -4,7 +4,7 @@ import (
 	"go.opentelemetry.io/otel/sdk/trace/tracetest"
 	"os"
 
-	"github.com/alibaba/loongsuite-go-agent/test/verifier"
+	"github.com/alibaba/loongsuite-go/test/verifier"
 	"github.com/gomodule/redigo/redis"
 )
 

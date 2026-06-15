@@ -18,7 +18,7 @@ import (
 	_ "fmt"
 	_ "unsafe"
 
-	"github.com/alibaba/loongsuite-go-agent/pkg/api"
+	"github.com/alibaba/loongsuite-go/pkg/api"
 )
 
 //go:linkname onEnterSprintf2 fmt.onEnterSprintf2

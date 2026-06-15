@@ -1,20 +1,20 @@
 # Compatibility
 
-`loongsuite-go-agent` ensures compatibility with the current supported
+`loongsuite-go` ensures compatibility with the current supported
 versions of
 the [Go language](https://golang.org/doc/devel/release#policy):
 
 > Each major Go release is supported until there are two newer major releases.
 > For example, Go 1.5 was supported until the Go 1.7 release, and Go 1.6 was supported until the Go 1.8 release.
 
-For versions of Go that are no longer supported upstream, `loongsuite-go-agent` will
+For versions of Go that are no longer supported upstream, `loongsuite-go` will
 stop ensuring compatibility with these versions in the following manner:
 
-- A minor release of `loongsuite-go-agent` will be made to add support for the new
+- A minor release of `loongsuite-go` will be made to add support for the new
 supported release of Go.
-- The following minor release of `loongsuite-go-agent` will remove compatibility
+- The following minor release of `loongsuite-go` will remove compatibility
 testing for the oldest (now archived upstream) version of Go. This, and
-future, releases of `loongsuite-go-agent` may include features only supported by
+future, releases of `loongsuite-go` may include features only supported by
 the currently supported versions of Go.
 
 This project is tested on the following systems.

@@ -1,14 +1,14 @@
 # 兼容性
 
-`loongsuite-go-agent`确保与当前支持的[Go语言](https://golang.org/doc/devel/release#policy)版本兼容：
+`loongsuite-go`确保与当前支持的[Go语言](https://golang.org/doc/devel/release#policy)版本兼容：
 
 > 每个主要的Go版本都会被支持，直到有两个更新的主要版本发布。
 > 例如，Go 1.5被支持到Go 1.7发布，Go 1.6被支持到Go 1.8发布。
 
-对于不再受上游支持的Go版本，`loongsuite-go-agent`将通过以下方式停止确保与这些版本的兼容性：
+对于不再受上游支持的Go版本，`loongsuite-go`将通过以下方式停止确保与这些版本的兼容性：
 
-- 将发布`loongsuite-go-agent`的次要版本，以增加对新支持的Go版本的支持。
-- `loongsuite-go-agent`的下一个次要版本将移除对最旧（现已在上游归档）的Go版本的兼容性测试。此版本以及将来的`loongsuite-go-agent`版本可能包含仅受当前支持的Go版本支持的功能。
+- 将发布`loongsuite-go`的次要版本，以增加对新支持的Go版本的支持。
+- `loongsuite-go`的下一个次要版本将移除对最旧（现已在上游归档）的Go版本的兼容性测试。此版本以及将来的`loongsuite-go`版本可能包含仅受当前支持的Go版本支持的功能。
 
 该项目在以下系统上进行了测试。
 

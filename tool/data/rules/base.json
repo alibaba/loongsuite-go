@@ -26,25 +26,25 @@
   {
     "ImportPath": "runtime",
     "FileName": "runtime_linker.go",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/runtime"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/runtime"
   },
   {
     "Version": "[1.39.0,)",
     "ImportPath": "go.opentelemetry.io/otel/sdk/trace",
     "FileName": "otel_trace_context_linker.go",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/otel-sdk/trace/v1_39_0"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/otel-sdk/trace/v1_39_0"
   },
   {
     "Version": "[1.39.0,)",
     "ImportPath": "go.opentelemetry.io/otel/sdk/trace",
     "FileName": "otel_trace_context.go",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/otel-sdk/trace/v1_39_0"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/otel-sdk/trace/v1_39_0"
   },
   {
     "Version": "[1.39.0,)",
     "ImportPath": "go.opentelemetry.io/otel/sdk/trace",
     "FileName": "otel_trace_test_func_holder.go",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/otel-sdk/trace/v1_39_0"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/otel-sdk/trace/v1_39_0"
   },
   {
     "Version": "[1.39.0,)",
@@ -52,7 +52,7 @@
     "Function": "End",
     "ReceiverType": "nonRecordingSpan",
     "OnEnter": "nonRecordingSpanEndOnEnter",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/otel-sdk/trace/span"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/otel-sdk/trace/span"
   },
   {
     "Version": "[1.39.0,)",
@@ -60,7 +60,7 @@
     "Function": "End",
     "ReceiverType": "\\*recordingSpan",
     "OnEnter": "recordingSpanEndOnEnter",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/otel-sdk/trace/span"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/otel-sdk/trace/span"
   },
   {
     "Version": "[1.39.0,)",
@@ -68,7 +68,7 @@
     "Function": "newRecordingSpan",
     "ReceiverType": "\\*tracer",
     "OnExit": "newRecordingSpanOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/otel-sdk/trace/span"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/otel-sdk/trace/span"
   },
   {
     "Version": "[1.39.0,)",
@@ -76,44 +76,44 @@
     "Function": "newNonRecordingSpan",
     "ReceiverType": "\\*tracer",
     "OnExit": "newNonRecordingSpanOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/otel-sdk/trace/span"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/otel-sdk/trace/span"
   },
   {
     "ImportPath": "go.opentelemetry.io/otel/sdk/metric",
     "FileName": "otel_metric_test_func_holder.go",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/otel-sdk/metric"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/otel-sdk/metric"
   },
   {
     "ImportPath": "go.opentelemetry.io/otel/trace",
     "Function": "SpanFromContext",
     "OnExit": "spanFromContextOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/otel-context"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/otel-context"
   },
   {
     "ImportPath": "go.opentelemetry.io/otel",
     "FileName": "trace_init.go",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/otel-sdk/provider/trace"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/otel-sdk/provider/trace"
   },
   {
     "ImportPath": "go.opentelemetry.io/otel",
     "Function": "SetTracerProvider",
     "OnEnter": "setTracerProviderOnEnter",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/otel-sdk/provider/trace_provider"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/otel-sdk/provider/trace_provider"
   },
   {
     "ImportPath": "go.opentelemetry.io/otel/baggage",
     "FileName": "otel_baggage_linker.go",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/otel-sdk/baggage"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/otel-sdk/baggage"
   },
   {
     "ImportPath": "go.opentelemetry.io/otel/baggage",
     "FileName": "otel_baggage_util.go",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/otel-sdk/baggage"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/otel-sdk/baggage"
   },
   {
     "ImportPath": "go.opentelemetry.io/otel/baggage",
     "FileName": "context.go",
     "Replace": true,
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/otel-sdk/baggage"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/otel-sdk/baggage"
   }
 ]

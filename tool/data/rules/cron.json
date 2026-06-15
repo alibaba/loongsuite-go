@@ -6,7 +6,7 @@
     "ReceiverType": "\\*Cron",
     "OnEnter": "cronRunOnEnter",
     "OnExit": "cronRunOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/cron"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/cron"
   },
   {
     "Version": "[3.0.0,)",
@@ -15,6 +15,6 @@
     "ReceiverType": "FuncJob",
     "OnEnter": "funcJobRunOnEnter",
     "OnExit": "funcJobRunOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/cron"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/cron"
   }
 ]

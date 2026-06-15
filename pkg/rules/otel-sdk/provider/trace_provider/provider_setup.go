@@ -18,7 +18,7 @@
 package span
 
 import (
-	"github.com/alibaba/loongsuite-go-agent/pkg/api"
+	"github.com/alibaba/loongsuite-go/pkg/api"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/trace"
 	_ "unsafe"

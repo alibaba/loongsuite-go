@@ -16,7 +16,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/alibaba/loongsuite-go-agent/test/verifier"
+	"github.com/alibaba/loongsuite-go/test/verifier"
 	"go.opentelemetry.io/otel/sdk/trace/tracetest"
 	"log"
 	"time"

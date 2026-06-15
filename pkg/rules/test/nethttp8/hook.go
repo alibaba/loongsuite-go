@@ -19,7 +19,7 @@ import (
 	"io"
 	_ "unsafe"
 
-	"github.com/alibaba/loongsuite-go-agent/pkg/api"
+	"github.com/alibaba/loongsuite-go/pkg/api"
 )
 
 //go:linkname onEnterNewRequestWithContext2 net/http.onEnterNewRequestWithContext2

@@ -4,13 +4,13 @@
   "ImportPath": "github.com/cloudwego/kitex/client",
   "Function": "NewClient",
   "OnEnter": "beforeNewKitexClientInstrument",
-  "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/kitex"
+  "Path": "github.com/alibaba/loongsuite-go/pkg/rules/kitex"
 },
   {
     "Version": "[0.5.1,)",
     "ImportPath": "github.com/cloudwego/kitex/server",
     "Function": "NewServer",
     "OnEnter": "beforeNewKitexServerInstrument",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/kitex"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/kitex"
   }
 ]

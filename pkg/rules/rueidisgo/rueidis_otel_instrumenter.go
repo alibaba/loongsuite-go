@@ -15,8 +15,8 @@
 package rueidisgo
 
 import (
-	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api-semconv/instrumenter/db"
-	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/instrumenter"
+	"github.com/alibaba/loongsuite-go/pkg/inst-api-semconv/instrumenter/db"
+	"github.com/alibaba/loongsuite-go/pkg/inst-api/instrumenter"
 	"unicode/utf8"
 )
 

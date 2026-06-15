@@ -21,7 +21,7 @@ import (
 	"github.com/openai/openai-go/v2/option"
 	_ "unsafe"
 
-	"github.com/alibaba/loongsuite-go-agent/pkg/api"
+	"github.com/alibaba/loongsuite-go/pkg/api"
 )
 
 // Hooks for github.com/openai/openai-go (official OpenAI SDK)

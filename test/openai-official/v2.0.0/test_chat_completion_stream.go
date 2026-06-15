@@ -22,7 +22,7 @@ import (
 	"net/http/httptest"
 	"time"
 
-	"github.com/alibaba/loongsuite-go-agent/test/verifier"
+	"github.com/alibaba/loongsuite-go/test/verifier"
 	openai "github.com/openai/openai-go/v2"
 	"github.com/openai/openai-go/v2/option"
 	"go.opentelemetry.io/otel/sdk/trace/tracetest"

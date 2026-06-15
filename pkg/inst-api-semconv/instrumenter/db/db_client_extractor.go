@@ -20,8 +20,8 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/instrumenter"
-	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/utils"
+	"github.com/alibaba/loongsuite-go/pkg/inst-api/instrumenter"
+	"github.com/alibaba/loongsuite-go/pkg/inst-api/utils"
 	"go.opentelemetry.io/otel/attribute"
 	semconv "go.opentelemetry.io/otel/semconv/v1.30.0"
 )

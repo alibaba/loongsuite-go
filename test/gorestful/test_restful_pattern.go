@@ -20,7 +20,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/alibaba/loongsuite-go-agent/test/verifier"
+	"github.com/alibaba/loongsuite-go/test/verifier"
 	restful "github.com/emicklei/go-restful/v3"
 )
 

@@ -21,7 +21,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/alibaba/loongsuite-go-agent/test/verifier"
+	"github.com/alibaba/loongsuite-go/test/verifier"
 	mqtt "github.com/mochi-mqtt/server/v2"
 	"github.com/mochi-mqtt/server/v2/packets"
 	"go.opentelemetry.io/otel/sdk/trace/tracetest"

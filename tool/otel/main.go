@@ -19,11 +19,11 @@ import (
 	"os"
 	"strings"
 
-	"github.com/alibaba/loongsuite-go-agent/tool/config"
-	"github.com/alibaba/loongsuite-go-agent/tool/ex"
-	"github.com/alibaba/loongsuite-go-agent/tool/instrument"
-	"github.com/alibaba/loongsuite-go-agent/tool/preprocess"
-	"github.com/alibaba/loongsuite-go-agent/tool/util"
+	"github.com/alibaba/loongsuite-go/tool/config"
+	"github.com/alibaba/loongsuite-go/tool/ex"
+	"github.com/alibaba/loongsuite-go/tool/instrument"
+	"github.com/alibaba/loongsuite-go/tool/preprocess"
+	"github.com/alibaba/loongsuite-go/tool/util"
 )
 
 const (

@@ -15,7 +15,7 @@
 package franz_go
 
 import (
-	"github.com/alibaba/loongsuite-go-agent/pkg/api"
+	"github.com/alibaba/loongsuite-go/pkg/api"
 	"github.com/twmb/franz-go/pkg/kgo"
 	_ "unsafe"
 )

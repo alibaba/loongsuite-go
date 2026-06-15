@@ -19,9 +19,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/alibaba/loongsuite-go-agent/tool/ex"
-	"github.com/alibaba/loongsuite-go-agent/tool/rules"
-	"github.com/alibaba/loongsuite-go-agent/tool/util"
+	"github.com/alibaba/loongsuite-go/tool/ex"
+	"github.com/alibaba/loongsuite-go/tool/rules"
+	"github.com/alibaba/loongsuite-go/tool/util"
 )
 
 func (rp *RuleProcessor) applyFileRule(rule *rules.InstFileRule, pkgName string) (err error) {

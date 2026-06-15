@@ -16,7 +16,7 @@ package rueidisgo
 
 import (
 	"context"
-	"github.com/alibaba/loongsuite-go-agent/pkg/api"
+	"github.com/alibaba/loongsuite-go/pkg/api"
 	"github.com/redis/rueidis"
 	"go.opentelemetry.io/otel/trace"
 	"os"

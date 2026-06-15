@@ -63,7 +63,7 @@ func TestBuildProject5(t *testing.T) {
 	// both test_fmt.json and default.json rules should be available
 	// because we always append new -rule to the default.json by default
 	ExpectDebugLogContains(t, "fmt")
-	ExpectDebugLogContains(t, "github.com/alibaba/loongsuite-go-agent/pkg/rules/http")
+	ExpectDebugLogContains(t, "github.com/alibaba/loongsuite-go/pkg/rules/http")
 }
 
 func TestBuildProject6(t *testing.T) {
@@ -74,7 +74,7 @@ func TestBuildProject6(t *testing.T) {
 	RunGoBuild(t, "go", "build", "m1")
 	// only test_fmt.json should be available because -disable=all is set
 	ExpectDebugLogContains(t, "fmt")
-	ExpectDebugLogNotContains(t, "github.com/alibaba/loongsuite-go-agent/pkg/rules/http")
+	ExpectDebugLogNotContains(t, "github.com/alibaba/loongsuite-go/pkg/rules/http")
 }
 
 func TestGoInstall(t *testing.T) {
@@ -91,9 +91,9 @@ func TestDisableSpecificRules(t *testing.T) {
 	RunSet(t, "-disable=gorm.json,redis.json", "-verbose", "-rule=")
 	RunGoBuild(t, "go", "build", "m1")
 	// Should not contain gorm and redis rules, but should contain other default rules
-	ExpectDebugLogNotContains(t, "github.com/alibaba/loongsuite-go-agent/pkg/rules/gorm")
-	ExpectDebugLogNotContains(t, "github.com/alibaba/loongsuite-go-agent/pkg/rules/redis")
-	ExpectDebugLogContains(t, "github.com/alibaba/loongsuite-go-agent/pkg/rules/http")
+	ExpectDebugLogNotContains(t, "github.com/alibaba/loongsuite-go/pkg/rules/gorm")
+	ExpectDebugLogNotContains(t, "github.com/alibaba/loongsuite-go/pkg/rules/redis")
+	ExpectDebugLogContains(t, "github.com/alibaba/loongsuite-go/pkg/rules/http")
 }
 
 func TestDisableAllRules(t *testing.T) {
@@ -104,7 +104,7 @@ func TestDisableAllRules(t *testing.T) {
 	RunSet(t, "-disable=all", "-verbose", "-rule=")
 	RunGoBuild(t, "go", "build", "m1")
 	// Should not contain any default rules
-	ExpectDebugLogNotContains(t, "github.com/alibaba/loongsuite-go-agent/pkg/rules/http")
-	ExpectDebugLogNotContains(t, "github.com/alibaba/loongsuite-go-agent/pkg/rules/gorm")
-	ExpectDebugLogNotContains(t, "github.com/alibaba/loongsuite-go-agent/pkg/rules/redis")
+	ExpectDebugLogNotContains(t, "github.com/alibaba/loongsuite-go/pkg/rules/http")
+	ExpectDebugLogNotContains(t, "github.com/alibaba/loongsuite-go/pkg/rules/gorm")
+	ExpectDebugLogNotContains(t, "github.com/alibaba/loongsuite-go/pkg/rules/redis")
 }

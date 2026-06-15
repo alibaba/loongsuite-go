@@ -17,7 +17,7 @@ package adkgo
 import (
 	"os"
 
-	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api-semconv/instrumenter/ai"
+	"github.com/alibaba/loongsuite-go/pkg/inst-api-semconv/instrumenter/ai"
 )
 
 type adkGoInnerEnabler struct {

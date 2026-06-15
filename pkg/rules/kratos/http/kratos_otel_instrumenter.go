@@ -16,11 +16,11 @@ package http
 
 import (
 	"context"
-	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/utils"
-	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/version"
+	"github.com/alibaba/loongsuite-go/pkg/inst-api/utils"
+	"github.com/alibaba/loongsuite-go/pkg/inst-api/version"
 	"go.opentelemetry.io/otel/sdk/instrumentation"
 
-	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/instrumenter"
+	"github.com/alibaba/loongsuite-go/pkg/inst-api/instrumenter"
 	"go.opentelemetry.io/otel/attribute"
 )
 

@@ -18,7 +18,7 @@ import (
 	"context"
 	_ "unsafe"
 
-	"github.com/alibaba/loongsuite-go-agent/pkg/api"
+	"github.com/alibaba/loongsuite-go/pkg/api"
 	micro "go-micro.dev/v5"
 	"go-micro.dev/v5/client"
 	"go-micro.dev/v5/metadata"

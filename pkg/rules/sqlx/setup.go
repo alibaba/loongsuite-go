@@ -17,7 +17,7 @@ package sqlx
 import (
 	"context"
 	"database/sql"
-	"github.com/alibaba/loongsuite-go-agent/pkg/api"
+	"github.com/alibaba/loongsuite-go/pkg/api"
 	"github.com/jmoiron/sqlx"
 	"log"
 	"os"

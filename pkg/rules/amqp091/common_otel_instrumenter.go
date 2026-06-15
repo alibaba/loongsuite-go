@@ -15,10 +15,10 @@
 package amqp091
 
 import (
-	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api-semconv/instrumenter/message"
-	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/instrumenter"
-	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/utils"
-	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/version"
+	"github.com/alibaba/loongsuite-go/pkg/inst-api-semconv/instrumenter/message"
+	"github.com/alibaba/loongsuite-go/pkg/inst-api/instrumenter"
+	"github.com/alibaba/loongsuite-go/pkg/inst-api/utils"
+	"github.com/alibaba/loongsuite-go/pkg/inst-api/version"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/instrumentation"

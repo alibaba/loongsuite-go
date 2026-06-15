@@ -16,10 +16,10 @@ package goredis
 
 import (
 	"fmt"
-	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api-semconv/instrumenter/db"
-	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/instrumenter"
-	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/utils"
-	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/version"
+	"github.com/alibaba/loongsuite-go/pkg/inst-api-semconv/instrumenter/db"
+	"github.com/alibaba/loongsuite-go/pkg/inst-api/instrumenter"
+	"github.com/alibaba/loongsuite-go/pkg/inst-api/utils"
+	"github.com/alibaba/loongsuite-go/pkg/inst-api/version"
 	redis "github.com/redis/go-redis/v9"
 	"go.opentelemetry.io/otel/sdk/instrumentation"
 	"strconv"

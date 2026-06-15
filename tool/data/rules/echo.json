@@ -4,6 +4,6 @@
     "ImportPath": "github.com/labstack/echo/v4",
     "Function": "New",
     "OnExit": "afterNewEcho",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/echo"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/echo"
   }
 ]

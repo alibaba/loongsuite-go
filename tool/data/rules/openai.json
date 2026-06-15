@@ -6,7 +6,7 @@
     "ReceiverType": "\\*ChatCompletionService",
     "OnEnter": "newChatCompletionOnEnter",
     "OnExit": "newChatCompletionOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/openai-go"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/openai-go"
   },
   {
     "Version": "[1.5.0,2.0.0)",
@@ -15,7 +15,7 @@
     "ReceiverType": "\\*ChatCompletionService",
     "OnEnter": "officialNewChatCompletionStreamOnEnter",
     "OnExit": "officialNewChatCompletionStreamOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/openai-go"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/openai-go"
   },
   {
     "Version": "[2.0.0,3.0.0)",
@@ -24,7 +24,7 @@
     "ReceiverType": "\\*ChatCompletionService",
     "OnEnter": "newChatCompletionOnEnter",
     "OnExit": "newChatCompletionOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/openai-go-v2"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/openai-go-v2"
   },
   {
     "Version": "[2.0.0,3.0.0)",
@@ -33,7 +33,7 @@
     "ReceiverType": "\\*ChatCompletionService",
     "OnEnter": "officialNewChatCompletionStreamOnEnter",
     "OnExit": "officialNewChatCompletionStreamOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/openai-go-v2"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/openai-go-v2"
   },
   {
     "Version": "[3.0.0,)",
@@ -42,7 +42,7 @@
     "ReceiverType": "\\*ChatCompletionService",
     "OnEnter": "newChatCompletionOnEnter",
     "OnExit": "newChatCompletionOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/openai-go-v3"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/openai-go-v3"
   },
   {
     "Version": "[3.0.0,)",
@@ -51,7 +51,7 @@
     "ReceiverType": "\\*ChatCompletionService",
     "OnEnter": "officialNewChatCompletionStreamOnEnter",
     "OnExit": "officialNewChatCompletionStreamOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/openai-go-v3"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/openai-go-v3"
   },
   {
     "Version": "[1.30.0,)",
@@ -60,7 +60,7 @@
     "Function": "CreateChatCompletion",
     "OnEnter": "communityCreateChatCompletionOnEnter",
     "OnExit": "communityCreateChatCompletionOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/go-openai"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/go-openai"
   },
   {
     "Version": "[1.30.0,)",
@@ -69,6 +69,6 @@
     "Function": "CreateChatCompletionStream",
     "OnEnter": "communityCreateChatCompletionStreamOnEnter",
     "OnExit": "communityCreateChatCompletionStreamOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/go-openai"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/go-openai"
   }
 ]

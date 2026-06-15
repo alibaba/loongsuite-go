@@ -17,7 +17,7 @@ package error10
 import (
 	_ "unsafe"
 
-	"github.com/alibaba/loongsuite-go-agent/pkg/api"
+	"github.com/alibaba/loongsuite-go/pkg/api"
 )
 
 //go:linkname onEnterP31 errorstest/auxiliary.onEnterP31

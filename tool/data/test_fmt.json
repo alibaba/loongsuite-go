@@ -4,7 +4,7 @@
         "Function": "Printf",
         "OnEnter": "OnEnterPrintf1",
         "OnExit": "OnExitPrintf1",
-        "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/test/fmt1"
+        "Path": "github.com/alibaba/loongsuite-go/pkg/rules/test/fmt1"
     },
     {
         "ImportPath": "fmt",
@@ -22,7 +22,7 @@
         "ImportPath": "fmt",
         "Function": "Printf",
         "OnEnter": "OnEnterPrintf2",
-        "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/test/fmt5"
+        "Path": "github.com/alibaba/loongsuite-go/pkg/rules/test/fmt5"
     },
     {
         "ImportPath": "fmt",
@@ -35,21 +35,21 @@
         "Function": "Sprintf",
         "OnEnter": "onEnterSprintf1",
         "OnExit": "onExitSprintf1",
-        "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/test/fmt4"
+        "Path": "github.com/alibaba/loongsuite-go/pkg/rules/test/fmt4"
     },
     {
         "ImportPath": "fmt",
         "Function": "Sprintf",
         "OnEnter": "onEnterSprintf2",
         "OnExit": "onExitSprintf2",
-        "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/test/fmt6"
+        "Path": "github.com/alibaba/loongsuite-go/pkg/rules/test/fmt6"
     },
     {
         "ImportPath": "fmt",
         "Function": "Sprintf",
         "OnEnter": "onEnterSprintf3",
         "OnExit": "onExitSprintf3",
-        "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/test/fmt7"
+        "Path": "github.com/alibaba/loongsuite-go/pkg/rules/test/fmt7"
     },
     {
         "ImportPath": "golang.org/x/time/rate",
@@ -115,6 +115,6 @@
     {
         "ImportPath": "fmt",
         "FileName": "internalFn.go",
-        "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/test/fmt3"
+        "Path": "github.com/alibaba/loongsuite-go/pkg/rules/test/fmt3"
     }
 ]

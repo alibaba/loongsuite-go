@@ -19,7 +19,7 @@ import (
 	"net/url"
 	_ "unsafe"
 
-	"github.com/alibaba/loongsuite-go-agent/pkg/api"
+	"github.com/alibaba/loongsuite-go/pkg/api"
 	fiber "github.com/gofiber/fiber/v3"
 	"github.com/valyala/fasthttp"
 )

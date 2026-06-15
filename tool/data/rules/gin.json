@@ -5,7 +5,7 @@
     "Function": "Next",
     "ReceiverType": "\\*Context",
     "OnEnter": "nextOnEnter",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/gin"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/gin"
   },
   {
     "Version": "[1.7.0,1.10.2)",
@@ -13,6 +13,6 @@
     "Function": "HTML",
     "ReceiverType": "\\*Context",
     "OnEnter": "htmlOnEnter",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/gin"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/gin"
   }
 ]

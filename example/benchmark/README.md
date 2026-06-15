@@ -1,6 +1,6 @@
 ## benchmark
 
-In this section, `loongsuite-go-agent` provides a simple benchmark demo to show its resource
+In this section, `loongsuite-go` provides a simple benchmark demo to show its resource
 consumption.
 
 ## benchmark environment
@@ -33,7 +33,7 @@ agent.
 Relations:
   - Disabled: false
     Id: "72WAL"
-    Name: "loongsuite-go-agent"
+    Name: "loongsuite-go"
     Nodes:
       - Config:
           accessId: "4ZU5L"

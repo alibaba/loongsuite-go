@@ -4,6 +4,6 @@
     "Function": "log",
     "ReceiverType": "\\*Logger",
     "OnEnter": "goSlogWriteOnEnter",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/goslog"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/goslog"
   }
 ]

@@ -1,13 +1,13 @@
-module github.com/alibaba/loongsuite-go-agent/pkg/rules/eino
+module github.com/alibaba/loongsuite-go/pkg/rules/eino
 
 go 1.24.0
 
 toolchain go1.24.11
 
-replace github.com/alibaba/loongsuite-go-agent/pkg => ../../../pkg
+replace github.com/alibaba/loongsuite-go/pkg => ../../../pkg
 
 require (
-	github.com/alibaba/loongsuite-go-agent/pkg v0.0.0-20250707083332-bbadcb2d53b5
+	github.com/alibaba/loongsuite-go/pkg v0.0.0-20250707083332-bbadcb2d53b5
 	github.com/bytedance/sonic v1.14.1
 	github.com/cloudwego/eino v0.7.13
 	github.com/cloudwego/eino-ext/components/model/ark v0.1.61

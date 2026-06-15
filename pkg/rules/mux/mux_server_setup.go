@@ -21,7 +21,7 @@ import (
 
 	"go.opentelemetry.io/otel/sdk/trace"
 
-	"github.com/alibaba/loongsuite-go-agent/pkg/api"
+	"github.com/alibaba/loongsuite-go/pkg/api"
 	mux "github.com/gorilla/mux"
 )
 

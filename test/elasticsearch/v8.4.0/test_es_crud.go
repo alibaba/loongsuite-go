@@ -17,7 +17,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/alibaba/loongsuite-go-agent/test/verifier"
+	"github.com/alibaba/loongsuite-go/test/verifier"
 	"github.com/elastic/go-elasticsearch/v8"
 	"go.opentelemetry.io/otel/sdk/trace/tracetest"
 	"log"

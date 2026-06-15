@@ -6,7 +6,7 @@
     "ReceiverType": "\\*Client",
     "OnEnter": "asynqEnqueueContextOnEnter",
     "OnExit": "asynqEnqueueContextOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/asynq"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/asynq"
   },
   {
     "Version": "[0.23.0, 0.26.0)",
@@ -15,7 +15,7 @@
     "ReceiverType": "\\*ServeMux",
     "OnEnter": "asynqProcessTaskOnEnter",
     "OnExit": "asynqProcessTaskOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/asynq"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/asynq"
   },
   {
     "Version": "[0.26.0,)",
@@ -24,7 +24,7 @@
     "ReceiverType": "\\*Client",
     "OnEnter": "asynqEnqueueContextOnEnter",
     "OnExit": "asynqEnqueueContextOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/asynq_v0_26_0"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/asynq_v0_26_0"
   },
   {
     "Version": "[0.26.0,)",
@@ -33,13 +33,13 @@
     "ReceiverType": "\\*ServeMux",
     "OnEnter": "asynqProcessTaskOnEnter",
     "OnExit": "asynqProcessTaskOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/asynq_v0_26_0"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/asynq_v0_26_0"
   },
   {
     "Version": "[0.26.0,)",
     "ImportPath": "github.com/hibiken/asynq",
     "FileName": "asynq.go",
     "Replace": true,
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/asynq_v0_26_0"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/asynq_v0_26_0"
   }
 ]

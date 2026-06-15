@@ -6,7 +6,7 @@
   "ReceiverType": "\\*Container",
   "OnEnter": "restContainerAddOnEnter",
   "OnExit": "restContainerAddOnExit",
-  "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/gorestful"
+  "Path": "github.com/alibaba/loongsuite-go/pkg/rules/gorestful"
 },
   {
     "Version": "[3.7.0,3.12.2)",
@@ -15,7 +15,7 @@
     "ReceiverType": "\\*Container",
     "OnEnter": "restContainerDispatchOnEnter",
     "OnExit": "restContainerDispatchOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/gorestful"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/gorestful"
   },
   {
     "Version": "[3.7.0,3.12.2)",
@@ -24,6 +24,6 @@
     "ReceiverType": "\\*Container",
     "OnEnter": "restContainerHandleOnEnter",
     "OnExit": "restContainerHandleOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/gorestful"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/gorestful"
   }
 ]

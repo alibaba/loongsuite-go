@@ -6,6 +6,6 @@
     "ReceiverType": "\\*BaseClient",
     "OnEnter": "beforeElasticSearchPerform",
     "OnExit": "afterElasticSearchPerform",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/elasticsearch"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/elasticsearch"
   }
 ]

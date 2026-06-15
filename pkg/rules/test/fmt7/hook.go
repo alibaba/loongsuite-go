@@ -18,7 +18,7 @@ import (
 	_ "fmt"
 	_ "unsafe"
 
-	aliasapi "github.com/alibaba/loongsuite-go-agent/pkg/api" // both alias api and instrumented package(fmt) are imported
+	aliasapi "github.com/alibaba/loongsuite-go/pkg/api" // both alias api and instrumented package(fmt) are imported
 )
 
 //go:linkname onEnterSprintf3 fmt.onEnterSprintf3

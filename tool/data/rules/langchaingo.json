@@ -5,7 +5,7 @@
     "Function": "Call",
     "OnEnter": "callChainOnEnter",
     "OnExit":"callChainOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/langchain"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/langchain"
   },
   {
     "Version": "[0.1.13,)",
@@ -14,7 +14,7 @@
     "Function": "Call",
     "OnEnter": "executorCallOnEnter",
     "OnExit":"executorCallOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/langchain"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/langchain"
   },
   {
     "Version": "[0.1.13,)",
@@ -23,7 +23,7 @@
     "Function": "doAction",
     "OnEnter": "doActionOnEnter",
     "OnExit":"doActionOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/langchain"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/langchain"
   },
   {
     "Version": "[0.1.13,)",
@@ -31,7 +31,7 @@
     "Function": "GenerateFromSinglePrompt",
     "OnEnter": "generateFromSinglePromptOnEnter",
     "OnExit":"generateFromSinglePromptOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/langchain"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/langchain"
   },
   {
     "Version": "[0.1.13,)",
@@ -40,7 +40,7 @@
     "Function": "GetRelevantDocuments",
     "OnEnter": "getRelevantDocumentsOnEnter",
     "OnExit":"getRelevantDocumentsOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/langchain"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/langchain"
   },
   {
     "Version": "[0.1.13,)",
@@ -49,7 +49,7 @@
     "Function": "EmbedQuery",
     "OnEnter": "singleEmbedOnEnter",
     "OnExit":"singleEmbedOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/langchain"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/langchain"
   },
   {
     "Version": "[0.1.13,)",
@@ -57,7 +57,7 @@
     "Function": "BatchedEmbed",
     "OnEnter": "batchedEmbedOnEnter",
     "OnExit":"batchedEmbedOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/langchain"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/langchain"
   },
   {
     "Version": "[0.1.13,)",
@@ -66,7 +66,7 @@
     "Function": "GenerateContent",
     "OnEnter": "ollamaGenerateContentOnEnter",
     "OnExit":"ollamaGenerateContentOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/langchain"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/langchain"
   },
   {
     "Version": "[0.1.13,)",
@@ -75,6 +75,6 @@
     "Function": "GenerateContent",
     "OnEnter": "openaiGenerateContentOnEnter",
     "OnExit":"openaiGenerateContentOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/langchain"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/langchain"
   }
 ]

@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"go/token"
 
-	"github.com/alibaba/loongsuite-go-agent/tool/util"
+	"github.com/alibaba/loongsuite-go/tool/util"
 	"github.com/dave/dst"
 )
 

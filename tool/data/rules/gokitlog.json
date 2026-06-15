@@ -5,7 +5,7 @@
     "Function": "Log",
     "ReceiverType": "logfmtLogger",
     "OnEnter": "logfmtLoggerLogOnEnter",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/go-kit-log"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/go-kit-log"
   },
   {
     "Version": "[0.1.0,0.2.2)",
@@ -13,6 +13,6 @@
     "Function": "Log",
     "ReceiverType": "\\*jsonLogger",
     "OnEnter": "jsonLoggerLogOnEnter",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/go-kit-log"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/go-kit-log"
   }
 ]

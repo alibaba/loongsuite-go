@@ -21,7 +21,7 @@ import (
 	"sort"
 	"time"
 
-	"github.com/alibaba/loongsuite-go-agent/pkg/testaccess"
+	"github.com/alibaba/loongsuite-go/pkg/testaccess"
 	"github.com/mohae/deepcopy"
 	"go.opentelemetry.io/otel/sdk/metric/metricdata"
 	"go.opentelemetry.io/otel/sdk/trace/tracetest"

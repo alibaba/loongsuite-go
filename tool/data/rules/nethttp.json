@@ -5,7 +5,7 @@
     "ReceiverType": "\\*Transport",
     "OnEnter": "clientOnEnter",
     "OnExit": "clientOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/http"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/http"
   },
   {
     "ImportPath": "net/http",
@@ -13,6 +13,6 @@
     "ReceiverType": "serverHandler",
     "OnEnter": "serverOnEnter",
     "OnExit": "serverOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/http"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/http"
   }
 ]

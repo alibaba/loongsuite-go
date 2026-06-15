@@ -14,7 +14,7 @@
 
 package langchain
 
-import "github.com/alibaba/loongsuite-go-agent/pkg/inst-api-semconv/instrumenter/ai"
+import "github.com/alibaba/loongsuite-go/pkg/inst-api-semconv/instrumenter/ai"
 
 type langChainRequest struct {
 	operationName string

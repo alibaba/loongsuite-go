@@ -5,7 +5,7 @@
     "Function": "CloseClient",
     "ReceiverType": "\\*NamingClient",
     "OnEnter": "beforeNamingClientClose",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/nacos/service"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/nacos/service"
   },
   {
     "Version": "[2.0.0,2.1.0)",
@@ -13,7 +13,7 @@
     "Function": "NewServiceInfoHolder",
     "OnEnter": "beforeNewServiceInfoHolder",
     "OnExit": "afterNewServiceInfoHolder",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/nacos/service_holder"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/nacos/service_holder"
   },
   {
     "Version": "[2.1.0,)",
@@ -21,7 +21,7 @@
     "Function": "NewServiceInfoHolder",
     "OnEnter": "beforeNewServiceInfoHolder210",
     "OnExit": "afterNewServiceInfoHolder210",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/nacos2_1_0/service_holder"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/nacos2_1_0/service_holder"
   },
   {
     "Version": "[2.0.0,2.3.0)",
@@ -36,7 +36,7 @@
     "Function": "CloseClient",
     "ReceiverType": "\\*ConfigClient",
     "OnEnter": "beforeConfigClientClose",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/nacos/config"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/nacos/config"
   },
   {
     "Version": "[2.0.0,2.3.0)",
@@ -44,7 +44,7 @@
     "Function": "NewConfigClient",
     "OnEnter": "beforeNewConfigClient",
     "OnExit": "afterNewConfigClient",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/nacos/config"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/nacos/config"
   },
   {
     "Version": "[2.0.0,2.3.0)",
@@ -59,7 +59,7 @@
     "Function": "CloseClient",
     "ReceiverType": "\\*NamingHttpProxy",
     "OnEnter": "beforeNamingHttpProxyCloseClient",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/nacos/service"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/nacos/service"
   },
   {
     "Version": "[2.0.0,2.1.1)",
@@ -67,7 +67,7 @@
     "Function": "NewBeatReactor",
     "OnEnter": "beforeNewBeatReactor",
     "OnExit": "afterNewBeatReactor",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/nacos/dom"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/nacos/dom"
   },
   {
     "Version": "[2.1.1,)",
@@ -75,7 +75,7 @@
     "Function": "NewBeatReactor",
     "OnEnter": "beforeNewBeatReactor211",
     "OnExit": "afterNewBeatReactor211",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/nacos2_1_1/dom"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/nacos2_1_1/dom"
   },
   {
     "Version": "[2.0.0,2.3.0)",
@@ -91,7 +91,7 @@
     "ReceiverType": "\\*NamingGrpcProxy",
     "OnEnter": "beforeRequestToServer",
     "onExit": "afterRequestToServer",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/nacos/service"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/nacos/service"
   },
   {
     "Version": "[2.0.0,2.3.0)",
@@ -100,7 +100,7 @@
     "ReceiverType": "\\*ConfigProxy",
     "OnEnter": "beforeRequestProxy",
     "onExit": "afterRequestProxy",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/nacos/config"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/nacos/config"
   },
   {
     "Version": "[2.0.0,2.3.0)",
@@ -109,7 +109,7 @@
     "ReceiverType": "\\*NacosServer",
     "OnEnter": "beforeCallServer",
     "onExit": "afterCallServer",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/nacos/service"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/nacos/service"
   },
   {
     "Version": "[2.0.0,2.3.0)",
@@ -118,6 +118,6 @@
     "ReceiverType": "\\*NacosServer",
     "OnEnter": "beforeCallConfigServer",
     "onExit": "afterCallConfigServer",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/nacos/config"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/nacos/config"
   }
 ]

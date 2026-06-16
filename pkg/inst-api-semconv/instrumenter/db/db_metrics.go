@@ -18,7 +18,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api-semconv/instrumenter/utils"
+	"github.com/alibaba/loongsuite-go/pkg/inst-api-semconv/instrumenter/utils"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
 	semconv "go.opentelemetry.io/otel/semconv/v1.30.0"
@@ -46,7 +46,7 @@ var dbMetricsConv = map[attribute.Key]bool{
 var globalMeter metric.Meter
 
 // InitDbMetrics so we need to make sure the otel_setup is executed before all the init() function
-// related to issue Dbs://github.com/alibaba/loongsuite-go-agent/issues/48
+// related to issue Dbs://github.com/alibaba/loongsuite-go/issues/48
 func InitDbMetrics(m metric.Meter) {
 	mu.Lock()
 	defer mu.Unlock()

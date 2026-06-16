@@ -4,13 +4,13 @@
     "ImportPath": "github.com/go-kratos/kratos/v2/transport/http",
     "Function": "NewServer",
     "OnEnter": "kratosNewHTTPServiceOnEnter",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/kratos/http"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/kratos/http"
   },
   {
     "Version": "[2.6.3,)",
     "ImportPath": "github.com/go-kratos/kratos/v2/transport/grpc",
     "Function": "NewServer",
     "OnEnter": "kratosNewGRPCServiceOnEnter",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/kratos/grpc"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/kratos/grpc"
   }
 ]

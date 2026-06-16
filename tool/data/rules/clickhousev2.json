@@ -5,6 +5,6 @@
     "Function": "Open",
     "OnEnter": "beforeOpen",
     "OnExit": "afterOpen",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/clickhousev2"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/clickhousev2"
   }
 ]

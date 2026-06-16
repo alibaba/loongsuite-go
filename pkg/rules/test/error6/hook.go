@@ -17,7 +17,7 @@ package error6
 import (
 	_ "unsafe"
 
-	"github.com/alibaba/loongsuite-go-agent/pkg/api"
+	"github.com/alibaba/loongsuite-go/pkg/api"
 )
 
 //go:linkname onEnterP11 errorstest/auxiliary.onEnterP11

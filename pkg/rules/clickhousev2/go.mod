@@ -1,14 +1,14 @@
-module github.com/alibaba/loongsuite-go-agent/pkg/rules/clickhouse/v2
+module github.com/alibaba/loongsuite-go/pkg/rules/clickhouse/v2
 
 go 1.24.0
 
 toolchain go1.24.11
 
-replace github.com/alibaba/loongsuite-go-agent/pkg => ../../../pkg
+replace github.com/alibaba/loongsuite-go/pkg => ../../../pkg
 
 require (
 	github.com/ClickHouse/clickhouse-go/v2 v2.13.0
-	github.com/alibaba/loongsuite-go-agent/pkg v0.0.0-00010101000000-000000000000
+	github.com/alibaba/loongsuite-go/pkg v0.0.0-00010101000000-000000000000
 	go.opentelemetry.io/otel/sdk v1.40.0
 )
 

@@ -5,7 +5,7 @@
     "Function": "DialContext",
     "OnEnter": "grpcClientOnEnter",
     "OnExit": "grpcClientOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/grpc"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/grpc"
   },
   {
     "Version": "[1.63.0,)",
@@ -13,7 +13,7 @@
     "Function": "NewClient",
     "OnEnter": "grpcNewClientOnEnter",
     "OnExit": "grpcNewClientOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/grpc"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/grpc"
   },
   {
     "Version": "[1.44.0,)",
@@ -21,7 +21,7 @@
     "Function": "NewServer",
     "OnEnter": "grpcServerOnEnter",
     "OnExit": "grpcServerOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/grpc"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/grpc"
   },
   {
     "Version": "[1.44.0,)",
@@ -30,6 +30,6 @@
     "Function": "NewStream",
     "OnEnter": "grpcClientNewStreamOnEnter",
     "OnExit": "grpcClientNewStreamOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/grpc"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/grpc"
   }
 ]

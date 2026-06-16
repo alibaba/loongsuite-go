@@ -4,24 +4,25 @@ go 1.24.0
 
 toolchain go1.24.11
 
-replace github.com/alibaba/loongsuite-go-agent => ../../../
+replace github.com/alibaba/loongsuite-go => ../../../
 
-replace github.com/alibaba/loongsuite-go-agent/test/verifier => ../../../test/verifier
+replace github.com/alibaba/loongsuite-go/test/verifier => ../../../test/verifier
 
 // Keep thrift pinned for latestdepth runs. Newer thrift releases changed TProtocol
 // APIs to require context.Context, but kitex's bthrift implementation in some
 // versions still targets the older signatures (see TestLatest3/kitex-latestdepth-test).
 replace github.com/apache/thrift => github.com/apache/thrift v0.13.0
+replace github.com/alibaba/loongsuite-go/pkg => ../../../pkg
 
 require (
-	github.com/alibaba/loongsuite-go-agent/test/verifier v0.0.0-00010101000000-000000000000
+	github.com/alibaba/loongsuite-go/test/verifier v0.0.0-00010101000000-000000000000
 	github.com/apache/thrift v0.13.0
 	github.com/cloudwego/kitex v0.5.1
 	go.opentelemetry.io/otel/sdk v1.40.0
 )
 
 require (
-	github.com/alibaba/loongsuite-go-agent/pkg v0.0.0-20251031085506-d38edbf99f97 // indirect
+	github.com/alibaba/loongsuite-go/pkg v0.0.0-20251031085506-d38edbf99f97 // indirect
 	github.com/bytedance/gopkg v0.0.0-20240711085056-a03554c296f8 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/choleraehyq/pid v0.0.21 // indirect

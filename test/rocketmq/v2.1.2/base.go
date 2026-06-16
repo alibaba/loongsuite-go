@@ -16,7 +16,7 @@ package main
 
 import (
 	"context"
-	"github.com/alibaba/loongsuite-go-agent/test/verifier"
+	"github.com/alibaba/loongsuite-go/test/verifier"
 	"github.com/apache/rocketmq-client-go/v2"
 	"github.com/apache/rocketmq-client-go/v2/admin"
 	"github.com/apache/rocketmq-client-go/v2/consumer"

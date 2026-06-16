@@ -4,12 +4,12 @@
     "ImportPath": "github.com/redis/rueidis",
     "Function": "NewClient",
     "OnEnter": "rueidisNewClientOnEnter",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/rueidisgo"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/rueidisgo"
   },
   {
     "ImportPath": "github.com/redis/rueidis",
     "FileName": "rueidis_init.go",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/rueidisgo"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/rueidisgo"
   },
   {
     "Version": "[1.0.30,)",
@@ -18,7 +18,7 @@
     "Function": "Do",
     "OnEnter": "clusterClientDoOnEnter",
     "OnExit": "clusterClientDoOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/rueidisgo"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/rueidisgo"
   },
   {
     "Version": "[1.0.30,)",
@@ -27,7 +27,7 @@
     "Function": "DoMulti",
     "OnEnter": "clusterClientDoMultiOnEnter",
     "OnExit": "clusterClientDoMultiOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/rueidisgo"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/rueidisgo"
   },
   {
     "Version": "[1.0.30,)",
@@ -36,7 +36,7 @@
     "Function": "Receive",
     "OnEnter": "clusterClientReceiveOnEnter",
     "OnExit": "clusterClientReceiveOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/rueidisgo"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/rueidisgo"
   },
   {
     "Version": "[1.0.30,)",
@@ -45,7 +45,7 @@
     "Function": "DoCache",
     "OnEnter": "clusterClientDoCacheOnEnter",
     "OnExit": "clusterClientDoCacheOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/rueidisgo"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/rueidisgo"
   },
   {
     "Version": "[1.0.30,)",
@@ -54,7 +54,7 @@
     "Function": "DoMultiCache",
     "OnEnter": "clusterClientDoMultiCacheOnEnter",
     "OnExit": "clusterClientDoMultiCacheOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/rueidisgo"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/rueidisgo"
   },
   {
     "Version": "[1.0.30,)",
@@ -63,7 +63,7 @@
     "Function": "DoStream",
     "OnEnter": "clusterClientDoStreamOnEnter",
     "OnExit": "clusterClientDoStreamOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/rueidisgo"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/rueidisgo"
   },
   {
     "Version": "[1.0.30,)",
@@ -72,7 +72,7 @@
     "Function": "DoMultiStream",
     "OnEnter": "clusterClientDoMultiStreamOnEnter",
     "OnExit": "clusterClientDoMultiStreamOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/rueidisgo"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/rueidisgo"
   },
   {
     "Version": "[1.0.30,)",
@@ -81,7 +81,7 @@
     "Function": "Do",
     "OnEnter": "singleClientDoOnEnter",
     "OnExit": "singleClientDoOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/rueidisgo"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/rueidisgo"
   },
   {
     "Version": "[1.0.30,)",
@@ -90,7 +90,7 @@
     "Function": "DoMulti",
     "OnEnter": "singleClientDoMultiOnEnter",
     "OnExit": "singleClientDoMultiOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/rueidisgo"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/rueidisgo"
   },
   {
     "Version": "[1.0.30,)",
@@ -99,7 +99,7 @@
     "Function": "Receive",
     "OnEnter": "singleClientReceiveOnEnter",
     "OnExit": "singleClientReceiveOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/rueidisgo"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/rueidisgo"
   },
   {
     "Version": "[1.0.30,)",
@@ -108,7 +108,7 @@
     "Function": "DoCache",
     "OnEnter": "singleClientDoCacheOnEnter",
     "OnExit": "singleClientDoCacheOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/rueidisgo"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/rueidisgo"
   },
   {
     "Version": "[1.0.30,)",
@@ -117,7 +117,7 @@
     "Function": "DoMultiCache",
     "OnEnter": "singleClientDoMultiCacheOnEnter",
     "OnExit": "singleClientDoMultiCacheOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/rueidisgo"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/rueidisgo"
   },
   {
     "Version": "[1.0.30,)",
@@ -126,7 +126,7 @@
     "Function": "DoStream",
     "OnEnter": "singleClientDoStreamOnEnter",
     "OnExit": "singleClientDoStreamOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/rueidisgo"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/rueidisgo"
   },
   {
     "Version": "[1.0.30,)",
@@ -135,7 +135,7 @@
     "Function": "DoMultiStream",
     "OnEnter": "singleClientDoMultiStreamOnEnter",
     "OnExit": "singleClientDoMultiStreamOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/rueidisgo"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/rueidisgo"
   },
   {
     "Version": "[1.0.30,)",
@@ -144,7 +144,7 @@
     "Function": "Do",
     "OnEnter": "sentinelClientDoOnEnter",
     "OnExit": "sentinelClientDoOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/rueidisgo"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/rueidisgo"
   },
   {
     "Version": "[1.0.30,)",
@@ -153,7 +153,7 @@
     "Function": "DoMulti",
     "OnEnter": "sentinelClientDoMultiOnEnter",
     "OnExit": "sentinelClientDoMultiOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/rueidisgo"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/rueidisgo"
   },
   {
     "Version": "[1.0.30,)",
@@ -162,7 +162,7 @@
     "Function": "Receive",
     "OnEnter": "sentinelClientReceiveOnEnter",
     "OnExit": "sentinelClientReceiveOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/rueidisgo"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/rueidisgo"
   },
   {
     "Version": "[1.0.30,)",
@@ -171,7 +171,7 @@
     "Function": "DoCache",
     "OnEnter": "sentinelClientDoCacheOnEnter",
     "OnExit": "sentinelClientDoCacheOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/rueidisgo"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/rueidisgo"
   },
   {
     "Version": "[1.0.30,)",
@@ -180,7 +180,7 @@
     "Function": "DoMultiCache",
     "OnEnter": "sentinelClientDoMultiCacheOnEnter",
     "OnExit": "sentinelClientDoMultiCacheOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/rueidisgo"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/rueidisgo"
   },
   {
     "Version": "[1.0.30,)",
@@ -189,7 +189,7 @@
     "Function": "DoStream",
     "OnEnter": "sentinelClientDoStreamOnEnter",
     "OnExit": "sentinelClientDoStreamOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/rueidisgo"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/rueidisgo"
   },
   {
     "Version": "[1.0.30,)",
@@ -198,7 +198,7 @@
     "Function": "DoMultiStream",
     "OnEnter": "sentinelClientDoMultiStreamOnEnter",
     "OnExit": "sentinelClientDoMultiStreamOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/rueidisgo"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/rueidisgo"
   },
   {
     "Version": "[1.0.57,)",
@@ -207,7 +207,7 @@
     "Function": "Do",
     "OnEnter": "standaloneDoOnEnter",
     "OnExit": "standaloneDoOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/rueidisgo"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/rueidisgo"
   },
   {
     "Version": "[1.0.57,)",
@@ -216,7 +216,7 @@
     "Function": "DoMulti",
     "OnEnter": "standaloneDoMultiOnEnter",
     "OnExit": "standaloneDoMultiOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/rueidisgo"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/rueidisgo"
   },
   {
     "Version": "[1.0.57,)",
@@ -225,7 +225,7 @@
     "Function": "Receive",
     "OnEnter": "standaloneReceiveOnEnter",
     "OnExit": "standaloneReceiveOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/rueidisgo"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/rueidisgo"
   },
   {
     "Version": "[1.0.57,)",
@@ -234,7 +234,7 @@
     "Function": "DoCache",
     "OnEnter": "standaloneDoCacheOnEnter",
     "OnExit": "standaloneDoCacheOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/rueidisgo"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/rueidisgo"
   },
   {
     "Version": "[1.0.57,)",
@@ -243,7 +243,7 @@
     "Function": "DoMultiCache",
     "OnEnter": "standaloneDoMultiCacheOnEnter",
     "OnExit": "standaloneDoMultiCacheOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/rueidisgo"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/rueidisgo"
   },
   {
     "Version": "[1.0.57,)",
@@ -252,7 +252,7 @@
     "Function": "DoStream",
     "OnEnter": "standaloneDoStreamOnEnter",
     "OnExit": "standaloneDoStreamOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/rueidisgo"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/rueidisgo"
   },
   {
     "Version": "[1.0.57,)",
@@ -261,6 +261,6 @@
     "Function": "DoMultiStream",
     "OnEnter": "standaloneDoMultiStreamOnEnter",
     "OnExit": "standaloneDoMultiStreamOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/rueidisgo"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/rueidisgo"
   }
 ]

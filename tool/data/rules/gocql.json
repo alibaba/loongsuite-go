@@ -5,6 +5,6 @@
     "ReceiverType": "\\*ClusterConfig",
     "Function": "CreateSession",
     "OnEnter": "beforeCreateSession",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/gocql"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/gocql"
   }
 ]

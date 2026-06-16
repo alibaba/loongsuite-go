@@ -20,7 +20,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/alibaba/loongsuite-go-agent/test/verifier"
+	"github.com/alibaba/loongsuite-go/test/verifier"
 	"github.com/hibiken/asynq"
 	"go.opentelemetry.io/otel/sdk/trace/tracetest"
 	"go.opentelemetry.io/otel/trace"

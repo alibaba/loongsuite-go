@@ -6,7 +6,7 @@
     "Function": "processPublish",
     "OnEnter": "processPublishOnEnter",
     "OnExit": "processPublishOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/mqtt"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/mqtt"
   },
   {
     "Version": "[2.6.4,)",
@@ -15,6 +15,6 @@
     "Function": "publishToClient",
     "OnEnter": "publishToClientOnEnter",
     "OnExit": "publishToClientOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/mqtt"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/mqtt"
   }
 ]

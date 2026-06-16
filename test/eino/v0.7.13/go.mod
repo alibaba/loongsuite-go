@@ -2,12 +2,13 @@ module eino
 
 go 1.24.0
 
-replace github.com/alibaba/loongsuite-go-agent/test/verifier => ../../verifier
+replace github.com/alibaba/loongsuite-go/test/verifier => ../../verifier
 
-replace github.com/alibaba/loongsuite-go-agent => ../../..
+replace github.com/alibaba/loongsuite-go => ../../..
+replace github.com/alibaba/loongsuite-go/pkg => ../../../pkg
 
 require (
-	github.com/alibaba/loongsuite-go-agent/test/verifier v0.0.0-00010101000000-000000000000
+	github.com/alibaba/loongsuite-go/test/verifier v0.0.0-00010101000000-000000000000
 	github.com/cloudwego/eino v0.8.0-alpha.2
 	github.com/cloudwego/eino-ext/components/model/ark v0.1.61
 	github.com/cloudwego/eino-ext/components/model/claude v0.1.13
@@ -23,7 +24,7 @@ require (
 	cloud.google.com/go/auth v0.7.2 // indirect
 	cloud.google.com/go/auth/oauth2adapt v0.2.3 // indirect
 	cloud.google.com/go/compute/metadata v0.6.0 // indirect
-	github.com/alibaba/loongsuite-go-agent/pkg v0.0.0-20251031085506-d38edbf99f97 // indirect
+	github.com/alibaba/loongsuite-go/pkg v0.0.0-20251031085506-d38edbf99f97 // indirect
 	github.com/anthropics/anthropic-sdk-go v1.4.0 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.33.0 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.6.3 // indirect

@@ -16,7 +16,7 @@ package rules
 
 import (
 	"context"
-	"github.com/alibaba/loongsuite-go-agent/pkg/api"
+	"github.com/alibaba/loongsuite-go/pkg/api"
 	kafka "github.com/segmentio/kafka-go"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/propagation"

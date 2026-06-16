@@ -17,7 +17,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/alibaba/loongsuite-go-agent/test/verifier"
+	"github.com/alibaba/loongsuite-go/test/verifier"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"

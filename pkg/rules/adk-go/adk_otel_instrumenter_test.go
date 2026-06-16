@@ -18,7 +18,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api-semconv/instrumenter/ai"
+	"github.com/alibaba/loongsuite-go/pkg/inst-api-semconv/instrumenter/ai"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"

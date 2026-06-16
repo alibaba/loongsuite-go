@@ -17,7 +17,7 @@ package error8
 import (
 	_ "unsafe"
 
-	"github.com/alibaba/loongsuite-go-agent/pkg/api"
+	"github.com/alibaba/loongsuite-go/pkg/api"
 )
 
 //go:linkname onExitP21 errorstest/auxiliary.onExitP21

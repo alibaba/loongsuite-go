@@ -19,7 +19,7 @@ import (
 	"os"
 	_ "unsafe"
 
-	"github.com/alibaba/loongsuite-go-agent/pkg/api"
+	"github.com/alibaba/loongsuite-go/pkg/api"
 	restful "github.com/emicklei/go-restful/v3"
 	"go.opentelemetry.io/otel/sdk/trace"
 )

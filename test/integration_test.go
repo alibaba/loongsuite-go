@@ -18,7 +18,7 @@ import (
 	"os"
 	"testing"
 
-	_ "github.com/alibaba/loongsuite-go-agent/test/version"
+	_ "github.com/alibaba/loongsuite-go/test/version"
 )
 
 const test_plugin_name_key = "TEST_PLUGIN_NAME"

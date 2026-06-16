@@ -22,8 +22,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api-semconv/instrumenter/utils"
-	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/instrumenter"
+	"github.com/alibaba/loongsuite-go/pkg/inst-api-semconv/instrumenter/utils"
+	"github.com/alibaba/loongsuite-go/pkg/inst-api/instrumenter"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
 	semconv "go.opentelemetry.io/otel/semconv/v1.30.0"

@@ -19,7 +19,7 @@ import (
 	"database/sql"
 	"os"
 
-	"github.com/alibaba/loongsuite-go-agent/test/verifier"
+	"github.com/alibaba/loongsuite-go/test/verifier"
 	_ "github.com/go-sql-driver/mysql"
 	"go.opentelemetry.io/otel/sdk/trace/tracetest"
 

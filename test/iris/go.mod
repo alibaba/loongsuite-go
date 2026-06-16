@@ -2,12 +2,13 @@ module iris
 
 go 1.24.0
 
-replace github.com/alibaba/loongsuite-go-agent => ../../
+replace github.com/alibaba/loongsuite-go => ../../
 
-replace github.com/alibaba/loongsuite-go-agent/test/verifier => ../../test/verifier
+replace github.com/alibaba/loongsuite-go/test/verifier => ../../test/verifier
+replace github.com/alibaba/loongsuite-go/pkg => ../../pkg
 
 require (
-	github.com/alibaba/loongsuite-go-agent/test/verifier v0.0.0-00010101000000-000000000000
+	github.com/alibaba/loongsuite-go/test/verifier v0.0.0-00010101000000-000000000000
 	github.com/kataras/iris/v12 v12.2.11
 	go.opentelemetry.io/otel/sdk v1.40.0
 )
@@ -18,7 +19,7 @@ require (
 	github.com/CloudyKit/jet/v6 v6.2.0 // indirect
 	github.com/Joker/jade v1.1.3 // indirect
 	github.com/Shopify/goreferrer v0.0.0-20220729165902-8cddb4f5de06 // indirect
-	github.com/alibaba/loongsuite-go-agent/pkg v0.0.0-20251031085506-d38edbf99f97 // indirect
+	github.com/alibaba/loongsuite-go/pkg v0.0.0-20251031085506-d38edbf99f97 // indirect
 	github.com/andybalholm/brotli v1.1.1 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect

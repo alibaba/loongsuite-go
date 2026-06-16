@@ -2,9 +2,10 @@ module otel
 
 go 1.24.0
 
-replace github.com/alibaba/loongsuite-go-agent/test/verifier => ../../../loongsuite-go-agent/test/verifier
+replace github.com/alibaba/loongsuite-go/test/verifier => ../../../loongsuite-go/test/verifier
 
-replace github.com/alibaba/loongsuite-go-agent => ../../../loongsuite-go-agent
+replace github.com/alibaba/loongsuite-go => ../../../loongsuite-go
+replace github.com/alibaba/loongsuite-go/pkg => ../../pkg
 
 require go.opentelemetry.io/otel/trace v1.40.0
 

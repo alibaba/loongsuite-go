@@ -16,7 +16,7 @@ package kafka
 
 import (
 	"context"
-	"github.com/alibaba/loongsuite-go-agent/pkg/api"
+	"github.com/alibaba/loongsuite-go/pkg/api"
 	"github.com/segmentio/kafka-go"
 	"time"
 	_ "unsafe"

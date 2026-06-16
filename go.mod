@@ -1,4 +1,4 @@
-module github.com/alibaba/loongsuite-go-agent
+module github.com/alibaba/loongsuite-go
 
 go 1.24.0
 

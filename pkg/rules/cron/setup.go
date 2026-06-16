@@ -18,7 +18,7 @@ import (
 	"context"
 	_ "unsafe"
 
-	"github.com/alibaba/loongsuite-go-agent/pkg/api"
+	"github.com/alibaba/loongsuite-go/pkg/api"
 	cron "github.com/robfig/cron/v3"
 	"go.opentelemetry.io/otel"
 	oteltrace "go.opentelemetry.io/otel/trace"

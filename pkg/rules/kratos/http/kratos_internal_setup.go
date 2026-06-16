@@ -19,7 +19,7 @@ import (
 	"os"
 	_ "unsafe"
 
-	"github.com/alibaba/loongsuite-go-agent/pkg/api"
+	"github.com/alibaba/loongsuite-go/pkg/api"
 	kt "github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/middleware"
 	"github.com/go-kratos/kratos/v2/transport"

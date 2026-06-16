@@ -15,7 +15,7 @@
 package main
 
 import (
-	"github.com/alibaba/loongsuite-go-agent/test/verifier"
+	"github.com/alibaba/loongsuite-go/test/verifier"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 	"go.opentelemetry.io/otel/sdk/trace/tracetest"

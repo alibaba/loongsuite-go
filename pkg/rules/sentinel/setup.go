@@ -20,8 +20,8 @@ import (
 	"time"
 	_ "unsafe"
 
-	"github.com/alibaba/loongsuite-go-agent/pkg/api"
-	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api-semconv/instrumenter/experimental"
+	"github.com/alibaba/loongsuite-go/pkg/api"
+	"github.com/alibaba/loongsuite-go/pkg/inst-api-semconv/instrumenter/experimental"
 	sentinel "github.com/alibaba/sentinel-golang/api"
 	"github.com/alibaba/sentinel-golang/core/base"
 	"github.com/alibaba/sentinel-golang/core/stat"

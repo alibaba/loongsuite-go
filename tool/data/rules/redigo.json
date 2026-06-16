@@ -5,6 +5,6 @@
     "Function": "DialContext",
     "OnEnter": "onBeforeDialContext",
     "OnExit": "onExitDialContext",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/redigo"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/redigo"
   }
 ]

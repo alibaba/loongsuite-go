@@ -20,8 +20,8 @@ import (
 	"reflect"
 	"unsafe"
 
-	"github.com/alibaba/loongsuite-go-agent/pkg/api"
-	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api-semconv/instrumenter/experimental"
+	"github.com/alibaba/loongsuite-go/pkg/api"
+	"github.com/alibaba/loongsuite-go/pkg/inst-api-semconv/instrumenter/experimental"
 	"github.com/nacos-group/nacos-sdk-go/v2/clients/cache"
 	"github.com/nacos-group/nacos-sdk-go/v2/clients/naming_client/naming_http"
 	"github.com/nacos-group/nacos-sdk-go/v2/common/constant"

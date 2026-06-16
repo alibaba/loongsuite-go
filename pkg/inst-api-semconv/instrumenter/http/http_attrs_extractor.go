@@ -16,8 +16,8 @@ package http
 
 import (
 	"context"
-	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api-semconv/instrumenter/net"
-	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/utils"
+	"github.com/alibaba/loongsuite-go/pkg/inst-api-semconv/instrumenter/net"
+	"github.com/alibaba/loongsuite-go/pkg/inst-api/utils"
 	"go.opentelemetry.io/otel/attribute"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.30.0"

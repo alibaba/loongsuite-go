@@ -1,5 +1,5 @@
-github.com/alibaba/loongsuite-go-agent/pkg v0.0.0-20251031085506-d38edbf99f97 h1:XMlYdmdbgJftvkaSXal4LK1/34tVXaVcAbFIQ6v6svE=
-github.com/alibaba/loongsuite-go-agent/pkg v0.0.0-20251031085506-d38edbf99f97/go.mod h1:Pozp95kjiVytSes86GumtTk4eQ6O2B7u2e2fqiff0nM=
+github.com/alibaba/loongsuite-go/pkg v0.0.0-20251031085506-d38edbf99f97 h1:XMlYdmdbgJftvkaSXal4LK1/34tVXaVcAbFIQ6v6svE=
+github.com/alibaba/loongsuite-go/pkg v0.0.0-20251031085506-d38edbf99f97/go.mod h1:Pozp95kjiVytSes86GumtTk4eQ6O2B7u2e2fqiff0nM=
 github.com/bsm/ginkgo/v2 v2.12.0 h1:Ny8MWAHyOepLGlLKYmXG4IEkioBysk6GpaRTLC8zwWs=
 github.com/bsm/ginkgo/v2 v2.12.0/go.mod h1:SwYbGRRDovPVboqFv0tPTcG1sN61LM1Z4ARdbAV9g4c=
 github.com/bsm/gomega v1.27.10 h1:yeMWxP2pV2fG3FgAODIY8EiRE3dy0aeFYt4l7wh6yKA=

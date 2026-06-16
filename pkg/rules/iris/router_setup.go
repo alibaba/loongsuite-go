@@ -17,7 +17,7 @@ package iris
 import (
 	_ "unsafe"
 
-	"github.com/alibaba/loongsuite-go-agent/pkg/api"
+	"github.com/alibaba/loongsuite-go/pkg/api"
 	iContext "github.com/kataras/iris/v12/context"
 	"go.opentelemetry.io/otel/sdk/trace"
 )

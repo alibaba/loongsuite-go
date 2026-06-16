@@ -4,18 +4,19 @@ go 1.24.0
 
 toolchain go1.24.11
 
-replace github.com/alibaba/loongsuite-go-agent/test/verifier => ../../test/verifier
+replace github.com/alibaba/loongsuite-go/test/verifier => ../../test/verifier
 
-replace github.com/alibaba/loongsuite-go-agent => ../../
+replace github.com/alibaba/loongsuite-go => ../../
+replace github.com/alibaba/loongsuite-go/pkg => ../../pkg
 
 require (
-	github.com/alibaba/loongsuite-go-agent/test/verifier v0.0.0-00010101000000-000000000000
+	github.com/alibaba/loongsuite-go/test/verifier v0.0.0-00010101000000-000000000000
 	github.com/gin-gonic/gin v1.10.0
 	go.opentelemetry.io/otel/sdk v1.40.0
 )
 
 require (
-	github.com/alibaba/loongsuite-go-agent/pkg v0.0.0-20251031085506-d38edbf99f97 // indirect
+	github.com/alibaba/loongsuite-go/pkg v0.0.0-20251031085506-d38edbf99f97 // indirect
 	github.com/bytedance/gopkg v0.1.3 // indirect
 	github.com/bytedance/sonic v1.14.1 // indirect
 	github.com/bytedance/sonic/loader v0.3.0 // indirect

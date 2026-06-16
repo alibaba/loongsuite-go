@@ -2,12 +2,13 @@ module kratos/v2.5.2
 
 go 1.24.0
 
-replace github.com/alibaba/loongsuite-go-agent/test/verifier => ../../../test/verifier
+replace github.com/alibaba/loongsuite-go/test/verifier => ../../../test/verifier
 
-replace github.com/alibaba/loongsuite-go-agent => ../../../
+replace github.com/alibaba/loongsuite-go => ../../../
+replace github.com/alibaba/loongsuite-go/pkg => ../../../pkg
 
 require (
-	github.com/alibaba/loongsuite-go-agent/test/verifier v0.0.0-00010101000000-000000000000
+	github.com/alibaba/loongsuite-go/test/verifier v0.0.0-00010101000000-000000000000
 	github.com/go-kratos/kratos/v2 v2.9.1
 	github.com/google/wire v0.6.0
 	go.opentelemetry.io/otel/sdk v1.40.0
@@ -18,7 +19,7 @@ require (
 
 require (
 	dario.cat/mergo v1.0.0 // indirect
-	github.com/alibaba/loongsuite-go-agent/pkg v0.0.0-20251031085506-d38edbf99f97 // indirect
+	github.com/alibaba/loongsuite-go/pkg v0.0.0-20251031085506-d38edbf99f97 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect

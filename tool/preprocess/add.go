@@ -19,10 +19,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/alibaba/loongsuite-go-agent/tool/ast"
-	"github.com/alibaba/loongsuite-go-agent/tool/ex"
-	"github.com/alibaba/loongsuite-go-agent/tool/rules"
-	"github.com/alibaba/loongsuite-go-agent/tool/util"
+	"github.com/alibaba/loongsuite-go/tool/ast"
+	"github.com/alibaba/loongsuite-go/tool/ex"
+	"github.com/alibaba/loongsuite-go/tool/rules"
+	"github.com/alibaba/loongsuite-go/tool/util"
 )
 
 type Dependency struct {
@@ -123,7 +123,7 @@ func (dp *DepProcessor) newDeps(bundles []*rules.InstRuleSet) error {
 		// for log.Printf when declaring printstack/getstack variable
 		"log": "_otel_log",
 		// otel setup
-		"github.com/alibaba/loongsuite-go-agent/pkg": ast.IdentIgnore,
+		"github.com/alibaba/loongsuite-go/pkg": ast.IdentIgnore,
 		"go.opentelemetry.io/otel":                   ast.IdentIgnore,
 		"go.opentelemetry.io/otel/sdk/trace":         ast.IdentIgnore,
 		"go.opentelemetry.io/otel/baggage":           ast.IdentIgnore,

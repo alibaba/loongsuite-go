@@ -17,7 +17,7 @@ package otel_context
 import (
 	_ "unsafe"
 
-	"github.com/alibaba/loongsuite-go-agent/pkg/api"
+	"github.com/alibaba/loongsuite-go/pkg/api"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	spectrace "go.opentelemetry.io/otel/trace"
 )

@@ -17,8 +17,8 @@ package config
 import (
 	"fmt"
 
-	"github.com/alibaba/loongsuite-go-agent/tool/ex"
-	"github.com/alibaba/loongsuite-go-agent/tool/util"
+	"github.com/alibaba/loongsuite-go/tool/ex"
+	"github.com/alibaba/loongsuite-go/tool/util"
 )
 
 // @@This value is specified by the build system.

@@ -15,7 +15,7 @@
 package preprocess
 
 import (
-	"github.com/alibaba/loongsuite-go-agent/tool/util"
+	"github.com/alibaba/loongsuite-go/tool/util"
 )
 
 func (dp *DepProcessor) runModTidy() error {

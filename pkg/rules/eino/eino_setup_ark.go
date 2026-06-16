@@ -19,7 +19,7 @@ import (
 	"reflect"
 	_ "unsafe"
 
-	"github.com/alibaba/loongsuite-go-agent/pkg/api"
+	"github.com/alibaba/loongsuite-go/pkg/api"
 	"github.com/cloudwego/eino-ext/components/model/ark"
 	"github.com/cloudwego/eino/callbacks"
 	"github.com/cloudwego/eino/components"

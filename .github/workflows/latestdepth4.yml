@@ -38,4 +38,4 @@ jobs:
         go clean -modcache
 
     - name: Test
-      run: go test -timeout 50m -v github.com/alibaba/loongsuite-go-agent/test -run "TestLatest4"
+      run: go test -timeout 50m -v github.com/alibaba/loongsuite-go/test -run "TestLatest4"

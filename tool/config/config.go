@@ -24,8 +24,8 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/alibaba/loongsuite-go-agent/tool/ex"
-	"github.com/alibaba/loongsuite-go-agent/tool/util"
+	"github.com/alibaba/loongsuite-go/tool/ex"
+	"github.com/alibaba/loongsuite-go/tool/util"
 )
 
 const (

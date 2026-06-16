@@ -55,4 +55,4 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
     - name: Test
-      run: go test -short -timeout 50m -v -run='.*Test[^Plugins|Latest|Muzzle].*' github.com/alibaba/loongsuite-go-agent/test
+      run: go test -short -timeout 50m -v -run='.*Test[^Plugins|Latest|Muzzle].*' github.com/alibaba/loongsuite-go/test

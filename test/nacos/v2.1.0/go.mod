@@ -2,18 +2,19 @@ module v2.1.0
 
 go 1.24.0
 
-replace github.com/alibaba/loongsuite-go-agent => ../../../
+replace github.com/alibaba/loongsuite-go => ../../../
 
-replace github.com/alibaba/loongsuite-go-agent/test/verifier => ../../../test/verifier
+replace github.com/alibaba/loongsuite-go/test/verifier => ../../../test/verifier
+replace github.com/alibaba/loongsuite-go/pkg => ../../../pkg
 
 require (
-	github.com/alibaba/loongsuite-go-agent/test/verifier v0.0.0-00010101000000-000000000000
+	github.com/alibaba/loongsuite-go/test/verifier v0.0.0-00010101000000-000000000000
 	github.com/nacos-group/nacos-sdk-go/v2 v2.1.0
 	go.opentelemetry.io/otel/sdk/metric v1.40.0
 )
 
 require (
-	github.com/alibaba/loongsuite-go-agent/pkg v0.0.0-20251031085506-d38edbf99f97 // indirect
+	github.com/alibaba/loongsuite-go/pkg v0.0.0-20251031085506-d38edbf99f97 // indirect
 	github.com/aliyun/alibaba-cloud-sdk-go v1.61.1704 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/buger/jsonparser v1.1.1 // indirect

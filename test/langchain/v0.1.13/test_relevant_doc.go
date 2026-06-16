@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"github.com/alibaba/loongsuite-go-agent/test/verifier"
+	"github.com/alibaba/loongsuite-go/test/verifier"
 	"github.com/tmc/langchaingo/vectorstores"
 	"go.opentelemetry.io/otel/sdk/trace/tracetest"
 	"go.opentelemetry.io/otel/trace"

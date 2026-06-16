@@ -6,7 +6,7 @@
     "Function": "Run",
     "OnEnter": "runnerRunOnEnter",
     "OnExit": "runnerRunOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/adk-go"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/adk-go"
   },
   {
     "Version": "[1.0.0,)",
@@ -15,7 +15,7 @@
     "Function": "Run",
     "OnEnter": "runnerRunOnEnterV1",
     "OnExit": "runnerRunOnExitV1",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/adk-go"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/adk-go"
   },
   {
     "Version": "[0.2.0,)",
@@ -24,7 +24,7 @@
     "Function": "generate",
     "OnEnter": "geminiGenerateOnEnter",
     "OnExit": "geminiGenerateOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/adk-go"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/adk-go"
   },
   {
     "Version": "[0.2.0,)",
@@ -33,6 +33,6 @@
     "Function": "generateStream",
     "OnEnter": "geminiGenerateStreamOnEnter",
     "OnExit": "geminiGenerateStreamOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/adk-go"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/adk-go"
   }
 ]

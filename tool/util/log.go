@@ -19,7 +19,7 @@ import (
 	"os"
 	"sync"
 
-	"github.com/alibaba/loongsuite-go-agent/tool/ex"
+	"github.com/alibaba/loongsuite-go/tool/ex"
 )
 
 var logWriter *os.File = os.Stdout

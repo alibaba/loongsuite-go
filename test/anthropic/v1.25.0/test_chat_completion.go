@@ -22,7 +22,7 @@ import (
 	"net/http/httptest"
 	"time"
 
-	"github.com/alibaba/loongsuite-go-agent/test/verifier"
+	"github.com/alibaba/loongsuite-go/test/verifier"
 	anthropic "github.com/anthropics/anthropic-sdk-go"
 	"github.com/anthropics/anthropic-sdk-go/option"
 	"go.opentelemetry.io/otel/sdk/trace/tracetest"

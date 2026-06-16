@@ -20,8 +20,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/alibaba/loongsuite-go-agent/tool/ex"
-	"github.com/alibaba/loongsuite-go-agent/tool/util"
+	"github.com/alibaba/loongsuite-go/tool/ex"
+	"github.com/alibaba/loongsuite-go/tool/util"
 	"github.com/dave/dst"
 	"github.com/dave/dst/decorator"
 )

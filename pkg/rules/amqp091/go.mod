@@ -1,11 +1,11 @@
-module github.com/alibaba/loongsuite-go-agent/pkg/rules/amqp091
+module github.com/alibaba/loongsuite-go/pkg/rules/amqp091
 
 go 1.24.0
 
-replace github.com/alibaba/loongsuite-go-agent/pkg => ../../../pkg
+replace github.com/alibaba/loongsuite-go/pkg => ../../../pkg
 
 require (
-	github.com/alibaba/loongsuite-go-agent/pkg v0.0.0-00010101000000-000000000000
+	github.com/alibaba/loongsuite-go/pkg v0.0.0-00010101000000-000000000000
 	github.com/rabbitmq/amqp091-go v1.10.0
 	go.opentelemetry.io/otel v1.40.0
 	go.opentelemetry.io/otel/sdk v1.40.0

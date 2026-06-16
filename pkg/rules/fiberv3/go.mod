@@ -1,11 +1,11 @@
-module github.com/alibaba/loongsuite-go-agent/pkg/rules/fiberv3
+module github.com/alibaba/loongsuite-go/pkg/rules/fiberv3
 
 go 1.25.0
 
-replace github.com/alibaba/loongsuite-go-agent/pkg => ../../../pkg
+replace github.com/alibaba/loongsuite-go/pkg => ../../../pkg
 
 require (
-	github.com/alibaba/loongsuite-go-agent/pkg v0.0.0-00010101000000-000000000000
+	github.com/alibaba/loongsuite-go/pkg v0.0.0-00010101000000-000000000000
 	github.com/gofiber/fiber/v3 v3.0.0
 	github.com/valyala/fasthttp v1.69.0
 	go.opentelemetry.io/otel v1.40.0

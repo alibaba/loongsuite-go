@@ -16,6 +16,6 @@
     "ImportPath": "gorm.io/gorm",
     "Function": "Open",
     "OnExit": "afterGormOpen",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/gorm"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/gorm"
   }
 ]

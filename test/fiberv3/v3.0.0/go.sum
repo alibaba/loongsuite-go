@@ -1,5 +1,5 @@
-github.com/alibaba/loongsuite-go-agent/pkg v0.0.0-20251031085506-d38edbf99f97 h1:XMlYdmdbgJftvkaSXal4LK1/34tVXaVcAbFIQ6v6svE=
-github.com/alibaba/loongsuite-go-agent/pkg v0.0.0-20251031085506-d38edbf99f97/go.mod h1:Pozp95kjiVytSes86GumtTk4eQ6O2B7u2e2fqiff0nM=
+github.com/alibaba/loongsuite-go/pkg v0.0.0-20251031085506-d38edbf99f97 h1:XMlYdmdbgJftvkaSXal4LK1/34tVXaVcAbFIQ6v6svE=
+github.com/alibaba/loongsuite-go/pkg v0.0.0-20251031085506-d38edbf99f97/go.mod h1:Pozp95kjiVytSes86GumtTk4eQ6O2B7u2e2fqiff0nM=
 github.com/andybalholm/brotli v1.2.0 h1:ukwgCxwYrmACq68yiUqwIWnGY0cTPox/M94sVwToPjQ=
 github.com/andybalholm/brotli v1.2.0/go.mod h1:rzTDkvFWvIrjDXZHkuS16NPggd91W3kUSvPlQ1pLaKY=
 github.com/cespare/xxhash/v2 v2.3.0 h1:UL815xU9SqsFlibzuggzjXhog7bL6oX9BbNZnL2UFvs=

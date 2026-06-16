@@ -5,7 +5,7 @@
   "ReceiverType": "\\*client",
   "OnEnter": "clientTrpcOnEnter",
   "OnExit": "clientTrpcOnExit",
-  "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/trpc"
+  "Path": "github.com/alibaba/loongsuite-go/pkg/rules/trpc"
 },
   {
     "Version": "[1.0.0,)",
@@ -14,6 +14,6 @@
     "ReceiverType": "\\*service",
     "OnEnter": "serverTrpcOnEnter",
     "OnExit": "serverTrpcOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/trpc"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/trpc"
   }
 ]

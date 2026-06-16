@@ -91,7 +91,7 @@ func getFrames() []string {
 		if !more {
 			break
 		}
-		const prefix = "github.com/alibaba/loongsuite-go-agent/"
+		const prefix = "github.com/alibaba/loongsuite-go/"
 		fnName := strings.TrimPrefix(frame.Function, prefix)
 		f := fmt.Sprintf("[%d]%s:%d %s", cnt, frame.File, frame.Line, fnName)
 		frameList = append(frameList, f)

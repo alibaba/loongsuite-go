@@ -17,7 +17,7 @@ package util
 import (
 	"reflect"
 
-	"github.com/alibaba/loongsuite-go-agent/tool/ex"
+	"github.com/alibaba/loongsuite-go/tool/ex"
 )
 
 func Assert(condition bool, message string) {

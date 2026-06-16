@@ -1,9 +1,9 @@
-module github.com/alibaba/loongsuite-go-agent/pkg/rules/go-openai
+module github.com/alibaba/loongsuite-go/pkg/rules/go-openai
 
 go 1.24.0
 
 require (
-	github.com/alibaba/loongsuite-go-agent/pkg v0.0.0-20260107074919-08c36b668c42
+	github.com/alibaba/loongsuite-go/pkg v0.0.0-20260107074919-08c36b668c42
 	github.com/sashabaranov/go-openai v1.30.0
 	go.opentelemetry.io/otel v1.40.0
 	go.opentelemetry.io/otel/sdk v1.40.0
@@ -20,4 +20,5 @@ require (
 	golang.org/x/sys v0.40.0 // indirect
 )
 
-replace github.com/alibaba/loongsuite-go-agent => ../../../
+replace github.com/alibaba/loongsuite-go => ../../../
+replace github.com/alibaba/loongsuite-go/pkg => ../..

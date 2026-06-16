@@ -4,6 +4,6 @@
     "ImportPath": "github.com/go-pg/pg/v10",
     "Function": "Connect",
     "OnExit": "afterGopgConnect",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/gopg"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/gopg"
   }
 ]

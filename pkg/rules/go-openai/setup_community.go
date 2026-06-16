@@ -17,7 +17,7 @@ package go_openai
 import (
 	"context"
 	"encoding/json"
-	"github.com/alibaba/loongsuite-go-agent/pkg/api"
+	"github.com/alibaba/loongsuite-go/pkg/api"
 	openai "github.com/sashabaranov/go-openai"
 	_ "unsafe"
 )

@@ -44,4 +44,4 @@ jobs:
     - name: Build
       run: make build
     - name: Test
-      run: go test -timeout 90m -v github.com/alibaba/loongsuite-go-agent/test -run "TestPlugins2"
+      run: go test -timeout 90m -v github.com/alibaba/loongsuite-go/test -run "TestPlugins2"

@@ -5,6 +5,6 @@
     "Function": "Write",
     "ReceiverType": "\\*CheckedEntry",
     "OnEnter": "zapLogWriteOnEnter",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/zap"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/zap"
   }
 ]

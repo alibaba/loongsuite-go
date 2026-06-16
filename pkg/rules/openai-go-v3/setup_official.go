@@ -22,7 +22,7 @@ import (
 
 	_ "unsafe"
 
-	"github.com/alibaba/loongsuite-go-agent/pkg/api"
+	"github.com/alibaba/loongsuite-go/pkg/api"
 )
 
 // Hooks for github.com/openai/openai-go (official OpenAI SDK)

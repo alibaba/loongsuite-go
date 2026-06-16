@@ -19,7 +19,7 @@ import (
 	"strings"
 	_ "unsafe"
 
-	"github.com/alibaba/loongsuite-go-agent/pkg/api"
+	"github.com/alibaba/loongsuite-go/pkg/api"
 	"go-micro.dev/v5/metadata"
 	"go-micro.dev/v5/server"
 	"go.opentelemetry.io/otel"

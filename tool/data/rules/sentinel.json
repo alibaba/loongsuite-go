@@ -4,6 +4,6 @@
     "ImportPath": "github.com/alibaba/sentinel-golang/api",
     "Function": "initSentinel",
     "OnExit": "onExitInitSentinel",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/sentinel"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/sentinel"
   }
 ]

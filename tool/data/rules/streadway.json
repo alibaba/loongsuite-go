@@ -5,7 +5,7 @@
     "ReceiverType": "\\*Channel",
     "OnEnter": "publishChannelOnEnter",
     "OnExit": "publishChannelOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/streadway-amqp/producer"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/streadway-amqp/producer"
   },
   {
     "ImportPath": "github.com/streadway/amqp",
@@ -13,6 +13,6 @@
     "ReceiverType": "\\*Channel",
     "OnEnter": "consumeChannelOnEnter",
     "OnExit": "consumeChannelOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/streadway-amqp/consumer"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/streadway-amqp/consumer"
   }
 ]

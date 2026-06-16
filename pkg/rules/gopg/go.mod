@@ -1,14 +1,14 @@
-module github.com/alibaba/loongsuite-go-agent/pkg/rules/gopg
+module github.com/alibaba/loongsuite-go/pkg/rules/gopg
 
 go 1.24.0
 
 replace (
-	github.com/alibaba/loongsuite-go-agent/pkg => ../../../pkg
+	github.com/alibaba/loongsuite-go/pkg => ../..
 	google.golang.org/genproto => google.golang.org/genproto v0.0.0-20250218202821-56aae31c358a
 )
 
 require (
-	github.com/alibaba/loongsuite-go-agent/pkg v0.0.0-00010101000000-000000000000
+	github.com/alibaba/loongsuite-go/pkg v0.0.0-00010101000000-000000000000
 	github.com/go-pg/pg/v10 v10.10.0
 	go.opentelemetry.io/otel/sdk v1.40.0
 )

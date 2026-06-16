@@ -19,7 +19,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/alibaba/loongsuite-go-agent/test/verifier"
+	"github.com/alibaba/loongsuite-go/test/verifier"
 	echo "github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"go.opentelemetry.io/otel/sdk/metric/metricdata"

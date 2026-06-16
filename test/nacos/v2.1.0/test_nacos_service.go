@@ -20,7 +20,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/alibaba/loongsuite-go-agent/test/verifier"
+	"github.com/alibaba/loongsuite-go/test/verifier"
 	"github.com/nacos-group/nacos-sdk-go/v2/clients/naming_client"
 	"go.opentelemetry.io/otel/sdk/metric/metricdata"
 

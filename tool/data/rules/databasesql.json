@@ -75,7 +75,7 @@
     "Function": "Open",
     "OnEnter": "beforeOpenInstrumentation",
     "OnExit": "afterOpenInstrumentation",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/databasesql"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/databasesql"
   },
   {
     "ImportPath": "database/sql",
@@ -83,7 +83,7 @@
     "ReceiverType": "\\*DB",
     "OnEnter": "beforePingContextInstrumentation",
     "OnExit": "afterPingContextInstrumentation",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/databasesql"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/databasesql"
   },
   {
     "ImportPath": "database/sql",
@@ -91,7 +91,7 @@
     "ReceiverType": "\\*DB",
     "OnEnter": "beforePrepareContextInstrumentation",
     "OnExit": "afterPrepareContextInstrumentation",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/databasesql"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/databasesql"
   },
   {
     "ImportPath": "database/sql",
@@ -99,7 +99,7 @@
     "ReceiverType": "\\*DB",
     "OnEnter": "beforeExecContextInstrumentation",
     "OnExit": "afterExecContextInstrumentation",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/databasesql"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/databasesql"
   },
   {
     "ImportPath": "database/sql",
@@ -107,7 +107,7 @@
     "ReceiverType": "\\*DB",
     "OnEnter": "beforeQueryContextInstrumentation",
     "OnExit": "afterQueryContextInstrumentation",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/databasesql"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/databasesql"
   },
   {
     "ImportPath": "database/sql",
@@ -115,7 +115,7 @@
     "ReceiverType": "\\*DB",
     "OnEnter": "beforeTxInstrumentation",
     "OnExit": "afterTxInstrumentation",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/databasesql"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/databasesql"
   },
   {
     "ImportPath": "database/sql",
@@ -123,7 +123,7 @@
     "ReceiverType": "\\*DB",
     "OnEnter": "beforeConnInstrumentation",
     "OnExit": "afterConnInstrumentation",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/databasesql"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/databasesql"
   },
   {
     "ImportPath": "database/sql",
@@ -131,7 +131,7 @@
     "ReceiverType": "\\*Conn",
     "OnEnter": "beforeConnPingContextInstrumentation",
     "OnExit": "afterConnPingContextInstrumentation",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/databasesql"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/databasesql"
   },
   {
     "ImportPath": "database/sql",
@@ -139,7 +139,7 @@
     "ReceiverType": "\\*Conn",
     "OnEnter": "beforeConnPrepareContextInstrumentation",
     "OnExit": "afterConnPrepareContextInstrumentation",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/databasesql"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/databasesql"
   },
   {
     "ImportPath": "database/sql",
@@ -147,7 +147,7 @@
     "ReceiverType": "\\*Conn",
     "OnEnter": "beforeConnExecContextInstrumentation",
     "OnExit": "afterConnExecContextInstrumentation",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/databasesql"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/databasesql"
   },
   {
     "ImportPath": "database/sql",
@@ -155,7 +155,7 @@
     "ReceiverType": "\\*Conn",
     "OnEnter": "beforeConnQueryContextInstrumentation",
     "OnExit": "afterConnQueryContextInstrumentation",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/databasesql"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/databasesql"
   },
   {
     "ImportPath": "database/sql",
@@ -163,7 +163,7 @@
     "ReceiverType": "\\*Conn",
     "OnEnter": "beforeConnTxInstrumentation",
     "OnExit": "afterConnTxInstrumentation",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/databasesql"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/databasesql"
   },
   {
     "ImportPath": "database/sql",
@@ -171,7 +171,7 @@
     "ReceiverType": "\\*Tx",
     "OnEnter": "beforeTxStmtContextInstrumentation",
     "OnExit": "afterTxStmtContextInstrumentation",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/databasesql"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/databasesql"
   },
   {
     "ImportPath": "database/sql",
@@ -179,7 +179,7 @@
     "ReceiverType": "\\*Tx",
     "OnEnter": "beforeTxPrepareContextInstrumentation",
     "OnExit": "afterTxPrepareContextInstrumentation",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/databasesql"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/databasesql"
   },
   {
     "ImportPath": "database/sql",
@@ -187,7 +187,7 @@
     "ReceiverType": "\\*Tx",
     "OnEnter": "beforeTxExecContextInstrumentation",
     "OnExit": "afterTxExecContextInstrumentation",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/databasesql"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/databasesql"
   },
   {
     "ImportPath": "database/sql",
@@ -195,7 +195,7 @@
     "ReceiverType": "\\*Tx",
     "OnEnter": "beforeTxQueryContextInstrumentation",
     "OnExit": "afterTxQueryContextInstrumentation",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/databasesql"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/databasesql"
   },
   {
     "ImportPath": "database/sql",
@@ -203,7 +203,7 @@
     "ReceiverType": "\\*Tx",
     "OnEnter": "beforeTxCommitInstrumentation",
     "OnExit": "afterTxCommitInstrumentation",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/databasesql"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/databasesql"
   },
   {
     "ImportPath": "database/sql",
@@ -211,7 +211,7 @@
     "ReceiverType": "\\*Tx",
     "OnEnter": "beforeTxRollbackInstrumentation",
     "OnExit": "afterTxRollbackInstrumentation",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/databasesql"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/databasesql"
   },
   {
     "ImportPath": "database/sql",
@@ -219,7 +219,7 @@
     "ReceiverType": "\\*Stmt",
     "OnEnter": "beforeStmtExecContextInstrumentation",
     "OnExit": "afterStmtExecContextInstrumentation",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/databasesql"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/databasesql"
   },
   {
     "ImportPath": "database/sql",
@@ -227,6 +227,6 @@
     "ReceiverType": "\\*Stmt",
     "OnEnter": "beforeStmtQueryContextInstrumentation",
     "OnExit": "afterStmtQueryContextInstrumentation",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/databasesql"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/databasesql"
   }
 ]

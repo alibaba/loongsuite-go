@@ -18,7 +18,7 @@ import (
 	"os"
 	_ "unsafe"
 
-	"github.com/alibaba/loongsuite-go-agent/pkg/api"
+	"github.com/alibaba/loongsuite-go/pkg/api"
 	echo "github.com/labstack/echo/v4"
 	"go.opentelemetry.io/otel/sdk/trace"
 )

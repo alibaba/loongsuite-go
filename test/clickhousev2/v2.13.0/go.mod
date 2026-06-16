@@ -16,17 +16,17 @@ module clickhouse/v2.13.0
 
 go 1.24.0
 
-replace github.com/alibaba/loongsuite-go-agent/test/verifier => ../../../test/verifier
+replace github.com/alibaba/loongsuite-go/test/verifier => ../../../test/verifier
 
 require (
 	github.com/ClickHouse/clickhouse-go/v2 v2.13.0
-	github.com/alibaba/loongsuite-go-agent/test/verifier v0.0.0-00010101000000-000000000000
+	github.com/alibaba/loongsuite-go/test/verifier v0.0.0-00010101000000-000000000000
 	go.opentelemetry.io/otel/sdk v1.40.0
 )
 
 require (
 	github.com/ClickHouse/ch-go v0.52.1 // indirect
-	github.com/alibaba/loongsuite-go-agent/pkg v0.0.0-20251031085506-d38edbf99f97 // indirect
+	github.com/alibaba/loongsuite-go/pkg v0.0.0-20251031085506-d38edbf99f97 // indirect
 	github.com/andybalholm/brotli v1.0.5 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
@@ -58,3 +58,4 @@ replace google.golang.org/genproto => google.golang.org/genproto v0.0.0-20250218
 replace google.golang.org/genproto/googleapis/rpc => google.golang.org/genproto/googleapis/rpc v0.0.0-20250218202821-56aae31c358a
 
 replace google.golang.org/genproto/googleapis/api => google.golang.org/genproto/googleapis/api v0.0.0-20250218202821-56aae31c358a
+replace github.com/alibaba/loongsuite-go/pkg => ../../../pkg

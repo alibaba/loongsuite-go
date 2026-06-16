@@ -18,16 +18,16 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/alibaba/loongsuite-go-agent/tool/config"
-	"github.com/alibaba/loongsuite-go-agent/tool/data"
-	"github.com/alibaba/loongsuite-go-agent/tool/ex"
-	"github.com/alibaba/loongsuite-go-agent/tool/rules"
-	"github.com/alibaba/loongsuite-go-agent/tool/util"
+	"github.com/alibaba/loongsuite-go/tool/config"
+	"github.com/alibaba/loongsuite-go/tool/data"
+	"github.com/alibaba/loongsuite-go/tool/ex"
+	"github.com/alibaba/loongsuite-go/tool/rules"
+	"github.com/alibaba/loongsuite-go/tool/util"
 	"golang.org/x/mod/modfile"
 )
 
 const (
-	pkgPrefix = "github.com/alibaba/loongsuite-go-agent/pkg"
+	pkgPrefix = "github.com/alibaba/loongsuite-go/pkg"
 )
 
 var otelDeps = map[string]string{

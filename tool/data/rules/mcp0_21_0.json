@@ -19,7 +19,7 @@
     "ReceiverType": "\\*Hooks",
     "Function": "beforeAny",
     "OnEnter": "hookBeforeAnyOnEnter",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/mcp"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/mcp"
   },
   {
     "Version": "[0.21.0,)",
@@ -27,7 +27,7 @@
     "ReceiverType": "\\*Hooks",
     "Function": "onSuccess",
     "OnEnter": "hookOnSuccessOnEnter",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/mcp"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/mcp"
   },
   {
     "Version": "[0.21.0,)",
@@ -35,7 +35,7 @@
     "ReceiverType": "\\*Hooks",
     "Function": "onError",
     "OnEnter": "hookOnErrorOnEnter",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/mcp"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/mcp"
   },
   {
     "Version": "[0.21.0,)",
@@ -44,6 +44,6 @@
     "Function": "sendRequest",
     "OnEnter": "clientOnEnter",
     "OnExit": "clientOnExit",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/mcp"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/mcp"
   }
 ]

@@ -2,7 +2,7 @@ module world
 
 go 1.24
 
-replace github.com/alibaba/loongsuite-go-agent => ../../
+replace github.com/alibaba/loongsuite-go => ../../
 
 require (
 	dubbo.apache.org/dubbo-go/v3 v3.3.0

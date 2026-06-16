@@ -20,10 +20,10 @@ import (
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/sdk/instrumentation"
 
-	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api-semconv/instrumenter/ai"
-	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/instrumenter"
-	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/utils"
-	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/version"
+	"github.com/alibaba/loongsuite-go/pkg/inst-api-semconv/instrumenter/ai"
+	"github.com/alibaba/loongsuite-go/pkg/inst-api/instrumenter"
+	"github.com/alibaba/loongsuite-go/pkg/inst-api/utils"
+	"github.com/alibaba/loongsuite-go/pkg/inst-api/version"
 )
 
 type ollamaAttrsGetter struct{}

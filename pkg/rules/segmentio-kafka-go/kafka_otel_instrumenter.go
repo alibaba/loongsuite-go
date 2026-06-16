@@ -16,10 +16,10 @@ package kafka
 
 import (
 	"context"
-	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api-semconv/instrumenter/message"
-	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/instrumenter"
-	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/utils"
-	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/version"
+	"github.com/alibaba/loongsuite-go/pkg/inst-api-semconv/instrumenter/message"
+	"github.com/alibaba/loongsuite-go/pkg/inst-api/instrumenter"
+	"github.com/alibaba/loongsuite-go/pkg/inst-api/utils"
+	"github.com/alibaba/loongsuite-go/pkg/inst-api/version"
 	"github.com/segmentio/kafka-go"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"

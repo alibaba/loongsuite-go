@@ -19,7 +19,7 @@ import (
 	"fmt"
 	_ "unsafe"
 
-	"github.com/alibaba/loongsuite-go-agent/pkg/api"
+	"github.com/alibaba/loongsuite-go/pkg/api"
 )
 
 //go:linkname onEnterUnwrap errors.onEnterUnwrap

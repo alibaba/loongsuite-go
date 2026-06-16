@@ -6,6 +6,6 @@
     "ReceiverType": "\\*App",
     "OnEnter": "fiberHttpOnEnterv3",
     "OnExit": "fiberHttpOnExitv3",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/fiberv3"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/fiberv3"
   }
 ]

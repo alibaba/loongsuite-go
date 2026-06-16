@@ -2,7 +2,7 @@
 
 ## Automatic Injection
 
-If we use the log framework supported by `loongsuite-go-agent`, TraceId and SpanId are automatically injected into the log.
+If we use the log framework supported by `loongsuite-go`, TraceId and SpanId are automatically injected into the log.
 
 ```go
 package main
@@ -26,7 +26,7 @@ func main() {
 
 ```
 
-For example, if we build the following Go file with `loongsuite-go-agent`, run the binary
+For example, if we build the following Go file with `loongsuite-go`, run the binary
 and `curl localhost:9999/log`, we will
 see the following output:
 
@@ -45,7 +45,7 @@ The TraceId and SpanId are automatically injected into the log.
 
 ## Manual Injection
 
-If the framework is not supported by `loongsuite-go-agent`. We can manually inject TraceId and SpanId into the log:
+If the framework is not supported by `loongsuite-go`. We can manually inject TraceId and SpanId into the log:
 ```go
 package main
 
@@ -68,7 +68,7 @@ func main() {
 }
 ```
 
-For example, if we build the following Go file with `loongsuite-go-agent`, run the binary and `curl localhost:9999/logwithtrace`, we will
+For example, if we build the following Go file with `loongsuite-go`, run the binary and `curl localhost:9999/logwithtrace`, we will
 see the following output:
 
 ```shell

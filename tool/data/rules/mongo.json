@@ -4,6 +4,6 @@
     "ImportPath": "go.mongodb.org/mongo-driver/mongo",
     "Function": "NewClient",
     "OnEnter": "mongoOnEnter",
-    "Path": "github.com/alibaba/loongsuite-go-agent/pkg/rules/mongo"
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/mongo"
   }
 ]

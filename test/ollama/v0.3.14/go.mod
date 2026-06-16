@@ -3,7 +3,7 @@ module test/ollama
 go 1.24.0
 
 require (
-	github.com/alibaba/loongsuite-go-agent/test/verifier v0.0.0
+	github.com/alibaba/loongsuite-go/test/verifier v0.0.0
 	github.com/ollama/ollama v0.3.14
 	go.opentelemetry.io/otel v1.40.0
 	go.opentelemetry.io/otel/sdk v1.40.0
@@ -11,7 +11,7 @@ require (
 )
 
 require (
-	github.com/alibaba/loongsuite-go-agent/pkg v0.0.0-20251031085506-d38edbf99f97 // indirect
+	github.com/alibaba/loongsuite-go/pkg v0.0.0-20251031085506-d38edbf99f97 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
@@ -27,9 +27,9 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace github.com/alibaba/loongsuite-go-agent => ../../..
+replace github.com/alibaba/loongsuite-go => ../../..
 
-replace github.com/alibaba/loongsuite-go-agent/test/verifier => ../../../test/verifier
+replace github.com/alibaba/loongsuite-go/test/verifier => ../../../test/verifier
 
 replace go.opentelemetry.io/otel/exporters/prometheus => go.opentelemetry.io/otel/exporters/prometheus v0.61.0
 
@@ -63,4 +63,4 @@ replace go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp => go.op
 
 replace go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc => go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc v1.40.0
 
-replace github.com/alibaba/loongsuite-go-agent/pkg => ../../../pkg
+replace github.com/alibaba/loongsuite-go/pkg => ../../../pkg

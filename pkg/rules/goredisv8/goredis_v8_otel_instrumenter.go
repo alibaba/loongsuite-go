@@ -15,10 +15,10 @@
 package goredisv8
 
 import (
-	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api-semconv/instrumenter/db"
-	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/instrumenter"
-	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/utils"
-	"github.com/alibaba/loongsuite-go-agent/pkg/inst-api/version"
+	"github.com/alibaba/loongsuite-go/pkg/inst-api-semconv/instrumenter/db"
+	"github.com/alibaba/loongsuite-go/pkg/inst-api/instrumenter"
+	"github.com/alibaba/loongsuite-go/pkg/inst-api/utils"
+	"github.com/alibaba/loongsuite-go/pkg/inst-api/version"
 	"github.com/go-redis/redis/v8"
 	"go.opentelemetry.io/otel/sdk/instrumentation"
 )

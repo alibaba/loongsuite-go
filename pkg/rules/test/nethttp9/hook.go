@@ -18,7 +18,7 @@ import (
 	"net/http"
 	_ "unsafe"
 
-	"github.com/alibaba/loongsuite-go-agent/pkg/api"
+	"github.com/alibaba/loongsuite-go/pkg/api"
 )
 
 //go:linkname onEnterClientDo2 net/http.onEnterClientDo2

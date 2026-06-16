@@ -1,6 +1,6 @@
 # 测试Hook代码
 
-根据[如何添加新规则.md](https://github.com/alibaba/loongsuite-go/blob/main/docs/how-to-add-a-new-rule.md)添加新的埋点规则后，您需要添加测试来验证您的规则。`loongsuite-go-agent`提供了一种方便的方式来验证您的规则。
+根据[如何添加新规则.md](https://github.com/alibaba/loongsuite-go/blob/main/docs/how-to-add-a-new-rule.md)添加新的埋点规则后，您需要添加测试来验证您的规则。`loongsuite-go`提供了一种方便的方式来验证您的规则。
 
 ## 添加一个通用的插件测试用例
 
@@ -15,7 +15,7 @@ module redis/v9.0.5
 
 go 1.22
 
-replace github.com/alibaba/loongsuite-go-agent => ../../../
+replace github.com/alibaba/loongsuite-go => ../../../
 
 replace github.com/alibaba/loongsuite-go/test/verifier => ../../../test/verifier
 
@@ -110,7 +110,7 @@ testName, moduleName, minVersion, maxVersion, minGoVersion, maxGoVersion string,
 6. maxGoVersion：插件支持的最高Go版本。
 7. testFunc：要执行的测试函数。
 
-您应该使用`loongsuite-go-agent`构建测试用例，以使您的测试用例能够生成遥测数据。首先，您应该调用`UseApp`方法将目录更改为您的测试用例的目录，然后调用`RunGoBuild`进行混合编译。最后，使用`RunApp`运行已埋点的测试用例二进制文件以验证遥测数据。
+您应该使用`loongsuite-go`构建测试用例，以使您的测试用例能够生成遥测数据。首先，您应该调用`UseApp`方法将目录更改为您的测试用例的目录，然后调用`RunGoBuild`进行混合编译。最后，使用`RunApp`运行已埋点的测试用例二进制文件以验证遥测数据。
 
 ```go
 func TestExecutingUnsupportedCommands(t *testing.T, env ...string) {
@@ -125,7 +125,7 @@ func TestExecutingUnsupportedCommands(t *testing.T, env ...string) {
 
 ## 添加一个muzzle检查用例
 
-Muzzle检查的灵感来自于[safety-mechanisms.md](https://github.com/open-telemetry/opentelemetry-java-instrumentation/blob/main/docs/safety-mechanisms.md)。我们不可能为每个版本都运行通用的插件测试，因为这会花费大量时间。因此，`loongsuite-go-agent`会选择一些随机版本进行混合编译，以验证不同版本之间的API兼容性。如果muzzle检查发现某些API在某个版本中发生了更改，社区将创建一个新规则来适应它。
+Muzzle检查的灵感来自于[safety-mechanisms.md](https://github.com/open-telemetry/opentelemetry-java-instrumentation/blob/main/docs/safety-mechanisms.md)。我们不可能为每个版本都运行通用的插件测试，因为这会花费大量时间。因此，`loongsuite-go`会选择一些随机版本进行混合编译，以验证不同版本之间的API兼容性。如果muzzle检查发现某些API在某个版本中发生了更改，社区将创建一个新规则来适应它。
 
 用户可以通过调用`NewMuzzleTestCase`来添加一个muzzle检查用例，`NewMuzzleTestCase`所带的参数与`NewGeneralTestCase`几乎相同。您需要额外指定插件的依赖项名称以及需要进行muzzle检查的类列表。
 

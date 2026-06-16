@@ -19,7 +19,7 @@ import (
 	"reflect"
 	_ "unsafe"
 
-	"github.com/alibaba/loongsuite-go-agent/pkg/api"
+	"github.com/alibaba/loongsuite-go/pkg/api"
 	"github.com/mochi-mqtt/server/v2/packets"
 	"go.opentelemetry.io/otel/trace"
 )

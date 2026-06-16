@@ -1,9 +1,9 @@
-module github.com/alibaba/loongsuite-go-agent/pkg/rules/adk-go
+module github.com/alibaba/loongsuite-go/pkg/rules/adk-go
 
 go 1.24.4
 
 require (
-	github.com/alibaba/loongsuite-go-agent/pkg v0.0.0-20260107074919-08c36b668c42
+	github.com/alibaba/loongsuite-go/pkg v0.0.0-20260107074919-08c36b668c42
 	go.opentelemetry.io/otel v1.40.0
 	go.opentelemetry.io/otel/sdk v1.40.0
 	go.opentelemetry.io/otel/sdk/metric v1.40.0
@@ -39,6 +39,6 @@ require (
 )
 
 replace (
-	github.com/alibaba/loongsuite-go-agent => ../../../
-	github.com/alibaba/loongsuite-go-agent/pkg => ../../../pkg
+	github.com/alibaba/loongsuite-go => ../../../
+	github.com/alibaba/loongsuite-go/pkg => ../..
 )

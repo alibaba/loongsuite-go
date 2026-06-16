@@ -21,7 +21,7 @@ import (
 	"strings"
 	_ "unsafe"
 
-	"github.com/alibaba/loongsuite-go-agent/pkg/api"
+	"github.com/alibaba/loongsuite-go/pkg/api"
 	"go.opentelemetry.io/otel/trace"
 
 	redis "github.com/redis/go-redis/v9"

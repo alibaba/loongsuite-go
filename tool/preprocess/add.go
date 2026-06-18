@@ -90,6 +90,77 @@ func (dp *DepProcessor) addDependency(gomod string, dependencies []Dependency) e
 	return nil
 }
 
+func (dp *DepProcessor) originalGoModPath(gomod string) string {
+	if backup, ok := dp.backups[gomod]; ok && backup != "" {
+		return backup
+	}
+	return gomod
+}
+
+func (dp *DepProcessor) pinConflictingHookDependencies(gomod string, dependencies []Dependency) error {
+	userModfile, err := parseGoMod(dp.originalGoModPath(gomod))
+	if err != nil {
+		return err
+	}
+	userVersions := make(map[string]string)
+	for _, req := range userModfile.Require {
+		if req.Mod.Path != "" && req.Mod.Version != "" {
+			userVersions[req.Mod.Path] = req.Mod.Version
+		}
+	}
+	if len(userVersions) == 0 {
+		return nil
+	}
+
+	modfile, err := parseGoMod(gomod)
+	if err != nil {
+		return err
+	}
+	existingReplaces := make(map[string]bool)
+	for _, replace := range modfile.Replace {
+		existingReplaces[replace.Old.Path] = true
+	}
+
+	changed := false
+	for _, dependency := range dependencies {
+		if !dependency.Replace || dependency.ReplacePath == "" {
+			continue
+		}
+		hookGoMod := filepath.Join(dependency.ReplacePath, util.GoModFile)
+		if util.PathNotExists(hookGoMod) {
+			continue
+		}
+		hookModfile, err := parseGoMod(hookGoMod)
+		if err != nil {
+			return err
+		}
+		for _, req := range hookModfile.Require {
+			userVersion, ok := userVersions[req.Mod.Path]
+			if !ok || userVersion == "" || userVersion == req.Mod.Version {
+				continue
+			}
+			if existingReplaces[req.Mod.Path] {
+				continue
+			}
+			err = modfile.AddReplace(req.Mod.Path, "", req.Mod.Path, userVersion)
+			if err != nil {
+				return ex.Wrap(err)
+			}
+			existingReplaces[req.Mod.Path] = true
+			changed = true
+			util.Log("Pin hook dependency %s to user version %s", req.Mod.Path, userVersion)
+		}
+	}
+
+	if changed {
+		err = writeGoMod(gomod, modfile)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (dp *DepProcessor) findRuleDir(path string) (string, string, error) {
 	// The rule can be either a standard rule or a custom rule
 	// We should identify it and define how to find it
@@ -124,9 +195,9 @@ func (dp *DepProcessor) newDeps(bundles []*rules.InstRuleSet) error {
 		"log": "_otel_log",
 		// otel setup
 		"github.com/alibaba/loongsuite-go/pkg": ast.IdentIgnore,
-		"go.opentelemetry.io/otel":                   ast.IdentIgnore,
-		"go.opentelemetry.io/otel/sdk/trace":         ast.IdentIgnore,
-		"go.opentelemetry.io/otel/baggage":           ast.IdentIgnore,
+		"go.opentelemetry.io/otel":             ast.IdentIgnore,
+		"go.opentelemetry.io/otel/sdk/trace":   ast.IdentIgnore,
+		"go.opentelemetry.io/otel/baggage":     ast.IdentIgnore,
 	}
 	for pkg, alias := range builtin {
 		content += fmt.Sprintf("import %s %q\n", alias, pkg)
@@ -195,6 +266,10 @@ func (dp *DepProcessor) newDeps(bundles []*rules.InstRuleSet) error {
 	}
 
 	err = dp.addDependency(dp.getGoModPath(), addDeps)
+	if err != nil {
+		return err
+	}
+	err = dp.pinConflictingHookDependencies(dp.getGoModPath(), addDeps)
 	if err != nil {
 		return err
 	}

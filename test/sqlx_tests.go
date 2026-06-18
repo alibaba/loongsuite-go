@@ -24,6 +24,7 @@ const sqlx_module_name = "sqlx"
 func init() {
 	TestCases = append(TestCases, NewGeneralTestCase("test_sqlx_crud", sqlx_module_name, "1.3.0", "v1.4.0", "1.19", "", TestSqlxCrudV130),
 		NewLatestDepthTestCase("test_sqlx_latestdepth_crud", sqlx_dependency_name, sqlx_module_name, "1.3.0", "v1.4.0", "1.19", "", TestSqlxCrudV140),
+		NewMuzzleTestCase("test_sqlx_muzzle_crud", sqlx_dependency_name, sqlx_module_name, "1.3.0", "v1.4.0", "1.19", "", []string{"go", "build", "test_sqlx_crud.go"}),
 		NewGeneralTestCase("test_sqlx_crud", sqlx_module_name, "1.3.0", "v1.4.0", "1.19", "", TestSqlxCrudV130))
 }
 

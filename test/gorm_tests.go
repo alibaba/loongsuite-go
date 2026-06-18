@@ -24,6 +24,8 @@ const gorm_module_name = "gorm"
 func init() {
 	TestCases = append(TestCases, NewGeneralTestCase("gorm_crud_test", gorm_module_name, "v1.23.0", "v1.24.6", "1.18", "", TestGormCrud1231),
 		NewLatestDepthTestCase("gorm_latestdepth_test", gorm_dependency_name, gorm_module_name, "v1.23.0", "v1.24.6", "1.18", "", TestGormCrud1231),
+		NewMuzzleTestCase("gorm_v1_23_muzzle_test", gorm_dependency_name, gorm_module_name, "v1.23.1", "v1.24.6", "1.18", "", []string{"go", "build", "test_gorm_crud.go"}),
+		NewMuzzleTestCase("gorm_v1_22_muzzle_test", gorm_dependency_name, gorm_module_name, "v1.22.0", "v1.23.0", "1.18", "", []string{"go", "build", "test_gorm_crud.go"}),
 		NewGeneralTestCase("gorm_crud_test", gorm_module_name, "v1.22.0", "v1.23.0", "1.18", "", TestGormCrud1220))
 }
 

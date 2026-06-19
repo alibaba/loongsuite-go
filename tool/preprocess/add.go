@@ -149,6 +149,9 @@ func (dp *DepProcessor) pinConflictingHookDependencies(gomod string, dependencie
 			return err
 		}
 		for _, req := range hookModfile.Require {
+			if req.Indirect {
+				continue
+			}
 			userVersion, ok := userVersions[req.Mod.Path]
 			if !ok || userVersion == "" || userVersion == req.Mod.Version {
 				continue

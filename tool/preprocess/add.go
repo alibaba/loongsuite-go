@@ -23,6 +23,7 @@ import (
 	"github.com/alibaba/loongsuite-go/tool/ex"
 	"github.com/alibaba/loongsuite-go/tool/rules"
 	"github.com/alibaba/loongsuite-go/tool/util"
+	"golang.org/x/mod/semver"
 )
 
 type Dependency struct {
@@ -97,6 +98,16 @@ func (dp *DepProcessor) originalGoModPath(gomod string) string {
 	return gomod
 }
 
+func canPinHookDependency(userVersion, hookVersion string) bool {
+	if !semver.IsValid(userVersion) || !semver.IsValid(hookVersion) {
+		return false
+	}
+	if semver.Major(userVersion) == "v0" || semver.Major(hookVersion) == "v0" {
+		return false
+	}
+	return true
+}
+
 func (dp *DepProcessor) pinConflictingHookDependencies(gomod string, dependencies []Dependency) error {
 	userModfile, err := parseGoMod(dp.originalGoModPath(gomod))
 	if err != nil {
@@ -140,6 +151,9 @@ func (dp *DepProcessor) pinConflictingHookDependencies(gomod string, dependencie
 		for _, req := range hookModfile.Require {
 			userVersion, ok := userVersions[req.Mod.Path]
 			if !ok || userVersion == "" || userVersion == req.Mod.Version {
+				continue
+			}
+			if !canPinHookDependency(userVersion, req.Mod.Version) {
 				continue
 			}
 			if existingReplaces[req.Mod.Path] {

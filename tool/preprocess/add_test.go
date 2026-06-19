@@ -87,6 +87,45 @@ require example.com/dep v1.2.3
 	}
 }
 
+func TestPinConflictingHookDependenciesIgnoresIndirectUserVersion(t *testing.T) {
+	dir := t.TempDir()
+	gomod := filepath.Join(dir, "go.mod")
+	originalGoMod := filepath.Join(dir, "go.mod.bk")
+	hookDir := filepath.Join(dir, "hook")
+
+	userMod := `module example.com/app
+
+go 1.24.0
+
+require example.com/dep v1.0.0 // indirect
+`
+	hookMod := `module example.com/hook
+
+go 1.24.0
+
+require example.com/dep v1.2.3
+`
+	writeTestFile(t, gomod, userMod)
+	writeTestFile(t, originalGoMod, userMod)
+	writeTestFile(t, filepath.Join(hookDir, "go.mod"), hookMod)
+
+	dp := &DepProcessor{
+		backups: map[string]string{gomod: originalGoMod},
+	}
+	err := dp.pinConflictingHookDependencies(gomod, []Dependency{{
+		ImportPath:  "example.com/hook",
+		Replace:     true,
+		ReplacePath: hookDir,
+	}})
+	if err != nil {
+		t.Fatalf("pinConflictingHookDependencies() error = %v", err)
+	}
+
+	if _, ok := findReplaceVersion(t, gomod, "example.com/dep"); ok {
+		t.Fatalf("did not expect replace for indirect user dependency")
+	}
+}
+
 func TestPinConflictingHookDependenciesPreservesExistingReplace(t *testing.T) {
 	dir := t.TempDir()
 	gomod := filepath.Join(dir, "go.mod")

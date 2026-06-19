@@ -104,6 +104,9 @@ func (dp *DepProcessor) pinConflictingHookDependencies(gomod string, dependencie
 	}
 	userVersions := make(map[string]string)
 	for _, req := range userModfile.Require {
+		if req.Indirect {
+			continue
+		}
 		if req.Mod.Path != "" && req.Mod.Version != "" {
 			userVersions[req.Mod.Path] = req.Mod.Version
 		}

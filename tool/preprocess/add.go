@@ -135,7 +135,6 @@ func (dp *DepProcessor) pinConflictingHookDependencies(gomod string, dependencie
 		existingReplaces[replace.Old.Path] = true
 	}
 
-	changed := false
 	for _, dependency := range dependencies {
 		if !dependency.Replace || dependency.ReplacePath == "" {
 			continue
@@ -148,34 +147,39 @@ func (dp *DepProcessor) pinConflictingHookDependencies(gomod string, dependencie
 		if err != nil {
 			return err
 		}
+		changed := false
 		for _, req := range hookModfile.Require {
+			path := req.Mod.Path
 			if req.Indirect {
 				continue
 			}
-			userVersion, ok := userVersions[req.Mod.Path]
+			userVersion, ok := userVersions[path]
 			if !ok || userVersion == "" || userVersion == req.Mod.Version {
 				continue
 			}
 			if !canPinHookDependency(userVersion, req.Mod.Version) {
 				continue
 			}
-			if existingReplaces[req.Mod.Path] {
+			if existingReplaces[path] {
 				continue
 			}
-			err = modfile.AddReplace(req.Mod.Path, "", req.Mod.Path, userVersion)
+			err = hookModfile.DropRequire(path)
 			if err != nil {
 				return ex.Wrap(err)
 			}
-			existingReplaces[req.Mod.Path] = true
+			err = hookModfile.AddRequire(path, userVersion)
+			if err != nil {
+				return ex.Wrap(err)
+			}
 			changed = true
-			util.Log("Pin hook dependency %s to user version %s", req.Mod.Path, userVersion)
+			util.Log("Pin hook dependency %s to user version %s", path, userVersion)
 		}
-	}
 
-	if changed {
-		err = writeGoMod(gomod, modfile)
-		if err != nil {
-			return err
+		if changed {
+			err = writeGoMod(hookGoMod, hookModfile)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil

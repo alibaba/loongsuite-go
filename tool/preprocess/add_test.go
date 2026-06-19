@@ -44,6 +44,20 @@ func findReplaceVersion(t *testing.T, gomod, path string) (string, bool) {
 	return "", false
 }
 
+func findRequireVersion(t *testing.T, gomod, path string) (string, bool) {
+	t.Helper()
+	modfile, err := parseGoMod(gomod)
+	if err != nil {
+		t.Fatalf("failed to parse go.mod: %v", err)
+	}
+	for _, require := range modfile.Require {
+		if require.Mod.Path == path {
+			return require.Mod.Version, true
+		}
+	}
+	return "", false
+}
+
 func TestPinConflictingHookDependenciesUsesOriginalUserVersion(t *testing.T) {
 	dir := t.TempDir()
 	gomod := filepath.Join(dir, "go.mod")
@@ -78,12 +92,15 @@ require example.com/dep v1.2.3
 		t.Fatalf("pinConflictingHookDependencies() error = %v", err)
 	}
 
-	version, ok := findReplaceVersion(t, gomod, "example.com/dep")
+	version, ok := findRequireVersion(t, filepath.Join(hookDir, "go.mod"), "example.com/dep")
 	if !ok {
-		t.Fatalf("expected replace for example.com/dep")
+		t.Fatalf("expected hook require for example.com/dep")
 	}
 	if version != "v1.0.0" {
-		t.Fatalf("replace version = %q, want %q", version, "v1.0.0")
+		t.Fatalf("hook require version = %q, want %q", version, "v1.0.0")
+	}
+	if _, ok := findReplaceVersion(t, gomod, "example.com/dep"); ok {
+		t.Fatalf("did not expect user go.mod replace for example.com/dep")
 	}
 }
 
@@ -121,8 +138,12 @@ require example.com/dep v1.2.3
 		t.Fatalf("pinConflictingHookDependencies() error = %v", err)
 	}
 
-	if _, ok := findReplaceVersion(t, gomod, "example.com/dep"); ok {
-		t.Fatalf("did not expect replace for indirect user dependency")
+	version, ok := findRequireVersion(t, filepath.Join(hookDir, "go.mod"), "example.com/dep")
+	if !ok {
+		t.Fatalf("expected hook require for example.com/dep")
+	}
+	if version != "v1.2.3" {
+		t.Fatalf("hook require version = %q, want %q", version, "v1.2.3")
 	}
 }
 
@@ -160,8 +181,12 @@ require example.com/dep v0.4.0
 		t.Fatalf("pinConflictingHookDependencies() error = %v", err)
 	}
 
-	if _, ok := findReplaceVersion(t, gomod, "example.com/dep"); ok {
-		t.Fatalf("did not expect replace for pre-v1 dependency")
+	version, ok := findRequireVersion(t, filepath.Join(hookDir, "go.mod"), "example.com/dep")
+	if !ok {
+		t.Fatalf("expected hook require for example.com/dep")
+	}
+	if version != "v0.4.0" {
+		t.Fatalf("hook require version = %q, want %q", version, "v0.4.0")
 	}
 }
 
@@ -199,8 +224,12 @@ require example.com/dep v1.2.3 // indirect
 		t.Fatalf("pinConflictingHookDependencies() error = %v", err)
 	}
 
-	if _, ok := findReplaceVersion(t, gomod, "example.com/dep"); ok {
-		t.Fatalf("did not expect replace for indirect hook dependency")
+	version, ok := findRequireVersion(t, filepath.Join(hookDir, "go.mod"), "example.com/dep")
+	if !ok {
+		t.Fatalf("expected hook require for example.com/dep")
+	}
+	if version != "v1.2.3" {
+		t.Fatalf("hook require version = %q, want %q", version, "v1.2.3")
 	}
 }
 
@@ -246,6 +275,13 @@ require example.com/dep v1.2.3
 	}
 	if version != "" {
 		t.Fatalf("replace version = %q, want existing local replace without version", version)
+	}
+	hookVersion, ok := findRequireVersion(t, filepath.Join(hookDir, "go.mod"), "example.com/dep")
+	if !ok {
+		t.Fatalf("expected hook require for example.com/dep")
+	}
+	if hookVersion != "v1.2.3" {
+		t.Fatalf("hook require version = %q, want %q", hookVersion, "v1.2.3")
 	}
 }
 

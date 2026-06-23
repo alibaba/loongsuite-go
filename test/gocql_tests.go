@@ -30,6 +30,7 @@ const gocql_module_name = "gocql"
 func init() {
 	TestCases = append(TestCases, NewGeneralTestCase("test_gopg_crud", gocql_module_name, "1.3.0", "v1.7.0", "1.19", "", TestGocqlCrudV130),
 		NewLatestDepthTestCase("test_gocql_latestdepth_crud", gocql_dependency_name, gocql_module_name, "1.3.0", "v1.7.0", "1.19", "", TestGocqlCrudV170),
+		NewMuzzleTestCase("test_gocql_muzzle_crud", gocql_dependency_name, gocql_module_name, "1.3.0", "v1.7.0", "1.19", "", []string{"go", "build", "test_gocql_crud.go"}),
 		NewGeneralTestCase("test_gocql_crud", gocql_module_name, "1.3.0", "v1.7.0", "1.19", "", TestGocqlCrudV130))
 }
 

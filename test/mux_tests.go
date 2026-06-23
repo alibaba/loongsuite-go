@@ -28,6 +28,9 @@ func init() {
 		NewMuzzleTestCase("mux-muzzle-test", mux_dependency_name, mux_module_name, "v1.3.0", "v1.6.2", "1.18", "", []string{"go", "build", "test_mux_basic.go"}),
 		NewMuzzleTestCase("mux-muzzle-test", mux_dependency_name, mux_module_name, "v1.7.4", "", "1.18", "", []string{"go", "build", "test_mux_middleware.go"}),
 		NewLatestDepthTestCase("mux-latestdepth-test", mux_dependency_name, mux_module_name, "v1.3.0", "", "1.18", "", TestBasicMux),
+		NewLatestDepthTestCase("mux-middleware-latestdepth-test", mux_dependency_name, mux_module_name, "v1.7.4", "", "1.18", "", TestMuxMiddleware),
+		NewLatestDepthTestCase("mux-pattern-latestdepth-test", mux_dependency_name, mux_module_name, "v1.3.0", "", "1.18", "", TestMuxPattern),
+		NewLatestDepthTestCase("mux-prefix-latestdepth-test", mux_dependency_name, mux_module_name, "v1.7.4", "", "1.18", "", TestMuxPrefix),
 	)
 }
 

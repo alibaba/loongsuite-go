@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package openai
+package meguminnnnnnnnn_openai
 
 import (
 	"context"
@@ -32,7 +32,7 @@ func (openaiCommonRequest) GetAIOperationName(request openaiRequest) string {
 }
 
 func (openaiCommonRequest) GetAISystem(request openaiRequest) string {
-	return "openai"
+	return request.providerName
 }
 
 // openaiLLMRequest implements the LLM attributes getter
@@ -60,6 +60,14 @@ func (openaiLLMRequest) GetAIResponseFinishReasons(request openaiRequest, respon
 
 func (openaiLLMRequest) GetAIResponseModel(request openaiRequest, response openaiResponse) string {
 	return response.responseModel
+}
+
+func (openaiLLMRequest) GetAIInput(request openaiRequest) string {
+	return request.inputMessages
+}
+
+func (openaiLLMRequest) GetAIOutput(response openaiResponse) string {
+	return response.outputMessages
 }
 
 func (openaiLLMRequest) GetAIRequestMaxTokens(request openaiRequest) int64 {
@@ -102,14 +110,6 @@ func (openaiLLMRequest) GetAIRequestSeed(request openaiRequest) int64 {
 	return request.seed
 }
 
-func (openaiLLMRequest) GetAIInput(request openaiRequest) string {
-	return request.inputMessages
-}
-
-func (openaiLLMRequest) GetAIOutput(response openaiResponse) string {
-	return response.outputMessages
-}
-
 // OpenAIExperimentalAttributeExtractor adds OpenAI-specific experimental attributes
 type OpenAIExperimentalAttributeExtractor struct {
 	Base ai.AILLMAttrsExtractor[openaiRequest, openaiResponse, openaiCommonRequest, openaiLLMRequest]
@@ -127,6 +127,14 @@ func (o OpenAIExperimentalAttributeExtractor) OnEnd(attributes []attribute.KeyVa
 		attributes = append(attributes, attribute.KeyValue{
 			Key:   "gen_ai.usage.total_tokens",
 			Value: attribute.Int64Value(response.usageTotalTokens),
+		})
+	}
+
+	// Add error details if present
+	if err != nil {
+		attributes = append(attributes, attribute.KeyValue{
+			Key:   "error.message",
+			Value: attribute.StringValue(err.Error()),
 		})
 	}
 
@@ -151,10 +159,9 @@ func BuildOpenAIClientOtelInstrumenter() instrumenter.Instrumenter[openaiRequest
 			},
 		}).
 		SetInstrumentationScope(instrumentation.Scope{
-			Name:    "loongsuite.instrumentation.openai",
+			Name:    "loongsuite.instrumentation.meguminnnnnnnnn-openai",
 			Version: version.Tag,
 		}).
-		AddOperationListeners(ai.AIClientMetrics("openai-client")).
 		BuildInstrumenter()
 }
 
@@ -165,7 +172,7 @@ type AIMetricsRecorder struct {
 
 func NewAIMetricsRecorder() *AIMetricsRecorder {
 	return &AIMetricsRecorder{
-		instrumenter: BuildOpenAIClientOtelInstrumenter(),
+		instrumenter: OpenAIInstrumenter,
 	}
 }
 

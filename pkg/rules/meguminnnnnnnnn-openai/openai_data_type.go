@@ -12,9 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package openai
+package meguminnnnnnnnn_openai
 
-import "os"
+import (
+	"os"
+	"strings"
+
+	openai "github.com/meguminnnnnnnnn/go-openai"
+)
 
 // openaiInnerEnabler controls whether OpenAI monitoring is enabled
 type openaiInnerEnabler struct {
@@ -28,7 +33,9 @@ func (o openaiInnerEnabler) Enable() bool {
 var openaiEnabler = openaiInnerEnabler{os.Getenv("OTEL_INSTRUMENTATION_OPENAI_ENABLED") != "false"}
 
 const (
-	OperationNameChat = "chat"
+	OperationNameChat           = "chat"
+	OperationNameTextCompletion = "text_completion"
+	OperationNameEmbeddings     = "embeddings"
 )
 
 // openaiRequest represents the monitoring data for an OpenAI API request
@@ -36,6 +43,7 @@ type openaiRequest struct {
 	uid              string
 	operationName    string
 	modelName        string
+	providerName     string
 	frequencyPenalty float64
 	presencePenalty  float64
 	maxTokens        int64
@@ -59,4 +67,49 @@ type openaiResponse struct {
 	outputMessages    string
 	choiceCount       int
 	finishReasons     []string
+}
+
+// Provider detection mapping
+type providerEntry struct {
+	keyword  string
+	provider string
+}
+
+var providerMapping = []providerEntry{
+	{"openai.com", "openai"},
+	{"azure.com", "azure"},
+	{"anthropic.com", "anthropic"},
+	{"dashscope.aliyuncs", "qwen"},
+	{"volces.com", "ark"},
+	{"ark.cn", "ark"},
+	{"hunyuan", "tencent"},
+	{"tencentcloudapi", "tencent"},
+	{"googleapis.com", "google"},
+	{"generativelanguage", "google"},
+	{"deepseek.com", "deepseek"},
+	{"moonshot", "moonshot"},
+	{"zhipuai.cn", "zhipu"},
+	{"bigmodel.cn", "zhipu"},
+	{"baidu.com", "baidu"},
+	{"minimax", "minimax"},
+	{"siliconflow", "siliconflow"},
+	{"together", "together"},
+	{"mistral", "mistral"},
+	{"groq.com", "groq"},
+	{"ollama", "ollama"},
+	{"localhost", "local"},
+	{"127.0.0.1", "local"},
+}
+
+func getProviderName(client *openai.Client) string {
+	if client == nil {
+		return "openai"
+	}
+	rawURL := client.GetClientBaseURL()
+	for _, entry := range providerMapping {
+		if strings.Contains(rawURL, entry.keyword) {
+			return entry.provider
+		}
+	}
+	return "openai"
 }

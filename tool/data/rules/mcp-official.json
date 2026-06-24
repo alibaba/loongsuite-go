@@ -1,0 +1,16 @@
+[
+  {
+    "Version": "[0.7.0,)",
+    "ImportPath": "github.com/modelcontextprotocol/go-sdk/mcp",
+    "Function": "NewServer",
+    "OnExit": "afterNewServer",
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/mcp-official"
+  },
+  {
+    "Version": "[0.7.0,)",
+    "ImportPath": "github.com/modelcontextprotocol/go-sdk/mcp",
+    "Function": "NewClient",
+    "OnExit": "afterNewClient",
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/mcp-official"
+  }
+]

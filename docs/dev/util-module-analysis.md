@@ -1,46 +1,46 @@
-# GenAI Util 模块添加方案分析
+# GenAI Util Module Addition Proposal
 
-## 一、项目现状分析
+## 1. Current Project Status Analysis
 
-Loongsuite Go Agent 是一个零代码侵入的 OpenTelemetry 自动插桩工具，具备以下特点：
+Loongsuite Go Agent is a zero-code-intrusion OpenTelemetry automatic instrumentation tool with the following characteristics:
 
-- **零代码侵入**：通过编译期自动注入实现对应用程序的无感知插桩，开发者无需修改业务代码
-- **模块化设计**：支持多种框架和库（如 Gin、gRPC、Redis、Kafka 等），每个插桩规则都是独立的 Go 模块
-- **GenAI 场景支持**：已支持 OpenAI、Ollama、LangChain、Eino、MCP 等大模型相关库的自动插桩
+- **Zero Code Intrusion**: Achieves transparent instrumentation of applications through compile-time automatic injection, requiring no modification to business code
+- **Modular Design**: Supports multiple frameworks and libraries (such as Gin, gRPC, Redis, Kafka, etc.), with each instrumentation rule being an independent Go module
+- **GenAI Scenario Support**: Already supports automatic instrumentation for LLM-related libraries including OpenAI, Ollama, LangChain, Eino, MCP, etc.
 
-### 现有工具函数分布
+### Existing Utility Function Distribution
 
-| 目录 | 用途 | 是否适合作为通用运行时库 |
-|------|------|------------------------|
-| `tool/util/` | 编译时工具函数（日志、断言、文件操作等） | ❌ 不适合，与编译流程紧密耦合 |
-| `pkg/inst-api/utils/` | 插桩相关工具（Span 操作、属性提取等） | ❌ 不适合，与 OpenTelemetry 紧密耦合 |
-| `pkg/inst-api-semconv/` | 语义约定相关实现 | ❌ 不适合，特定于 OTel 语义约定 |
+| Directory | Purpose | Suitable as General Runtime Library |
+|-----------|---------|-------------------------------------|
+| `tool/util/` | Compile-time tool functions (logging, assertions, file operations, etc.) | ❌ Not suitable, tightly coupled with compilation workflow |
+| `pkg/inst-api/utils/` | Instrumentation-related utilities (Span operations, attribute extraction, etc.) | ❌ Not suitable, tightly coupled with OpenTelemetry |
+| `pkg/inst-api-semconv/` | Semantic convention implementations | ❌ Not suitable, specific to OTel semantic conventions |
 
-**结论**：项目中缺少一个通用的、与插桩逻辑无关的工具函数库，尤其在 GenAI/Agent 开发场景中，开发者需要大量通用工具函数来处理字符串、切片、上下文等操作。
+**Conclusion**: The project lacks a general-purpose utility function library independent of instrumentation logic. Especially in GenAI/Agent development scenarios, developers need a wide range of general utility functions to handle strings, slices, context, and other operations.
 
-## 二、推荐方案：在 pkg/ 下创建独立子模块
+## 2. Recommended Approach: Create Independent Submodule Under pkg/
 
-### 目录结构
+### Directory Structure
 
 ```
 pkg/
-├── util/                  # 新建的 util 模块
-│   ├── go.mod            # 独立的 go.mod
-│   ├── string/           # 字符串工具
+├── util/                  # New util module
+│   ├── go.mod            # Independent go.mod
+│   ├── string/           # String utilities
 │   │   └── string.go
-│   ├── slice/            # 切片工具
+│   ├── slice/            # Slice utilities
 │   │   └── slice.go
-│   ├── map/              # Map 工具
+│   ├── map/              # Map utilities
 │   │   └── map.go
-│   ├── time/             # 时间工具
+│   ├── time/             # Time utilities
 │   │   └── time.go
-│   ├── context/          # Context 工具
+│   ├── context/          # Context utilities
 │   │   └── context.go
-│   └── error/            # 错误处理工具
+│   └── error/            # Error handling utilities
 │       └── error.go
 ```
 
-### 模块定义
+### Module Definition
 
 ```go
 module github.com/alibaba/loongsuite-go/pkg/util
@@ -48,48 +48,48 @@ module github.com/alibaba/loongsuite-go/pkg/util
 go 1.24.0
 ```
 
-该模块作为独立子模块存在，不依赖项目中的任何其他内部模块，可独立编译和发布。
+This module exists as an independent submodule with no dependencies on any other internal modules in the project, and can be compiled and published independently.
 
-## 三、设计原则
+## 3. Design Principles
 
-1. **独立性**
-   - 不依赖项目特定的插桩逻辑
-   - 不依赖 `pkg/api`、`pkg/inst-api` 等内部模块
-   - 最小化外部依赖（尽量只依赖标准库）
+1. **Independence**
+   - No dependency on project-specific instrumentation logic
+   - No dependency on `pkg/api`, `pkg/inst-api`, or other internal modules
+   - Minimal external dependencies (rely on the standard library as much as possible)
 
-2. **通用性**
-   - 提供大模型 Agent 开发中常用的工具函数
-   - 适用于各种 Go 项目，不限于 Loongsuite 生态
-   - API 设计简洁直观，符合 Go 惯用风格
+2. **Generality**
+   - Provides commonly used utility functions for LLM Agent development
+   - Applicable to any Go project, not limited to the Loongsuite ecosystem
+   - Simple and intuitive API design, following idiomatic Go style
 
-3. **可发布性**
-   - 可以作为独立库发布到 Go Module Proxy
-   - 其他项目可通过 `go get` 直接依赖
-   - 语义化版本管理，向后兼容
+3. **Publishability**
+   - Can be published as an independent library to Go Module Proxy
+   - Other projects can depend on it directly via `go get`
+   - Semantic versioning with backward compatibility
 
-4. **高性能**
-   - 零分配或最小分配设计
-   - 避免不必要的反射
-   - 充分利用 Go 泛型（Go 1.18+）
+4. **High Performance**
+   - Zero-allocation or minimal-allocation design
+   - Avoids unnecessary reflection
+   - Fully leverages Go generics (Go 1.18+)
 
-5. **类型安全**
-   - 使用泛型避免 `interface{}` 的滥用
-   - 编译期类型检查优于运行时检查
+5. **Type Safety**
+   - Uses generics to avoid overuse of `interface{}`
+   - Compile-time type checking preferred over runtime checking
 
-## 四、工具函数分类规划
+## 4. Utility Function Category Planning
 
-| 子模块 | 包名 | 主要功能 |
-|--------|------|---------|
-| `string/` | `utilstr` | 字符串截断、格式化、模板渲染、编码/解码、相似度计算 |
-| `slice/` | `utilslice` | 切片过滤、映射、去重、分页处理、批量操作、分组 |
-| `map/` | `utilmap` | Map 合并、过滤、键值提取、类型转换、深拷贝 |
-| `time/` | `utiltime` | 时间格式化、时区处理、时间计算、人类可读时间 |
-| `context/` | `utilctx` | Context 超时设置、值传递辅助、链式操作、合并 |
-| `error/` | `utilerr` | 错误包装、错误分类、错误链追踪、重试判定 |
+| Submodule | Package Name | Main Functions |
+|-----------|--------------|----------------|
+| `string/` | `utilstr` | String truncation, formatting, template rendering, encoding/decoding, similarity calculation |
+| `slice/` | `utilslice` | Slice filtering, mapping, deduplication, pagination, batch operations, grouping |
+| `map/` | `utilmap` | Map merging, filtering, key/value extraction, type conversion, deep copy |
+| `time/` | `utiltime` | Time formatting, timezone handling, time calculations, human-readable time |
+| `context/` | `utilctx` | Context timeout setting, value passing helpers, chaining operations, merging |
+| `error/` | `utilerr` | Error wrapping, error classification, error chain tracing, retry determination |
 
-## 五、使用示例
+## 5. Usage Examples
 
-### 5.1 string 包示例
+### 5.1 string Package Example
 
 ```go
 package main
@@ -101,35 +101,35 @@ import (
 )
 
 func main() {
-	// 字符串截断（适用于大模型输出截断，防止过长文本占用过多 Token）
-	longOutput := "这是一段很长的大模型输出文本，需要在展示时进行截断处理以节省空间"
+	// String truncation (useful for truncating LLM output to prevent excessively long text from consuming too many tokens)
+	longOutput := "This is a very long LLM output text that needs to be truncated for display to save space"
 	result := utilstr.Truncate(longOutput, 20)
-	fmt.Println(result) // "这是一段很长的大模型输出文本，需要在展..."
+	fmt.Println(result) // "This is a very long ..."
 
-	// 带自定义省略符的截断
-	result2 := utilstr.TruncateWithSuffix(longOutput, 20, "…[更多]")
+	// Truncation with custom suffix
+	result2 := utilstr.TruncateWithSuffix(longOutput, 20, "…[more]")
 	fmt.Println(result2)
 
-	// 模板渲染（适用于 Prompt 模板动态填充）
-	prompt := utilstr.Render("请分析以下内容：{{.Content}}，要求：{{.Requirement}}", map[string]string{
-		"Content":     "用户输入的文本",
-		"Requirement": "简洁明了",
+	// Template rendering (useful for dynamically filling prompt templates)
+	prompt := utilstr.Render("Please analyze the following content: {{.Content}}, requirements: {{.Requirement}}", map[string]string{
+		"Content":     "user input text",
+		"Requirement": "concise and clear",
 	})
-	fmt.Println(prompt) // "请分析以下内容：用户输入的文本，要求：简洁明了"
+	fmt.Println(prompt) // "Please analyze the following content: user input text, requirements: concise and clear"
 
-	// Base64 编码/解码（适用于多模态内容传输）
+	// Base64 encoding/decoding (useful for multimodal content transmission)
 	encoded := utilstr.Base64Encode("hello world")
 	fmt.Println(encoded) // "aGVsbG8gd29ybGQ="
 	decoded, _ := utilstr.Base64Decode(encoded)
 	fmt.Println(decoded) // "hello world"
 
-	// 字符串相似度（适用于意图匹配、fuzzy search）
+	// String similarity (useful for intent matching, fuzzy search)
 	similarity := utilstr.Similarity("hello", "hallo")
-	fmt.Printf("相似度: %.2f\n", similarity) // 0.80
+	fmt.Printf("Similarity: %.2f\n", similarity) // 0.80
 }
 ```
 
-### 5.2 slice 包示例
+### 5.2 slice Package Example
 
 ```go
 package main
@@ -141,43 +141,43 @@ import (
 )
 
 func main() {
-	// 切片去重（适用于去重检索结果）
+	// Slice deduplication (useful for deduplicating retrieval results)
 	items := []string{"a", "b", "a", "c", "b"}
 	unique := utilslice.Unique(items)
 	fmt.Println(unique) // ["a", "b", "c"]
 
-	// 切片过滤（适用于过滤低置信度结果）
+	// Slice filtering (useful for filtering low-confidence results)
 	numbers := []int{1, 2, 3, 4, 5, 6}
 	even := utilslice.Filter(numbers, func(n int) bool {
 		return n%2 == 0
 	})
 	fmt.Println(even) // [2, 4, 6]
 
-	// 批量处理（适用于大模型批量推理，控制并发请求数）
+	// Batch processing (useful for LLM batch inference, controlling concurrent request count)
 	batches := utilslice.Chunk(numbers, 2)
 	fmt.Println(batches) // [[1, 2], [3, 4], [5, 6]]
 
-	// Map 映射转换（适用于数据格式转换）
+	// Map transformation (useful for data format conversion)
 	doubled := utilslice.Map(numbers, func(n int) int {
 		return n * 2
 	})
 	fmt.Println(doubled) // [2, 4, 6, 8, 10, 12]
 
-	// Reduce 聚合（适用于计算总 Token 数等场景）
+	// Reduce aggregation (useful for calculating total token count, etc.)
 	sum := utilslice.Reduce(numbers, 0, func(acc, n int) int {
 		return acc + n
 	})
 	fmt.Println(sum) // 21
 
-	// 分组（适用于按类别分组对话消息）
+	// Grouping (useful for grouping conversation messages by category)
 	type Message struct {
 		Role    string
 		Content string
 	}
 	messages := []Message{
-		{Role: "user", Content: "你好"},
-		{Role: "assistant", Content: "你好！"},
-		{Role: "user", Content: "帮我写代码"},
+		{Role: "user", Content: "Hello"},
+		{Role: "assistant", Content: "Hi there!"},
+		{Role: "user", Content: "Help me write code"},
 	}
 	grouped := utilslice.GroupBy(messages, func(m Message) string {
 		return m.Role
@@ -187,7 +187,7 @@ func main() {
 }
 ```
 
-### 5.3 map 包示例
+### 5.3 map Package Example
 
 ```go
 package main
@@ -199,7 +199,7 @@ import (
 )
 
 func main() {
-	// Map 合并（适用于合并多个模型配置、覆盖默认参数）
+	// Map merging (useful for merging multiple model configurations, overriding default parameters)
 	base := map[string]interface{}{
 		"model":       "gpt-4",
 		"temperature": 0.7,
@@ -213,21 +213,21 @@ func main() {
 	fmt.Println(merged)
 	// {"model": "gpt-4", "temperature": 0.9, "top_p": 0.9, "max_tokens": 1000}
 
-	// 提取所有键（适用于获取配置项列表）
+	// Extract all keys (useful for obtaining configuration item lists)
 	keys := utilmap.Keys(merged)
 	fmt.Println(keys) // ["model", "temperature", "top_p", "max_tokens"]
 
-	// 提取所有值
+	// Extract all values
 	values := utilmap.Values(merged)
 	fmt.Println(values)
 
-	// 过滤 Map（适用于移除敏感配置项）
+	// Filter Map (useful for removing sensitive configuration items)
 	filtered := utilmap.Filter(merged, func(k string, v interface{}) bool {
 		return k != "temperature"
 	})
 	fmt.Println(filtered) // {"model": "gpt-4", "top_p": 0.9, "max_tokens": 1000}
 
-	// Map 转换（适用于将配置转为请求头格式）
+	// Map transformation (useful for converting configs to request header format)
 	headers := map[string]string{
 		"Authorization": "Bearer sk-xxx",
 		"Content-Type":  "application/json",
@@ -242,7 +242,7 @@ func main() {
 }
 ```
 
-### 5.4 time 包示例
+### 5.4 time Package Example
 
 ```go
 package main
@@ -255,40 +255,40 @@ import (
 )
 
 func main() {
-	// 格式化为人类可读时间（适用于对话时间展示）
+	// Format as human-readable time (useful for displaying conversation timestamps)
 	t := time.Now().Add(-2 * time.Minute)
 	formatted := utiltime.FormatHuman(t)
-	fmt.Println(formatted) // "2分钟前"
+	fmt.Println(formatted) // "2 minutes ago"
 
-	// 计算耗时（适用于大模型推理计时、性能监控）
+	// Calculate elapsed time (useful for LLM inference timing, performance monitoring)
 	start := time.Now()
-	// ... 执行推理 ...
-	time.Sleep(100 * time.Millisecond) // 模拟推理耗时
+	// ... perform inference ...
+	time.Sleep(100 * time.Millisecond) // Simulate inference latency
 	elapsed := utiltime.Since(start)
-	fmt.Printf("推理耗时: %s\n", elapsed) // "推理耗时: 100ms"
+	fmt.Printf("Inference time: %s\n", elapsed) // "Inference time: 100ms"
 
-	// 带格式的耗时输出
+	// Detailed elapsed time output
 	detail := utiltime.SinceDetail(start)
-	fmt.Printf("耗时: %dms (%.2fs)\n", detail.Milliseconds, detail.Seconds)
+	fmt.Printf("Elapsed: %dms (%.2fs)\n", detail.Milliseconds, detail.Seconds)
 
-	// 时区转换（适用于跨时区日志统一）
+	// Timezone conversion (useful for unifying cross-timezone logs)
 	now := time.Now()
 	utcTime := utiltime.ToUTC(now)
 	localTime := utiltime.ToTimezone(utcTime, "Asia/Shanghai")
 	fmt.Println(utcTime.Format(time.RFC3339))
 	fmt.Println(localTime.Format(time.RFC3339))
 
-	// 时间范围判定（适用于判断 API Key 是否过期）
+	// Time range check (useful for determining if an API key has expired)
 	expireAt := time.Now().Add(24 * time.Hour)
 	if utiltime.IsExpired(expireAt) {
-		fmt.Println("已过期")
+		fmt.Println("Expired")
 	} else {
-		fmt.Println("未过期")
+		fmt.Println("Not expired")
 	}
 }
 ```
 
-### 5.5 context 包示例
+### 5.5 context Package Example
 
 ```go
 package main
@@ -302,11 +302,11 @@ import (
 )
 
 func main() {
-	// 带超时的 Context（适用于大模型调用超时控制）
+	// Context with timeout (useful for LLM call timeout control)
 	ctx, cancel := utilctx.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	// Context 值传递辅助（类型安全的键值存取）
+	// Context value passing helper (type-safe key-value storage and retrieval)
 	ctx = utilctx.WithValue(ctx, "request_id", "req-12345")
 	ctx = utilctx.WithValue(ctx, "user_id", "user-001")
 	ctx = utilctx.WithValue(ctx, "model", "gpt-4")
@@ -314,31 +314,31 @@ func main() {
 	requestID := utilctx.GetString(ctx, "request_id")
 	fmt.Println(requestID) // "req-12345"
 
-	// 批量设置值（适用于初始化请求上下文）
+	// Batch value setting (useful for initializing request context)
 	ctx = utilctx.WithValues(ctx, map[string]interface{}{
 		"trace_id":   "trace-abc",
 		"session_id": "sess-xyz",
 	})
 
-	// 合并多个 Context 的取消信号（适用于多路并发请求场景）
+	// Merge cancellation signals from multiple Contexts (useful for multi-path concurrent request scenarios)
 	ctx1, cancel1 := context.WithCancel(context.Background())
 	ctx2, cancel2 := context.WithCancel(context.Background())
 	defer cancel1()
 	defer cancel2()
 
 	merged := utilctx.Merge(ctx1, ctx2)
-	// 任一 context 取消，merged 都会取消
+	// When any context is cancelled, merged will also be cancelled
 	go func() {
 		<-merged.Done()
 		fmt.Println("merged context cancelled")
 	}()
 
-	cancel1() // 触发 merged 取消
+	cancel1() // Triggers merged cancellation
 	time.Sleep(10 * time.Millisecond)
 }
 ```
 
-### 5.6 error 包示例
+### 5.6 error Package Example
 
 ```go
 package main
@@ -352,34 +352,34 @@ import (
 )
 
 func callLLM() error {
-	// 模拟大模型调用超时
+	// Simulate LLM call timeout
 	return &net.OpError{Op: "dial", Net: "tcp", Err: errors.New("connection timeout")}
 }
 
 func main() {
-	// 错误包装（保留调用链，方便追踪问题来源）
+	// Error wrapping (preserves call chain for easy tracing of problem origin)
 	err := callLLM()
 	if err != nil {
-		wrapped := utilerr.Wrap(err, "调用大模型失败")
-		fmt.Println(wrapped) // "调用大模型失败: dial tcp: connection timeout"
+		wrapped := utilerr.Wrap(err, "failed to call LLM")
+		fmt.Println(wrapped) // "failed to call LLM: dial tcp: connection timeout"
 
-		// 带上下文信息的错误包装
-		detailed := utilerr.Wrapf(err, "调用模型 %s 失败，重试次数: %d", "gpt-4", 3)
+		// Error wrapping with context information
+		detailed := utilerr.Wrapf(err, "failed to call model %s, retry count: %d", "gpt-4", 3)
 		fmt.Println(detailed)
 	}
 
-	// 错误分类（适用于决定重试策略）
+	// Error classification (useful for deciding retry strategy)
 	if utilerr.IsTimeout(err) {
-		fmt.Println("超时错误，进行重试")
+		fmt.Println("Timeout error, retrying")
 	}
 	if utilerr.IsRetryable(err) {
-		fmt.Println("可重试错误")
+		fmt.Println("Retryable error")
 	}
 	if utilerr.IsNetwork(err) {
-		fmt.Println("网络错误")
+		fmt.Println("Network error")
 	}
 
-	// 错误链追踪（适用于复杂调用链路的问题定位）
+	// Error chain tracing (useful for locating issues in complex call chains)
 	wrappedErr := utilerr.Wrap(utilerr.Wrap(err, "layer1"), "layer2")
 	chain := utilerr.Chain(wrappedErr)
 	for i, e := range chain {
@@ -389,62 +389,62 @@ func main() {
 	// [1] layer1: dial tcp: connection timeout
 	// [2] dial tcp: connection timeout
 
-	// 错误聚合（适用于并发请求后收集所有错误）
+	// Error aggregation (useful for collecting all errors after concurrent requests)
 	errs := utilerr.NewMultiError()
-	errs.Add(errors.New("模型 A 调用失败"))
-	errs.Add(errors.New("模型 B 调用失败"))
-	errs.Add(nil) // nil 会被忽略
+	errs.Add(errors.New("model A call failed"))
+	errs.Add(errors.New("model B call failed"))
+	errs.Add(nil) // nil is ignored
 	if errs.HasErrors() {
-		fmt.Printf("共 %d 个错误: %s\n", errs.Len(), errs.Error())
+		fmt.Printf("Total %d errors: %s\n", errs.Len(), errs.Error())
 	}
 }
 ```
 
-## 六、实施步骤
+## 6. Implementation Steps
 
-### 阶段一：基础搭建（第 1 周）
+### Phase 1: Foundation Setup (Week 1)
 
-1. **创建模块结构**
-   - 建立 `pkg/util/` 目录及子目录
-   - 创建 `go.mod`，声明模块路径
-   - 添加 `.golangci.yml` 代码质量配置
+1. **Create Module Structure**
+   - Establish the `pkg/util/` directory and subdirectories
+   - Create `go.mod` with declared module path
+   - Add `.golangci.yml` code quality configuration
 
-2. **实现核心工具函数**
-   - 优先实现 `string/`、`slice/`、`error/` 三个最高频模块
-   - 每个函数必须有完整的 GoDoc 注释
-   - 遵循 Go 标准库风格
+2. **Implement Core Utility Functions**
+   - Prioritize implementing `string/`, `slice/`, `error/` — the three most frequently used modules
+   - Every function must have complete GoDoc comments
+   - Follow Go standard library style
 
-### 阶段二：完善功能（第 2 周）
+### Phase 2: Feature Completion (Week 2)
 
-3. **补充剩余模块**
-   - 实现 `map/`、`time/`、`context/` 模块
-   - 确保所有泛型函数类型约束正确
+3. **Implement Remaining Modules**
+   - Implement `map/`, `time/`, `context/` modules
+   - Ensure all generic function type constraints are correct
 
-4. **编写测试**
-   - 单元测试覆盖率 ≥ 90%
-   - 包含边界情况测试（空切片、nil map、空字符串等）
-   - 添加基准测试（Benchmark）验证性能
+4. **Write Tests**
+   - Unit test coverage ≥ 90%
+   - Include boundary case tests (empty slices, nil maps, empty strings, etc.)
+   - Add benchmark tests to verify performance
 
-### 阶段三：集成与发布（第 3 周）
+### Phase 3: Integration and Release (Week 3)
 
-5. **更新项目依赖**
-   - 在需要使用的 rules 模块中添加 `require` 和 `replace` 指令
-   - 验证编译通过
+5. **Update Project Dependencies**
+   - Add `require` and `replace` directives in rules modules that need to use it
+   - Verify successful compilation
 
-6. **文档和示例**
-   - 完善 GoDoc 文档
-   - 在 `example/` 目录下添加完整示例
+6. **Documentation and Examples**
+   - Complete GoDoc documentation
+   - Add full examples in the `example/` directory
 
-7. **独立发布准备（可选）**
-   - 配置 CI/CD 自动化测试
-   - 语义化版本标签管理
-   - 发布到 Go Module Proxy
+7. **Independent Release Preparation (Optional)**
+   - Configure CI/CD automated testing
+   - Semantic version tag management
+   - Publish to Go Module Proxy
 
-## 七、集成方式
+## 7. Integration Approach
 
-### 项目内部使用
+### Internal Project Usage
 
-在 rules 模块中引用 util 包：
+Reference the util package in rules modules:
 
 ```go
 // pkg/rules/gin/go.mod
@@ -459,7 +459,7 @@ require (
 replace github.com/alibaba/loongsuite-go/pkg/util => ../../util
 ```
 
-在代码中使用：
+Usage in code:
 
 ```go
 package gin
@@ -470,24 +470,24 @@ import (
 )
 
 func processRequest(input string) (string, error) {
-    // 使用字符串工具截断过长输入
+    // Use string utility to truncate overly long input
     truncated := utilstr.Truncate(input, 4096)
     
     result, err := doSomething(truncated)
     if err != nil {
-        return "", utilerr.Wrap(err, "处理请求失败")
+        return "", utilerr.Wrap(err, "failed to process request")
     }
     return result, nil
 }
 ```
 
-### 外部项目使用
+### External Project Usage
 
 ```bash
-# 安装
+# Install
 go get github.com/alibaba/loongsuite-go/pkg/util@latest
 
-# 使用特定子包
+# Use specific sub-packages
 go get github.com/alibaba/loongsuite-go/pkg/util/string@latest
 ```
 
@@ -500,7 +500,7 @@ import (
 )
 
 func main() {
-    // 直接使用，无需任何初始化
+    // Use directly, no initialization required
     result := utilstr.Truncate("hello world", 5)
     unique := utilslice.Unique([]int{1, 2, 2, 3})
     _ = result
@@ -508,23 +508,23 @@ func main() {
 }
 ```
 
-## 八、与现有模块的关系
+## 8. Relationship with Existing Modules
 
 ```
 ┌─────────────────────────────────────────────────────────┐
 │                    Loongsuite Go Agent                    │
 ├─────────────────────────────────────────────────────────┤
-│  tool/          (编译时工具，不对外暴露)                    │
+│  tool/          (compile-time tools, not externally exposed) │
 │  ├── instrument/                                         │
 │  ├── preprocess/                                         │
-│  └── util/       ← 编译时内部工具，与 pkg/util 无关       │
+│  └── util/       ← compile-time internal tools, unrelated to pkg/util │
 ├─────────────────────────────────────────────────────────┤
-│  pkg/            (运行时库)                               │
-│  ├── api/        ← OTel API 封装                         │
-│  ├── inst-api/   ← 插桩 API (依赖 OTel)                  │
-│  ├── rules/      ← 各框架插桩规则                         │
-│  └── util/       ← 【新增】通用工具库 (零外部依赖)        │
+│  pkg/            (runtime libraries)                      │
+│  ├── api/        ← OTel API wrapper                      │
+│  ├── inst-api/   ← Instrumentation API (depends on OTel) │
+│  ├── rules/      ← Framework instrumentation rules       │
+│  └── util/       ← [NEW] General utility library (zero external dependencies) │
 └─────────────────────────────────────────────────────────┘
 ```
 
-`pkg/util` 处于依赖链的最底层，不依赖项目中的任何其他模块，但可以被所有模块依赖。
+`pkg/util` sits at the bottom of the dependency chain, depending on no other modules in the project, but can be depended upon by all modules.

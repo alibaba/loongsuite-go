@@ -36,7 +36,7 @@ func newEmbeddingsOnEnter(call api.CallContext, client *openai.Client, ctx conte
 	}
 	tracer := otel.GetTracerProvider().Tracer("loongsuite.instrumentation.openai")
 	opts1 := []trace.SpanStartOption{trace.WithSpanKind(trace.SpanKindClient)}
-	ctx, span := tracer.Start(ctx, "embeddings "+body.Model, opts1...)
+	ctx, span := tracer.Start(ctx, "embeddings", opts1...)
 	var attrs []attribute.KeyValue
 	attrs = append(attrs,
 		attribute.String("gen_ai.request.model", body.Model),

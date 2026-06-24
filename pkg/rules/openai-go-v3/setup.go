@@ -105,7 +105,7 @@ func newClientOnEnter(call api.CallContext, opts ...option.RequestOption) {
 func chatSpanStart(req *http.Request, request openai.ChatCompletionNewParams, provider string) trace.Span {
 	tracer := otel.GetTracerProvider().Tracer("loongsuite.instrumentation.openai")
 	opts1 := []trace.SpanStartOption{trace.WithSpanKind(trace.SpanKindClient)}
-	_, span := tracer.Start(req.Context(), "chat "+request.Model, opts1...)
+	_, span := tracer.Start(req.Context(), "chat", opts1...)
 	var attrs []attribute.KeyValue
 	attrs = append(attrs,
 		attribute.String("gen_ai.request.model", request.Model),
@@ -160,7 +160,7 @@ func chatSpanStart(req *http.Request, request openai.ChatCompletionNewParams, pr
 func completionSpanStart(req *http.Request, request openai.CompletionNewParams, provider string) trace.Span {
 	tracer := otel.GetTracerProvider().Tracer("loongsuite.instrumentation.openai")
 	opts1 := []trace.SpanStartOption{trace.WithSpanKind(trace.SpanKindClient)}
-	_, span := tracer.Start(req.Context(), "text_completion "+string(request.Model), opts1...)
+	_, span := tracer.Start(req.Context(), "text_completion", opts1...)
 	var attrs []attribute.KeyValue
 	attrs = append(attrs,
 		attribute.String("gen_ai.request.model", string(request.Model)),

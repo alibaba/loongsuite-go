@@ -88,7 +88,7 @@ func extractServerRequestAttributes(req mcp.Request, method string, request *mcp
 			}
 		}
 	case "tools/call":
-		if callParams, ok := params.(*mcp.CallToolParams); ok && callParams != nil {
+		if callParams, ok := params.(*mcp.CallToolParamsRaw); ok && callParams != nil {
 			if callParams.Name != "" {
 				request.operationName = "execute_tool"
 				request.methodName = callParams.Name

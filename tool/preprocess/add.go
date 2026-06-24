@@ -102,10 +102,20 @@ func canPinHookDependency(userVersion, hookVersion string) bool {
 	if !semver.IsValid(userVersion) || !semver.IsValid(hookVersion) {
 		return false
 	}
-	if semver.Major(userVersion) == "v0" || semver.Major(hookVersion) == "v0" {
+	userMajor := semver.Major(userVersion)
+	hookMajor := semver.Major(hookVersion)
+	if userMajor == "v0" || hookMajor == "v0" {
+		return false
+	}
+	if userMajor != hookMajor {
 		return false
 	}
 	return true
+}
+
+type hookDependencyPin struct {
+	path    string
+	version string
 }
 
 func (dp *DepProcessor) pinConflictingHookDependencies(gomod string, dependencies []Dependency) error {
@@ -126,12 +136,8 @@ func (dp *DepProcessor) pinConflictingHookDependencies(gomod string, dependencie
 		return nil
 	}
 
-	modfile, err := parseGoMod(gomod)
-	if err != nil {
-		return err
-	}
 	existingReplaces := make(map[string]bool)
-	for _, replace := range modfile.Replace {
+	for _, replace := range userModfile.Replace {
 		existingReplaces[replace.Old.Path] = true
 	}
 
@@ -148,6 +154,7 @@ func (dp *DepProcessor) pinConflictingHookDependencies(gomod string, dependencie
 			return err
 		}
 		changed := false
+		pins := make([]hookDependencyPin, 0)
 		for _, req := range hookModfile.Require {
 			path := req.Mod.Path
 			if req.Indirect {
@@ -163,16 +170,22 @@ func (dp *DepProcessor) pinConflictingHookDependencies(gomod string, dependencie
 			if existingReplaces[path] {
 				continue
 			}
-			err = hookModfile.DropRequire(path)
+			pins = append(pins, hookDependencyPin{
+				path:    path,
+				version: userVersion,
+			})
+		}
+		for _, pin := range pins {
+			err = hookModfile.DropRequire(pin.path)
 			if err != nil {
 				return ex.Wrap(err)
 			}
-			err = hookModfile.AddRequire(path, userVersion)
+			err = hookModfile.AddRequire(pin.path, pin.version)
 			if err != nil {
 				return ex.Wrap(err)
 			}
 			changed = true
-			util.Log("Pin hook dependency %s to user version %s", path, userVersion)
+			util.Log("Pin hook dependency %s to user version %s", pin.path, pin.version)
 		}
 
 		if changed {

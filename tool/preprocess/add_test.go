@@ -323,3 +323,190 @@ require example.com/hookdep v1.2.3
 		t.Fatalf("did not expect replace for non-conflicting hook dependency")
 	}
 }
+
+func TestPinConflictingHookDependenciesPinsMultipleHooks(t *testing.T) {
+	dir := t.TempDir()
+	gomod := filepath.Join(dir, "go.mod")
+	originalGoMod := filepath.Join(dir, "go.mod.bk")
+	hookDir1 := filepath.Join(dir, "hook1")
+	hookDir2 := filepath.Join(dir, "hook2")
+
+	userMod := `module example.com/app
+
+go 1.24.0
+
+require example.com/dep v1.0.0
+`
+	hookMod1 := `module example.com/hook1
+
+go 1.24.0
+
+require example.com/dep v1.2.3
+`
+	hookMod2 := `module example.com/hook2
+
+go 1.24.0
+
+require example.com/dep v1.4.5
+`
+	writeTestFile(t, gomod, userMod)
+	writeTestFile(t, originalGoMod, userMod)
+	writeTestFile(t, filepath.Join(hookDir1, "go.mod"), hookMod1)
+	writeTestFile(t, filepath.Join(hookDir2, "go.mod"), hookMod2)
+
+	dp := &DepProcessor{
+		backups: map[string]string{gomod: originalGoMod},
+	}
+	err := dp.pinConflictingHookDependencies(gomod, []Dependency{
+		{
+			ImportPath:  "example.com/hook1",
+			Replace:     true,
+			ReplacePath: hookDir1,
+		},
+		{
+			ImportPath:  "example.com/hook2",
+			Replace:     true,
+			ReplacePath: hookDir2,
+		},
+	})
+	if err != nil {
+		t.Fatalf("pinConflictingHookDependencies() error = %v", err)
+	}
+
+	for _, hookDir := range []string{hookDir1, hookDir2} {
+		version, ok := findRequireVersion(t, filepath.Join(hookDir, "go.mod"), "example.com/dep")
+		if !ok {
+			t.Fatalf("expected hook require for example.com/dep")
+		}
+		if version != "v1.0.0" {
+			t.Fatalf("hook require version = %q, want %q", version, "v1.0.0")
+		}
+	}
+}
+
+func TestPinConflictingHookDependenciesPinsMultipleDepsInOneHook(t *testing.T) {
+	dir := t.TempDir()
+	gomod := filepath.Join(dir, "go.mod")
+	originalGoMod := filepath.Join(dir, "go.mod.bk")
+	hookDir := filepath.Join(dir, "hook")
+
+	userMod := `module example.com/app
+
+go 1.24.0
+
+require (
+	example.com/dep1 v1.0.0
+	example.com/dep2 v1.1.0
+)
+`
+	hookMod := `module example.com/hook
+
+go 1.24.0
+
+require (
+	example.com/dep1 v1.2.3
+	example.com/dep2 v1.4.5
+)
+`
+	writeTestFile(t, gomod, userMod)
+	writeTestFile(t, originalGoMod, userMod)
+	writeTestFile(t, filepath.Join(hookDir, "go.mod"), hookMod)
+
+	dp := &DepProcessor{
+		backups: map[string]string{gomod: originalGoMod},
+	}
+	err := dp.pinConflictingHookDependencies(gomod, []Dependency{{
+		ImportPath:  "example.com/hook",
+		Replace:     true,
+		ReplacePath: hookDir,
+	}})
+	if err != nil {
+		t.Fatalf("pinConflictingHookDependencies() error = %v", err)
+	}
+
+	tests := map[string]string{
+		"example.com/dep1": "v1.0.0",
+		"example.com/dep2": "v1.1.0",
+	}
+	for path, want := range tests {
+		version, ok := findRequireVersion(t, filepath.Join(hookDir, "go.mod"), path)
+		if !ok {
+			t.Fatalf("expected hook require for %s", path)
+		}
+		if version != want {
+			t.Fatalf("hook require version for %s = %q, want %q", path, version, want)
+		}
+	}
+}
+
+func TestPinConflictingHookDependenciesIgnoresDifferentMajorVersion(t *testing.T) {
+	dir := t.TempDir()
+	gomod := filepath.Join(dir, "go.mod")
+	originalGoMod := filepath.Join(dir, "go.mod.bk")
+	hookDir := filepath.Join(dir, "hook")
+
+	userMod := `module example.com/app
+
+go 1.24.0
+
+require example.com/dep v1.5.0
+`
+	hookMod := `module example.com/hook
+
+go 1.24.0
+
+require example.com/dep v2.0.0+incompatible
+`
+	writeTestFile(t, gomod, userMod)
+	writeTestFile(t, originalGoMod, userMod)
+	writeTestFile(t, filepath.Join(hookDir, "go.mod"), hookMod)
+
+	dp := &DepProcessor{
+		backups: map[string]string{gomod: originalGoMod},
+	}
+	err := dp.pinConflictingHookDependencies(gomod, []Dependency{{
+		ImportPath:  "example.com/hook",
+		Replace:     true,
+		ReplacePath: hookDir,
+	}})
+	if err != nil {
+		t.Fatalf("pinConflictingHookDependencies() error = %v", err)
+	}
+
+	version, ok := findRequireVersion(t, filepath.Join(hookDir, "go.mod"), "example.com/dep")
+	if !ok {
+		t.Fatalf("expected hook require for example.com/dep")
+	}
+	if version != "v2.0.0+incompatible" {
+		t.Fatalf("hook require version = %q, want %q", version, "v2.0.0+incompatible")
+	}
+}
+
+func TestPinConflictingHookDependenciesReturnsMalformedHookGoModError(t *testing.T) {
+	dir := t.TempDir()
+	gomod := filepath.Join(dir, "go.mod")
+	originalGoMod := filepath.Join(dir, "go.mod.bk")
+	hookDir := filepath.Join(dir, "hook")
+
+	userMod := `module example.com/app
+
+go 1.24.0
+
+require example.com/dep v1.0.0
+`
+	writeTestFile(t, gomod, userMod)
+	writeTestFile(t, originalGoMod, userMod)
+	writeTestFile(t, filepath.Join(hookDir, "go.mod"), "module example.com/hook\n\nrequire (\n")
+
+	dp := &DepProcessor{
+		backups: map[string]string{gomod: originalGoMod},
+	}
+	err := dp.pinConflictingHookDependencies(gomod, []Dependency{{
+		ImportPath:  "example.com/hook",
+		Replace:     true,
+		ReplacePath: hookDir,
+	}})
+	if err == nil {
+		t.Fatalf("pinConflictingHookDependencies() error = nil, want parse error")
+	}
+}

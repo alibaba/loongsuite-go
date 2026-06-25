@@ -108,6 +108,7 @@ func chatSpanStart(req *http.Request, request openai.ChatCompletionNewParams, pr
 	_, span := tracer.Start(req.Context(), "chat", opts1...)
 	var attrs []attribute.KeyValue
 	attrs = append(attrs,
+		attribute.String("gen_ai.system", "openai"),
 		attribute.String("gen_ai.request.model", request.Model),
 		attribute.String("gen_ai.operation.name", "chat"),
 		attribute.String("gen_ai.provider.name", provider),

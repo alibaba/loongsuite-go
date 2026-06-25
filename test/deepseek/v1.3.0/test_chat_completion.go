@@ -53,7 +53,7 @@ func main() {
 	defer mockServer.Close()
 
 	// Create DeepSeek client pointing to mock server
-	client := deepseek.NewClient("test-api-key", mockServer.URL)
+	client := deepseek.NewClient("test-api-key", mockServer.URL+"/")
 
 	ctx := context.Background()
 

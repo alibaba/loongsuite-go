@@ -11,7 +11,7 @@
   {
     "Version": "[1.30.0,1.36.0)",
     "ImportPath": "google.golang.org/genai",
-    "Function": "embedContent",
+    "Function": "EmbedContent",
     "ReceiverType": "Models",
     "OnEnter": "genaiEmbedContentOnEnter",
     "OnExit": "genaiEmbedContentOnExit",

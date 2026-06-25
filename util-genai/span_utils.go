@@ -23,14 +23,15 @@ import (
 )
 
 // ============================================================================
-// Basic LLM Span Utilities
+// LLM Span Utilities
 //
 // These functions provide span attribute handling for LLM operations (chat,
-// text_completion, generate_content), which is the core functionality for
-// instrumenting language model calls.
+// text_completion, generate_content), following the official OpenTelemetry
+// GenAI semantic conventions.
 // ============================================================================
 
 // GetLLMSpanName returns the span name for an LLM invocation.
+// Per spec: span name SHOULD be `{gen_ai.operation.name} {gen_ai.request.model}`.
 func GetLLMSpanName(invocation *LLMInvocation) string {
 	if invocation.RequestModel != "" {
 		return fmt.Sprintf("%s %s", invocation.OperationName, invocation.RequestModel)
@@ -42,6 +43,7 @@ func GetLLMSpanName(invocation *LLMInvocation) string {
 func GetLLMCommonAttributes(invocation *LLMInvocation) []attribute.KeyValue {
 	attrs := []attribute.KeyValue{
 		GenAIOperationName(invocation.OperationName),
+		// LoongSuite Extension: span kind is not in official spec
 		GenAISpanKind(SpanKindLLM),
 	}
 
@@ -65,6 +67,9 @@ func GetLLMRequestAttributes(invocation *LLMInvocation) []attribute.KeyValue {
 	if invocation.TopP != nil {
 		attrs = append(attrs, attribute.Float64(AttrGenAIRequestTopP, *invocation.TopP))
 	}
+	if invocation.TopK != nil {
+		attrs = append(attrs, attribute.Int(AttrGenAIRequestTopK, *invocation.TopK))
+	}
 	if invocation.FrequencyPenalty != nil {
 		attrs = append(attrs, attribute.Float64(AttrGenAIRequestFrequencyPenalty, *invocation.FrequencyPenalty))
 	}
@@ -79,6 +84,31 @@ func GetLLMRequestAttributes(invocation *LLMInvocation) []attribute.KeyValue {
 	}
 	if invocation.Seed != nil {
 		attrs = append(attrs, attribute.Int(AttrGenAIRequestSeed, *invocation.Seed))
+	}
+	// Per spec: set gen_ai.request.stream if and only if the request is streaming.
+	if invocation.Stream != nil && *invocation.Stream {
+		attrs = append(attrs, GenAIRequestStream(true))
+	}
+	if invocation.ChoiceCount != nil {
+		attrs = append(attrs, attribute.Int(AttrGenAIRequestChoiceCount, *invocation.ChoiceCount))
+	}
+	if invocation.OutputType != "" {
+		attrs = append(attrs, attribute.String(AttrGenAIOutputType, invocation.OutputType))
+	}
+	if invocation.ReasoningLevel != "" {
+		attrs = append(attrs, attribute.String(AttrGenAIRequestReasoningLevel, invocation.ReasoningLevel))
+	}
+	if invocation.PromptName != "" {
+		attrs = append(attrs, GenAIPromptName(invocation.PromptName))
+	}
+	if invocation.PromptVersion != "" {
+		attrs = append(attrs, GenAIPromptVersion(invocation.PromptVersion))
+	}
+	if invocation.ConversationID != "" {
+		attrs = append(attrs, GenAIConversationID(invocation.ConversationID))
+	}
+	if invocation.ConversationCompacted != nil && *invocation.ConversationCompacted {
+		attrs = append(attrs, GenAIConversationCompacted(true))
 	}
 
 	return attrs
@@ -130,16 +160,20 @@ func GetLLMResponseAttributes(invocation *LLMInvocation) []attribute.KeyValue {
 		attrs = append(attrs, GenAIUsageOutputTokens(*invocation.OutputTokens))
 	}
 
-	// Calculate total tokens
-	totalTokens := 0
-	if invocation.InputTokens != nil {
-		totalTokens += *invocation.InputTokens
+	// Extended usage attributes from official spec
+	if invocation.ReasoningOutputTokens != nil {
+		attrs = append(attrs, GenAIUsageReasoningOutputTokens(*invocation.ReasoningOutputTokens))
 	}
-	if invocation.OutputTokens != nil {
-		totalTokens += *invocation.OutputTokens
+	if invocation.CacheReadInputTokens != nil {
+		attrs = append(attrs, GenAIUsageCacheReadInputTokens(*invocation.CacheReadInputTokens))
 	}
-	if totalTokens > 0 {
-		attrs = append(attrs, GenAIUsageTotalTokens(totalTokens))
+	if invocation.CacheCreationInputTokens != nil {
+		attrs = append(attrs, GenAIUsageCacheCreationInputTokens(*invocation.CacheCreationInputTokens))
+	}
+
+	// Streaming metadata
+	if invocation.TimeToFirstChunk != nil {
+		attrs = append(attrs, GenAIResponseTimeToFirstChunk(*invocation.TimeToFirstChunk))
 	}
 
 	return attrs
@@ -223,10 +257,10 @@ func ApplyErrorAttributes(span trace.Span, err *Error) {
 // ============================================================================
 
 // ApplyEmbeddingFinishAttributes applies attributes for embedding operations.
-// (LoongSuite Extension)
 func ApplyEmbeddingFinishAttributes(span trace.Span, invocation *EmbeddingInvocation) {
 	attrs := []attribute.KeyValue{
 		GenAIOperationName(OperationEmbeddings),
+		// LoongSuite Extension: span kind is not in official spec
 		GenAISpanKind(SpanKindEmbedding),
 	}
 
@@ -236,11 +270,18 @@ func ApplyEmbeddingFinishAttributes(span trace.Span, invocation *EmbeddingInvoca
 	if invocation.Provider != "" {
 		attrs = append(attrs, GenAIProviderName(invocation.Provider))
 	}
+	if invocation.ResponseModelName != "" {
+		attrs = append(attrs, GenAIResponseModel(invocation.ResponseModelName))
+	}
+	if len(invocation.EncodingFormats) > 0 {
+		attrs = append(attrs, attribute.StringSlice(AttrGenAIRequestEncodingFormats, invocation.EncodingFormats))
+	}
+	// LoongSuite Extension: input count is not in official spec
 	if invocation.InputCount != nil {
 		attrs = append(attrs, attribute.Int(AttrGenAIEmbeddingInputCount, *invocation.InputCount))
 	}
-	if invocation.Dimensions != nil {
-		attrs = append(attrs, attribute.Int(AttrGenAIEmbeddingDimensions, *invocation.Dimensions))
+	if invocation.DimensionCount != nil {
+		attrs = append(attrs, attribute.Int(AttrGenAIEmbeddingsDimensionCount, *invocation.DimensionCount))
 	}
 	if invocation.InputTokens != nil {
 		attrs = append(attrs, GenAIUsageInputTokens(*invocation.InputTokens))
@@ -264,10 +305,10 @@ func ApplyEmbeddingFinishAttributes(span trace.Span, invocation *EmbeddingInvoca
 }
 
 // ApplyExecuteToolFinishAttributes applies attributes for tool execution operations.
-// (LoongSuite Extension)
 func ApplyExecuteToolFinishAttributes(span trace.Span, invocation *ExecuteToolInvocation) {
 	attrs := []attribute.KeyValue{
 		GenAIOperationName(OperationExecuteTool),
+		// LoongSuite Extension: span kind is not in official spec
 		GenAISpanKind(SpanKindTool),
 		attribute.String(AttrGenAIToolName, invocation.ToolName),
 	}
@@ -275,14 +316,20 @@ func ApplyExecuteToolFinishAttributes(span trace.Span, invocation *ExecuteToolIn
 	if invocation.ToolCallID != "" {
 		attrs = append(attrs, attribute.String(AttrGenAIToolCallID, invocation.ToolCallID))
 	}
+	if invocation.ToolDescription != "" {
+		attrs = append(attrs, attribute.String(AttrGenAIToolDescription, invocation.ToolDescription))
+	}
+	if invocation.ToolType != "" {
+		attrs = append(attrs, attribute.String(AttrGenAIToolType, invocation.ToolType))
+	}
 
-	// Add input/output as JSON if in experimental mode
+	// Add input/output as JSON if in experimental mode (opt_in per spec)
 	if IsExperimentalMode() && ShouldCaptureContentInSpan() {
 		if invocation.Input != nil {
-			attrs = append(attrs, attribute.String(AttrGenAIToolInput, MustJSONDumps(invocation.Input)))
+			attrs = append(attrs, attribute.String(AttrGenAIToolCallArguments, MustJSONDumps(invocation.Input)))
 		}
 		if invocation.Output != nil {
-			attrs = append(attrs, attribute.String(AttrGenAIToolOutput, MustJSONDumps(invocation.Output)))
+			attrs = append(attrs, attribute.String(AttrGenAIToolCallResult, MustJSONDumps(invocation.Output)))
 		}
 	}
 
@@ -304,10 +351,10 @@ func ApplyExecuteToolFinishAttributes(span trace.Span, invocation *ExecuteToolIn
 }
 
 // ApplyInvokeAgentFinishAttributes applies attributes for agent invocation operations.
-// (LoongSuite Extension)
 func ApplyInvokeAgentFinishAttributes(span trace.Span, invocation *InvokeAgentInvocation) {
 	attrs := []attribute.KeyValue{
 		GenAIOperationName(OperationInvokeAgent),
+		// LoongSuite Extension: span kind is not in official spec
 		GenAISpanKind(SpanKindAgent),
 	}
 
@@ -317,8 +364,17 @@ func ApplyInvokeAgentFinishAttributes(span trace.Span, invocation *InvokeAgentIn
 	if invocation.AgentID != "" {
 		attrs = append(attrs, attribute.String(AttrGenAIAgentID, invocation.AgentID))
 	}
+	if invocation.AgentDescription != "" {
+		attrs = append(attrs, attribute.String(AttrGenAIAgentDescription, invocation.AgentDescription))
+	}
+	if invocation.AgentVersion != "" {
+		attrs = append(attrs, attribute.String(AttrGenAIAgentVersion, invocation.AgentVersion))
+	}
 	if invocation.Provider != "" {
 		attrs = append(attrs, GenAIProviderName(invocation.Provider))
+	}
+	if invocation.ConversationID != "" {
+		attrs = append(attrs, GenAIConversationID(invocation.ConversationID))
 	}
 
 	// Add messages if in experimental mode
@@ -349,10 +405,10 @@ func ApplyInvokeAgentFinishAttributes(span trace.Span, invocation *InvokeAgentIn
 }
 
 // ApplyCreateAgentFinishAttributes applies attributes for agent creation operations.
-// (LoongSuite Extension)
 func ApplyCreateAgentFinishAttributes(span trace.Span, invocation *CreateAgentInvocation) {
 	attrs := []attribute.KeyValue{
 		GenAIOperationName(OperationCreateAgent),
+		// LoongSuite Extension: span kind is not in official spec
 		GenAISpanKind(SpanKindAgent),
 	}
 
@@ -361,6 +417,12 @@ func ApplyCreateAgentFinishAttributes(span trace.Span, invocation *CreateAgentIn
 	}
 	if invocation.AgentID != "" {
 		attrs = append(attrs, attribute.String(AttrGenAIAgentID, invocation.AgentID))
+	}
+	if invocation.AgentDescription != "" {
+		attrs = append(attrs, attribute.String(AttrGenAIAgentDescription, invocation.AgentDescription))
+	}
+	if invocation.AgentVersion != "" {
+		attrs = append(attrs, attribute.String(AttrGenAIAgentVersion, invocation.AgentVersion))
 	}
 	if invocation.Provider != "" {
 		attrs = append(attrs, GenAIProviderName(invocation.Provider))
@@ -384,23 +446,24 @@ func ApplyCreateAgentFinishAttributes(span trace.Span, invocation *CreateAgentIn
 }
 
 // ApplyRetrieveFinishAttributes applies attributes for retrieve operations.
-// (LoongSuite Extension)
 func ApplyRetrieveFinishAttributes(span trace.Span, invocation *RetrieveInvocation) {
 	attrs := []attribute.KeyValue{
+		GenAIOperationName(OperationRetrieval),
+		// LoongSuite Extension: span kind is not in official spec
 		GenAISpanKind(SpanKindRetriever),
 	}
 
-	if invocation.Query != "" && IsExperimentalMode() && ShouldCaptureContentInSpan() {
-		attrs = append(attrs, attribute.String(AttrGenAIRetrieveQuery, invocation.Query))
+	if invocation.QueryText != "" && IsExperimentalMode() && ShouldCaptureContentInSpan() {
+		attrs = append(attrs, attribute.String(AttrGenAIRetrievalQueryText, invocation.QueryText))
 	}
 	if invocation.TopK != nil {
-		attrs = append(attrs, attribute.Int(AttrGenAIRetrieveTopK, *invocation.TopK))
+		attrs = append(attrs, attribute.Int(AttrGenAIRetrievalTopK, *invocation.TopK))
 	}
-	if invocation.DocumentCount != nil {
-		attrs = append(attrs, attribute.Int(AttrGenAIRetrieveDocumentCount, *invocation.DocumentCount))
+	if invocation.DataSourceID != "" {
+		attrs = append(attrs, attribute.String(AttrGenAIDataSourceID, invocation.DataSourceID))
 	}
-	if invocation.DataSourceName != "" {
-		attrs = append(attrs, attribute.String(AttrGenAIRetrieveDataSourceName, invocation.DataSourceName))
+	if invocation.Provider != "" {
+		attrs = append(attrs, GenAIProviderName(invocation.Provider))
 	}
 
 	// Add custom attributes
@@ -421,9 +484,10 @@ func ApplyRetrieveFinishAttributes(span trace.Span, invocation *RetrieveInvocati
 }
 
 // ApplyRerankFinishAttributes applies attributes for rerank operations.
-// (LoongSuite Extension)
+// (LoongSuite Extension - reranking is not part of the official spec)
 func ApplyRerankFinishAttributes(span trace.Span, invocation *RerankInvocation) {
 	attrs := []attribute.KeyValue{
+		// LoongSuite Extension: span kind is not in official spec
 		GenAISpanKind(SpanKindReranker),
 	}
 

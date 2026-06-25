@@ -182,7 +182,7 @@ func (h *TelemetryHandler) FailLLM(invocation *LLMInvocation, err *Error) {
 // ============================================================================
 
 // StartEmbedding starts an embedding invocation and creates a pending span entry.
-// (LoongSuite Extension)
+// Per spec: span name SHOULD be `{gen_ai.operation.name} {gen_ai.request.model}`.
 func (h *TelemetryHandler) StartEmbedding(ctx context.Context, invocation *EmbeddingInvocation) context.Context {
 	spanName := fmt.Sprintf("%s %s", OperationEmbeddings, invocation.RequestModel)
 	newCtx, span := h.tracer.Start(ctx, spanName, trace.WithSpanKind(trace.SpanKindClient))
@@ -195,7 +195,6 @@ func (h *TelemetryHandler) StartEmbedding(ctx context.Context, invocation *Embed
 }
 
 // StopEmbedding finalizes an embedding invocation successfully and ends its span.
-// (LoongSuite Extension)
 func (h *TelemetryHandler) StopEmbedding(invocation *EmbeddingInvocation) {
 	if invocation.span == nil {
 		return
@@ -216,7 +215,6 @@ func (h *TelemetryHandler) StopEmbedding(invocation *EmbeddingInvocation) {
 }
 
 // FailEmbedding fails an embedding invocation and ends its span with error status.
-// (LoongSuite Extension)
 func (h *TelemetryHandler) FailEmbedding(invocation *EmbeddingInvocation, err *Error) {
 	if invocation.span == nil {
 		return
@@ -238,7 +236,7 @@ func (h *TelemetryHandler) FailEmbedding(invocation *EmbeddingInvocation, err *E
 }
 
 // StartExecuteTool starts a tool execution invocation and creates a pending span entry.
-// (LoongSuite Extension)
+// Per spec: span name SHOULD be `execute_tool {gen_ai.tool.name}`.
 func (h *TelemetryHandler) StartExecuteTool(ctx context.Context, invocation *ExecuteToolInvocation) context.Context {
 	spanName := fmt.Sprintf("%s %s", OperationExecuteTool, invocation.ToolName)
 	newCtx, span := h.tracer.Start(ctx, spanName, trace.WithSpanKind(trace.SpanKindInternal))
@@ -251,7 +249,6 @@ func (h *TelemetryHandler) StartExecuteTool(ctx context.Context, invocation *Exe
 }
 
 // StopExecuteTool finalizes a tool execution invocation successfully and ends its span.
-// (LoongSuite Extension)
 func (h *TelemetryHandler) StopExecuteTool(invocation *ExecuteToolInvocation) {
 	if invocation.span == nil {
 		return
@@ -272,7 +269,6 @@ func (h *TelemetryHandler) StopExecuteTool(invocation *ExecuteToolInvocation) {
 }
 
 // FailExecuteTool fails a tool execution invocation and ends its span with error status.
-// (LoongSuite Extension)
 func (h *TelemetryHandler) FailExecuteTool(invocation *ExecuteToolInvocation, err *Error) {
 	if invocation.span == nil {
 		return
@@ -294,7 +290,7 @@ func (h *TelemetryHandler) FailExecuteTool(invocation *ExecuteToolInvocation, er
 }
 
 // StartInvokeAgent starts an agent invocation and creates a pending span entry.
-// (LoongSuite Extension)
+// Per spec: span name SHOULD be `invoke_agent {gen_ai.agent.name}`.
 func (h *TelemetryHandler) StartInvokeAgent(ctx context.Context, invocation *InvokeAgentInvocation) context.Context {
 	var spanName string
 	if invocation.AgentName != "" {
@@ -312,7 +308,6 @@ func (h *TelemetryHandler) StartInvokeAgent(ctx context.Context, invocation *Inv
 }
 
 // StopInvokeAgent finalizes an agent invocation successfully and ends its span.
-// (LoongSuite Extension)
 func (h *TelemetryHandler) StopInvokeAgent(invocation *InvokeAgentInvocation) {
 	if invocation.span == nil {
 		return
@@ -333,7 +328,6 @@ func (h *TelemetryHandler) StopInvokeAgent(invocation *InvokeAgentInvocation) {
 }
 
 // FailInvokeAgent fails an agent invocation and ends its span with error status.
-// (LoongSuite Extension)
 func (h *TelemetryHandler) FailInvokeAgent(invocation *InvokeAgentInvocation, err *Error) {
 	if invocation.span == nil {
 		return
@@ -355,7 +349,7 @@ func (h *TelemetryHandler) FailInvokeAgent(invocation *InvokeAgentInvocation, er
 }
 
 // StartCreateAgent starts an agent creation invocation and creates a pending span entry.
-// (LoongSuite Extension)
+// Per spec: span name SHOULD be `create_agent {gen_ai.agent.name}`.
 func (h *TelemetryHandler) StartCreateAgent(ctx context.Context, invocation *CreateAgentInvocation) context.Context {
 	var spanName string
 	if invocation.AgentName != "" {
@@ -373,7 +367,6 @@ func (h *TelemetryHandler) StartCreateAgent(ctx context.Context, invocation *Cre
 }
 
 // StopCreateAgent finalizes an agent creation invocation successfully and ends its span.
-// (LoongSuite Extension)
 func (h *TelemetryHandler) StopCreateAgent(invocation *CreateAgentInvocation) {
 	if invocation.span == nil {
 		return
@@ -384,7 +377,6 @@ func (h *TelemetryHandler) StopCreateAgent(invocation *CreateAgentInvocation) {
 }
 
 // FailCreateAgent fails an agent creation invocation and ends its span with error status.
-// (LoongSuite Extension)
 func (h *TelemetryHandler) FailCreateAgent(invocation *CreateAgentInvocation, err *Error) {
 	if invocation.span == nil {
 		return
@@ -396,10 +388,15 @@ func (h *TelemetryHandler) FailCreateAgent(invocation *CreateAgentInvocation, er
 }
 
 // StartRetrieve starts a retrieve documents invocation and creates a pending span entry.
-// (LoongSuite Extension)
+// Per spec: span name SHOULD be `{gen_ai.operation.name} {gen_ai.data_source.id}`.
 func (h *TelemetryHandler) StartRetrieve(ctx context.Context, invocation *RetrieveInvocation) context.Context {
-	spanName := "retrieve_documents"
-	newCtx, span := h.tracer.Start(ctx, spanName, trace.WithSpanKind(trace.SpanKindInternal))
+	var spanName string
+	if invocation.DataSourceID != "" {
+		spanName = fmt.Sprintf("%s %s", OperationRetrieval, invocation.DataSourceID)
+	} else {
+		spanName = string(OperationRetrieval)
+	}
+	newCtx, span := h.tracer.Start(ctx, spanName, trace.WithSpanKind(trace.SpanKindClient))
 
 	invocation.span = span
 	invocation.ctx = newCtx
@@ -409,7 +406,6 @@ func (h *TelemetryHandler) StartRetrieve(ctx context.Context, invocation *Retrie
 }
 
 // StopRetrieve finalizes a retrieve documents invocation successfully and ends its span.
-// (LoongSuite Extension)
 func (h *TelemetryHandler) StopRetrieve(invocation *RetrieveInvocation) {
 	if invocation.span == nil {
 		return
@@ -420,7 +416,6 @@ func (h *TelemetryHandler) StopRetrieve(invocation *RetrieveInvocation) {
 }
 
 // FailRetrieve fails a retrieve documents invocation and ends its span with error status.
-// (LoongSuite Extension)
 func (h *TelemetryHandler) FailRetrieve(invocation *RetrieveInvocation, err *Error) {
 	if invocation.span == nil {
 		return
@@ -432,7 +427,7 @@ func (h *TelemetryHandler) FailRetrieve(invocation *RetrieveInvocation, err *Err
 }
 
 // StartRerank starts a rerank documents invocation and creates a pending span entry.
-// (LoongSuite Extension)
+// (LoongSuite Extension - reranking is not part of the official spec)
 func (h *TelemetryHandler) StartRerank(ctx context.Context, invocation *RerankInvocation) context.Context {
 	spanName := "rerank_documents"
 	newCtx, span := h.tracer.Start(ctx, spanName, trace.WithSpanKind(trace.SpanKindInternal))
@@ -445,7 +440,7 @@ func (h *TelemetryHandler) StartRerank(ctx context.Context, invocation *RerankIn
 }
 
 // StopRerank finalizes a rerank documents invocation successfully and ends its span.
-// (LoongSuite Extension)
+// (LoongSuite Extension - reranking is not part of the official spec)
 func (h *TelemetryHandler) StopRerank(invocation *RerankInvocation) {
 	if invocation.span == nil {
 		return
@@ -456,7 +451,7 @@ func (h *TelemetryHandler) StopRerank(invocation *RerankInvocation) {
 }
 
 // FailRerank fails a rerank documents invocation and ends its span with error status.
-// (LoongSuite Extension)
+// (LoongSuite Extension - reranking is not part of the official spec)
 func (h *TelemetryHandler) FailRerank(invocation *RerankInvocation, err *Error) {
 	if invocation.span == nil {
 		return

@@ -70,16 +70,17 @@ func ParseContentCapturingMode(s string) ContentCapturingMode {
 type OperationName string
 
 const (
-	// Basic LLM operations
-	OperationChat           OperationName = "chat"
-	OperationTextCompletion OperationName = "text_completion"
+	// Official GenAI operation names from the OpenTelemetry spec
+	OperationChat            OperationName = "chat"
+	OperationTextCompletion  OperationName = "text_completion"
 	OperationGenerateContent OperationName = "generate_content"
-
-	// Extended operations (LoongSuite Extension)
-	OperationEmbeddings  OperationName = "embeddings"
-	OperationCreateAgent OperationName = "create_agent"
-	OperationInvokeAgent OperationName = "invoke_agent"
-	OperationExecuteTool OperationName = "execute_tool"
+	OperationEmbeddings      OperationName = "embeddings"
+	OperationRetrieval       OperationName = "retrieval"
+	OperationCreateAgent     OperationName = "create_agent"
+	OperationInvokeAgent     OperationName = "invoke_agent"
+	OperationExecuteTool     OperationName = "execute_tool"
+	OperationInvokeWorkflow  OperationName = "invoke_workflow"
+	OperationPlan            OperationName = "plan"
 )
 
 // FinishReason defines possible finish reasons for a generation.
@@ -197,11 +198,24 @@ type LLMInvocation struct {
 	Provider         string        `json:"provider,omitempty"`
 	Temperature      *float64      `json:"temperature,omitempty"`
 	TopP             *float64      `json:"top_p,omitempty"`
+	TopK             *int          `json:"top_k,omitempty"`
 	FrequencyPenalty *float64      `json:"frequency_penalty,omitempty"`
 	PresencePenalty  *float64      `json:"presence_penalty,omitempty"`
 	MaxTokens        *int          `json:"max_tokens,omitempty"`
 	StopSequences    []string      `json:"stop_sequences,omitempty"`
 	Seed             *int          `json:"seed,omitempty"`
+	Stream           *bool         `json:"stream,omitempty"`
+	ChoiceCount      *int          `json:"choice_count,omitempty"`
+	OutputType       string        `json:"output_type,omitempty"`
+	ReasoningLevel   string        `json:"reasoning_level,omitempty"`
+
+	// Prompt template attributes
+	PromptName    string `json:"prompt_name,omitempty"`
+	PromptVersion string `json:"prompt_version,omitempty"`
+
+	// Conversation tracking
+	ConversationID        string `json:"conversation_id,omitempty"`
+	ConversationCompacted *bool  `json:"conversation_compacted,omitempty"`
 
 	// Messages
 	InputMessages     []InputMessage           `json:"input_messages,omitempty"`
@@ -215,6 +229,14 @@ type LLMInvocation struct {
 	FinishReasons     []FinishReason `json:"finish_reasons,omitempty"`
 	InputTokens       *int           `json:"input_tokens,omitempty"`
 	OutputTokens      *int           `json:"output_tokens,omitempty"`
+
+	// Extended usage attributes (from official spec)
+	ReasoningOutputTokens  *int `json:"reasoning_output_tokens,omitempty"`
+	CacheReadInputTokens   *int `json:"cache_read_input_tokens,omitempty"`
+	CacheCreationInputTokens *int `json:"cache_creation_input_tokens,omitempty"`
+
+	// Streaming response metadata
+	TimeToFirstChunk *float64 `json:"time_to_first_chunk,omitempty"`
 
 	// Additional attributes
 	Attributes map[string]any `json:"attributes,omitempty"`
@@ -246,12 +268,17 @@ func NewLLMInvocation(requestModel string) *LLMInvocation {
 
 // EmbeddingInvocation represents an embedding operation invocation.
 type EmbeddingInvocation struct {
-	RequestModel string         `json:"request_model"`
-	Provider     string         `json:"provider,omitempty"`
-	InputCount   *int           `json:"input_count,omitempty"`
-	Dimensions   *int           `json:"dimensions,omitempty"`
-	InputTokens  *int           `json:"input_tokens,omitempty"`
-	Attributes   map[string]any `json:"attributes,omitempty"`
+	RequestModel    string   `json:"request_model"`
+	Provider        string   `json:"provider,omitempty"`
+	InputCount      *int     `json:"input_count,omitempty"`
+	DimensionCount  *int     `json:"dimension_count,omitempty"`
+	EncodingFormats []string `json:"encoding_formats,omitempty"`
+	InputTokens     *int     `json:"input_tokens,omitempty"`
+
+	// Response data
+	ResponseModelName string `json:"response_model_name,omitempty"`
+
+	Attributes map[string]any `json:"attributes,omitempty"`
 
 	// Internal fields
 	span            trace.Span
@@ -270,11 +297,13 @@ func NewEmbeddingInvocation(requestModel string) *EmbeddingInvocation {
 
 // ExecuteToolInvocation represents a tool execution invocation.
 type ExecuteToolInvocation struct {
-	ToolName   string         `json:"tool_name"`
-	ToolCallID string         `json:"tool_call_id,omitempty"`
-	Input      any            `json:"input,omitempty"`
-	Output     any            `json:"output,omitempty"`
-	Attributes map[string]any `json:"attributes,omitempty"`
+	ToolName        string `json:"tool_name"`
+	ToolCallID      string `json:"tool_call_id,omitempty"`
+	ToolDescription string `json:"tool_description,omitempty"`
+	ToolType        string `json:"tool_type,omitempty"`
+	Input           any    `json:"input,omitempty"`
+	Output          any    `json:"output,omitempty"`
+	Attributes      map[string]any `json:"attributes,omitempty"`
 
 	// Internal fields
 	span            trace.Span
@@ -293,12 +322,15 @@ func NewExecuteToolInvocation(toolName string) *ExecuteToolInvocation {
 
 // InvokeAgentInvocation represents an agent invocation.
 type InvokeAgentInvocation struct {
-	AgentName      string         `json:"agent_name,omitempty"`
-	AgentID        string         `json:"agent_id,omitempty"`
-	Provider       string         `json:"provider,omitempty"`
-	InputMessages  []InputMessage `json:"input_messages,omitempty"`
-	OutputMessages []OutputMessage `json:"output_messages,omitempty"`
-	Attributes     map[string]any `json:"attributes,omitempty"`
+	AgentName        string         `json:"agent_name,omitempty"`
+	AgentID          string         `json:"agent_id,omitempty"`
+	AgentDescription string         `json:"agent_description,omitempty"`
+	AgentVersion     string         `json:"agent_version,omitempty"`
+	Provider         string         `json:"provider,omitempty"`
+	ConversationID   string         `json:"conversation_id,omitempty"`
+	InputMessages    []InputMessage `json:"input_messages,omitempty"`
+	OutputMessages   []OutputMessage `json:"output_messages,omitempty"`
+	Attributes       map[string]any `json:"attributes,omitempty"`
 
 	// Internal fields
 	span            trace.Span
@@ -316,11 +348,13 @@ func NewInvokeAgentInvocation() *InvokeAgentInvocation {
 
 // CreateAgentInvocation represents an agent creation invocation.
 type CreateAgentInvocation struct {
-	AgentName   string         `json:"agent_name,omitempty"`
-	AgentID     string         `json:"agent_id,omitempty"`
-	Provider    string         `json:"provider,omitempty"`
-	Description string         `json:"description,omitempty"`
-	Attributes  map[string]any `json:"attributes,omitempty"`
+	AgentName        string         `json:"agent_name,omitempty"`
+	AgentID          string         `json:"agent_id,omitempty"`
+	AgentDescription string         `json:"agent_description,omitempty"`
+	AgentVersion     string         `json:"agent_version,omitempty"`
+	Provider         string         `json:"provider,omitempty"`
+	Description      string         `json:"description,omitempty"`
+	Attributes       map[string]any `json:"attributes,omitempty"`
 
 	// Internal fields
 	span            trace.Span
@@ -338,11 +372,11 @@ func NewCreateAgentInvocation() *CreateAgentInvocation {
 
 // RetrieveInvocation represents a document retrieval operation.
 type RetrieveInvocation struct {
-	Query           string         `json:"query,omitempty"`
-	TopK            *int           `json:"top_k,omitempty"`
-	DocumentCount   *int           `json:"document_count,omitempty"`
-	DataSourceName  string         `json:"data_source_name,omitempty"`
-	Attributes      map[string]any `json:"attributes,omitempty"`
+	QueryText      string         `json:"query_text,omitempty"`
+	TopK           *int           `json:"top_k,omitempty"`
+	DataSourceID   string         `json:"data_source_id,omitempty"`
+	Provider       string         `json:"provider,omitempty"`
+	Attributes     map[string]any `json:"attributes,omitempty"`
 
 	// Internal fields
 	span            trace.Span
@@ -359,6 +393,7 @@ func NewRetrieveInvocation() *RetrieveInvocation {
 }
 
 // RerankInvocation represents a document reranking operation.
+// (LoongSuite Extension - reranking is not part of the official spec)
 type RerankInvocation struct {
 	Query         string         `json:"query,omitempty"`
 	Model         string         `json:"model,omitempty"`

@@ -121,7 +121,7 @@ func ExampleTelemetryHandler_StartEmbedding() {
 	inputTokens := 150
 	invocation.InputTokens = &inputTokens
 	dimensions := 1536
-	invocation.Dimensions = &dimensions
+	invocation.DimensionCount = &dimensions
 
 	// Stop the embedding invocation
 	handler.StopEmbedding(invocation)
@@ -299,4 +299,95 @@ func ExampleTelemetryHandler_deferPattern() {
 	_ = ctx
 	fmt.Println("Defer pattern example completed")
 	// Output: Defer pattern example completed
+}
+
+// ExampleTelemetryHandler_streaming demonstrates instrumenting a streaming LLM call
+// with gen_ai.request.stream and gen_ai.response.time_to_first_chunk.
+func ExampleTelemetryHandler_streaming() {
+	handler := utilgenai.NewTelemetryHandler()
+	ctx := context.Background()
+
+	// Create a streaming LLM invocation
+	invocation := utilgenai.NewLLMInvocation("gpt-4o")
+	invocation.Provider = "openai"
+	stream := true
+	invocation.Stream = &stream
+	invocation.InputMessages = []utilgenai.InputMessage{
+		{
+			Role: "user",
+			Parts: []utilgenai.MessagePart{
+				utilgenai.Text{Content: "Explain quantum computing briefly."},
+			},
+		},
+	}
+
+	// Start the invocation
+	ctx = handler.StartLLM(ctx, invocation)
+
+	// Simulate streaming - record time to first chunk
+	timeToFirstChunk := 0.35 // 350ms to first chunk
+	invocation.TimeToFirstChunk = &timeToFirstChunk
+
+	// After collecting all chunks, set the complete response
+	invocation.OutputMessages = []utilgenai.OutputMessage{
+		{
+			Role: "assistant",
+			Parts: []utilgenai.MessagePart{
+				utilgenai.Text{Content: "Quantum computing uses quantum bits..."},
+			},
+			FinishReason: utilgenai.FinishReasonStop,
+		},
+	}
+	inputTokens := 8
+	outputTokens := 42
+	invocation.InputTokens = &inputTokens
+	invocation.OutputTokens = &outputTokens
+
+	handler.StopLLM(invocation)
+
+	_ = ctx
+	fmt.Println("Streaming invocation completed")
+	// Output: Streaming invocation completed
+}
+
+// ExampleTelemetryHandler_conversationTracking demonstrates using
+// gen_ai.conversation.id to track multi-turn conversations.
+func ExampleTelemetryHandler_conversationTracking() {
+	handler := utilgenai.NewTelemetryHandler()
+	ctx := context.Background()
+
+	// First turn in a conversation
+	invocation := utilgenai.NewLLMInvocation("gpt-4o")
+	invocation.Provider = "openai"
+	invocation.ConversationID = "conv_5j66UpCpwteGg4YSxUnt7lPY"
+	invocation.InputMessages = []utilgenai.InputMessage{
+		{
+			Role: "user",
+			Parts: []utilgenai.MessagePart{
+				utilgenai.Text{Content: "What is the capital of France?"},
+			},
+		},
+	}
+
+	ctx = handler.StartLLM(ctx, invocation)
+
+	invocation.OutputMessages = []utilgenai.OutputMessage{
+		{
+			Role: "assistant",
+			Parts: []utilgenai.MessagePart{
+				utilgenai.Text{Content: "The capital of France is Paris."},
+			},
+			FinishReason: utilgenai.FinishReasonStop,
+		},
+	}
+	inputTokens := 10
+	outputTokens := 8
+	invocation.InputTokens = &inputTokens
+	invocation.OutputTokens = &outputTokens
+
+	handler.StopLLM(invocation)
+
+	_ = ctx
+	fmt.Println("Conversation turn completed")
+	// Output: Conversation turn completed
 }

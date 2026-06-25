@@ -23,6 +23,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"time"
 
 	utilgenai "github.com/alibaba/loongsuite-go/util-genai"
 	openai "github.com/sashabaranov/go-openai"
@@ -183,6 +184,11 @@ func streamingChatCompletion(ctx context.Context, client *openai.Client, handler
 	invocation := utilgenai.NewLLMInvocation("gpt-4o-mini")
 	invocation.Provider = "openai"
 	invocation.OperationName = utilgenai.OperationChat
+	// Per spec: set gen_ai.request.stream when the request is streaming
+	isStreaming := true
+	invocation.Stream = &isStreaming
+	// Demonstrate conversation tracking with gen_ai.conversation.id
+	invocation.ConversationID = "conv_demo_streaming_session"
 	invocation.InputMessages = []utilgenai.InputMessage{
 		{
 			Role: "user",
@@ -212,9 +218,11 @@ func streamingChatCompletion(ctx context.Context, client *openai.Client, handler
 	}
 	defer stream.Close()
 
-	// Collect the streamed response
+	// Collect the streamed response, measuring time to first chunk
 	var fullContent string
 	var finishReason openai.FinishReason
+	firstChunk := true
+	streamStart := time.Now()
 
 	for {
 		response, err := stream.Recv()
@@ -228,6 +236,13 @@ func streamingChatCompletion(ctx context.Context, client *openai.Client, handler
 			})
 			fmt.Printf("Stream receive failed: %v\n", err)
 			return
+		}
+
+		// Record time_to_first_chunk per spec
+		if firstChunk {
+			ttfc := time.Since(streamStart).Seconds()
+			invocation.TimeToFirstChunk = &ttfc
+			firstChunk = false
 		}
 
 		if len(response.Choices) > 0 {
@@ -291,7 +306,7 @@ func embedding(ctx context.Context, client *openai.Client, handler *utilgenai.Te
 	invocation.InputTokens = &inputTokens
 	if len(resp.Data) > 0 {
 		dims := len(resp.Data[0].Embedding)
-		invocation.Dimensions = &dims
+		invocation.DimensionCount = &dims
 	}
 
 	// Finalize the span

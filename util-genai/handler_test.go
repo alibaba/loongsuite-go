@@ -181,7 +181,7 @@ func TestRetrieveInvocation(t *testing.T) {
 	ctx := context.Background()
 
 	invocation := NewRetrieveInvocation()
-	invocation.Query = "What is OpenTelemetry?"
+	invocation.QueryText = "What is OpenTelemetry?"
 	topK := 10
 	invocation.TopK = &topK
 
@@ -190,8 +190,6 @@ func TestRetrieveInvocation(t *testing.T) {
 		t.Fatal("Span should be set after StartRetrieve")
 	}
 
-	docCount := 5
-	invocation.DocumentCount = &docCount
 	_ = ctx
 
 	handler.StopRetrieve(invocation)

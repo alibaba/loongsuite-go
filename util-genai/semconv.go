@@ -17,81 +17,108 @@ package utilgenai
 import "go.opentelemetry.io/otel/attribute"
 
 // ============================================================================
-// Basic Semantic Conventions
+// Official OpenTelemetry GenAI Semantic Conventions
 //
-// These attribute keys follow the OpenTelemetry semantic conventions for GenAI
-// and are used for basic LLM instrumentation (chat, text_completion, generate_content).
-// See: https://github.com/open-telemetry/semantic-conventions/blob/main/docs/gen-ai/README.md
+// These attribute keys follow the OpenTelemetry semantic conventions for GenAI.
+// See: https://github.com/open-telemetry/semantic-conventions-genai/tree/main/model/gen-ai
 // ============================================================================
 
 const (
-	// GenAI operation attributes (Basic)
+	// GenAI operation attributes
 	AttrGenAIOperationName = "gen_ai.operation.name"
 	AttrGenAIProviderName  = "gen_ai.provider.name"
 
-	// GenAI request attributes (Basic)
+	// GenAI request attributes
 	AttrGenAIRequestModel            = "gen_ai.request.model"
 	AttrGenAIRequestTemperature      = "gen_ai.request.temperature"
 	AttrGenAIRequestTopP             = "gen_ai.request.top_p"
+	AttrGenAIRequestTopK             = "gen_ai.request.top_k"
 	AttrGenAIRequestFrequencyPenalty = "gen_ai.request.frequency_penalty"
 	AttrGenAIRequestPresencePenalty  = "gen_ai.request.presence_penalty"
 	AttrGenAIRequestMaxTokens        = "gen_ai.request.max_tokens"
 	AttrGenAIRequestStopSequences    = "gen_ai.request.stop_sequences"
 	AttrGenAIRequestSeed             = "gen_ai.request.seed"
+	AttrGenAIRequestStream           = "gen_ai.request.stream"
+	AttrGenAIRequestChoiceCount      = "gen_ai.request.choice.count"
+	AttrGenAIRequestEncodingFormats  = "gen_ai.request.encoding_formats"
+	AttrGenAIRequestReasoningLevel   = "gen_ai.request.reasoning.level"
 
-	// GenAI response attributes (Basic)
-	AttrGenAIResponseModel         = "gen_ai.response.model"
-	AttrGenAIResponseID            = "gen_ai.response.id"
-	AttrGenAIResponseFinishReasons = "gen_ai.response.finish_reasons"
+	// GenAI output attributes
+	AttrGenAIOutputType = "gen_ai.output.type"
 
-	// GenAI usage attributes (Basic)
-	AttrGenAIUsageInputTokens  = "gen_ai.usage.input_tokens"
-	AttrGenAIUsageOutputTokens = "gen_ai.usage.output_tokens"
-	AttrGenAIUsageTotalTokens  = "gen_ai.usage.total_tokens"
+	// GenAI response attributes
+	AttrGenAIResponseModel            = "gen_ai.response.model"
+	AttrGenAIResponseID               = "gen_ai.response.id"
+	AttrGenAIResponseFinishReasons    = "gen_ai.response.finish_reasons"
+	AttrGenAIResponseTimeToFirstChunk = "gen_ai.response.time_to_first_chunk"
 
-	// GenAI message content attributes - experimental (Basic)
+	// GenAI usage attributes
+	AttrGenAIUsageInputTokens            = "gen_ai.usage.input_tokens"
+	AttrGenAIUsageOutputTokens           = "gen_ai.usage.output_tokens"
+	AttrGenAIUsageReasoningOutputTokens  = "gen_ai.usage.reasoning.output_tokens"
+	AttrGenAIUsageCacheReadInputTokens   = "gen_ai.usage.cache_read.input_tokens"
+	AttrGenAIUsageCacheCreationInputTokens = "gen_ai.usage.cache_creation.input_tokens"
+
+	// GenAI conversation attributes
+	AttrGenAIConversationID        = "gen_ai.conversation.id"
+	AttrGenAIConversationCompacted = "gen_ai.conversation.compacted"
+
+	// GenAI prompt attributes
+	AttrGenAIPromptName    = "gen_ai.prompt.name"
+	AttrGenAIPromptVersion = "gen_ai.prompt.version"
+
+	// GenAI message content attributes - experimental
 	AttrGenAIInputMessages      = "gen_ai.input.messages"
 	AttrGenAIOutputMessages     = "gen_ai.output.messages"
 	AttrGenAISystemInstructions = "gen_ai.system_instructions"
-	AttrGenAIToolDefinitions    = "gen_ai.tool_definitions"
+	AttrGenAIToolDefinitions    = "gen_ai.tool.definitions"
 
-	// GenAI token type attribute for metrics (Basic)
+	// GenAI token type attribute for metrics
 	AttrGenAITokenType = "gen_ai.token.type"
 
-	// Error attributes (Basic)
+	// GenAI agent attributes
+	AttrGenAIAgentName        = "gen_ai.agent.name"
+	AttrGenAIAgentID          = "gen_ai.agent.id"
+	AttrGenAIAgentDescription = "gen_ai.agent.description"
+	AttrGenAIAgentVersion     = "gen_ai.agent.version"
+
+	// GenAI tool attributes
+	AttrGenAIToolName          = "gen_ai.tool.name"
+	AttrGenAIToolCallID        = "gen_ai.tool.call.id"
+	AttrGenAIToolDescription   = "gen_ai.tool.description"
+	AttrGenAIToolType          = "gen_ai.tool.type"
+	AttrGenAIToolCallArguments = "gen_ai.tool.call.arguments"
+	AttrGenAIToolCallResult    = "gen_ai.tool.call.result"
+
+	// GenAI embeddings attributes
+	AttrGenAIEmbeddingsDimensionCount = "gen_ai.embeddings.dimension.count"
+
+	// GenAI retrieval attributes
+	AttrGenAIRetrievalQueryText = "gen_ai.retrieval.query.text"
+	AttrGenAIRetrievalTopK      = "gen_ai.retrieval.top_k"
+	AttrGenAIRetrievalDocuments = "gen_ai.retrieval.documents"
+	AttrGenAIDataSourceID       = "gen_ai.data_source.id"
+
+	// GenAI workflow attributes
+	AttrGenAIWorkflowName = "gen_ai.workflow.name"
+
+	// Error attributes
 	AttrErrorType = "error.type"
 
 	// ========================================================================
-	// Extended Semantic Conventions (LoongSuite Extension)
+	// LoongSuite Extension Attributes
 	//
-	// These attribute keys are extensions for additional GenAI operations
-	// beyond basic LLM calls.
+	// These attribute keys are LoongSuite-specific extensions not part of the
+	// official OpenTelemetry GenAI semantic conventions.
 	// ========================================================================
 
-	// Span kind attribute (LoongSuite Extension)
+	// Span kind attribute (LoongSuite Extension - not in official spec)
 	AttrGenAISpanKind = "gen_ai.span.kind"
 
-	// Agent attributes (LoongSuite Extension)
-	AttrGenAIAgentName = "gen_ai.agent.name"
-	AttrGenAIAgentID   = "gen_ai.agent.id"
-
-	// Tool attributes (LoongSuite Extension)
-	AttrGenAIToolName   = "gen_ai.tool.name"
-	AttrGenAIToolCallID = "gen_ai.tool.call.id"
-	AttrGenAIToolInput  = "gen_ai.tool.input"
-	AttrGenAIToolOutput = "gen_ai.tool.output"
-
-	// Embedding attributes (LoongSuite Extension)
+	// Embedding input count (LoongSuite Extension - not in official spec)
 	AttrGenAIEmbeddingInputCount = "gen_ai.embedding.input_count"
-	AttrGenAIEmbeddingDimensions = "gen_ai.embedding.dimensions"
 
-	// Retrieve attributes (LoongSuite Extension)
-	AttrGenAIRetrieveQuery          = "gen_ai.retrieve.query"
-	AttrGenAIRetrieveTopK           = "gen_ai.retrieve.top_k"
-	AttrGenAIRetrieveDocumentCount  = "gen_ai.retrieve.document_count"
-	AttrGenAIRetrieveDataSourceName = "gen_ai.retrieve.data_source_name"
-
-	// Rerank attributes (LoongSuite Extension)
+	// Rerank attributes (LoongSuite Extension - not in official spec)
 	AttrGenAIRerankQuery       = "gen_ai.rerank.query"
 	AttrGenAIRerankModel       = "gen_ai.rerank.model"
 	AttrGenAIRerankTopN        = "gen_ai.rerank.top_n"
@@ -99,14 +126,11 @@ const (
 	AttrGenAIRerankOutputCount = "gen_ai.rerank.output_count"
 )
 
-// SpanKind values for GenAI operations (LoongSuite Extension)
+// SpanKind values for GenAI operations (LoongSuite Extension - not in official spec)
 type SpanKindValue string
 
 const (
-	// Basic span kind
-	SpanKindLLM SpanKindValue = "llm"
-
-	// Extended span kinds (LoongSuite Extension)
+	SpanKindLLM       SpanKindValue = "llm"
 	SpanKindEmbedding SpanKindValue = "embedding"
 	SpanKindAgent     SpanKindValue = "agent"
 	SpanKindTool      SpanKindValue = "tool"
@@ -122,14 +146,29 @@ const (
 	TokenTypeOutput TokenType = "output"
 )
 
-// Metric names for GenAI (Basic)
+// OutputType values for gen_ai.output.type
+type OutputType string
+
 const (
-	MetricGenAIClientOperationDuration = "gen_ai.client.operation.duration"
-	MetricGenAIClientTokenUsage        = "gen_ai.client.token.usage"
+	OutputTypeText   OutputType = "text"
+	OutputTypeJSON   OutputType = "json"
+	OutputTypeImage  OutputType = "image"
+	OutputTypeSpeech OutputType = "speech"
+)
+
+// Metric names for GenAI
+const (
+	MetricGenAIClientOperationDuration         = "gen_ai.client.operation.duration"
+	MetricGenAIClientTokenUsage                = "gen_ai.client.token.usage"
+	MetricGenAIClientOperationTimeToFirstChunk = "gen_ai.client.operation.time_to_first_chunk"
+	MetricGenAIClientOperationTimePerOutputChunk = "gen_ai.client.operation.time_per_output_chunk"
+	MetricGenAIInvokeAgentDuration             = "gen_ai.invoke_agent.duration"
+	MetricGenAIExecuteToolDuration             = "gen_ai.execute_tool.duration"
+	MetricGenAIWorkflowDuration                = "gen_ai.workflow.duration"
 )
 
 // ============================================================================
-// Basic Attribute Helper Functions
+// Attribute Helper Functions
 // ============================================================================
 
 // GenAIOperationName creates an attribute for the operation name.
@@ -147,6 +186,11 @@ func GenAIRequestModel(model string) attribute.KeyValue {
 	return attribute.String(AttrGenAIRequestModel, model)
 }
 
+// GenAIRequestStream creates an attribute indicating streaming mode.
+func GenAIRequestStream(stream bool) attribute.KeyValue {
+	return attribute.Bool(AttrGenAIRequestStream, stream)
+}
+
 // GenAIResponseModel creates an attribute for the response model.
 func GenAIResponseModel(model string) attribute.KeyValue {
 	return attribute.String(AttrGenAIResponseModel, model)
@@ -162,6 +206,11 @@ func GenAIResponseFinishReasons(reasons []string) attribute.KeyValue {
 	return attribute.StringSlice(AttrGenAIResponseFinishReasons, reasons)
 }
 
+// GenAIResponseTimeToFirstChunk creates an attribute for time to first chunk in seconds.
+func GenAIResponseTimeToFirstChunk(seconds float64) attribute.KeyValue {
+	return attribute.Float64(AttrGenAIResponseTimeToFirstChunk, seconds)
+}
+
 // GenAIUsageInputTokens creates an attribute for input token count.
 func GenAIUsageInputTokens(count int) attribute.KeyValue {
 	return attribute.Int(AttrGenAIUsageInputTokens, count)
@@ -172,17 +221,47 @@ func GenAIUsageOutputTokens(count int) attribute.KeyValue {
 	return attribute.Int(AttrGenAIUsageOutputTokens, count)
 }
 
-// GenAIUsageTotalTokens creates an attribute for total token count.
-func GenAIUsageTotalTokens(count int) attribute.KeyValue {
-	return attribute.Int(AttrGenAIUsageTotalTokens, count)
+// GenAIUsageReasoningOutputTokens creates an attribute for reasoning output token count.
+func GenAIUsageReasoningOutputTokens(count int) attribute.KeyValue {
+	return attribute.Int(AttrGenAIUsageReasoningOutputTokens, count)
+}
+
+// GenAIUsageCacheReadInputTokens creates an attribute for cache read input token count.
+func GenAIUsageCacheReadInputTokens(count int) attribute.KeyValue {
+	return attribute.Int(AttrGenAIUsageCacheReadInputTokens, count)
+}
+
+// GenAIUsageCacheCreationInputTokens creates an attribute for cache creation input token count.
+func GenAIUsageCacheCreationInputTokens(count int) attribute.KeyValue {
+	return attribute.Int(AttrGenAIUsageCacheCreationInputTokens, count)
+}
+
+// GenAIConversationID creates an attribute for the conversation/session ID.
+func GenAIConversationID(id string) attribute.KeyValue {
+	return attribute.String(AttrGenAIConversationID, id)
+}
+
+// GenAIConversationCompacted creates an attribute indicating context compaction.
+func GenAIConversationCompacted(compacted bool) attribute.KeyValue {
+	return attribute.Bool(AttrGenAIConversationCompacted, compacted)
+}
+
+// GenAIPromptName creates an attribute for the prompt template name.
+func GenAIPromptName(name string) attribute.KeyValue {
+	return attribute.String(AttrGenAIPromptName, name)
+}
+
+// GenAIPromptVersion creates an attribute for the prompt template version.
+func GenAIPromptVersion(version string) attribute.KeyValue {
+	return attribute.String(AttrGenAIPromptVersion, version)
 }
 
 // ============================================================================
-// Extended Attribute Helper Functions (LoongSuite Extension)
+// LoongSuite Extension Helper Functions
 // ============================================================================
 
 // GenAISpanKind creates an attribute for the span kind.
-// (LoongSuite Extension)
+// (LoongSuite Extension - not in official spec)
 func GenAISpanKind(kind SpanKindValue) attribute.KeyValue {
 	return attribute.String(AttrGenAISpanKind, string(kind))
 }

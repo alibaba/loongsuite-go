@@ -35,19 +35,28 @@ var (
 		1, 4, 16, 64, 256, 1024, 4096, 16384,
 		65536, 262144, 1048576, 4194304, 16777216, 67108864,
 	}
+
+	// Time to first chunk buckets in seconds
+	GenAITimeToFirstChunkBuckets = []float64{
+		0.001, 0.005, 0.01, 0.02, 0.04, 0.06, 0.08, 0.1,
+		0.25, 0.5, 0.75, 1.0, 2.5, 5.0, 7.5, 10.0,
+	}
 )
 
 // MetricsRecorder records duration and token usage metrics for GenAI invocations.
 type MetricsRecorder struct {
-	durationHistogram metric.Float64Histogram
-	tokenHistogram    metric.Int64Histogram
+	durationHistogram       metric.Float64Histogram
+	tokenHistogram          metric.Int64Histogram
+	timeToFirstChunkHist    metric.Float64Histogram
+	invokeAgentDurationHist metric.Float64Histogram
+	executeToolDurationHist metric.Float64Histogram
 }
 
 // NewMetricsRecorder creates a new MetricsRecorder with the given meter.
 func NewMetricsRecorder(meter metric.Meter) (*MetricsRecorder, error) {
 	durationHist, err := meter.Float64Histogram(
 		MetricGenAIClientOperationDuration,
-		metric.WithDescription("Duration of GenAI client operation"),
+		metric.WithDescription("GenAI operation duration"),
 		metric.WithUnit("s"),
 		metric.WithExplicitBucketBoundaries(GenAIClientOperationDurationBuckets...),
 	)
@@ -57,7 +66,7 @@ func NewMetricsRecorder(meter metric.Meter) (*MetricsRecorder, error) {
 
 	tokenHist, err := meter.Int64Histogram(
 		MetricGenAIClientTokenUsage,
-		metric.WithDescription("Number of input and output tokens used by GenAI clients"),
+		metric.WithDescription("Number of input and output tokens used"),
 		metric.WithUnit("{token}"),
 		metric.WithExplicitBucketBoundaries(GenAIClientTokenUsageBuckets...),
 	)
@@ -65,18 +74,50 @@ func NewMetricsRecorder(meter metric.Meter) (*MetricsRecorder, error) {
 		return nil, err
 	}
 
+	timeToFirstChunkHist, err := meter.Float64Histogram(
+		MetricGenAIClientOperationTimeToFirstChunk,
+		metric.WithDescription("Time to receive the first chunk in a streaming response"),
+		metric.WithUnit("s"),
+		metric.WithExplicitBucketBoundaries(GenAITimeToFirstChunkBuckets...),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	invokeAgentDurationHist, err := meter.Float64Histogram(
+		MetricGenAIInvokeAgentDuration,
+		metric.WithDescription("The end-to-end duration of a single in-process agent invocation"),
+		metric.WithUnit("s"),
+		metric.WithExplicitBucketBoundaries(GenAIClientOperationDurationBuckets...),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	executeToolDurationHist, err := meter.Float64Histogram(
+		MetricGenAIExecuteToolDuration,
+		metric.WithDescription("The duration of a single tool execution"),
+		metric.WithUnit("s"),
+		metric.WithExplicitBucketBoundaries(GenAIClientOperationDurationBuckets...),
+	)
+	if err != nil {
+		return nil, err
+	}
+
 	return &MetricsRecorder{
-		durationHistogram: durationHist,
-		tokenHistogram:    tokenHist,
+		durationHistogram:       durationHist,
+		tokenHistogram:          tokenHist,
+		timeToFirstChunkHist:    timeToFirstChunkHist,
+		invokeAgentDurationHist: invokeAgentDurationHist,
+		executeToolDurationHist: executeToolDurationHist,
 	}, nil
 }
 
 // ============================================================================
-// Basic LLM Metrics
+// LLM Metrics
 //
 // These methods record duration and token usage metrics for LLM operations
-// (chat, text_completion, generate_content), which is the core functionality
-// for instrumenting language model calls.
+// (chat, text_completion, generate_content), following official GenAI metrics spec.
 // ============================================================================
 
 // RecordLLM records duration and token metrics for an LLM invocation.
@@ -121,17 +162,21 @@ func (r *MetricsRecorder) RecordLLM(ctx context.Context, invocation *LLMInvocati
 		tokenAttrs[len(attrs)] = attribute.String(AttrGenAITokenType, string(TokenTypeOutput))
 		r.tokenHistogram.Record(ctx, int64(*invocation.OutputTokens), metric.WithAttributes(tokenAttrs...))
 	}
+
+	// Record time to first chunk for streaming requests
+	if invocation.TimeToFirstChunk != nil {
+		r.timeToFirstChunkHist.Record(ctx, *invocation.TimeToFirstChunk, metric.WithAttributes(attrs...))
+	}
 }
 
 // ============================================================================
-// Extended Metrics (LoongSuite Extension)
+// Extended Metrics
 //
 // The following methods record metrics for additional GenAI operations beyond
 // basic LLM calls, including embeddings, tool execution, and agent operations.
 // ============================================================================
 
 // RecordEmbedding records metrics for an embedding invocation.
-// (LoongSuite Extension)
 func (r *MetricsRecorder) RecordEmbedding(ctx context.Context, invocation *EmbeddingInvocation, duration time.Duration, errorType string) {
 	if r == nil {
 		return
@@ -146,6 +191,9 @@ func (r *MetricsRecorder) RecordEmbedding(ctx context.Context, invocation *Embed
 	}
 	if invocation.Provider != "" {
 		attrs = append(attrs, GenAIProviderName(invocation.Provider))
+	}
+	if invocation.ResponseModelName != "" {
+		attrs = append(attrs, GenAIResponseModel(invocation.ResponseModelName))
 	}
 	if errorType != "" {
 		attrs = append(attrs, attribute.String(AttrErrorType, errorType))
@@ -166,50 +214,53 @@ func (r *MetricsRecorder) RecordEmbedding(ctx context.Context, invocation *Embed
 }
 
 // RecordTool records metrics for a tool execution invocation.
-// (LoongSuite Extension)
+// Uses the official gen_ai.execute_tool.duration metric.
 func (r *MetricsRecorder) RecordTool(ctx context.Context, invocation *ExecuteToolInvocation, duration time.Duration, errorType string) {
 	if r == nil {
 		return
 	}
 
 	attrs := []attribute.KeyValue{
-		GenAIOperationName(OperationExecuteTool),
 		attribute.String(AttrGenAIToolName, invocation.ToolName),
 	}
 
+	if invocation.ToolType != "" {
+		attrs = append(attrs, attribute.String(AttrGenAIToolType, invocation.ToolType))
+	}
 	if errorType != "" {
 		attrs = append(attrs, attribute.String(AttrErrorType, errorType))
 	}
 
-	// Record duration
+	// Record duration using the official execute_tool.duration metric
 	if duration > 0 {
-		r.durationHistogram.Record(ctx, duration.Seconds(), metric.WithAttributes(attrs...))
+		r.executeToolDurationHist.Record(ctx, duration.Seconds(), metric.WithAttributes(attrs...))
 	}
 }
 
 // RecordAgent records metrics for an agent invocation.
-// (LoongSuite Extension)
+// Uses the official gen_ai.invoke_agent.duration metric.
 func (r *MetricsRecorder) RecordAgent(ctx context.Context, invocation *InvokeAgentInvocation, duration time.Duration, errorType string) {
 	if r == nil {
 		return
 	}
 
-	attrs := []attribute.KeyValue{
-		GenAIOperationName(OperationInvokeAgent),
-	}
+	var attrs []attribute.KeyValue
 
 	if invocation.AgentName != "" {
 		attrs = append(attrs, attribute.String(AttrGenAIAgentName, invocation.AgentName))
 	}
-	if invocation.Provider != "" {
-		attrs = append(attrs, GenAIProviderName(invocation.Provider))
+	if invocation.AgentID != "" {
+		attrs = append(attrs, attribute.String(AttrGenAIAgentID, invocation.AgentID))
+	}
+	if invocation.AgentVersion != "" {
+		attrs = append(attrs, attribute.String(AttrGenAIAgentVersion, invocation.AgentVersion))
 	}
 	if errorType != "" {
 		attrs = append(attrs, attribute.String(AttrErrorType, errorType))
 	}
 
-	// Record duration
+	// Record duration using the official invoke_agent.duration metric
 	if duration > 0 {
-		r.durationHistogram.Record(ctx, duration.Seconds(), metric.WithAttributes(attrs...))
+		r.invokeAgentDurationHist.Record(ctx, duration.Seconds(), metric.WithAttributes(attrs...))
 	}
 }

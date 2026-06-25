@@ -2,55 +2,40 @@
   {
     "Version": "[1.5.0,2.0.0)",
     "ImportPath": "github.com/openai/openai-go",
-    "Function": "New",
-    "ReceiverType": "\\*ChatCompletionService",
-    "OnEnter": "newChatCompletionOnEnter",
-    "OnExit": "newChatCompletionOnExit",
-    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/openai-go"
-  },
-  {
-    "Version": "[1.5.0,2.0.0)",
-    "ImportPath": "github.com/openai/openai-go",
-    "Function": "NewStreaming",
-    "ReceiverType": "\\*ChatCompletionService",
-    "OnEnter": "officialNewChatCompletionStreamOnEnter",
-    "OnExit": "officialNewChatCompletionStreamOnExit",
+    "Function": "NewClient",
+    "OnEnter": "newClientOnEnter",
     "Path": "github.com/alibaba/loongsuite-go/pkg/rules/openai-go"
   },
   {
     "Version": "[2.0.0,3.0.0)",
     "ImportPath": "github.com/openai/openai-go/v2",
-    "Function": "New",
-    "ReceiverType": "\\*ChatCompletionService",
-    "OnEnter": "newChatCompletionOnEnter",
-    "OnExit": "newChatCompletionOnExit",
+    "Function": "NewClient",
+    "OnEnter": "newClientOnEnter",
     "Path": "github.com/alibaba/loongsuite-go/pkg/rules/openai-go-v2"
   },
   {
     "Version": "[2.0.0,3.0.0)",
     "ImportPath": "github.com/openai/openai-go/v2",
-    "Function": "NewStreaming",
-    "ReceiverType": "\\*ChatCompletionService",
-    "OnEnter": "officialNewChatCompletionStreamOnEnter",
-    "OnExit": "officialNewChatCompletionStreamOnExit",
+    "ReceiverType": "\\*EmbeddingService",
+    "Function": "New",
+    "OnEnter": "newEmbeddingsOnEnter",
+    "OnExit": "newEmbeddingsOnExit",
     "Path": "github.com/alibaba/loongsuite-go/pkg/rules/openai-go-v2"
   },
   {
     "Version": "[3.0.0,)",
     "ImportPath": "github.com/openai/openai-go/v3",
-    "Function": "New",
-    "ReceiverType": "\\*ChatCompletionService",
-    "OnEnter": "newChatCompletionOnEnter",
-    "OnExit": "newChatCompletionOnExit",
+    "Function": "NewClient",
+    "OnEnter": "newClientOnEnter",
     "Path": "github.com/alibaba/loongsuite-go/pkg/rules/openai-go-v3"
   },
   {
     "Version": "[3.0.0,)",
     "ImportPath": "github.com/openai/openai-go/v3",
-    "Function": "NewStreaming",
-    "ReceiverType": "\\*ChatCompletionService",
-    "OnEnter": "officialNewChatCompletionStreamOnEnter",
-    "OnExit": "officialNewChatCompletionStreamOnExit",
+    "ReceiverType": "\\*EmbeddingService",
+    "Function": "New",
+    "OnEnter": "newEmbeddingsOnEnter",
+    "OnExit": "newEmbeddingsOnExit",
     "Path": "github.com/alibaba/loongsuite-go/pkg/rules/openai-go-v3"
   },
   {
@@ -70,5 +55,62 @@
     "OnEnter": "communityCreateChatCompletionStreamOnEnter",
     "OnExit": "communityCreateChatCompletionStreamOnExit",
     "Path": "github.com/alibaba/loongsuite-go/pkg/rules/go-openai"
+  },
+  {
+    "Version": "[0.0.0-20250821095446-07791bea23a0,)",
+    "ImportPath": "github.com/meguminnnnnnnnn/go-openai",
+    "ReceiverType": "\\*Client",
+    "Function": "CreateChatCompletion",
+    "OnEnter": "communityCreateChatCompletionOnEnter",
+    "OnExit": "communityCreateChatCompletionOnExit",
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/meguminnnnnnnnn-openai"
+  },
+  {
+    "Version": "[0.0.0-20250821095446-07791bea23a0,)",
+    "ImportPath": "github.com/meguminnnnnnnnn/go-openai",
+    "ReceiverType": "\\*Client",
+    "Function": "CreateChatCompletionStream",
+    "OnEnter": "communityCreateChatCompletionStreamOnEnter",
+    "OnExit": "communityCreateChatCompletionStreamOnExit",
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/meguminnnnnnnnn-openai"
+  },
+  {
+    "Version": "[0.0.0-20250821095446-07791bea23a0,)",
+    "ImportPath": "github.com/meguminnnnnnnnn/go-openai",
+    "ReceiverType": "\\*Client",
+    "Function": "CreateCompletionStream",
+    "OnEnter": "communityCreateCompletionStreamOnEnter",
+    "OnExit": "communityCreateCompletionStreamOnExit",
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/meguminnnnnnnnn-openai"
+  },
+  {
+    "Version": "[0.0.0-20250821095446-07791bea23a0,)",
+    "ImportPath": "github.com/meguminnnnnnnnn/go-openai",
+    "ReceiverType": "\\*Client",
+    "Function": "CreateCompletion",
+    "OnEnter": "communityCreateCompletionOnEnter",
+    "OnExit": "communityCreateCompletionOnExit",
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/meguminnnnnnnnn-openai"
+  },
+  {
+    "Version": "[0.0.0-20250821095446-07791bea23a0,)",
+    "ImportPath": "github.com/meguminnnnnnnnn/go-openai",
+    "ReceiverType": "\\*Client",
+    "Function": "CreateEmbeddings",
+    "OnEnter": "communityCreateEmbeddingsOnEnter",
+    "OnExit": "communityCreateEmbeddingsOnExit",
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/meguminnnnnnnnn-openai"
+  },
+  {
+    "ImportPath": "github.com/meguminnnnnnnnn/go-openai",
+    "FileName": "stream_reader.go",
+    "Replace": true,
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/meguminnnnnnnnn-openai"
+  },
+  {
+    "Version": "[0.0.0-20250821095446-07791bea23a0,)",
+    "ImportPath": "github.com/meguminnnnnnnnn/go-openai",
+    "FileName": "client_otel.go",
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/meguminnnnnnnnn-openai"
   }
 ]

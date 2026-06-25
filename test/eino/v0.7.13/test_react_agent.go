@@ -16,6 +16,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/alibaba/loongsuite-go/test/verifier"
 
@@ -48,7 +49,23 @@ func main() {
 	}
 	verifier.WaitAndAssertTraces(func(stubs []tracetest.SpanStubs) {
 		verifier.VerifyLLMAttributes(stubs[0][3], "chat", "eino", "mock-chat")
-		verifier.VerifyLLMCommonAttributes(stubs[0][9], "tool_node", "eino", trace.SpanKindClient)
-		verifier.VerifyLLMCommonAttributes(stubs[0][10], "execute_tool", "eino", trace.SpanKindClient)
+		toolNodeSpan := findSpanByNameAndSystem(stubs[0], "tool_node", "eino", trace.SpanKindClient)
+		verifier.VerifyLLMCommonAttributes(toolNodeSpan, "tool_node", "eino", trace.SpanKindClient)
+		execToolSpan := findSpanByNameAndSystem(stubs[0], "execute_tool", "eino", trace.SpanKindClient)
+		verifier.VerifyLLMCommonAttributes(execToolSpan, "execute_tool", "eino", trace.SpanKindClient)
 	}, 1)
+}
+
+// findSpanByNameAndSystem searches for a span by name, system attribute, and kind.
+func findSpanByNameAndSystem(spans tracetest.SpanStubs, name, system string, kind trace.SpanKind) tracetest.SpanStub {
+	for _, span := range spans {
+		if span.Name == name && span.SpanKind == kind {
+			for _, attr := range span.Attributes {
+				if string(attr.Key) == "gen_ai.system" && attr.Value.AsString() == system {
+					return span
+				}
+			}
+		}
+	}
+	panic(fmt.Sprintf("span not found: name=%s, system=%s, kind=%d", name, system, kind))
 }

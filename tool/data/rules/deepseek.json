@@ -1,0 +1,38 @@
+[
+  {
+    "Version": "[1.3.0,)",
+    "ImportPath": "github.com/cohesion-org/deepseek-go",
+    "ReceiverType": "\\*Client",
+    "Function": "CreateChatCompletion",
+    "OnEnter": "deepseekCreateChatCompletionOnEnter",
+    "OnExit": "deepseekCreateChatCompletionOnExit",
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/deepseek"
+  },
+  {
+    "Version": "[1.3.0,)",
+    "ImportPath": "github.com/cohesion-org/deepseek-go",
+    "ReceiverType": "\\*Client",
+    "Function": "CreateChatCompletionStream",
+    "OnEnter": "deepseekCreateChatCompletionStreamOnEnter",
+    "OnExit": "deepseekCreateChatCompletionStreamOnExit",
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/deepseek"
+  },
+  {
+    "Version": "[1.3.0,)",
+    "ImportPath": "github.com/cohesion-org/deepseek-go",
+    "ReceiverType": "\\*Client",
+    "Function": "CreateFIMCompletion",
+    "OnEnter": "deepseekCreateFIMCompletionOnEnter",
+    "OnExit": "deepseekCreateFIMCompletionOnExit",
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/deepseek"
+  },
+  {
+    "Version": "[1.3.0,)",
+    "ImportPath": "github.com/cohesion-org/deepseek-go",
+    "ReceiverType": "\\*Client",
+    "Function": "CreateFIMStreamCompletion",
+    "OnEnter": "deepseekCreateFIMStreamCompletionOnEnter",
+    "OnExit": "deepseekCreateFIMStreamCompletionOnExit",
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/deepseek"
+  }
+]

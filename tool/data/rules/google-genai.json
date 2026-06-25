@@ -1,0 +1,92 @@
+[
+  {
+    "Version": "[1.30.0,1.36.0)",
+    "ImportPath": "google.golang.org/genai",
+    "Function": "generateContent",
+    "ReceiverType": "Models",
+    "OnEnter": "genaiGenerateContentOnEnter",
+    "OnExit": "genaiGenerateContentOnExit",
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/google-genai/v1_30_0"
+  },
+  {
+    "Version": "[1.30.0,1.36.0)",
+    "ImportPath": "google.golang.org/genai",
+    "Function": "EmbedContent",
+    "ReceiverType": "Models",
+    "OnEnter": "genaiEmbedContentOnEnter",
+    "OnExit": "genaiEmbedContentOnExit",
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/google-genai/v1_30_0"
+  },
+  {
+    "Version": "[1.30.0,1.36.0)",
+    "ImportPath": "google.golang.org/genai",
+    "Function": "generateImages",
+    "ReceiverType": "Models",
+    "OnEnter": "genaiGenerateImagesOnEnter",
+    "OnExit": "genaiGenerateImagesOnExit",
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/google-genai/v1_30_0"
+  },
+  {
+    "Version": "[1.30.0,1.36.0)",
+    "ImportPath": "google.golang.org/genai",
+    "Function": "generateVideos",
+    "ReceiverType": "Models",
+    "OnEnter": "generateVideosOnEnter",
+    "OnExit": "generateVideosOnExit",
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/google-genai/v1_30_0"
+  },
+  {
+    "Version": "[1.30.0,1.36.0)",
+    "ImportPath": "google.golang.org/genai",
+    "Function": "upscaleImage",
+    "ReceiverType": "Models",
+    "OnEnter": "genaiUpscaleImageOnEnter",
+    "OnExit": "genaiUpscaleImageOnExit",
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/google-genai/v1_30_0"
+  },
+  {
+    "Version": "[1.36.0,1.45.0)",
+    "ImportPath": "google.golang.org/genai",
+    "Function": "generateContentStream",
+    "ReceiverType": "Models",
+    "OnEnter": "genaiGenerateContentStreamOnEnter",
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/google-genai/v1_36_0"
+  },
+  {
+    "Version": "[1.36.0,1.45.0)",
+    "ImportPath": "google.golang.org/genai",
+    "FileName": "models.go",
+    "Replace": true,
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/google-genai/v1_36_0"
+  },
+  {
+    "Version": "[1.45.0,1.59.0)",
+    "ImportPath": "google.golang.org/genai",
+    "Function": "generateContentStream",
+    "ReceiverType": "Models",
+    "OnEnter": "genaiGenerateContentStreamOnEnter",
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/google-genai/v1_45_0"
+  },
+  {
+    "Version": "[1.45.0,1.59.0)",
+    "ImportPath": "google.golang.org/genai",
+    "FileName": "models.go",
+    "Replace": true,
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/google-genai/v1_45_0"
+  },
+  {
+    "Version": "[1.59.0,)",
+    "ImportPath": "google.golang.org/genai",
+    "Function": "generateContentStream",
+    "ReceiverType": "Models",
+    "OnEnter": "genaiGenerateContentStreamOnEnter",
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/google-genai/v1_59_0"
+  },
+  {
+    "Version": "[1.59.0,)",
+    "ImportPath": "google.golang.org/genai",
+    "FileName": "models.go",
+    "Replace": true,
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/google-genai/v1_59_0"
+  }
+]

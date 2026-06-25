@@ -1,0 +1,48 @@
+[
+  {
+    "ImportPath": "github.com/QuantumNous/new-api/relay",
+    "Function": "TextHelper",
+    "OnEnter": "textHelperOnEnter",
+    "OnExit": "textHelperOnExit",
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/newapi"
+  },
+  {
+    "ImportPath": "github.com/QuantumNous/new-api/relay",
+    "Function": "AudioHelper",
+    "OnEnter": "audioHelperOnEnter",
+    "OnExit": "audioHelperOnExit",
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/newapi"
+  },
+  {
+    "ImportPath": "github.com/QuantumNous/new-api/relay",
+    "Function": "ClaudeHelper",
+    "OnEnter": "claudeHelperOnEnter",
+    "OnExit": "claudeHelperOnExit",
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/newapi"
+  },
+  {
+    "ImportPath": "github.com/QuantumNous/new-api/relay",
+    "Function": "GeminiHelper",
+    "OnEnter": "geminiHelperOnEnter",
+    "OnExit": "geminiHelperOnExit",
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/newapi"
+  },
+  {
+    "ImportPath": "github.com/QuantumNous/new-api/relay/common",
+    "StructType": "RelayInfo",
+    "FieldName": "OtStreamTraceInfo",
+    "FieldType": "interface{}"
+  },
+  {
+    "ImportPath": "github.com/QuantumNous/new-api/service",
+    "Function": "PostTextConsumeQuota",
+    "OnEnter": "postTextConsumeQuotaOnEnter",
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/newapi"
+  },
+  {
+    "ImportPath": "github.com/QuantumNous/new-api/relay/channel/openai",
+    "Function": "HandleStreamFormat",
+    "OnEnter": "handleStreamFormatOnEnter",
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/newapi"
+  }
+]

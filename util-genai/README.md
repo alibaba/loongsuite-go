@@ -9,7 +9,7 @@ The GenAI Utils package includes boilerplate and helpers to standardize instrume
 ## Installation
 
 ```bash
-go get github.com/alibaba/loongsuite-go-agent/pkg/util-genai
+go get github.com/alibaba/loongsuite-go/util-genai
 ```
 
 ## Environment Variables
@@ -48,7 +48,7 @@ package main
 import (
     "context"
     
-    utilgenai "github.com/alibaba/loongsuite-go-agent/pkg/util-genai"
+    utilgenai "github.com/alibaba/loongsuite-go/util-genai"
 )
 
 func main() {

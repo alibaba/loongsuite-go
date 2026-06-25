@@ -26,7 +26,7 @@ import (
 )
 
 const (
-	instrumentationName    = "github.com/alibaba/loongsuite-go-agent/pkg/util-genai"
+	instrumentationName    = "github.com/alibaba/loongsuite-go/util-genai"
 	instrumentationVersion = "0.1.0"
 )
 

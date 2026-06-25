@@ -1,4 +1,4 @@
-module github.com/alibaba/loongsuite-go-agent/pkg/util-genai
+module github.com/alibaba/loongsuite-go/util-genai
 
 go 1.24.0
 

@@ -18,7 +18,7 @@ import (
 	"context"
 	"fmt"
 
-	utilgenai "github.com/alibaba/loongsuite-go-agent/pkg/util-genai"
+	utilgenai "github.com/alibaba/loongsuite-go/util-genai"
 )
 
 // ExampleTelemetryHandler_StartLLM demonstrates a basic LLM invocation lifecycle

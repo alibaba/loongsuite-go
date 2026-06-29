@@ -1,0 +1,35 @@
+[
+  {
+    "Version": "[1.22.0,)",
+    "ImportPath": "github.com/Shopify/sarama",
+    "Function": "newAsyncProducer",
+    "OnEnter": "newAsyncProducerOnEnter",
+    "OnExit": "newAsyncProducerOnExit",
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/shopify-sarama"
+  },
+  {
+    "Version": "[1.22.0,)",
+    "ImportPath": "github.com/Shopify/sarama",
+    "Function": "NewSyncProducer",
+    "OnEnter": "newSyncProducerOnEnter",
+    "OnExit": "newSyncProducerOnExit",
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/shopify-sarama"
+  },
+  {
+    "Version": "[1.22.0,)",
+    "ImportPath": "github.com/Shopify/sarama",
+    "Function": "NewSyncProducerFromClient",
+    "OnEnter": "newSyncProducerFromClientOnEnter",
+    "OnExit": "newSyncProducerFromClientOnExit",
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/shopify-sarama"
+  },
+  {
+    "Version": "[1.22.0,)",
+    "ImportPath": "github.com/Shopify/sarama",
+    "Function": "ConsumePartition",
+    "ReceiverType": "\\*consumer",
+    "OnEnter": "consumePartitionOnEnter",
+    "OnExit": "consumePartitionOnExit",
+    "Path": "github.com/alibaba/loongsuite-go/pkg/rules/shopify-sarama"
+  }
+]

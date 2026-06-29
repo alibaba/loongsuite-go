@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+option go_package = "/pkgs";
+
+service HelloGrpc {
+  rpc Hello(Req) returns (Resp) {}
+  rpc StreamHello(Req) returns (stream Resp) {}
+}
+
+message Req {
+  string name = 1;
+}
+
+message Resp {
+  string message = 1;
+}

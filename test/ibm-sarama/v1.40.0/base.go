@@ -44,6 +44,14 @@ func createSyncProducer() (sarama.SyncProducer, error) {
 	return sarama.NewSyncProducer([]string{getKafkaAddress()}, config)
 }
 
+func createAsyncProducer() (sarama.AsyncProducer, error) {
+	config := sarama.NewConfig()
+	config.Version = kafkaVersion
+	config.Producer.Return.Successes = true
+	config.Producer.Return.Errors = true
+	return sarama.NewAsyncProducer([]string{getKafkaAddress()}, config)
+}
+
 func createPartitionConsumer() (sarama.Consumer, error) {
 	config := sarama.NewConfig()
 	config.Version = kafkaVersion

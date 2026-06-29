@@ -15,6 +15,8 @@
 package main
 
 import (
+	"errors"
+	"fmt"
 	"os"
 
 	"github.com/Shopify/sarama"
@@ -42,8 +44,39 @@ func createSyncProducer() (sarama.SyncProducer, error) {
 	return sarama.NewSyncProducer([]string{getKafkaAddress()}, config)
 }
 
+func createAsyncProducer() (sarama.AsyncProducer, error) {
+	config := sarama.NewConfig()
+	config.Version = kafkaVersion
+	config.Producer.Return.Successes = true
+	config.Producer.Return.Errors = true
+	return sarama.NewAsyncProducer([]string{getKafkaAddress()}, config)
+}
+
 func createPartitionConsumer() (sarama.Consumer, error) {
 	config := sarama.NewConfig()
 	config.Version = kafkaVersion
 	return sarama.NewConsumer([]string{getKafkaAddress()}, config)
+}
+
+func createTopic() error {
+	config := sarama.NewConfig()
+	config.Version = kafkaVersion
+	admin, err := sarama.NewClusterAdmin([]string{getKafkaAddress()}, config)
+	if err != nil {
+		return err
+	}
+	defer admin.Close()
+	err = admin.CreateTopic(topicName, &sarama.TopicDetail{
+		NumPartitions:     1,
+		ReplicationFactor: 1,
+	}, false)
+	if err != nil {
+		var topicError *sarama.TopicError
+		if errors.As(err, &topicError) && topicError.Err == sarama.ErrTopicAlreadyExists {
+			fmt.Println("topic already exists")
+			return nil
+		}
+		return err
+	}
+	return nil
 }

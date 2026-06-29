@@ -91,7 +91,7 @@ func main() {
 		receiveCount := 0
 		for _, stub := range stubs[0] {
 			for _, attr := range stub.Attributes {
-				if string(attr.Key) == "messaging.operation" {
+				if string(attr.Key) == "messaging.operation.name" {
 					if attr.Value.AsString() == "publish" {
 						publishCount++
 					} else if attr.Value.AsString() == "receive" {

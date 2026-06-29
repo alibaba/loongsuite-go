@@ -24,6 +24,10 @@ import (
 )
 
 func main() {
+	if err := createTopic(); err != nil {
+		panic(fmt.Sprintf("create topic error: %v", err))
+	}
+
 	producer, err := createSyncProducer()
 	if err != nil {
 		panic(err)

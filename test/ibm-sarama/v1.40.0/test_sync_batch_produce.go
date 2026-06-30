@@ -48,26 +48,22 @@ func main() {
 	}
 	defer partitionConsumer.Close()
 
-	// send batch messages via sync producer
-	msgs := []*sarama.ProducerMessage{
-		{
+	// send multiple messages via sync producer (individual calls)
+	msgCount := 3
+	for i := 0; i < msgCount; i++ {
+		msg := &sarama.ProducerMessage{
 			Topic: topicName,
-			Value: sarama.ByteEncoder("batch message 1"),
-		},
-		{
-			Topic: topicName,
-			Value: sarama.ByteEncoder("batch message 2"),
-		},
+			Value: sarama.ByteEncoder(fmt.Sprintf("batch message %d", i+1)),
+		}
+		_, _, err = producer.SendMessage(msg)
+		if err != nil {
+			panic(fmt.Sprintf("failed to send message %d: %v", i+1, err))
+		}
 	}
+	fmt.Println("produced multiple messages successfully")
 
-	err = producer.SendMessages(msgs)
-	if err != nil {
-		panic(fmt.Sprintf("failed to send batch messages: %v", err))
-	}
-	fmt.Println("produced batch messages successfully")
-
-	// consume both messages
-	for i := 0; i < 2; i++ {
+	// consume all messages
+	for i := 0; i < msgCount; i++ {
 		timer := time.NewTimer(30 * time.Second)
 		select {
 		case message := <-partitionConsumer.Messages():
@@ -80,32 +76,14 @@ func main() {
 	time.Sleep(2 * time.Second)
 
 	verifier.WaitAndAssertTraces(func(stubs []tracetest.SpanStubs) {
-		// Expect publish and receive spans for each message
-		// The batch produce should create spans for each message
-		for _, stub := range stubs[0] {
-			fmt.Printf("span: %s\n", stub.Name)
-		}
+		// Each message should produce a trace with publish + receive spans
+		for i, trace := range stubs {
+			verifier.VerifyMQPublishAttributes(trace[0], "", "", "", "publish", topicName, "kafka")
+			verifier.VerifyMQConsumeAttributes(trace[1], "", "", "", "receive", topicName, "kafka")
 
-		// Verify that we have publish and receive spans
-		publishCount := 0
-		receiveCount := 0
-		for _, stub := range stubs[0] {
-			for _, attr := range stub.Attributes {
-				if string(attr.Key) == "messaging.operation.name" {
-					if attr.Value.AsString() == "publish" {
-						publishCount++
-					} else if attr.Value.AsString() == "receive" {
-						receiveCount++
-					}
-				}
+			if trace[1].Parent.TraceID().String() != trace[0].SpanContext.TraceID().String() {
+				panic(fmt.Sprintf("trace %d: consumer span should share trace ID with producer span", i))
 			}
 		}
-
-		if publishCount < 2 {
-			panic(fmt.Sprintf("expected at least 2 publish spans, got %d", publishCount))
-		}
-		if receiveCount < 2 {
-			panic(fmt.Sprintf("expected at least 2 receive spans, got %d", receiveCount))
-		}
-	}, 1)
+	}, 3)
 }

@@ -23,6 +23,7 @@ import (
 
 	"github.com/alibaba/loongsuite-go/test/verifier"
 	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/sdk/trace/tracetest"
 	"go.opentelemetry.io/otel/trace"
 )
@@ -30,6 +31,7 @@ import (
 func main() {
 	mgr := sessionmanager.New()
 
+	// Success path: Spawn a real session, then Send it a message.
 	rec, err := mgr.Spawn(context.Background(), sessionmanager.SpawnConfig{
 		ProjectID: "proj-42",
 		IssueID:   "issue-7",
@@ -46,52 +48,90 @@ func main() {
 		log.Fatalf("send failed: %v", err)
 	}
 
+	// Error path: Spawn with empty Harness must fail and mark the span as Error.
+	if _, err := mgr.Spawn(context.Background(), sessionmanager.SpawnConfig{
+		ProjectID: "proj-42",
+		Kind:      sessionmanager.KindOrchestrator,
+		Harness:   "",
+		Branch:    "feat/cool-thing",
+		Prompt:    "implement the feature",
+	}); err == nil {
+		log.Fatalf("expected spawn error for empty harness")
+	}
+
+	// Error path: Send with empty SessionID must fail and mark the span as Error.
+	if err := mgr.Send(context.Background(), "", "ping"); err == nil {
+		log.Fatalf("expected send error for empty session id")
+	}
+
 	verifier.WaitAndAssertTraces(func(stubs []tracetest.SpanStubs) {
-		var spawnSpan, sendSpan tracetest.SpanStub
+		var spawnSuccess, spawnError, sendSuccess, sendError tracetest.SpanStub
 		for _, traceStubs := range stubs {
 			for _, s := range traceStubs {
 				switch s.Name {
-				case "agent-orchestrator spawn":
-					spawnSpan = s
-				case "agent-orchestrator send":
-					sendSpan = s
+				case "create_agent":
+					if s.Status.Code == codes.Error {
+						spawnError = s
+					} else {
+						spawnSuccess = s
+					}
+				case "send_message":
+					if s.Status.Code == codes.Error {
+						sendError = s
+					} else {
+						sendSuccess = s
+					}
 				}
 			}
 		}
 
-		verifier.Assert(spawnSpan.Name == "agent-orchestrator spawn",
-			"expected spawn span, got %s", spawnSpan.Name)
-		verifier.Assert(spawnSpan.SpanKind == trace.SpanKindInternal,
-			"spawn span kind should be internal, got %d", spawnSpan.SpanKind)
-		verifier.Assert(attrVal(spawnSpan.Attributes, "gen_ai.system") == "agent_orchestrator",
+		verifier.Assert(spawnSuccess.Name == "create_agent",
+			"expected spawn success span, got %s", spawnSuccess.Name)
+		verifier.Assert(spawnSuccess.SpanKind == trace.SpanKindInternal,
+			"spawn span kind should be internal, got %d", spawnSuccess.SpanKind)
+		verifier.Assert(attrVal(spawnSuccess.Attributes, "gen_ai.system") == "agent_orchestrator",
 			"spawn gen_ai.system mismatch")
-		verifier.Assert(attrVal(spawnSpan.Attributes, "gen_ai.operation.name") == "spawn_agent",
+		verifier.Assert(attrVal(spawnSuccess.Attributes, "gen_ai.operation.name") == "create_agent",
 			"spawn gen_ai.operation.name mismatch")
-		verifier.Assert(attrVal(spawnSpan.Attributes, "gen_ai.span.kind") == "workflow",
+		verifier.Assert(attrVal(spawnSuccess.Attributes, "gen_ai.span.kind") == "workflow",
 			"spawn gen_ai.span.kind mismatch")
-		verifier.Assert(attrVal(spawnSpan.Attributes, "gen_ai.other_input.agent_harness") == "claude-code",
+		verifier.Assert(attrVal(spawnSuccess.Attributes, "gen_ai.other_input.agent_harness") == "claude-code",
 			"spawn agent_harness mismatch")
-		verifier.Assert(attrVal(spawnSpan.Attributes, "gen_ai.other_input.session_kind") == "orchestrator",
+		verifier.Assert(attrVal(spawnSuccess.Attributes, "gen_ai.other_input.session_kind") == "orchestrator",
 			"spawn session_kind mismatch")
-		verifier.Assert(attrVal(spawnSpan.Attributes, "gen_ai.other_input.project_id") == "proj-42",
+		verifier.Assert(attrVal(spawnSuccess.Attributes, "gen_ai.other_input.project_id") == "proj-42",
 			"spawn project_id mismatch")
-		verifier.Assert(attrVal(spawnSpan.Attributes, "gen_ai.other_input.branch") == "feat/cool-thing",
+		verifier.Assert(attrVal(spawnSuccess.Attributes, "gen_ai.other_input.issue_id") == "issue-7",
+			"spawn issue_id mismatch")
+		verifier.Assert(attrVal(spawnSuccess.Attributes, "gen_ai.other_input.branch") == "feat/cool-thing",
 			"spawn branch mismatch")
-		verifier.Assert(strings.HasPrefix(attrVal(spawnSpan.Attributes, "gen_ai.other_output.session_id"), "sess-claude-code-"),
-			"spawn session_id mismatch: %s", attrVal(spawnSpan.Attributes, "gen_ai.other_output.session_id"))
+		verifier.Assert(strings.HasPrefix(attrVal(spawnSuccess.Attributes, "gen_ai.other_output.session_id"), "sess-claude-code-"),
+			"spawn session_id mismatch: %s", attrVal(spawnSuccess.Attributes, "gen_ai.other_output.session_id"))
 
-		verifier.Assert(sendSpan.Name == "agent-orchestrator send",
-			"expected send span, got %s", sendSpan.Name)
-		verifier.Assert(sendSpan.SpanKind == trace.SpanKindClient,
-			"send span kind should be client, got %d", sendSpan.SpanKind)
-		verifier.Assert(attrVal(sendSpan.Attributes, "gen_ai.system") == "agent_orchestrator",
+		verifier.Assert(spawnError.Name == "create_agent",
+			"expected spawn error span, got %s", spawnError.Name)
+		verifier.Assert(spawnError.Status.Code == codes.Error,
+			"spawn error span should have Error status, got %s", spawnError.Status.Code)
+
+		verifier.Assert(sendSuccess.Name == "send_message",
+			"expected send success span, got %s", sendSuccess.Name)
+		verifier.Assert(sendSuccess.SpanKind == trace.SpanKindClient,
+			"send span kind should be client, got %d", sendSuccess.SpanKind)
+		verifier.Assert(attrVal(sendSuccess.Attributes, "gen_ai.system") == "agent_orchestrator",
 			"send gen_ai.system mismatch")
-		verifier.Assert(attrVal(sendSpan.Attributes, "gen_ai.operation.name") == "send_message",
+		verifier.Assert(attrVal(sendSuccess.Attributes, "gen_ai.operation.name") == "send_message",
 			"send gen_ai.operation.name mismatch")
-		verifier.Assert(attrVal(sendSpan.Attributes, "gen_ai.span.kind") == "client",
+		verifier.Assert(attrVal(sendSuccess.Attributes, "gen_ai.span.kind") == "task",
 			"send gen_ai.span.kind mismatch")
-		verifier.Assert(strings.HasPrefix(attrVal(sendSpan.Attributes, "gen_ai.other_input.session_id"), "sess-claude-code-"),
+		verifier.Assert(strings.HasPrefix(attrVal(sendSuccess.Attributes, "gen_ai.other_input.session_id"), "sess-claude-code-"),
 			"send session_id mismatch")
+		verifier.Assert(attrVal(sendSuccess.Attributes, "gen_ai.other_input.message_length") == "4",
+			"send message_length mismatch")
+
+		verifier.Assert(sendError.Name == "send_message",
+			"expected send error span, got %s", sendError.Name)
+		verifier.Assert(sendError.Status.Code == codes.Error,
+			"send error span should have Error status, got %s", sendError.Status.Code)
 	}, 1)
 }
 

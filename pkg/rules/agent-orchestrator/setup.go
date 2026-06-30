@@ -16,8 +16,8 @@
 // daemon (github.com/aoagents/agent-orchestrator/backend), an agentic
 // orchestrator that plans tasks, spawns parallel coding-agent sessions,
 // routes CI/review feedback, and observes pull requests. The Session Manager
-// is the single entry point for the spawn/send/kill lifecycle, so each of
-// those methods becomes a gen_ai workflow span whose attributes follow the
+// is the single entry point for the spawn/send lifecycle, so each of those
+// methods becomes a gen_ai workflow/task span whose attributes follow the
 // ARMS semantic conventions for agentic systems.
 //
 // The instrumented types live under the daemon's internal/ tree, which is not
@@ -50,8 +50,8 @@ const (
 	// agentic system that owns the span.
 	genAISystem = "agent_orchestrator"
 
-	spanNameSpawn = "agent-orchestrator spawn"
-	spanNameSend  = "agent-orchestrator send"
+	spanNameSpawn = "create_agent"
+	spanNameSend  = "send_message"
 )
 
 // stringField reads a string-typed (or named-string-typed) field from a value
@@ -118,7 +118,7 @@ func agentOrchestratorSpawnOnEnter(call api.CallContext, m interface{}, ctx cont
 	spanCtx, span := otel.Tracer(tracerName).Start(ctx, spanNameSpawn, opts...)
 	span.SetAttributes(
 		attribute.String("gen_ai.system", genAISystem),
-		attribute.String("gen_ai.operation.name", "spawn_agent"),
+		attribute.String("gen_ai.operation.name", "create_agent"),
 		attribute.String("gen_ai.span.kind", "workflow"),
 		attribute.String("gen_ai.other_input.agent_harness", harness),
 		attribute.String("gen_ai.other_input.session_kind", kind),
@@ -165,7 +165,7 @@ func agentOrchestratorSendOnEnter(call api.CallContext, m interface{}, ctx conte
 	span.SetAttributes(
 		attribute.String("gen_ai.system", genAISystem),
 		attribute.String("gen_ai.operation.name", "send_message"),
-		attribute.String("gen_ai.span.kind", "client"),
+		attribute.String("gen_ai.span.kind", "task"),
 		attribute.String("gen_ai.other_input.session_id", sessionID),
 		attribute.Int("gen_ai.other_input.message_length", len(message)),
 	)

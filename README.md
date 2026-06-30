@@ -102,6 +102,7 @@ The detailed usage of `otel` tool can be found in [**Usage**](./docs/user/config
 | gorilla/mux        | https://github.com/gorilla/mux                  | v1.3.0      | v1.8.2      |
 | grpc               | https://google.golang.org/grpc                  | v1.44.0     | v1.63.0     |
 | hertz              | https://github.com/cloudwego/hertz              | v0.8.0      | -           |
+| ibm-sarama         | https://github.com/IBM/sarama                   | v1.40.0     | -           |
 | iris               | https://github.com/kataras/iris                 | v12.2.0     | v12.2.12    |
 | k8s client-go      | https://github.com/kubernetes/client-go         | v0.33.3     | -           |
 | kitex              | https://github.com/cloudwego/kitex              | v0.5.1      | -           |
@@ -124,6 +125,7 @@ The detailed usage of `otel` tool can be found in [**Usage**](./docs/user/config
 | rueidis            | https://github.com/redis/rueidis                | v1.0.30     | -           |
 | segmentio/kafka-go | https://github.com/segmentio/kafka-go           | v0.4.0      | -           |
 | sentinel           | https://github.com/alibaba/sentinel-golang      | v1.0.4      | -           |
+| shopify-sarama     | https://github.com/Shopify/sarama               | v1.22.0     | -           |
 | slog               | https://pkg.go.dev/log/slog                     | -           | -           |
 | sqlx               | https://github.com/jmoiron/sqlx                 | v1.3.0      | v1.4.1      |
 | streadway-amqp     | https://github.com/streadway/amqp               | v1.0.0      | -           |

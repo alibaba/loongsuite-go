@@ -125,8 +125,8 @@ func main() {
 			"send gen_ai.span.kind mismatch")
 		verifier.Assert(strings.HasPrefix(attrVal(sendSuccess.Attributes, "gen_ai.other_input.session_id"), "sess-claude-code-"),
 			"send session_id mismatch")
-		verifier.Assert(attrVal(sendSuccess.Attributes, "gen_ai.other_input.message_length") == "4",
-			"send message_length mismatch")
+		msgLen := verifier.GetAttribute(sendSuccess.Attributes, "gen_ai.other_input.message_length").AsInt64()
+		verifier.Assert(msgLen == 4, "send message_length mismatch: got %d", msgLen)
 
 		verifier.Assert(sendError.Name == "send_message",
 			"expected send error span, got %s", sendError.Name)

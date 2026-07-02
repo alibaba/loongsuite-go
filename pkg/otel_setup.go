@@ -24,6 +24,7 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/alibaba/loongsuite-go/pkg/core/meter"
 	"github.com/alibaba/loongsuite-go/pkg/inst-api-semconv/instrumenter/ai"
@@ -31,6 +32,7 @@ import (
 	"github.com/alibaba/loongsuite-go/pkg/inst-api-semconv/instrumenter/experimental"
 	"github.com/alibaba/loongsuite-go/pkg/inst-api-semconv/instrumenter/http"
 	"github.com/alibaba/loongsuite-go/pkg/inst-api-semconv/instrumenter/rpc"
+	"github.com/alibaba/loongsuite-go/pkg/internal/metricexportinterval"
 	testaccess "github.com/alibaba/loongsuite-go/pkg/testaccess"
 	prometheus_client "github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -72,12 +74,12 @@ const metrics_temporality_preference = "OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_P
 const trace_sampler = "OTEL_TRACE_SAMPLER"
 
 var (
-	metricExporters    []metric.Exporter
-	spanExporters      []trace.SpanExporter
-	traceProvider      *trace.TracerProvider
-	metricsProvider    otelmetric.MeterProvider
-	spanProcessors     []trace.SpanProcessor
-	spanSampler        trace.Sampler
+	metricExporters []metric.Exporter
+	spanExporters   []trace.SpanExporter
+	traceProvider   *trace.TracerProvider
+	metricsProvider otelmetric.MeterProvider
+	spanProcessors  []trace.SpanProcessor
+	spanSampler     trace.Sampler
 )
 
 func init() {
@@ -204,7 +206,7 @@ func newSpanSampler() trace.Sampler {
 
 func getTemporalitySelector() metric.TemporalitySelector {
 	pref := strings.ToLower(strings.TrimSpace(os.Getenv(metrics_temporality_preference)))
-	
+
 	switch pref {
 	case "cumulative":
 		return cumulativeTemporalitySelector
@@ -219,6 +221,34 @@ func getTemporalitySelector() metric.TemporalitySelector {
 		}
 		return cumulativeTemporalitySelector
 	}
+}
+
+func getMetricExportIntervals() []time.Duration {
+	return metricexportinterval.ParseIntervals(os.Getenv(metricexportinterval.EnvIntervals), log.Printf)
+}
+
+func newPeriodicMetricReaders(intervals []time.Duration, newExporter func() (metric.Exporter, error)) ([]metric.Reader, []metric.Exporter, error) {
+	if len(intervals) == 0 {
+		exporter, err := newExporter()
+		if err != nil {
+			return nil, nil, err
+		}
+		return []metric.Reader{metric.NewPeriodicReader(exporter)}, []metric.Exporter{exporter}, nil
+	}
+
+	var readers []metric.Reader
+	var exporters []metric.Exporter
+	for _, interval := range intervals {
+		exporter, err := newExporter()
+		if err != nil {
+			shutdownMetricExporters(context.Background(), exporters)
+			return nil, nil, err
+		}
+		exporter = metricexportinterval.NewExporter(exporter, interval)
+		readers = append(readers, metric.NewPeriodicReader(exporter, metric.WithInterval(interval)))
+		exporters = append(exporters, exporter)
+	}
+	return readers, exporters, nil
 }
 
 // cumulativeTemporalitySelector returns Cumulative temporality for all instrument kinds
@@ -283,6 +313,7 @@ func initMetrics() error {
 			metric.WithReader(testaccess.ManualReader),
 		)
 	} else {
+		metricExportIntervals := getMetricExportIntervals()
 		exporterNames := parseExporterNames(os.Getenv(metrics_exporter), "otlp")
 		var readers []metric.Reader
 
@@ -291,16 +322,14 @@ func initMetrics() error {
 				continue
 			}
 
-			reader, exporter, err := createMetricReader(ctx, name)
+			newReaders, newExporters, err := createMetricReaders(ctx, name, metricExportIntervals)
 			if err != nil {
 				log.Printf("Failed to create metric exporter %s: %v", name, err)
 				continue
 			}
 
-			if exporter != nil {
-				metricExporters = append(metricExporters, exporter)
-			}
-			readers = append(readers, reader)
+			metricExporters = append(metricExporters, newExporters...)
+			readers = append(readers, newReaders...)
 
 			if name == "prometheus" {
 				go serveMetrics()
@@ -334,35 +363,28 @@ func initMetrics() error {
 	return otelruntime.Start(otelruntime.WithMeterProvider(metricsProvider))
 }
 
-func createMetricReader(ctx context.Context, name string) (metric.Reader, metric.Exporter, error) {
+func createMetricReaders(ctx context.Context, name string, intervals []time.Duration) ([]metric.Reader, []metric.Exporter, error) {
 	// Get temporality selector for exporters that support it
 	temporalitySelector := getTemporalitySelector()
-	
+
 	switch name {
 	case "console":
-		exporter, err := stdoutmetric.New(stdoutmetric.WithTemporalitySelector(temporalitySelector))
-		if err != nil {
-			return nil, nil, err
-		}
-		return metric.NewPeriodicReader(exporter), exporter, nil
+		return newPeriodicMetricReaders(intervals, func() (metric.Exporter, error) {
+			return stdoutmetric.New(stdoutmetric.WithTemporalitySelector(temporalitySelector))
+		})
 	case "prometheus":
 		reader, err := prometheus.New()
 		if err != nil {
 			return nil, nil, err
 		}
-		return reader, nil, nil
+		return []metric.Reader{reader}, nil, nil
 	case "otlp":
-		var exporter metric.Exporter
-		var err error
-		if os.Getenv(report_protocol) == "grpc" || os.Getenv(trace_report_protocol) == "grpc" {
-			exporter, err = otlpmetricgrpc.New(ctx, otlpmetricgrpc.WithTemporalitySelector(temporalitySelector))
-		} else {
-			exporter, err = otlpmetrichttp.New(ctx, otlpmetrichttp.WithTemporalitySelector(temporalitySelector))
-		}
-		if err != nil {
-			return nil, nil, err
-		}
-		return metric.NewPeriodicReader(exporter), exporter, nil
+		return newPeriodicMetricReaders(intervals, func() (metric.Exporter, error) {
+			if os.Getenv(report_protocol) == "grpc" || os.Getenv(trace_report_protocol) == "grpc" {
+				return otlpmetricgrpc.New(ctx, otlpmetricgrpc.WithTemporalitySelector(temporalitySelector))
+			}
+			return otlpmetrichttp.New(ctx, otlpmetrichttp.WithTemporalitySelector(temporalitySelector))
+		})
 	default:
 		return nil, nil, fmt.Errorf("unknown metric exporter: %s", name)
 	}
@@ -410,6 +432,14 @@ func gracefullyShutdown(ctx context.Context) {
 	for _, processor := range spanProcessors {
 		if processor != nil {
 			_ = processor.Shutdown(ctx)
+		}
+	}
+}
+
+func shutdownMetricExporters(ctx context.Context, exporters []metric.Exporter) {
+	for _, exporter := range exporters {
+		if exporter != nil {
+			_ = exporter.Shutdown(ctx)
 		}
 	}
 }

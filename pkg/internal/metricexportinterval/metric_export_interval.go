@@ -28,7 +28,7 @@ import (
 )
 
 const EnvIntervals = "OTEL_METRIC_EXPORT_INTERVALS"
-const ResourceIntervalMSAttr = "loongsuite.metric.export_interval_ms"
+const ResourceIntervalMSAttr = "telemetry.metric.export.interval.ms"
 const MaxIntervalMS = int64(1<<63-1) / int64(time.Millisecond)
 
 type WarnFunc func(format string, args ...interface{})

@@ -108,55 +108,7 @@ func emitEvent(ctx context.Context, logger log.Logger, eventName string, attrs [
 	var record log.Record
 	record.SetTimestamp(time.Now())
 	record.SetEventName(eventName)
-	record.AddAttributes(attrsToLogKeyValues(attrs)...)
+	record.AddAttributes(attrs...)
 
 	logger.Emit(ctx, record)
-}
-
-// attrsToLogKeyValues converts trace attribute.KeyValue values into log
-// key-values so the same attribute builders can feed both spans and events.
-func attrsToLogKeyValues(attrs []attribute.KeyValue) []log.KeyValue {
-	out := make([]log.KeyValue, 0, len(attrs))
-	for _, kv := range attrs {
-		key := string(kv.Key)
-		switch kv.Value.Type() {
-		case attribute.BOOL:
-			out = append(out, log.Bool(key, kv.Value.AsBool()))
-		case attribute.INT64:
-			out = append(out, log.Int64(key, kv.Value.AsInt64()))
-		case attribute.FLOAT64:
-			out = append(out, log.Float64(key, kv.Value.AsFloat64()))
-		case attribute.STRING:
-			out = append(out, log.String(key, kv.Value.AsString()))
-		case attribute.BOOLSLICE:
-			vals := kv.Value.AsBoolSlice()
-			lv := make([]log.Value, len(vals))
-			for i, v := range vals {
-				lv[i] = log.BoolValue(v)
-			}
-			out = append(out, log.Slice(key, lv...))
-		case attribute.INT64SLICE:
-			vals := kv.Value.AsInt64Slice()
-			lv := make([]log.Value, len(vals))
-			for i, v := range vals {
-				lv[i] = log.Int64Value(v)
-			}
-			out = append(out, log.Slice(key, lv...))
-		case attribute.FLOAT64SLICE:
-			vals := kv.Value.AsFloat64Slice()
-			lv := make([]log.Value, len(vals))
-			for i, v := range vals {
-				lv[i] = log.Float64Value(v)
-			}
-			out = append(out, log.Slice(key, lv...))
-		case attribute.STRINGSLICE:
-			vals := kv.Value.AsStringSlice()
-			lv := make([]log.Value, len(vals))
-			for i, v := range vals {
-				lv[i] = log.StringValue(v)
-			}
-			out = append(out, log.Slice(key, lv...))
-		}
-	}
-	return out
 }

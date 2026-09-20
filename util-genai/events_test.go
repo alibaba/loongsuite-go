@@ -19,6 +19,7 @@ import (
 	"sync"
 	"testing"
 
+	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/log"
 	"go.opentelemetry.io/otel/log/embedded"
 )
@@ -59,8 +60,8 @@ func (p *recordingLoggerProvider) Logger(string, ...log.LoggerOption) log.Logger
 // attrMap flattens a record's attributes into a key -> string-value map.
 func attrMap(r log.Record) map[string]string {
 	m := make(map[string]string)
-	r.WalkAttributes(func(kv log.KeyValue) bool {
-		m[kv.Key] = kv.Value.AsString()
+	r.WalkAttributes(func(kv attribute.KeyValue) bool {
+		m[string(kv.Key)] = kv.Value.AsString()
 		return true
 	})
 	return m

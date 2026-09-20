@@ -214,10 +214,10 @@ func newSyncProducerOnEnter(call api.CallContext, addrs []string, config *sarama
 	if !saramaEnabler.Enable() {
 		return
 	}
-	syncProducerCallDepthEnter()
 	data := make(map[string]interface{}, 1)
 	data["saramaConfig"] = config
 	call.SetData(data)
+	syncProducerCallDepthEnter()
 }
 
 //go:linkname newSyncProducerOnExit github.com/IBM/sarama.newSyncProducerOnExit
@@ -225,6 +225,7 @@ func newSyncProducerOnExit(call api.CallContext, producer sarama.SyncProducer, e
 	if call.GetData() == nil {
 		return
 	}
+	// Always balance OnEnter, even if instrumentation is disabled before OnExit.
 	defer syncProducerCallDepthExit()
 	if !saramaEnabler.Enable() {
 		return
@@ -256,10 +257,10 @@ func newSyncProducerFromClientOnEnter(call api.CallContext, client sarama.Client
 	if !saramaEnabler.Enable() {
 		return
 	}
-	syncProducerCallDepthEnter()
 	data := make(map[string]interface{}, 1)
 	data["saramaConfig"] = client.Config()
 	call.SetData(data)
+	syncProducerCallDepthEnter()
 }
 
 //go:linkname newSyncProducerFromClientOnExit github.com/IBM/sarama.newSyncProducerFromClientOnExit
@@ -267,6 +268,7 @@ func newSyncProducerFromClientOnExit(call api.CallContext, producer sarama.SyncP
 	if call.GetData() == nil {
 		return
 	}
+	// Always balance OnEnter, even if instrumentation is disabled before OnExit.
 	defer syncProducerCallDepthExit()
 	if !saramaEnabler.Enable() {
 		return

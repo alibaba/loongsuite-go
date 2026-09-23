@@ -16,7 +16,7 @@ require (
 require (
 	github.com/apache/thrift v0.13.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
-	github.com/choleraehyq/pid v0.0.21 // indirect
+	github.com/choleraehyq/pid v0.0.24 // indirect
 	github.com/cloudwego/fastpb v0.0.5 // indirect
 	github.com/cloudwego/frugal v0.2.5 // indirect
 	github.com/cloudwego/gopkg v0.1.4 // indirect

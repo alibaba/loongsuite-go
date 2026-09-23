@@ -55,7 +55,7 @@ $ otel go build -gcflags="-m" cmd/app
 # 示例
 
 - [demo](https://github.com/alibaba/loongsuite-go/tree/main/example/demo) - 带有OpenTelemetry追踪和指标的端到端示例
-- [zap logging](https://github.com/alibaba/loongsuite-go/tree/main/example/log) - `github.com/uber-go/zap`日志记录的自动埋点
+- [zap logging](https://github.com/alibaba/loongsuite-go/tree/main/example/log) - `go.uber.org/zap`日志记录的自动埋点
 - [benchmark](https://github.com/alibaba/loongsuite-go/tree/main/example/benchmark) - 性能测试和开销测量
 - [sql injection](https://github.com/alibaba/loongsuite-go/tree/main/example/sqlinject) - 用于SQL注入检测的自定义代码注入
 - [nethttp](https://github.com/alibaba/loongsuite-go/tree/main/example/nethttp) - 带有请求/响应埋点的HTTP监控

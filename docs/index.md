@@ -59,7 +59,7 @@ The detailed usage of `otel` tool can be found in [**Usage**](./user/config.md).
 # Examples
 
 - [demo](https://github.com/alibaba/loongsuite-go/tree/main/example/demo) - End-to-end example with OpenTelemetry tracing and metrics
-- [zap logging](https://github.com/alibaba/loongsuite-go/tree/main/example/log) - Auto-instrumentation for `github.com/uber-go/zap` logging
+- [zap logging](https://github.com/alibaba/loongsuite-go/tree/main/example/log) - Auto-instrumentation for `go.uber.org/zap` logging
 - [benchmark](https://github.com/alibaba/loongsuite-go/tree/main/example/benchmark) - Performance testing and overhead measurement
 - [sql injection](https://github.com/alibaba/loongsuite-go/tree/main/example/sqlinject) - Custom code injection for SQL injection detection
 - [nethttp](https://github.com/alibaba/loongsuite-go/tree/main/example/nethttp) - HTTP monitoring with request/response instrumentation

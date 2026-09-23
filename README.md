@@ -68,7 +68,7 @@ The detailed usage of `otel` tool can be found in [**Usage**](./docs/user/config
 # Examples
 
 - [demo](https://github.com/alibaba/loongsuite-go/tree/main/example/demo) - End-to-end example with OpenTelemetry tracing and metrics
-- [zap logging](https://github.com/alibaba/loongsuite-go/tree/main/example/log) - Auto-instrumentation for `github.com/uber-go/zap` logging
+- [zap logging](https://github.com/alibaba/loongsuite-go/tree/main/example/log) - Auto-instrumentation for `go.uber.org/zap` logging
 - [benchmark](https://github.com/alibaba/loongsuite-go/tree/main/example/benchmark) - Performance testing and overhead measurement
 - [sql injection](https://github.com/alibaba/loongsuite-go/tree/main/example/sqlinject) - Custom code injection for SQL injection detection
 - [nethttp](https://github.com/alibaba/loongsuite-go/tree/main/example/nethttp) - HTTP monitoring with request/response instrumentation
@@ -145,7 +145,7 @@ The detailed usage of `otel` tool can be found in [**Usage**](./docs/user/config
 | streadway-amqp     | https://github.com/streadway/amqp               | v1.0.0      | -           |
 | trpc-agent-go      | https://github.com/trpc-group/trpc-agent-go     | v0.1.0      | -           |
 | trpc-go            | https://github.com/trpc-group/trpc-go           | v1.0.0      | -           |
-| zap                | https://github.com/uber-go/zap                  | v1.20.0     | v1.27.1     |
+| zap                | https://go.uber.org/zap                  | v1.20.0     | v1.27.1     |
 | zerolog            | https://github.com/rs/zerolog                   | v1.10.0     | v1.34.1     |
 
 </details>

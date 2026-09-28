@@ -209,13 +209,18 @@ func (h *HttpServerAttrsExtractor[REQUEST, RESPONSE, GETTER1, GETTER2, GETTER3])
 	localRootSpan, ok := span.(sdktrace.ReadOnlySpan)
 	if ok && span.IsRecording() {
 		route := h.Base.HttpGetter.GetHttpRoute(request)
-		if !strings.Contains(localRootSpan.Name(), route) {
-			route = localRootSpan.Name()
+		spanName := localRootSpan.Name()
+		if route == "" || (route != "" && !strings.Contains(spanName, route)) {
+			if tmpl := httpRouteFromSpanName(spanName); tmpl != "" {
+				route = tmpl
+			}
 		}
-		attributes = append(attributes, attribute.KeyValue{
-			Key:   semconv.HTTPRouteKey,
-			Value: attribute.StringValue(route),
-		})
+		if route != "" {
+			attributes = append(attributes, attribute.KeyValue{
+				Key:   semconv.HTTPRouteKey,
+				Value: attribute.StringValue(route),
+			})
+		}
 	}
 	if h.Base.AttributesFilter != nil {
 		attributes = h.Base.AttributesFilter(attributes)

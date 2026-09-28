@@ -75,7 +75,7 @@ func main() {
 	println(port)
 	verifier.WaitAndAssertTraces(func(stubs []tracetest.SpanStubs) {
 		verifier.VerifyHttpClientAttributes(stubs[0][0], "POST", "POST", "https://127.0.0.1:"+strconv.Itoa(port)+"/a", "http", "1.1", "tcp", "ipv4", "", "127.0.0.1:"+strconv.Itoa(port), 200, 0, int64(port))
-		verifier.VerifyHttpServerAttributes(stubs[0][1], "POST /a", "POST", "https", "tcp", "ipv4", "", "127.0.0.1:"+strconv.Itoa(port), "Go-http-client/2.0", "https", "/a", "", "/a", 200)
+		verifier.VerifyHttpServerAttributes(stubs[0][1], "POST /a", "POST", "https", "tcp", "ipv4", "", "127.0.0.1:"+strconv.Itoa(port), "Go-http-client/2.0", "https", "/a", "", "", 200)
 		verifier.VerifyHttpClientAttributes(stubs[0][2], "GET", "GET", "http://127.0.0.1:"+strconv.Itoa(port)+"/b", "http", "1.1", "tcp", "ipv4", "", "127.0.0.1:"+strconv.Itoa(port), 400, 0, int64(port))
 		if stubs[0][1].Parent.TraceID().String() != stubs[0][0].SpanContext.TraceID().String() {
 			log.Fatal("span 1 should be child of span 0")

@@ -11,25 +11,20 @@ time. Simply adding `otel` prefix to `go build` to get started :rocket:
 # Installation
 
 > [!IMPORTANT]
-> **Requires Go 1.25 or newer.** `loongsuite-go` pins OpenTelemetry v1.45.0, and
-> the OTel modules declare `go 1.25.0` from v1.42.0 onward. Since the tool injects
-> those modules into the application it instruments, both the tool and the
-> instrumented application need Go 1.25+. See [compatibility](docs/user/compatibility.md).
+> Requires Go 1.25+ for both the tool and the instrumented application. See [compatibility](docs/user/compatibility.md).
 
 ### Prebuilt Binaries
 
 - [![Download](https://shields.io/badge/-Linux_AMD64-blue?logo=ubuntu)](https://github.com/alibaba/loongsuite-go/releases/latest/download/otel-linux-amd64)
 - [![Download](https://shields.io/badge/-Linux_ARM64-blue?logo=ubuntu)](https://github.com/alibaba/loongsuite-go/releases/latest/download/otel-linux-arm64)
-- [![Download](https://shields.io/badge/-MacOS_AMD64-blue?logo=apple)](https://github.com/alibaba/loongsuite-go/releases/latest/download/otel-darwin-amd64)
-- [![Download](https://shields.io/badge/-MacOS_ARM64-blue?logo=apple)](https://github.com/alibaba/loongsuite-go/releases/latest/download/otel-darwin-arm64)
+- [![Download](https://shields.io/badge/-macOS_AMD64-blue?logo=apple)](https://github.com/alibaba/loongsuite-go/releases/latest/download/otel-darwin-amd64)
+- [![Download](https://shields.io/badge/-macOS_ARM64-blue?logo=apple)](https://github.com/alibaba/loongsuite-go/releases/latest/download/otel-darwin-arm64)
 - [![Download](https://shields.io/badge/-Windows_AMD64-blue?logo=wine)](https://github.com/alibaba/loongsuite-go/releases/latest/download/otel-windows-amd64.exe)
 
-**This is the recommended way to install the tool.**
-
 ### Install via Bash
-For Linux and MacOS users, the following script will install `otel` in `/usr/local/bin/otel` by default:
+For Linux and macOS, the following script installs `otel` to `/usr/local/bin/otel` by default:
 ```bash
-$ sudo curl -fsSL https://cdn.jsdelivr.net/gh/alibaba/loongsuite-go@main/install.sh | sudo bash
+$ curl -fsSL https://cdn.jsdelivr.net/gh/alibaba/loongsuite-go@main/install.sh | sudo bash
 ```
 
 ### Build from Source
@@ -67,13 +62,13 @@ The detailed usage of `otel` tool can be found in [**Usage**](./docs/user/config
 
 # Examples
 
-- [demo](https://github.com/alibaba/loongsuite-go/tree/main/example/demo) - End-to-end example with OpenTelemetry tracing and metrics
-- [zap logging](https://github.com/alibaba/loongsuite-go/tree/main/example/log) - Auto-instrumentation for `go.uber.org/zap` logging
-- [benchmark](https://github.com/alibaba/loongsuite-go/tree/main/example/benchmark) - Performance testing and overhead measurement
-- [sql injection](https://github.com/alibaba/loongsuite-go/tree/main/example/sqlinject) - Custom code injection for SQL injection detection
-- [nethttp](https://github.com/alibaba/loongsuite-go/tree/main/example/nethttp) - HTTP monitoring with request/response instrumentation
-- [kratos-demo](https://github.com/alibaba/loongsuite-go/tree/main/example/kratos-demo) - Integration with the Kratos framework
-- [kafka-demo](https://github.com/alibaba/loongsuite-go/tree/main/example/kafka-demo) - Kafka Consumer Message monitoring
+- [demo](example/demo) - End-to-end example with OpenTelemetry tracing and metrics
+- [zap logging](example/log) - Auto-instrumentation for `go.uber.org/zap` logging
+- [benchmark](example/benchmark) - Performance testing and overhead measurement
+- [sql injection](example/sqlinject) - Custom code injection for SQL injection detection
+- [nethttp](example/nethttp) - HTTP monitoring with request/response instrumentation
+- [kratos-demo](example/kratos-demo) - Integration with the Kratos framework
+- [kafka-demo](example/kafka-demo) - Kafka consumer message monitoring
 
 # Supported Libraries
 <details>
@@ -85,7 +80,7 @@ The detailed usage of `otel` tool can be found in [**Usage**](./docs/user/config
 | amqp091            | https://github.com/rabbitmq/amqp091-go          | v1.10.0     | -           |
 | ants               | https://github.com/panjf2000/ants               | v1.1.0      | -           |
 | anthropic-sdk-go   | https://github.com/anthropics/anthropic-sdk-go  | v1.25.0     | -           |
-| asynq              | https://github.com/hibiken/asynq                | v0.23.0     | v0.26.0     |
+| asynq              | https://github.com/hibiken/asynq                | v0.23.0     | -           |
 | aws-sdk-go         | https://github.com/aws/aws-sdk-go               | v1.55.5     | -           |
 | clickhouse/v2      | https://github.com/ClickHouse/clickhouse-go/v2  | v2.13.0     | -           |
 | cron               | https://github.com/robfig/cron/v3               | v3.0.0      | -           |
@@ -94,9 +89,9 @@ The detailed usage of `otel` tool can be found in [**Usage**](./docs/user/config
 | dubbo-go           | https://github.com/apache/dubbo-go              | v3.3.0      | -           |
 | echo               | https://github.com/labstack/echo                | v4.0.0      | -           |
 | elasticsearch      | https://github.com/elastic/go-elasticsearch     | v8.4.0      | v8.15.1     |
-| eino               | https://github.com/cloudwego/eino               | v0.3.51     | -           |
+| eino               | https://github.com/cloudwego/eino               | v0.7.13     | -           |
 | fasthttp           | https://github.com/valyala/fasthttp             | v1.45.0     | -           |
-| fiber              | https://github.com/gofiber/fiber                | v2.43.0     | v2.52.13    |
+| fiber              | https://github.com/gofiber/fiber                | v2.43.0     | v2.53.0     |
 | fiber/v3           | https://github.com/gofiber/fiber/v3             | v3.0.0      | -           |
 | franz-go           | https://github.com/twmb/franz-go                | v1.18.0     | -           |
 | gin                | https://github.com/gin-gonic/gin                | v1.7.0      | v1.10.2     |
@@ -109,8 +104,8 @@ The detailed usage of `otel` tool can be found in [**Usage**](./docs/user/config
 | gorestful/v3       | https://github.com/emicklei/go-restful/v3       | v3.7.0      | v3.12.2     |
 | gorm               | https://github.com/go-gorm/gorm                 | v1.22.0     | v1.25.10    |
 | gorilla/mux        | https://github.com/gorilla/mux                  | v1.3.0      | v1.8.2      |
-| grpc               | https://google.golang.org/grpc                  | v1.44.0     | v1.63.0     |
-| hertz              | https://github.com/cloudwego/hertz              | v0.8.0      | -           |
+| grpc               | https://google.golang.org/grpc                  | v1.44.0     | -           |
+| hertz              | https://github.com/cloudwego/hertz              | v0.9.0      | -           |
 | ibm-sarama         | https://github.com/IBM/sarama                   | v1.40.0     | -           |
 | iris               | https://github.com/kataras/iris                 | v12.2.0     | v12.2.12    |
 | k8s client-go      | https://github.com/kubernetes/client-go         | v0.33.3     | -           |
@@ -120,12 +115,12 @@ The detailed usage of `otel` tool can be found in [**Usage**](./docs/user/config
 | langchaingo        | https://github.com/tmc/langchaingo              | v0.1.13     | -           |
 | log                | https://pkg.go.dev/log                          | -           | -           |
 | logrus             | https://github.com/sirupsen/logrus              | v1.5.0      | -           |
-| mcp                | https://github.com/mark3labs/mcp-go             | v0.20.0     | v0.20.2     |
+| mcp                | https://github.com/mark3labs/mcp-go             | v0.20.0     | -           |
 | mcp go-sdk         | https://github.com/modelcontextprotocol/go-sdk  | v0.7.0      | -           |
 | meguminnnnnnnnn/go-openai | https://github.com/meguminnnnnnnnn/go-openai    | -           | -           |
 | mongodb            | https://github.com/mongodb/mongo-go-driver      | v1.11.1     | v1.15.2     |
 | mqtt               | https://github.com/mochi-mqtt/server            | v2.6.4      | -           |
-| neo4j              | https://github.com/neo4j/neo4j-go-driver        | v6.0.0      | v6.2.0      |
+| neo4j              | https://github.com/neo4j/neo4j-go-driver        | v6.0.0      | -           |
 | nacos              | https://github.com/nacos-group/nacos-sdk-go/v2  | v2.0.0      | v2.3.0      |
 | net/http           | https://pkg.go.dev/net/http                     | -           | -           |
 | new-api            | https://github.com/QuantumNous/new-api          | -           | -           |
@@ -159,16 +154,13 @@ We are progressively open-sourcing the libraries we have supported, and your con
 
 # Community
 
-We are looking forward to your feedback and suggestions. You can join
-our [DingTalk group](https://qr.dingtalk.com/action/joingroup?code=v1,k1,mexukXI88tZ1uiuLYkKhdaETUx/K59ncyFFFG5Voe9s=&_dt_no_comment=1&origin=11) or scan the QR code below to engage with us.
+This project has been contributed upstream to the OpenTelemetry community and successfully incubated the official [opentelemetry-go-compile-instrumentation](https://github.com/open-telemetry/opentelemetry-go-compile-instrumentation) project.
 
-| LoongCollector SIG | LoongSuite Python SIG |
-|----|----|
-| <img src="docs/_assets/img/loongcollector-sig-dingtalk.png" height="150"> | <img src="docs/_assets/img/loongsuite-python-sig-dingtalk.jpg" height="150"> |
+Join our [DingTalk group](https://qr.dingtalk.com/action/joingroup?code=v1,k1,mexukXI88tZ1uiuLYkKhdaETUx/K59ncyFFFG5Voe9s=&_dt_no_comment=1&origin=11) or scan the QR codes below.
 
-| LoongCollector Go SIG | LoongSuite Java SIG |
-|----|----|
-| <img src="docs/_assets/img/loongsuite-go-sig-dingtalk.png" height="150"> | <img src="docs/_assets/img/loongsuite-java-sig-dingtalk.jpg" height="150"> |
+| LoongCollector SIG | LoongSuite Python SIG | LoongSuite Go SIG | LoongSuite Java SIG |
+|----|----|----|----|
+| <img src="docs/_assets/img/loongcollector-sig-dingtalk.png" height="120"> | <img src="docs/_assets/img/loongsuite-python-sig-dingtalk.jpg" height="120"> | <img src="docs/_assets/img/loongsuite-go-sig-dingtalk.png" height="120"> | <img src="docs/_assets/img/loongsuite-java-sig-dingtalk.jpg" height="120"> |
 
 # Star History
 

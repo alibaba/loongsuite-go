@@ -27,6 +27,7 @@ type netHttpRequest struct {
 	isTls          bool
 	header         http.Header
 	version        string
+	routePattern   string
 	requestHeaders string
 	requestBody    string
 }

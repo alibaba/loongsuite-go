@@ -61,5 +61,5 @@
 | slog                | https://pkg.go.dev/log/slog                                 | -           | -           |
 | sqlx                | https://github.com/jmoiron/sqlx                             | v1.3.0      | v1.4.1      |
 | trpc-go             | https://github.com/trpc-group/trpc-go                       | v1.0.0      | -           |
-| zap                 | https://github.com/uber-go/zap                              | v1.20.0     | v1.27.1     |
+| zap                 | https://go.uber.org/zap                                     | v1.20.0     | v1.27.1     |
 | zerolog             | https://github.com/rs/zerolog                               | v1.10.0     | v1.34.1     |

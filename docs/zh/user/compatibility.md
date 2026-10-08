@@ -23,18 +23,25 @@
 | -------- | ------- | ----- |
 | Ubuntu   | 1.24    | amd64 |
 | Ubuntu   | 1.25    | amd64 |
+| Ubuntu   | 1.26    | amd64 |
 | Ubuntu   | 1.24    | 386   |
 | Ubuntu   | 1.25    | 386   |
+| Ubuntu   | 1.26    | 386   |
 | Ubuntu   | 1.24    | arm64 |
 | Ubuntu   | 1.25    | arm64 |
+| Ubuntu   | 1.26    | arm64 |
 | macOS 13 | 1.24    | amd64 |
 | macOS 13 | 1.25    | amd64 |
+| macOS 13 | 1.26    | amd64 |
 | macOS    | 1.24    | arm64 |
 | macOS    | 1.25    | arm64 |
+| macOS    | 1.26    | arm64 |
 | Windows  | 1.24    | amd64 |
 | Windows  | 1.25    | amd64 |
+| Windows  | 1.26    | amd64 |
 | Windows  | 1.24    | 386   |
 | Windows  | 1.25    | 386   |
+| Windows  | 1.26    | 386   |
 
 虽然该项目应该适用于其他系统，但目前不对这些系统提供兼容性保证。
 

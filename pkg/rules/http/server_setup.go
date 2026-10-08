@@ -39,12 +39,13 @@ func serverOnEnter(call api.CallContext, _ interface{}, w http.ResponseWriter, r
 		return
 	}
 	request := &netHttpRequest{
-		method:  r.Method,
-		url:     r.URL,
-		header:  r.Header,
-		version: getProtocolVersion(r.ProtoMajor, r.ProtoMinor),
-		host:    r.Host,
-		isTls:   r.TLS != nil,
+		method:       r.Method,
+		url:          r.URL,
+		header:       r.Header,
+		version:      getProtocolVersion(r.ProtoMajor, r.ProtoMinor),
+		host:         r.Host,
+		isTls:        r.TLS != nil,
+		routePattern: r.Pattern,
 	}
 	request.requestHeaders = netHttpCaptureConfig.captureHeaders(r.Header)
 	request.requestBody = captureHTTPRequestBody(r, netHttpCaptureConfig)

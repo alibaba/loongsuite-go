@@ -75,7 +75,7 @@ var filterRest = func(req *restful.Request, resp *restful.Response, chain *restf
 		return
 	}
 	lcs := trace.LocalRootSpanFromGLS()
-	if lcs != nil && req.SelectedRoutePath() != "" && req.Request != nil && req.Request.URL != nil && (req.SelectedRoutePath() != req.Request.URL.Path) {
+	if lcs != nil && req.SelectedRoutePath() != "" {
 		lcs.SetName(req.SelectedRoutePath())
 	}
 }

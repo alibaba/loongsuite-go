@@ -32,7 +32,7 @@ func irisHttpOnEnter(call api.CallContext, _ interface{}, iCtx *iContext.Context
 	}
 	r := iCtx.Request()
 	lcs := trace.LocalRootSpanFromGLS()
-	if lcs != nil && r != nil && iCtx.Path() != "" && r.URL != nil && (iCtx.Path() != r.URL.Path) {
+	if lcs != nil && r != nil && iCtx.Path() != "" {
 		lcs.SetName(iCtx.Path())
 	}
 }

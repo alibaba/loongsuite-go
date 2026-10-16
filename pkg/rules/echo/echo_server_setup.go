@@ -40,7 +40,7 @@ func otelTraceMiddleware() echo.MiddlewareFunc {
 				c.Error(err)
 			}
 			lcs := trace.LocalRootSpanFromGLS()
-			if lcs != nil && c.Path() != "" && c.Request() != nil && c.Request().URL != nil && (c.Request().URL.Path != c.Path()) {
+			if lcs != nil && c.Path() != "" {
 				lcs.SetName(c.Path())
 			}
 			return

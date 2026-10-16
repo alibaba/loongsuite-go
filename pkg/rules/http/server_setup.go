@@ -23,6 +23,9 @@ import (
 	_ "unsafe"
 
 	"github.com/alibaba/loongsuite-go/pkg/api"
+	semconvhttp "github.com/alibaba/loongsuite-go/pkg/inst-api-semconv/instrumenter/http"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+	"go.opentelemetry.io/otel/trace"
 )
 
 var netHttpServerInstrumenter = BuildNetHttpServerOtelInstrumenter()
@@ -39,12 +42,12 @@ func serverOnEnter(call api.CallContext, _ interface{}, w http.ResponseWriter, r
 		return
 	}
 	request := &netHttpRequest{
-		method:  r.Method,
-		url:     r.URL,
-		header:  r.Header,
-		version: getProtocolVersion(r.ProtoMajor, r.ProtoMinor),
-		host:    r.Host,
-		isTls:   r.TLS != nil,
+		method:       r.Method,
+		url:          r.URL,
+		header:       r.Header,
+		version:      getProtocolVersion(r.ProtoMajor, r.ProtoMinor),
+		host:         r.Host,
+		isTls:        r.TLS != nil,
 	}
 	request.requestHeaders = netHttpCaptureConfig.captureHeaders(r.Header)
 	request.requestBody = captureHTTPRequestBody(r, netHttpCaptureConfig)
@@ -58,9 +61,10 @@ func serverOnEnter(call api.CallContext, _ interface{}, w http.ResponseWriter, r
 		}
 		call.SetParam(1, x1)
 	}
-	data := make(map[string]interface{}, 2)
+	data := make(map[string]interface{}, 3)
 	data["ctx"] = ctx
 	data["request"] = request
+	data["httpRequest"] = r
 	call.SetData(data)
 	return
 }
@@ -79,6 +83,19 @@ func serverOnExit(call api.CallContext) {
 	if !ok {
 		return
 	}
+	if rawRequest, ok := data["httpRequest"].(*http.Request); ok {
+		span := trace.SpanFromContext(ctx)
+		spanName := ""
+		if readable, ok := span.(sdktrace.ReadOnlySpan); ok {
+			spanName = readable.Name()
+		}
+		setServerRoutePattern(request, rawRequest, spanName)
+		if route := (netHttpServerAttrsGetter{}).GetHttpRoute(request); route != "" &&
+			(spanName == request.method ||
+				(rawRequest.URL != nil && spanName == rawRequest.URL.Path)) {
+			span.SetName(request.method + " " + route)
+		}
+	}
 	if p, ok := call.GetParam(1).(http.ResponseWriter); ok {
 		if w1, ok := p.(*writerWrapper); ok {
 			netHttpServerInstrumenter.End(ctx, request, &netHttpResponse{
@@ -91,6 +108,27 @@ func serverOnExit(call api.CallContext) {
 	}
 
 	return
+}
+
+func setServerRoutePattern(request *netHttpRequest, rawRequest *http.Request, spanName string) {
+	// ServeMux fills Pattern after this hook's entry. Middleware that passes
+	// r.WithContext(...) to the mux replaces the request pointer, so the outer
+	// hook cannot observe that copy's pattern.
+	request.routePattern = rawRequest.Pattern
+
+	// Framework hooks publish validated route templates in the span name. They
+	// are more specific than the outer ServeMux catch-all pattern (for example,
+	// go-restful registers "/" while selecting "/users/{user-id}").
+	if route := semconvhttp.RouteFromSpanName(spanName); route != "" {
+		request.routePattern = route
+		return
+	}
+
+	// A framework static route is also safe: it must exactly equal the request
+	// path. Do not infer arbitrary request paths as route templates.
+	if rawRequest.URL != nil && spanName == rawRequest.URL.Path {
+		request.routePattern = spanName
+	}
 }
 
 type writerWrapper struct {

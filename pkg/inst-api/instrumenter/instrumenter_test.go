@@ -215,6 +215,56 @@ func TestPropFromUpStream(t *testing.T) {
 	}
 }
 
+type countingContextCustomizer struct {
+	count int
+}
+
+func (c *countingContextCustomizer) OnStart(ctx context.Context, request testRequest, startAttributes []attribute.KeyValue) context.Context {
+	c.count++
+	return context.WithValue(ctx, "test-customizer", "test-customizer")
+}
+
+func newFromUpstreamInstrumenter(customizer ContextCustomizer[testRequest]) *PropagatingFromUpstreamInstrumenter[testRequest, testResponse] {
+	builder := Builder[testRequest, testResponse]{}
+	builder.Init().
+		SetSpanNameExtractor(testNameExtractor{}).
+		SetSpanKindExtractor(&AlwaysClientExtractor[testRequest]{}).
+		AddAttributesExtractor(testAttributesExtractor{}).
+		AddContextCustomizers(customizer)
+	prop := mockProp{"test"}
+	return builder.BuildPropagatingFromUpstreamInstrumenter(func(request testRequest) propagation.TextMapCarrier {
+		return &prop
+	}, &myTextMapProp{})
+}
+
+// Every builder must hand the registered context customizers to the instrumenter it produces,
+// otherwise a customizer silently never runs for the propagating-from-upstream variant.
+func TestPropFromUpStreamContextCustomizers(t *testing.T) {
+	ctx := context.Background()
+	customizer := &countingContextCustomizer{}
+	instrumenter := newFromUpstreamInstrumenter(customizer)
+
+	newCtx := instrumenter.Start(ctx, testRequest{})
+	if newCtx.Value("test-customizer") != "test-customizer" {
+		t.Fatal("context customizer was not applied by Start")
+	}
+	if customizer.count != 1 {
+		t.Fatalf("Start applied the context customizer %d times, want 1", customizer.count)
+	}
+
+	customizer.count = 0
+	instrumenter.StartAndEnd(ctx, testRequest{}, testResponse{}, nil, time.Now(), time.Now())
+	if customizer.count != 1 {
+		t.Errorf("StartAndEnd applied the context customizer %d times, want 1", customizer.count)
+	}
+
+	customizer.count = 0
+	instrumenter.StartAndEndWithOptions(ctx, testRequest{}, testResponse{}, nil, time.Now(), time.Now(), nil, nil)
+	if customizer.count != 1 {
+		t.Errorf("StartAndEndWithOptions applied the context customizer %d times, want 1", customizer.count)
+	}
+}
+
 func TestPropToDownStream(t *testing.T) {
 	builder := Builder[testRequest, testResponse]{}
 	builder.Init().

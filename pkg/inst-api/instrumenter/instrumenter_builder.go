@@ -170,6 +170,7 @@ func (b *Builder[REQUEST, RESPONSE]) BuildPropagatingFromUpstreamInstrumenter(ca
 			spanStatusExtractor:  b.SpanStatusExtractor,
 			attributesExtractors: b.AttributesExtractors,
 			operationListeners:   b.OperationListeners,
+			contextCustomizers:   b.ContextCustomizers,
 			spanSuppressor:       b.buildSpanSuppressor(),
 			tracer:               tracer,
 			instVersion:          b.InstVersion,

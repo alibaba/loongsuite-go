@@ -156,8 +156,17 @@ func (h *HttpServerMetric) OnAfterStart(context context.Context, endTime time.Ti
 	return
 }
 
-func (h *HttpServerMetric) OnAfterEnd(context context.Context, endAttributes []attribute.KeyValue, endTime time.Time) {
-	mc := context.Value(h.key).(httpMetricContext)
+func (h *HttpServerMetric) OnAfterEnd(ctx context.Context, endAttributes []attribute.KeyValue, endTime time.Time) {
+	v := ctx.Value(h.key)
+	if v == nil {
+		log.Printf("HttpServerMetric.OnAfterEnd: missing metric context for key %q; skipping record", h.key)
+		return
+	}
+	mc, ok := v.(httpMetricContext)
+	if !ok {
+		log.Printf("HttpServerMetric.OnAfterEnd: invalid metric context type for key %q; skipping record", h.key)
+		return
+	}
 	startTime, startAttributes := mc.startTime, mc.startAttributes
 	// end attributes should be shadowed by AttrsShadower
 	if h.serverRequestDuration == nil {
@@ -170,7 +179,7 @@ func (h *HttpServerMetric) OnAfterEnd(context context.Context, endAttributes []a
 	endAttributes = append(endAttributes, startAttributes...)
 	n, metricsAttrs := utils.Shadow(endAttributes, httpMetricsConv)
 	if h.serverRequestDuration != nil {
-		h.serverRequestDuration.Record(context, float64(endTime.Sub(startTime).Milliseconds()), metric.WithAttributeSet(attribute.NewSet(metricsAttrs[0:n]...)))
+		h.serverRequestDuration.Record(ctx, float64(endTime.Sub(startTime).Milliseconds()), metric.WithAttributeSet(attribute.NewSet(metricsAttrs[0:n]...)))
 	}
 }
 
@@ -189,8 +198,17 @@ func (h HttpClientMetric) OnAfterStart(context context.Context, endTime time.Tim
 	return
 }
 
-func (h HttpClientMetric) OnAfterEnd(context context.Context, endAttributes []attribute.KeyValue, endTime time.Time) {
-	mc := context.Value(h.key).(httpMetricContext)
+func (h HttpClientMetric) OnAfterEnd(ctx context.Context, endAttributes []attribute.KeyValue, endTime time.Time) {
+	v := ctx.Value(h.key)
+	if v == nil {
+		log.Printf("HttpClientMetric.OnAfterEnd: missing metric context for key %q; skipping record", h.key)
+		return
+	}
+	mc, ok := v.(httpMetricContext)
+	if !ok {
+		log.Printf("HttpClientMetric.OnAfterEnd: invalid metric context type for key %q; skipping record", h.key)
+		return
+	}
 	startTime, startAttributes := mc.startTime, mc.startAttributes
 	// end attributes should be shadowed by AttrsShadower
 	if h.clientRequestDuration == nil {
@@ -204,6 +222,6 @@ func (h HttpClientMetric) OnAfterEnd(context context.Context, endAttributes []at
 	endAttributes = append(endAttributes, startAttributes...)
 	n, metricsAttrs := utils.Shadow(endAttributes, httpMetricsConv)
 	if h.clientRequestDuration != nil {
-		h.clientRequestDuration.Record(context, float64(endTime.Sub(startTime).Milliseconds()), metric.WithAttributeSet(attribute.NewSet(metricsAttrs[0:n]...)))
+		h.clientRequestDuration.Record(ctx, float64(endTime.Sub(startTime).Milliseconds()), metric.WithAttributeSet(attribute.NewSet(metricsAttrs[0:n]...)))
 	}
 }

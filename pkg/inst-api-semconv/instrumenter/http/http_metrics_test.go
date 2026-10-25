@@ -18,6 +18,7 @@ import (
 	"context"
 	"github.com/alibaba/loongsuite-go/pkg/inst-api-semconv/instrumenter/utils"
 	"go.opentelemetry.io/otel/attribute"
+	otelmetric "go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/metric/metricdata"
 	"go.opentelemetry.io/otel/sdk/resource"
@@ -75,6 +76,71 @@ func TestHttpClientMetrics(t *testing.T) {
 	reader.Collect(ctx, rm)
 	if rm.ScopeMetrics[0].Metrics[0].Name != "http.client.request.duration" {
 		panic("wrong metrics name, " + rm.ScopeMetrics[0].Metrics[0].Name)
+	}
+}
+
+type metricEndListener interface {
+	OnAfterEnd(ctx context.Context, endAttributes []attribute.KeyValue, endTime time.Time)
+}
+
+func newServerEndListener(t *testing.T, meter otelmetric.Meter) metricEndListener {
+	server, err := newHttpServerMetric("test", meter)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return server
+}
+
+func newClientEndListener(t *testing.T, meter otelmetric.Meter) metricEndListener {
+	client, err := newHttpClientMetric("test", meter)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return client
+}
+
+// An instrumenter can hand OnAfterEnd a context that never went through OnBeforeEnd, so the
+// metric context has to be looked up defensively like DbClientMetric does.
+func TestHttpMetricsOnAfterEndWithoutMetricContext(t *testing.T) {
+	tests := []struct {
+		name      string
+		newClient bool
+		ctx       context.Context
+	}{
+		{"server missing context", false, context.Background()},
+		{"client missing context", true, context.Background()},
+		{"server wrong context type", false, context.WithValue(context.Background(), attribute.Key("test"), "not-a-httpMetricContext")},
+		{"client wrong context type", true, context.WithValue(context.Background(), attribute.Key("test"), "not-a-httpMetricContext")},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			reader := metric.NewManualReader()
+			res := resource.NewWithAttributes(
+				semconv.SchemaURL,
+				semconv.ServiceName("my-service"),
+				semconv.ServiceVersion("v0.1.0"),
+			)
+			mp := metric.NewMeterProvider(metric.WithResource(res), metric.WithReader(reader))
+			var listener metricEndListener
+			if tt.newClient {
+				listener = newClientEndListener(t, mp.Meter("test-meter"))
+			} else {
+				listener = newServerEndListener(t, mp.Meter("test-meter"))
+			}
+
+			listener.OnAfterEnd(tt.ctx, []attribute.KeyValue{}, time.Now())
+
+			rm := &metricdata.ResourceMetrics{}
+			if err := reader.Collect(context.Background(), rm); err != nil {
+				t.Fatal(err)
+			}
+			for _, sm := range rm.ScopeMetrics {
+				for _, m := range sm.Metrics {
+					t.Errorf("expected nothing to be recorded, got %s", m.Name)
+				}
+			}
+		})
 	}
 }
 

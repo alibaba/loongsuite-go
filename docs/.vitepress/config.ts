@@ -62,6 +62,19 @@ export default {
                   ]
                 },
                 {
+                  text: '🌱 Beginner\'s Guide',
+                  items: [
+                    { text: 'Start Here', link: '/beginner/' },
+                    { text: '1. Why Instrument', link: '/beginner/why-instrument' },
+                    { text: '2. Packages, Modules and go.mod', link: '/beginner/modules' },
+                    { text: '3. Build Time and Run Time', link: '/beginner/build-and-run' },
+                    { text: '4. Rules and Hooks', link: '/beginner/rules-and-hooks' },
+                    { text: '5. Why Add Dependencies', link: '/beginner/dependencies' },
+                    { text: '6. Traces and Spans', link: '/beginner/traces-and-spans' },
+                    { text: '7. Hands-on: Your First Custom Hook', link: '/beginner/first-hook' },
+                  ]
+                },
+                {
                     text: '🔧 Developer Guide',
                     items: [
                         { text: 'Overview', link: '/dev/overview' },
@@ -103,6 +116,19 @@ export default {
                     { text: '上下文传播', link: '/zh/user/context-propagation' },
                     { text: 'OpenTelemetry 配置', link: '/zh/user/sdk-config' },
                     { text: '支持的库', link: '/zh/user/supported-libraries' },
+                  ]
+                },
+                {
+                  text: '🌱 新手指南',
+                  items: [
+                    { text: '从这里开始', link: '/zh/beginner/' },
+                    { text: '1. 为什么要插桩', link: '/zh/beginner/why-instrument' },
+                    { text: '2. 包、模块与 go.mod', link: '/zh/beginner/modules' },
+                    { text: '3. 构建时与运行时', link: '/zh/beginner/build-and-run' },
+                    { text: '4. 规则与 hook', link: '/zh/beginner/rules-and-hooks' },
+                    { text: '5. 为什么要补依赖', link: '/zh/beginner/dependencies' },
+                    { text: '6. Trace 与 Span', link: '/zh/beginner/traces-and-spans' },
+                    { text: '7. 动手：第一个自定义 hook', link: '/zh/beginner/first-hook' },
                   ]
                 },
                 {

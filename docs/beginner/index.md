@@ -36,4 +36,4 @@ Pages 1–6 include seven looping diagrams; page 2 has separate diagrams for pac
 
 ## Community resources
 
-The community-maintained [LoongSuite Go Guide](https://qinghua362330.github.io/loongsuite-go-guide/) (Chinese only) provides interactive diagrams and exercises. It is maintained independently of the official documentation and is optional for this guide.
+The community-maintained [LoongSuite Go Guide](https://qinghua362330.github.io/loongsuite-go-guide/?lang=en) (English and Simplified Chinese) provides interactive diagrams and exercises. It is maintained independently of the official documentation and is optional for this guide.

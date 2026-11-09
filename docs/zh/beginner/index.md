@@ -36,4 +36,4 @@
 
 ## 社区资源
 
-社区维护的 [LoongSuite Go 中文学习指南](https://qinghua362330.github.io/loongsuite-go-guide/)提供互动图解和练习。它独立于官方文档维护，是本指南的可选补充。
+社区维护的 [LoongSuite Go 学习指南](https://qinghua362330.github.io/loongsuite-go-guide/?lang=zh)提供中英文互动图解和练习。它独立于官方文档维护，是本指南的可选补充。

@@ -21,16 +21,16 @@ otel go build -o demo .
 
 `otel` doesn't change code while the program runs. It adds observation code at build time, and what runs afterwards is **a program that already contains the observation code**.
 
-[![Animation: build time and run time](/beginner/build-en.svg)](/beginner/build-en.svg)
+![Animation: build time and run time](../public/beginner/build-en.svg)
 
 ## What otel does during the build
 
-The [Hacking Guide overview](../hacking/overview.md) describes two extra phases that happen before the actual compilation:
+The [Hacking Guide overview](../hacking/overview.md) describes two extra phases involved in the build:
 
 1. **Preprocess**: analyze the project's dependencies, select the rules to apply, and prepare the dependencies those rules need.
 2. **Instrument**: generate code from the rules and add it to the source passed to the compiler.
 
-Between the two phases, the tool takes over compilation through Go's built-in `-toolexec` flag. Each time `go build` invokes the compiler, linker or another tool, it calls `otel` first, which decides whether to rewrite the input and then runs the real tool.
+At the end of preprocessing, the tool runs `go build` with Go's built-in `-toolexec` flag. Each compiler invocation is routed back to `otel`, which performs the instrument phase before running the real compiler. Instrumentation therefore happens inside those tool invocations, rather than as a separate pass between preprocessing and the build.
 
 ## First decide which moment the problem belongs to
 
@@ -40,8 +40,6 @@ Between the two phases, the tool takes over compilation through Go's built-in `-
 | Program runs but no telemetry appears | Run time | Whether rules matched and data is exported, see [OpenTelemetry Settings](../user/sdk-config.md) |
 
 > [!NOTE]
-> Because dependencies must be prepared and a full rebuild is forced, builds are slower with `otel`. See [Compilation Time](../user/compilation-time.md).
-
-**Interactive version**: to step through the animation frame by frame and try the exercises, open [step 4 in the community-maintained LoongSuite Go Guide](https://qinghua362330.github.io/loongsuite-go-guide/#/start/4) (Chinese).
+> Because dependencies must be prepared and a full rebuild is forced by default, builds are slower with `otel`. The `-gocache` option allows reuse of the build cache. See [Compilation Time](../user/compilation-time.md).
 
 Next: [Rules and Hooks](./rules-and-hooks.md)

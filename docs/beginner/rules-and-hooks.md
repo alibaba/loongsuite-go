@@ -37,7 +37,9 @@ call RoundTrip                call RoundTrip
 
 The original body is unchanged; there are just two extra calls around it. In the real implementation, the tool inserts a small jump at the entry of the original function, which goes through a generated function (the trampoline) before calling the hook. See [Instrument Phase](../hacking/instrument.md).
 
-[![Animation: the rule finds the place, hooks do the work](/beginner/hooks-en.svg)](/beginner/hooks-en.svg)
+This diagram shows an observation-only hook. Hooks can also change execution: calling `CallContext.SetSkipCall(true)` in an OnEnter hook skips the original function body.
+
+![Animation: the rule finds the place, hooks do the work](../public/beginner/hooks-en.svg)
 
 ## Who does what
 
@@ -48,7 +50,5 @@ The original body is unchanged; there are just two extra calls around it. In the
 | Wiring | Adding hook calls around the target | Done automatically by `otel` at build time |
 
 `otel` already ships rules and hooks for many common libraries, see [Supported Libraries](../user/supported-libraries.md). You only need to write your own when the library you want to observe isn't listed, see the [Developer Guide](../dev/overview.md).
-
-**Interactive version**: to step through the animation frame by frame and try the exercises, open [step 5 in the community-maintained LoongSuite Go Guide](https://qinghua362330.github.io/loongsuite-go-guide/#/start/5) (Chinese).
 
 Next: [Why Add Dependencies](./dependencies.md)

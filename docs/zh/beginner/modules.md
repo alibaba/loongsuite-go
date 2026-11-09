@@ -30,17 +30,19 @@ func main() {
 
 `import` 写的是包的完整路径，而不是“旁边的文件夹”。Go 从 `go.mod` 里的 `module example.com/demo` 得知，这个前缀对应 `go.mod` 所在的 `demo/` 目录；完整路径去掉前缀后剩下 `room`，于是找到 `demo/room/`。
 
-[![动画：Go 怎样根据 import 路径找到 room 目录](/beginner/packages-zh.svg)](/beginner/packages-zh.svg)
+![动画：Go 怎样根据 import 路径找到 room 目录](../../public/beginner/packages-zh.svg)
 
 ## go.mod 的三行
 
 ```text
 module example.com/demo
 
-go 1.25.0
+go <go-version>
 
 require example.com/observer v1.0.0
 ```
+
+这是一段示意内容：`<go-version>` 代表 `go mod init` 写入的 Go 版本，不要原样复制。使用插桩时，请按[兼容性](../user/compatibility.md)选择支持的版本。
 
 | 行 | 含义 |
 | --- | --- |
@@ -50,10 +52,8 @@ require example.com/observer v1.0.0
 
 `require` 只是声明版本要求，不是函数调用，也不会自动给你的函数增加任何动作。**`go.mod` 只负责找到代码；代码怎样执行，由调用决定。**
 
-[![动画：同一份 go.mod 里的 module 与 require](/beginner/gomod-zh.svg)](/beginner/gomod-zh.svg)
+![动画：同一份 go.mod 里的 module 与 require](../../public/beginner/gomod-zh.svg)
 
 延伸阅读：[Go 官方：How to Write Go Code](https://go.dev/doc/code)
-
-**互动版**：社区维护的 LoongSuite Go 中文学习指南提供[第 2 步：包和模块](https://qinghua362330.github.io/loongsuite-go-guide/#/start/2)与[第 3 步：go.mod](https://qinghua362330.github.io/loongsuite-go-guide/#/start/3)，可以逐帧操作动画并做练习。
 
 下一步：[构建时与运行时](./build-and-run.md)

@@ -66,12 +66,12 @@ export default {
                   items: [
                     { text: 'Start Here', link: '/beginner/' },
                     { text: '1. Why Instrument', link: '/beginner/why-instrument' },
-                    { text: '2. Packages and Modules', link: '/beginner/modules' },
+                    { text: '2. Packages, Modules and go.mod', link: '/beginner/modules' },
                     { text: '3. Build Time and Run Time', link: '/beginner/build-and-run' },
                     { text: '4. Rules and Hooks', link: '/beginner/rules-and-hooks' },
                     { text: '5. Why Add Dependencies', link: '/beginner/dependencies' },
                     { text: '6. Traces and Spans', link: '/beginner/traces-and-spans' },
-                    { text: '7. Your First Custom Hook', link: '/beginner/first-hook' },
+                    { text: '7. Hands-on: Your First Custom Hook', link: '/beginner/first-hook' },
                   ]
                 },
                 {
@@ -128,7 +128,7 @@ export default {
                     { text: '4. 规则与 hook', link: '/zh/beginner/rules-and-hooks' },
                     { text: '5. 为什么要补依赖', link: '/zh/beginner/dependencies' },
                     { text: '6. Trace 与 Span', link: '/zh/beginner/traces-and-spans' },
-                    { text: '7. 第一个自定义 hook', link: '/zh/beginner/first-hook' },
+                    { text: '7. 动手：第一个自定义 hook', link: '/zh/beginner/first-hook' },
                   ]
                 },
                 {

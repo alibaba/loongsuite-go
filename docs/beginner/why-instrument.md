@@ -24,7 +24,7 @@ fmt.Println("FindRoom took", time.Since(start))
 
 `FindRoom` still looks up the room. The new lines only record how it ran.
 
-[![Animation: adding observation around FindRoom](/beginner/observe-en.svg)](/beginner/observe-en.svg)
+![Animation: adding observation around FindRoom](../public/beginner/observe-en.svg)
 
 ## Terms
 
@@ -39,7 +39,5 @@ This is what the `otel` tool solves: **without changing your source code, it add
 
 > [!TIP]
 > Keep the goal in mind: we are observing an **existing** program. You don't need to know any internal functions of the tool yet.
-
-**Interactive version**: to step through the animation frame by frame and try the exercises, open [step 1 in the community-maintained LoongSuite Go Guide](https://qinghua362330.github.io/loongsuite-go-guide/#/start/1) (Chinese).
 
 Next: [Packages, Modules and go.mod](./modules.md)

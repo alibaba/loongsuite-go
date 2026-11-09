@@ -49,12 +49,14 @@ main.go:5:2: no required module provides package example.com/observer; to add it
 ```text
 module example.com/demo
 
-go 1.25.0
+go <go-version>
 
 require example.com/observer v0.0.0
 
 replace example.com/observer => ../observer
 ```
+
+保留 `go mod init` 生成的 `go` 指令；这里的 `<go-version>` 只是占位符，不要原样复制。
 
 `require` 声明需要这个模块；本例的 `replace` 告诉 Go 源码在相邻的 `../observer` 目录。再次构建就能成功。注意 `go build` 只是编译，运行生成的程序时才会执行 `Record`：
 
@@ -66,7 +68,7 @@ room-42
 
 原来的返回值不变，只是多了一条观察记录。
 
-[![动画：多了一行调用，为什么编译不过](/beginner/deps-zh.svg)](/beginner/deps-zh.svg)
+![动画：多了一行调用，为什么编译不过](../../public/beginner/deps-zh.svg)
 
 ## 回到 otel
 
@@ -74,7 +76,5 @@ room-42
 
 > [!NOTE]
 > 新加入的代码还可能用到别的库，而这些库又可能命中新的规则，所以准备依赖不一定一次完成。这也是使用 `otel` 后构建变慢的原因之一，见[编译时间](../user/compilation-time.md)。
-
-**互动版**：想逐帧播放动画、做配套练习，可以打开社区维护的 [LoongSuite Go 中文学习指南 · 第 6 步](https://qinghua362330.github.io/loongsuite-go-guide/#/start/6)。
 
 下一步：[Trace 与 Span](./traces-and-spans.md)

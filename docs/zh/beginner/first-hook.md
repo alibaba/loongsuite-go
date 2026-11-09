@@ -10,7 +10,7 @@ next:
 
 我们为标准库 `net/http` 的 `(*Transport).RoundTrip` 写一个只打印日志的 hook。程序发出一次 HTTP 请求，分别用普通 `go build` 和 `otel go build` 构建，再比较输出。
 
-开始前请先[安装 `otel`](../index.md#安装)，并确认 `otel version` 可以运行。
+开始前请先[安装 `otel`](../index.md#安装)，并确认 `otel version` 可以运行。Go 和 OpenTelemetry 的要求见[兼容性](../user/compatibility.md)。如果 SDK 兼容性表尚未列出你的工具版本，请打开 [`pkg/go.mod`](https://github.com/alibaba/loongsuite-go/blob/main/pkg/go.mod)，切换到 `otel version` 显示的标签或提交，使用其中声明的 `go.opentelemetry.io/otel/sdk` 版本。由源码构建时，直接查看所用源码版本中的该文件。不要用 `main` 中的版本搭配其他工具版本。
 
 ## 1. 准备目录
 
@@ -21,7 +21,7 @@ mkdir -p hooklab/rules
 cd hooklab
 ```
 
-下面是完成实验后的目录结构。根目录的 `go.mod` 会在第 2 步生成，`rules/go.mod` 会在第 4 步编写，现在先不要创建它们。
+下面是完成实验后的目录结构。根目录的 `go.mod` 会在第 2 步生成，`rules/go.mod` 会在第 4 步生成，现在先不要创建它们。
 
 ```text
 hooklab/
@@ -69,11 +69,12 @@ func main() {
 }
 ```
 
-在 `hooklab/` 中执行：
+在 `hooklab/` 中执行以下命令，将 `vX.Y.Z` 替换成前面选定的兼容 OTel 版本（两个模块使用同一版本）：
 
 ```bash
 go mod init example.com/hooklab
-go get go.opentelemetry.io/otel@v1.45.0 go.opentelemetry.io/otel/sdk@v1.45.0
+OTEL_VERSION='vX.Y.Z'
+go get "go.opentelemetry.io/otel@${OTEL_VERSION}" "go.opentelemetry.io/otel/sdk@${OTEL_VERSION}"
 go mod tidy
 ```
 
@@ -134,23 +135,13 @@ func guideHttpExit(call api.CallContext, res *http.Response, err error) {
 
 `//go:linkname` 把这两个函数与工具生成的调用点连接起来，所以要导入 `unsafe`。
 
-`rules/go.mod` 声明 hook 依赖的 `pkg` 模块。版本应与你使用的 `otel` 工具一致，下面是 v1.15.0 对应的版本：
-
-```text
-module guidehook
-
-go 1.25.0
-
-require github.com/alibaba/loongsuite-go/pkg v0.0.0-20260928033626-cac400935add
-```
-
-然后在 `hooklab/` 中执行，生成 `rules/go.sum`：
+`rules/go.mod` 声明 hook 依赖的 `pkg` 模块。预处理时，`otel` 会将它替换成工具内嵌的副本，不需要查找与工具匹配的伪版本，也不需要下载最新插件依赖。在 `hooklab/` 中执行以下命令，创建模块并添加占位依赖：
 
 ```bash
-(cd rules && go mod download github.com/alibaba/loongsuite-go/pkg)
+(cd rules && go mod init guidehook && go mod edit -require=github.com/alibaba/loongsuite-go/pkg@v0.0.0)
 ```
 
-括号让后续命令仍在 `hooklab/` 中执行。
+括号让后续命令仍在 `hooklab/` 中执行。这里的 `v0.0.0` 是供插桩构建使用的占位符，不是需要下载或用于单独构建 `rules/` 的版本；工具内嵌的替换模块会提供实际代码。与 `pkg` 不同，业务程序的 OTel SDK 版本需要与工具兼容，按第 2 步选择即可。
 
 ## 5. 比较两次构建
 
@@ -161,7 +152,7 @@ $ go run .
 plain-result 42 status 204
 ```
 
-使用 `otel` 构建：
+在 `hooklab/` 中使用 `otel` 构建。规则中的 `"Path": "./rules"` 相对于构建目录解析：
 
 ```bash
 $ otel set -disable= -rule="$PWD/rule.json"
@@ -177,11 +168,17 @@ hook-exit status=204
 plain-result 42 status 204
 ```
 
-两次构建的业务结果都是 `plain-result 42 status 204`，插桩后的程序多了 hook 的两行输出。这说明规则命中了 `RoundTrip`，hook 在请求前后执行，原来的结果没有改变。
+两次构建的业务结果都是 `plain-result 42 status 204`，插桩后的程序在 GET 请求前后打印了 hook 的两行输出。这说明规则命中了 `RoundTrip`，hook 在请求前后执行，原来的结果没有改变。
 
 > [!NOTE]
-> - `-disable=` 表示保留全部默认规则，`-rule` 在此基础上追加你的规则。不要用 `-disable=all`，它会去掉工具自身需要的规则。参数说明见[命令行参考](../user/config.md)。
-> - 如果本机没有运行 OpenTelemetry Collector，终端可能还会出现数据导出失败的日志，这不影响本实验。导出器的设置见 [OpenTelemetry 配置](../user/sdk-config.md)。
+> - `-disable=` 表示保留全部默认规则，`-rule` 在此基础上追加你的规则。`-disable=all` 会关闭内置库规则，但仍保留 `base.json` 和你的自定义规则；此时不会生成内置 net/http 规则的 Span。参数说明见[命令行参考](../user/config.md)。
+> - 数据导出可能发出额外的 HTTP 请求，因此终端也可能出现 POST 请求的 hook 日志。如果本机没有运行 OpenTelemetry Collector，还可能出现数据导出失败的日志，这不影响本实验。导出器的设置见 [OpenTelemetry 配置](../user/sdk-config.md)。
+
+`otel set` 会把自定义规则保存到 `.otel-build/conf.json`，之后在同一目录构建时仍会应用。实验结束后，在 `hooklab/` 中清除它：
+
+```bash
+otel set -rule=
+```
 
 ## 没有看到 hook 输出？
 
@@ -190,8 +187,6 @@ plain-result 42 status 204
 1. 规则有没有命中？在 `.otel-build/matched.json` 中搜索 `net/http`，确认你的规则在里面。其他调试方法见[调试](../hacking/debug.md)。
 2. 构建有没有报错？检查 hook 签名是否与目标函数一致。
 3. 运行的是不是 `./instrumented`，而不是 `go run .` 生成的普通程序？
-
-**互动版**：社区维护的 [LoongSuite Go 中文学习指南 · 动手实验](https://qinghua362330.github.io/loongsuite-go-guide/#/labs) 提供本页实验的完整文件和一键运行脚本。
 
 ## 接下来
 

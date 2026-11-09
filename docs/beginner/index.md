@@ -26,12 +26,14 @@ The [User Guide](../index.md) shows how to use `otel`, while the [Developer Guid
 
 ## Before you start
 
-- Go 1.25 or later (see [Compatibility](../user/compatibility.md) for why).
+- A Go version supported by your `otel` release; see [Compatibility](../user/compatibility.md) for the Go and OpenTelemetry requirements.
 - Steps 1 to 6 are reading only; their examples run with a plain `go run`.
 - Step 7 requires the `otel` tool. See [Installation](../index.md#installation).
 
-## Interactive version
+## Diagrams
 
-Pages 1–6 include seven looping diagrams; page 2 has separate diagrams for packages and for go.mod. Click an image to view it at full size on a small screen. Reduced-motion and print modes show the final stage; the full sequence is also explained in the text.
+Pages 1–6 include seven looping diagrams; page 2 has separate diagrams for packages and for go.mod. Reduced-motion and print modes show the final stage; the full sequence is also explained in the text.
 
-To step through diagrams and try exercises, use the community-maintained [LoongSuite Go Guide](https://qinghua362330.github.io/loongsuite-go-guide/) (Chinese). Each page links to the relevant lesson; page 7 links to the hands-on labs.
+## Community resources
+
+The community-maintained [LoongSuite Go Guide](https://qinghua362330.github.io/loongsuite-go-guide/) (Chinese only) provides interactive diagrams and exercises. It is maintained independently of the official documentation and is optional for this guide.

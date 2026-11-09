@@ -24,7 +24,7 @@ fmt.Println("FindRoom took", time.Since(start))
 
 `FindRoom` 仍然负责查房间，新增的代码只负责记录它是怎样执行的。
 
-[![动画：给 FindRoom 加上前后观察动作](/beginner/observe-zh.svg)](/beginner/observe-zh.svg)
+![动画：给 FindRoom 加上前后观察动作](../../public/beginner/observe-zh.svg)
 
 ## 名词
 
@@ -39,7 +39,5 @@ fmt.Println("FindRoom took", time.Since(start))
 
 > [!TIP]
 > 记住目的：我们是在观察一个**已有的**程序。暂时不需要了解任何工具内部函数。
-
-**互动版**：想逐帧播放动画、做配套练习，可以打开社区维护的 [LoongSuite Go 中文学习指南 · 第 1 步](https://qinghua362330.github.io/loongsuite-go-guide/#/start/1)。
 
 下一步：[包、模块与 go.mod](./modules.md)

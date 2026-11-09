@@ -37,7 +37,9 @@
 
 原函数体不变，只是在前后多了两次调用。真实实现中，工具会在原函数入口插入一小段跳转代码，经过一个生成的中间函数（trampoline）再调用 hook，详见[埋点阶段](../hacking/instrument.md)。
 
-[![动画：规则找位置，hook 做动作](/beginner/hooks-zh.svg)](/beginner/hooks-zh.svg)
+上图展示的是只做观察的 hook。hook 也可以改变执行过程：在 OnEnter hook 中调用 `CallContext.SetSkipCall(true)` 就能跳过原函数体。
+
+![动画：规则找位置，hook 做动作](../../public/beginner/hooks-zh.svg)
 
 ## 记住分工
 
@@ -48,7 +50,5 @@
 | 接入 | 把 hook 调用加到目标函数前后 | `otel` 在构建时自动完成 |
 
 `otel` 已经为大量常用库提供了规则和 hook，见[支持的库](../user/supported-libraries.md)。只有你要观察的库不在列表中时，才需要自己写，见[开发者指南](../dev/overview.md)。
-
-**互动版**：想逐帧播放动画、做配套练习，可以打开社区维护的 [LoongSuite Go 中文学习指南 · 第 5 步](https://qinghua362330.github.io/loongsuite-go-guide/#/start/5)。
 
 下一步：[为什么要补依赖](./dependencies.md)

@@ -21,16 +21,16 @@ otel go build -o demo .
 
 `otel` 不会在程序运行时改代码。它在构建时把观察代码加进去，之后运行的是**已经包含观察代码的程序**。
 
-[![动画：构建时与运行时](/beginner/build-zh.svg)](/beginner/build-zh.svg)
+![动画：构建时与运行时](../../public/beginner/build-zh.svg)
 
 ## otel 在构建中做了什么
 
-[黑客指南·概述](../hacking/overview.md)把它分成两个额外阶段，发生在真正编译之前：
+[黑客指南·概述](../hacking/overview.md)介绍了构建中的两个额外阶段：
 
 1. **预处理**：分析项目依赖，选出要用的规则，并准备这些规则需要的依赖。
 2. **埋点**：根据规则生成代码，把它加入交给编译器的源码中。
 
-两个阶段之间，工具使用 Go 自带的 `-toolexec` 参数接管编译。`go build` 每次调用编译器、链接器等工具时，会先调用 `otel`，由它决定是否改写输入，再执行真正的工具。
+预处理结束时，工具使用 Go 自带的 `-toolexec` 参数启动 `go build`。每次编译器调用都会先进入 `otel`，完成埋点阶段后再执行真正的编译器。因此埋点发生在这些工具调用内部，而不是预处理与构建之间的独立步骤。
 
 ## 先判断问题出在哪个时刻
 
@@ -40,8 +40,6 @@ otel go build -o demo .
 | 程序能运行，但没有观察数据 | 运行时 | 是否命中规则、数据是否导出，见 [OpenTelemetry 配置](../user/sdk-config.md) |
 
 > [!NOTE]
-> 由于需要准备依赖并强制完整重新编译，使用 `otel` 后构建会变慢，见[编译时间](../user/compilation-time.md)。
-
-**互动版**：想逐帧播放动画、做配套练习，可以打开社区维护的 [LoongSuite Go 中文学习指南 · 第 4 步](https://qinghua362330.github.io/loongsuite-go-guide/#/start/4)。
+> 由于需要准备依赖，且默认强制完整重新编译，使用 `otel` 后构建会变慢。`-gocache` 选项允许复用构建缓存，见[编译时间](../user/compilation-time.md)。
 
 下一步：[规则与 hook](./rules-and-hooks.md)

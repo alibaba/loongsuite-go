@@ -18,7 +18,7 @@ HTTP 请求          Trace=A  Span=01
 
 只看相同的 Trace ID，无法知道调用顺序；要沿着 Parent 才能还原调用关系。（`A`、`01` 等是便于阅读的简化编号，真实 ID 是随机生成的十六进制字符串。）
 
-[![动画：把同一次请求的记录连成调用树](/beginner/trace-zh.svg)](/beginner/trace-zh.svg)
+![动画：把同一次请求的记录连成调用树](../../public/beginner/trace-zh.svg)
 
 ## 父 Span 从哪里来
 
@@ -29,13 +29,11 @@ _, span := tracer.Start(r.Context(), "db init")
 defer span.End()
 ```
 
-如果某一步传了 `context.Background()`，链路就会在那里断开。`otel` 会把 Span 额外保存在协程中，作为没有正确传递 context 时的补救，详见[上下文传播](../user/context-propagation.md)。
+如果某一步传了 `context.Background()`，显式传递的 context 链就会断开。`otel` 会把 Span 保存在协程本地存储（GLS）中作为补救，因此很多场景仍能连接链路，但传递真实的 `ctx` 才是可靠的做法，详见[上下文传播](../user/context-propagation.md)。
 
 ## 接下来读
 
 - [手动埋点](../user/manual-instrument.md)：在自动生成的 Span 下加入自己的 Span。
 - [OpenTelemetry 配置](../user/sdk-config.md)：设置服务名、导出器和采样。试验时可以用 `OTEL_TRACES_EXPORTER=console` 把 Span 打印到终端。
-
-**互动版**：想逐帧播放动画、做配套练习，可以打开社区维护的 [LoongSuite Go 中文学习指南 · 第 7 步](https://qinghua362330.github.io/loongsuite-go-guide/#/start/7)。
 
 下一步：[动手：第一个自定义 hook](./first-hook.md)

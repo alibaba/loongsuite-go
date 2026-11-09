@@ -18,7 +18,7 @@ HTTP request        Trace=A  Span=01
 
 The same Trace ID alone doesn't give you the call order; you follow the parents to rebuild the call relationships. (`A`, `01` and so on are simplified for reading; real IDs are random hexadecimal strings.)
 
-[![Animation: linking records of one request into a tree](/beginner/trace-en.svg)](/beginner/trace-en.svg)
+![Animation: linking records of one request into a tree](../public/beginner/trace-en.svg)
 
 ## Where the parent comes from
 
@@ -29,13 +29,11 @@ _, span := tracer.Start(r.Context(), "db init")
 defer span.End()
 ```
 
-If some step passes `context.Background()`, the trace breaks there. `otel` also stores spans in the goroutine as a fallback when the context isn't passed correctly. See [Context Propagation](../user/context-propagation.md).
+If some step passes `context.Background()`, the explicit context chain is broken. `otel` stores spans in goroutine-local storage (GLS) as a fallback, so many cases still connect, but passing the real `ctx` is the reliable way. See [Context Propagation](../user/context-propagation.md).
 
 ## Read next
 
 - [Manual Instrumentation](../user/manual-instrument.md): add your own spans under the automatically created ones.
 - [OpenTelemetry Settings](../user/sdk-config.md): set the service name, exporters and sampling. While experimenting, `OTEL_TRACES_EXPORTER=console` prints spans to the terminal.
-
-**Interactive version**: to step through the animation frame by frame and try the exercises, open [step 7 in the community-maintained LoongSuite Go Guide](https://qinghua362330.github.io/loongsuite-go-guide/#/start/7) (Chinese).
 
 Next: [Hands-on: Your First Custom Hook](./first-hook.md)
